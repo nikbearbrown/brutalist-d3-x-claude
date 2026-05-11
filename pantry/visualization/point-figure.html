@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Filtered Price Action Reveals Supply and Demand Shifts</title>
+  <meta name="description" content="Point and Figure Chart: time-independent X and O columns reveal supply-demand breakouts, support and resistance levels, and trend changes without time-scale distortion.">
+  <meta name="keywords" content="point and figure chart, P&F chart, supply demand, breakout, support resistance, D3.js, financial chart, brutalist design, hai palette, price action, time-independent">
+  <meta name="author" content="Nik Bear Brown">
+  <meta name="category" content="Finance / Technical Analysis">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <style>
+    :root {
+      --p1: #1B1B1B;
+      --p2: #5C3317;
+      --p3: #B52C2C;
+      --p4: #F7FAFD;
+      --p5: #4A4D4F;
+      --p6: #797C7F;
+      --p7: #EDEDED;
+      --p8: #FFFFFF;
+      --font: 'JetBrains Mono', monospace;
+      --bull: #5C3317;
+      --bear: #B52C2C;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      font-family: var(--font);
+      background: var(--p8);
+      color: var(--p1);
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+
+    .slide {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: clamp(2rem, 4vw, 4.5rem) clamp(1.5rem, 6vw, 6.5rem);
+      border-bottom: 2px solid var(--p7);
+    }
+
+    .slide-meta { margin-bottom: 1rem; }
+
+    .label {
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.13em;
+      color: var(--p6);
+      text-transform: uppercase;
+    }
+
+    .slide-title {
+      font-size: clamp(14px, 2.2vw, 25px);
+      font-weight: 800;
+      text-transform: uppercase;
+      line-height: 1.15;
+      max-width: 74ch;
+      margin-bottom: 1.2rem;
+      border-left: 4px solid var(--p2);
+      padding-left: 1rem;
+      animation: fadeUp 0.5s ease-out both 0.1s;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── STATS BAR ───────────────────────────────────────────── */
+    .stats-bar {
+      display: flex;
+      gap: clamp(0.8rem, 2.5vw, 2rem);
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      animation: fadeUp 0.5s ease-out both 0.2s;
+    }
+
+    .stat-item { line-height: 1.3; }
+
+    .stat-label {
+      font-size: 9px;
+      letter-spacing: 0.13em;
+      color: var(--p6);
+      text-transform: uppercase;
+      display: block;
+    }
+
+    .stat-value {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--p2);
+    }
+
+    .stat-value.bear { color: var(--p3); }
+    .stat-value.neutral { color: var(--p5); }
+
+    /* ── VIZ ─────────────────────────────────────────────────── */
+    .viz-container {
+      flex: 1;
+      min-height: 400px;
+      position: relative;
+      border: 1px solid var(--p7);
+      overflow-x: auto;
+      overflow-y: hidden;
+      background: var(--p8);
+    }
+
+    #chart { display: block; overflow: visible; }
+
+    /* ── TOOLTIP ─────────────────────────────────────────────── */
+    .tooltip {
+      position: fixed;
+      pointer-events: none;
+      background: var(--p1);
+      color: var(--p8);
+      font-family: var(--font);
+      font-size: 11px;
+      padding: 9px 14px;
+      border: 1px solid var(--p2);
+      opacity: 0;
+      transition: opacity 0.1s;
+      z-index: 200;
+      line-height: 1.9;
+      min-width: 180px;
+    }
+
+    .tooltip strong { color: var(--p2); display: block; font-size: 12px; }
+    .tooltip .bear-txt { color: #e07070; }
+    .tooltip .bull-txt { color: #9b8060; }
+
+    /* ── CONTROLS ────────────────────────────────────────────── */
+    .controls {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      margin-top: 1.1rem;
+      flex-wrap: wrap;
+      animation: fadeUp 0.5s ease-out both 0.3s;
+    }
+
+    .ctl-group { display: flex; align-items: center; gap: 0.5rem; }
+
+    .ctl-label {
+      font-size: 10px;
+      color: var(--p6);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 90px;
+      height: 3px;
+      background: var(--p7);
+      outline: none;
+      border-radius: 0;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 11px; height: 11px;
+      background: var(--p2);
+      border: none; border-radius: 0;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 11px; height: 11px;
+      background: var(--p2);
+      border: none; border-radius: 0;
+    }
+
+    .slider-val {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--p2);
+      min-width: 34px;
+    }
+
+    .sep { width: 1px; height: 20px; background: var(--p7); }
+
+    .btn {
+      font-family: var(--font);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: transparent;
+      color: var(--p1);
+      border: 1px solid var(--p5);
+      padding: 5px 12px;
+      cursor: pointer;
+      transition: background 0.14s, color 0.14s;
+      white-space: nowrap;
+    }
+
+    .btn:hover, .btn.active { background: var(--p1); color: var(--p8); }
+    .btn:focus { outline: 2px solid var(--p2); outline-offset: 2px; }
+
+    .hint { font-size: 9px; color: var(--p6); letter-spacing: 0.08em; margin-top: 0.4rem; }
+
+    /* ── LEGEND ──────────────────────────────────────────────── */
+    .chart-legend {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 10px;
+      color: var(--p5);
+      letter-spacing: 0.08em;
+    }
+
+    .legend-swatch {
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .legend-swatch.bull { color: var(--bull); }
+    .legend-swatch.bear { color: var(--bear); }
+    .legend-swatch.sr   { color: var(--p6); font-size: 10px; }
+
+    /* ── NAV DOTS ────────────────────────────────────────────── */
+    .nav-dots {
+      position: fixed;
+      right: clamp(0.75rem, 2.5vw, 2rem);
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      z-index: 100;
+    }
+
+    .navdot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--p7);
+      border: 1px solid var(--p6);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .navdot.active { background: var(--p2); border-color: var(--p2); }
+
+    /* ── LEARN ───────────────────────────────────────────────── */
+    .slide-learn { background: var(--p4); }
+
+    .learn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem 3rem;
+      max-width: 112ch;
+    }
+
+    @media (max-width: 720px) { .learn-grid { grid-template-columns: 1fr; } }
+
+    .learn-block h2 {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--p2);
+      letter-spacing: 0.1em;
+      margin: 0 0 0.6rem;
+      padding-bottom: 0.35rem;
+      border-bottom: 1px solid var(--p7);
+    }
+
+    .learn-block p {
+      font-size: clamp(11px, 1.1vw, 13px);
+      line-height: 1.9;
+      color: var(--p1);
+      margin-bottom: 0.65rem;
+    }
+
+    .pf-anatomy {
+      width: 100%;
+      max-width: 320px;
+      margin: 0.75rem 0;
+      display: block;
+    }
+
+    .framework-ref {
+      grid-column: 1 / -1;
+      padding: 1rem 1.25rem;
+      border-left: 4px solid var(--p2);
+      background: var(--p8);
+    }
+
+    .framework-ref p { font-size: 12px; color: var(--p5); line-height: 1.75; }
+
+    footer {
+      padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1.5rem, 6vw, 6.5rem);
+      border-top: 2px solid var(--p7);
+    }
+
+    footer p { font-size: 11px; color: var(--p6); line-height: 1.9; }
+  </style>
+</head>
+<body>
+
+<div class="tooltip" id="tooltip" role="tooltip"></div>
+
+<nav class="nav-dots" aria-label="Slide navigation">
+  <div class="navdot active" data-slide="0" tabindex="0" role="button" aria-label="Chart slide"></div>
+  <div class="navdot"        data-slide="1" tabindex="0" role="button" aria-label="Learn panel"></div>
+</nav>
+
+<!-- ── SLIDE 1 ───────────────────────────────────────────────── -->
+<section class="slide" id="slide-01" aria-label="Point and Figure chart: supply and demand breakout analysis">
+  <div class="slide-meta">
+    <span class="label">// POINT & FIGURE — TIME-INDEPENDENT PRICE ACTION</span>
+  </div>
+  <h1 class="slide-title">Demand breakouts dominate the first half — supply reasserts at resistance and holds</h1>
+
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-label">Columns</span>
+      <span class="stat-value" id="stat-cols">—</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Box size</span>
+      <span class="stat-value" id="stat-box">—</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Reversal</span>
+      <span class="stat-value neutral" id="stat-rev">—</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Current signal</span>
+      <span class="stat-value" id="stat-signal">—</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Hovered</span>
+      <span class="stat-value neutral" id="stat-hover">—</span>
+    </div>
+  </div>
+
+  <div class="viz-container" id="chart-container">
+    <svg id="chart"
+      role="img"
+      aria-labelledby="chart-title-el"
+      aria-describedby="chart-desc-el">
+      <title id="chart-title-el">Point and Figure Chart — Fictional Equity Price Action</title>
+      <desc id="chart-desc-el">
+        Columns of X symbols (walnut) represent rising price action where demand overtakes supply.
+        Columns of O symbols (blood-red) represent falling price action where supply overtakes demand.
+        Column width and reversal parameters filter market noise. Horizontal dashed lines mark
+        support and resistance levels derived from prior column extremes.
+      </desc>
+    </svg>
+  </div>
+
+  <div class="chart-legend">
+    <div class="legend-item"><span class="legend-swatch bull">X</span> Rising — demand overtakes supply</div>
+    <div class="legend-item"><span class="legend-swatch bear">O</span> Falling — supply overtakes demand</div>
+    <div class="legend-item"><span class="legend-swatch sr">- -</span> Support / Resistance levels</div>
+  </div>
+
+  <div class="controls">
+    <div class="ctl-group">
+      <span class="ctl-label">Box $</span>
+      <input type="range" id="box-slider" min="1" max="8" step="1" value="2"
+        aria-label="Box size in dollars" tabindex="0">
+      <span class="slider-val" id="box-val">$2</span>
+    </div>
+    <div class="ctl-group">
+      <span class="ctl-label">Reversal</span>
+      <input type="range" id="rev-slider" min="2" max="6" step="1" value="3"
+        aria-label="Reversal multiplier (boxes)" tabindex="0">
+      <span class="slider-val" id="rev-val">3×</span>
+    </div>
+    <div class="sep" aria-hidden="true"></div>
+    <button class="btn active" id="btn-sr"      aria-pressed="true"  tabindex="0">Support / Resistance</button>
+    <button class="btn active" id="btn-months"  aria-pressed="true"  tabindex="0">Month markers</button>
+    <div class="sep" aria-hidden="true"></div>
+    <button class="btn" id="audio-toggle" tabindex="0" aria-label="Play narration">▶ narration</button>
+  </div>
+  <p class="hint">Adjust box size and reversal to filter more or less market noise · Hover symbols for price + date details</p>
+</section>
+
+<!-- ── SLIDE 2 ───────────────────────────────────────────────── -->
+<section class="slide slide-learn" id="slide-02" aria-label="Learn: Point and Figure Chart">
+  <div class="slide-meta">
+    <span class="label">// LEARN — POINT & FIGURE CHART</span>
+  </div>
+  <h1 class="slide-title">What a P&F chart encodes — and why time disappears from the x-axis</h1>
+
+  <div class="learn-grid">
+
+    <div class="learn-block">
+      <h2>What this chart is</h2>
+      <p>A Point & Figure Chart encodes price action as a sequence of columns, each containing either X symbols (rising price, demand dominant) or O symbols (falling price, supply dominant). The x-axis is <em>not a time scale</em> — it is a column index. Time only appears as month markers on the first symbol of any new month, and these are informational annotations, not axis positions. The y-axis is the price scale.</p>
+      <p>Two parameters control the chart's resolution. The <strong>box size</strong> sets the minimum price move required to add a new symbol — it filters out moves smaller than this threshold. The <strong>reversal amount</strong> (expressed as a multiple of box size) sets the minimum price move in the opposite direction required to start a new column. Together they act as a two-stage noise filter: box size filters micro-fluctuations, reversal amount filters minor retracements.</p>
+    </div>
+
+    <div class="learn-block">
+      <h2>Anatomy of the encoding</h2>
+      <svg class="pf-anatomy" viewBox="0 0 300 240" xmlns="http://www.w3.org/2000/svg"
+        aria-label="Point and Figure anatomy: X column, O column, reversal, box size, support and resistance lines">
+
+        <!-- Y axis -->
+        <line x1="40" y1="10" x2="40" y2="210" stroke="#EDEDED" stroke-width="1.5"/>
+
+        <!-- Price labels -->
+        <text x="35" y="40"  text-anchor="end" font-family="JetBrains Mono,monospace" font-size="8" fill="#797C7F">$52</text>
+        <text x="35" y="60"  text-anchor="end" font-family="JetBrains Mono,monospace" font-size="8" fill="#797C7F">$50</text>
+        <text x="35" y="80"  text-anchor="end" font-family="JetBrains Mono,monospace" font-size="8" fill="#797C7F">$48</text>
+        <text x="35" y="100" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="8" fill="#797C7F">$46</text>
+        <text x="35" y="120" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="8" fill="#797C7F">$44</text>
+        <text x="35" y="140" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="8" fill="#797C7F">$42</text>
+        <text x="35" y="160" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="8" fill="#797C7F">$40</text>
+        <text x="35" y="180" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="8" fill="#797C7F">$38</text>
+        <text x="35" y="200" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="8" fill="#797C7F">$36</text>
+
+        <!-- Box size brace -->
+        <line x1="28" y1="60" x2="28" y2="80" stroke="#5C3317" stroke-width="1"/>
+        <text x="5"  y="73"  font-family="JetBrains Mono,monospace" font-size="7" fill="#5C3317">box</text>
+
+        <!-- X column 1: $40→$52 -->
+        <text x="56"  y="200" font-family="JetBrains Mono,monospace" font-size="14" font-weight="800" fill="#5C3317">X</text>
+        <text x="56"  y="180" font-family="JetBrains Mono,monospace" font-size="14" font-weight="800" fill="#5C3317">X</text>
+        <text x="56"  y="160" font-family="JetBrains Mono,monospace" font-size="14" font-weight="800" fill="#5C3317">X</text>
+        <text x="56"  y="140" font-family="JetBrains Mono,monospace" font-size="14" font-weight="800" fill="#5C3317">X</text>
+        <text x="56"  y="120" font-family="JetBrains Mono,monospace" font-size="14" font-weight="800" fill="#5C3317">X</text>
+        <text x="56"  y="100" font-family="JetBrains Mono,monospace" font-size="14" font-weight="800" fill="#5C3317">X</text>
+        <text x="56"  y="80"  font-family="JetBrains Mono,monospace" font-size="14" font-weight="800" fill="#5C3317">X</text>
+
+        <!-- O column: $52→$44 (reversal 3-box = $6) -->
+        <text x="78"  y="60"  font-family="JetBrains Mono,monospace" font-size="14" font-weight="800" fill="#B52C2C">O</text>
+        <text x="78"  y="80"  font-family="JetBrains Mono,monospace" font-size="14" font-weight="800" fill="#B52C2C">O</text>
+        <text x="78"  y="100" font-family="JetBrains Mono,monospace" font-size="14" font-weight="800" fill="#B52C2C">O</text>
+        <text x="78"  y="120" font-family="JetBrains Mono,monospace" font-size="14" font-weight="800" fill="#B52C2C">O</text>
+
+        <!-- X column 2: $44→$52 -->
+        <text x="100" y="120" font-family="JetBrains Mono,monospace" font-size="14" font-weight="800" fill="#5C3317">X</text>
+        <text x="100" y="100" font-family="JetBrains Mono,monospace" font-size="14" font-weight="800" fill="#5C3317">X</text>
+        <text x="100" y="80"  font-family="JetBrains Mono,monospace" font-size="14" font-weight="800" fill="#5C3317">X</text>
+        <text x="100" y="60"  font-family="JetBrains Mono,monospace" font-size="14" font-weight="800" fill="#5C3317">X</text>
+        <text x="100" y="40"  font-family="JetBrains Mono,monospace" font-size="14" font-weight="800" fill="#5C3317">X</text>
+
+        <!-- Resistance line (prior X top = $52) -->
+        <line x1="42" y1="60" x2="200" y2="60" stroke="#797C7F" stroke-width="1" stroke-dasharray="4,3"/>
+        <text x="205" y="63" font-family="JetBrains Mono,monospace" font-size="7" fill="#797C7F">resistance</text>
+
+        <!-- Support line (prior O bottom = $44) -->
+        <line x1="42" y1="120" x2="200" y2="120" stroke="#797C7F" stroke-width="1" stroke-dasharray="2,3"/>
+        <text x="205" y="123" font-family="JetBrains Mono,monospace" font-size="7" fill="#797C7F">support</text>
+
+        <!-- Month marker annotation -->
+        <text x="56"  y="215" font-family="JetBrains Mono,monospace" font-size="8" fill="#4A4D4F" font-weight="600">3</text>
+        <text x="50"  y="228" font-family="JetBrains Mono,monospace" font-size="7" fill="#797C7F">month marker</text>
+
+        <!-- Reversal brace -->
+        <line x1="72" y1="60"  x2="72" y2="120" stroke="#B52C2C" stroke-width="1"/>
+        <text x="73" y="94"  font-family="JetBrains Mono,monospace" font-size="7" fill="#B52C2C">3× reversal</text>
+
+        <!-- Column label -->
+        <text x="55"  y="228" font-family="JetBrains Mono,monospace" font-size="0" fill="none"/>
+        <text x="56"  y="10"  font-family="JetBrains Mono,monospace" font-size="7" fill="#5C3317">X col</text>
+        <text x="78"  y="10"  font-family="JetBrains Mono,monospace" font-size="7" fill="#B52C2C">O col</text>
+        <text x="100" y="10"  font-family="JetBrains Mono,monospace" font-size="7" fill="#5C3317">X col</text>
+        <text x="125" y="10"  font-family="JetBrains Mono,monospace" font-size="7" fill="#797C7F">← breakout above resistance</text>
+      </svg>
+    </div>
+
+    <div class="learn-block">
+      <h2>Why time disappears from the x-axis</h2>
+      <p>Most financial charts plot price against time, which means quiet consolidation periods (low volatility, few price changes) take up the same horizontal space as high-activity periods. This time-scaling distorts the visual weight of price action: a three-week consolidation looks as wide as a three-week rally.</p>
+      <p>The P&F chart eliminates this distortion by only advancing to a new column when a reversal occurs. Each column represents a <em>price movement event</em>, not a time period. Quiet markets produce no new columns; active markets produce many. This makes the chart compact for consolidation and expressive for trend — the visual width is proportional to market activity, not elapsed time.</p>
+    </div>
+
+    <div class="learn-block">
+      <h2>Box size and reversal as editorial decisions</h2>
+      <p>Box size and reversal amount are the two parameters the analyst controls, and they determine what the chart considers "signal" versus "noise." A <strong>smaller box size</strong> (e.g. $1) makes the chart more sensitive: more symbols per column, more columns, more reversals detected. The chart becomes wider and reveals more structure — useful for short-term trading.</p>
+      <p>A <strong>larger box size</strong> (e.g. $5) filters out minor fluctuations, producing fewer, taller columns that represent only major price movements. This is better for detecting long-term trends and major support/resistance levels. The reversal multiplier (typically 3×) means a new column only starts when the price reverses by three full box sizes — filtering out brief counter-trend moves.</p>
+      <p>This implementation exposes both parameters as sliders. Dragging box size from $1 to $6 on the same data shows how the same price series can produce a busy, detailed chart or a clean, structural one — the "right" setting depends entirely on the trading horizon and tolerance for noise.</p>
+    </div>
+
+    <div class="learn-block">
+      <h2>What the rejected alternative breaks</h2>
+      <p>A <strong>Candlestick Chart</strong> encodes the same OHLC data but plots every session on the time axis regardless of whether meaningful price movement occurred. During consolidation phases, candlesticks produce a series of small, near-identical bodies that convey no directional information but consume significant chart space. The P&F chart collapses all quiet periods to nothing and expands only at decisive supply-demand shifts.</p>
+      <p>A <strong>Line Chart</strong> on closing prices discards open, high, and low — and still suffers the time-scale distortion problem. It cannot identify support and resistance levels as cleanly as P&F because those levels emerge from the structural alignment of column tops and bottoms, which the time-independent column layout makes visually apparent.</p>
+    </div>
+
+    <div class="framework-ref">
+      <span class="label">// FRAMEWORK REFERENCE</span>
+      <p><strong>FT Visual Vocabulary — Change Over Time (specialist variant, time-independent).</strong> The P&F chart belongs to the Change Over Time category but deliberately rejects the time axis in favour of a price-movement axis — this is the defining design decision of the form. Abela quadrant: Relationship (supply vs demand balance) nested inside Change. Tufte principle applied: maximum noise reduction through parameterised filtering — the box size and reversal amount are explicit data-ink controls that the analyst sets to match the signal they are trying to see. The one design decision worth knowing: support and resistance lines are derived algorithmically from prior column extremes (X column tops become resistance; O column bottoms become support), not drawn manually — they emerge from the chart's structure rather than being imposed on it.</p>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <p>Nik Bear Brown, Irreducibly Human, What AI Can and Can't Do</p>
+  <p>boondoggling.ai · irreducibly.xyz · brutalist.art · bearbrown.co · frictional.xyz</p>
+</footer>
+
+<audio id="page-audio" src="./point-figure/audio.mp3"></audio>
+
+<script>
+(function () {
+
+  // ── NAV ──────────────────────────────────────────────────────
+  const slides  = document.querySelectorAll('.slide');
+  const navDots = document.querySelectorAll('.navdot');
+
+  function scrollToSlide(i) { slides[i].scrollIntoView({ behavior: 'smooth' }); }
+
+  navDots.forEach((d, i) => {
+    d.addEventListener('click', () => scrollToSlide(i));
+    d.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); scrollToSlide(i); }
+    });
+  });
+
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const idx = Array.from(slides).indexOf(entry.target);
+      navDots.forEach((d, i) => d.classList.toggle('active', i === idx));
+    });
+  }, { threshold: 0.45 });
+  slides.forEach(s => io.observe(s));
+
+  document.addEventListener('keydown', e => {
+    const cur = Array.from(navDots).findIndex(d => d.classList.contains('active'));
+    if (e.key === 'ArrowDown' && cur < slides.length - 1) scrollToSlide(cur + 1);
+    if (e.key === 'ArrowUp'   && cur > 0)                 scrollToSlide(cur - 1);
+  });
+
+  // ── AUDIO ────────────────────────────────────────────────────
+  const audio = document.getElementById('page-audio');
+  const audioBtn = document.getElementById('audio-toggle');
+  let playing = false;
+  audioBtn.addEventListener('click', () => {
+    if (playing) { audio.pause(); audioBtn.textContent = '▶ narration'; }
+    else         { audio.play().catch(() => {}); audioBtn.textContent = '⏸ narration'; }
+    playing = !playing;
+  });
+  audio.addEventListener('ended', () => { playing = false; audioBtn.textContent = '▶ narration'; });
+
+  // ── TOOLTIP ──────────────────────────────────────────────────
+  const tip = document.getElementById('tooltip');
+
+  function showTip(html, cx, cy) {
+    tip.innerHTML = html;
+    tip.style.opacity = 1;
+    const tw = tip.offsetWidth || 190;
+    const th = tip.offsetHeight || 70;
+    let left = cx + 14, top = cy - th / 2;
+    if (left + tw > window.innerWidth  - 8) left = cx - tw - 14;
+    if (top < 8)                            top  = 8;
+    if (top + th > window.innerHeight - 8) top  = window.innerHeight - th - 8;
+    tip.style.left = left + 'px';
+    tip.style.top  = top  + 'px';
+  }
+
+  function hideTip() { tip.style.opacity = 0; }
+
+  // ── OVERLAY TOGGLES ──────────────────────────────────────────
+  let showSR     = true;
+  let showMonths = true;
+
+  document.getElementById('btn-sr').addEventListener('click', function () {
+    showSR = !showSR;
+    this.classList.toggle('active', showSR);
+    this.setAttribute('aria-pressed', showSR);
+    redraw();
+  });
+
+  document.getElementById('btn-months').addEventListener('click', function () {
+    showMonths = !showMonths;
+    this.classList.toggle('active', showMonths);
+    this.setAttribute('aria-pressed', showMonths);
+    redraw();
+  });
+
+  // ── SLIDERS ──────────────────────────────────────────────────
+  const boxSlider = document.getElementById('box-slider');
+  const revSlider = document.getElementById('rev-slider');
+  const boxValEl  = document.getElementById('box-val');
+  const revValEl  = document.getElementById('rev-val');
+
+  boxSlider.addEventListener('input', () => { boxValEl.textContent = '$' + boxSlider.value; redraw(); });
+  revSlider.addEventListener('input', () => { revValEl.textContent = revSlider.value + '×';  redraw(); });
+
+  // ── P&F ALGORITHM ────────────────────────────────────────────
+  // Processes an array of { date, high, low, close } price records
+  // into P&F columns using the "high/low method":
+  //   - In an X column: try to add Xs using today's high
+  //   - In an O column: try to add Os using today's low
+  //   - Check reversal using the opposite extreme
+  function buildPF(prices, boxSize, reversalBoxes) {
+    const reversal = boxSize * reversalBoxes;
+    const columns  = [];   // each: { type: 'X'|'O', prices: [...], dates: [...], monthMarkers: {...} }
+
+    if (!prices.length) return columns;
+
+    // Round price DOWN to nearest box (for X top) or UP (for O bottom)
+    function boxFloor(p) { return Math.floor(p / boxSize) * boxSize; }
+    function boxCeil(p)  { return Math.ceil(p  / boxSize) * boxSize; }
+
+    // Initialise with first price
+    let curType   = null;
+    let curCol    = null;
+    let highPrice = boxFloor(prices[0].high);
+    let lowPrice  = boxCeil(prices[0].low);
+
+    // Determine initial direction: if high moved up first
+    // Use close for first direction seed
+    const firstClose = prices[0].close;
+    const firstHigh  = prices[0].high;
+    const firstLow   = prices[0].low;
+
+    // Start with X column from first close
+    curType = 'X';
+    const startPrice = boxFloor(firstClose);
+    curCol = { type: 'X', bottom: startPrice, top: startPrice, dates: [prices[0].date], monthMarkers: {} };
+    columns.push(curCol);
+
+    for (let i = 1; i < prices.length; i++) {
+      const { date, high, low, close } = prices[i];
+      const monthKey = date.substring(0, 7); // YYYY-MM
+
+      if (curType === 'X') {
+        // Try to extend X column upward using today's high
+        const newTop = boxFloor(high);
+        if (newTop >= curCol.top + boxSize) {
+          curCol.top = newTop;
+          curCol.dates.push(date);
+          // Month marker on first new symbol in a month
+          if (!curCol.monthMarkers[monthKey]) curCol.monthMarkers[monthKey] = curCol.top;
+        }
+        // Check for reversal downward using today's low
+        const reversalLevel = curCol.top - reversal;
+        if (low <= reversalLevel) {
+          // Start new O column, one box below current X top
+          const newBottom = boxCeil(low);
+          const newOTop   = curCol.top - boxSize;
+          curType = 'O';
+          curCol  = { type: 'O', bottom: newBottom, top: newOTop, dates: [date], monthMarkers: {} };
+          if (!curCol.monthMarkers[monthKey]) curCol.monthMarkers[monthKey] = newOTop;
+          columns.push(curCol);
+        }
+      } else {
+        // O column: try to extend downward using today's low
+        const newBottom = boxCeil(low);
+        if (newBottom <= curCol.bottom - boxSize) {
+          curCol.bottom = newBottom;
+          curCol.dates.push(date);
+          if (!curCol.monthMarkers[monthKey]) curCol.monthMarkers[monthKey] = curCol.bottom;
+        }
+        // Check for reversal upward
+        const reversalLevel = curCol.bottom + reversal;
+        if (high >= reversalLevel) {
+          const newTop = boxFloor(high);
+          const newXBottom = curCol.bottom + boxSize;
+          curType = 'X';
+          curCol  = { type: 'X', bottom: newXBottom, top: newTop, dates: [date], monthMarkers: {} };
+          if (!curCol.monthMarkers[monthKey]) curCol.monthMarkers[monthKey] = newXBottom;
+          columns.push(curCol);
+        }
+      }
+    }
+
+    return columns;
+  }
+
+  // ── SUPPORT / RESISTANCE ─────────────────────────────────────
+  // Resistance: prior X column tops
+  // Support:    prior O column bottoms
+  function computeSR(columns) {
+    const resistanceLevels = new Set();
+    const supportLevels    = new Set();
+    columns.forEach(col => {
+      if (col.type === 'X') resistanceLevels.add(col.top);
+      else                  supportLevels.add(col.bottom);
+    });
+    return { resistance: [...resistanceLevels], support: [...supportLevels] };
+  }
+
+  // ── MONTH CODE ───────────────────────────────────────────────
+  function monthCode(dateStr) {
+    const m = parseInt(dateStr.substring(5, 7), 10);
+    if (m <= 9) return String(m);
+    return ['A', 'B', 'C'][m - 10];
+  }
+
+  // ── CHART RENDER ─────────────────────────────────────────────
+  let rawPrices = [];
+
+  function redraw() {
+    if (!rawPrices.length) return;
+
+    const boxSize  = +boxSlider.value;
+    const revMult  = +revSlider.value;
+    const reversal = boxSize * revMult;
+
+    const columns = buildPF(rawPrices, boxSize, revMult);
+
+    document.getElementById('stat-cols').textContent   = columns.length;
+    document.getElementById('stat-box').textContent    = '$' + boxSize;
+    document.getElementById('stat-rev').textContent    = '$' + reversal + ' (' + revMult + '×)';
+
+    const lastCol = columns[columns.length - 1];
+    const sigEl   = document.getElementById('stat-signal');
+    if (lastCol) {
+      sigEl.textContent = lastCol.type === 'X' ? '▲ Demand (X)' : '▼ Supply (O)';
+      sigEl.className   = 'stat-value ' + (lastCol.type === 'X' ? '' : 'bear');
+    }
+
+    const sr = computeSR(columns);
+
+    // Layout constants
+    const cellSize   = 22;
+    const yPad       = 4;
+    const margin     = { top: 28, right: 40, bottom: 28, left: 56 };
+
+    const container  = document.getElementById('chart-container');
+    const contH      = Math.max(container.clientHeight || 420, 360);
+
+    // Price range across all columns
+    const allPrices  = columns.flatMap(c => [c.top, c.bottom]);
+    const priceMin   = Math.min(...allPrices) - boxSize * 2;
+    const priceMax   = Math.max(...allPrices) + boxSize * 2;
+
+    // Number of price rows
+    const nRows = Math.round((priceMax - priceMin) / boxSize) + 1;
+    const chartH = Math.max(nRows * cellSize + margin.top + margin.bottom, contH - 20);
+    const chartW = columns.length * cellSize + margin.left + margin.right + cellSize * 2;
+
+    const svg = d3.select('#chart')
+      .attr('width',   Math.max(chartW, container.clientWidth))
+      .attr('height',  chartH)
+      .attr('viewBox', `0 0 ${Math.max(chartW, container.clientWidth)} ${chartH}`);
+
+    svg.selectAll('*').remove();
+
+    // Price→Y converter
+    function pY(price) {
+      return margin.top + (priceMax - price) / boxSize * cellSize + cellSize / 2;
+    }
+
+    const g = svg.append('g');
+
+    // ── GRID ───────────────────────────────────────────────────
+    const gridPrices = [];
+    for (let p = priceMin; p <= priceMax + boxSize; p += boxSize * 5) {
+      gridPrices.push(Math.round(p / boxSize) * boxSize);
+    }
+
+    g.selectAll('.grid-line')
+      .data(gridPrices)
+      .join('line')
+        .attr('x1', margin.left)
+        .attr('x2', Math.max(chartW, container.clientWidth) - margin.right)
+        .attr('y1', p => pY(p))
+        .attr('y2', p => pY(p))
+        .attr('stroke', '#F2F2F2')
+        .attr('stroke-width', 1);
+
+    // ── Y AXIS ────────────────────────────────────────────────
+    const labelPrices = [];
+    for (let p = priceMin; p <= priceMax + boxSize; p += boxSize * 5) {
+      labelPrices.push(Math.round(p / boxSize) * boxSize);
+    }
+
+    g.selectAll('.y-label')
+      .data(labelPrices)
+      .join('text')
+        .attr('x', margin.left - 6)
+        .attr('y', p => pY(p) + 4)
+        .attr('text-anchor', 'end')
+        .style('font-family', "'JetBrains Mono',monospace")
+        .style('font-size', '9px')
+        .style('fill', '#797C7F')
+        .text(p => '$' + p);
+
+    // ── SUPPORT / RESISTANCE LINES ────────────────────────────
+    if (showSR) {
+      const allSR = [
+        ...sr.resistance.map(p => ({ p, type: 'R' })),
+        ...sr.support.map(p    => ({ p, type: 'S' }))
+      ];
+
+      // Deduplicate
+      const seen = new Set();
+      const uniq = allSR.filter(d => {
+        if (seen.has(d.p)) return false;
+        seen.add(d.p);
+        return true;
+      });
+
+      g.selectAll('.sr-line')
+        .data(uniq)
+        .join('line')
+          .attr('class', 'sr-line')
+          .attr('x1', margin.left)
+          .attr('x2', Math.max(chartW, container.clientWidth) - margin.right)
+          .attr('y1', d => pY(d.p))
+          .attr('y2', d => pY(d.p))
+          .attr('stroke', '#C8CDD2')
+          .attr('stroke-width', 0.8)
+          .attr('stroke-dasharray', d => d.type === 'R' ? '5,3' : '2,3')
+          .attr('opacity', 0.7);
+    }
+
+    // ── COLUMNS ───────────────────────────────────────────────
+    columns.forEach((col, ci) => {
+      const cx   = margin.left + ci * cellSize + cellSize / 2;
+      const type = col.type;
+      const fill = type === 'X' ? '#5C3317' : '#B52C2C';
+
+      // Symbols
+      const prices = [];
+      for (let p = col.bottom; p <= col.top + boxSize * 0.1; p += boxSize) {
+        prices.push(Math.round(p / boxSize) * boxSize);
+      }
+
+      prices.forEach((price, pi) => {
+        const y     = pY(price);
+        const isTop = price === col.top && type === 'X';
+        const isBot = price === col.bottom && type === 'O';
+
+        // Month marker: check if this price level matches any month marker
+        let markerCode = null;
+        if (showMonths) {
+          for (const [monthStr, markerPrice] of Object.entries(col.monthMarkers)) {
+            if (Math.abs(markerPrice - price) < boxSize * 0.5) {
+              markerCode = monthCode(monthStr + '-01');
+              break;
+            }
+          }
+        }
+
+        const sym = markerCode || type;
+        const symFill = markerCode ? '#4A4D4F' : fill;
+
+        const el = g.append('text')
+          .attr('x', cx)
+          .attr('y', y + cellSize * 0.35)
+          .attr('text-anchor', 'middle')
+          .style('font-family', "'JetBrains Mono',monospace")
+          .style('font-size', (cellSize * 0.78) + 'px')
+          .style('font-weight', markerCode ? '600' : '800')
+          .style('fill', symFill)
+          .style('cursor', 'pointer')
+          .attr('tabindex', 0)
+          .attr('role', 'img')
+          .attr('aria-label',
+            `${type} at $${price} — ${col.dates[0] || ''}`)
+          .text(sym)
+          .attr('opacity', 0);
+
+        el.transition()
+          .duration(400)
+          .delay(ci * 30 + pi * 8)
+          .attr('opacity', 1);
+
+        el.on('mousemove', function (event) {
+            document.getElementById('stat-hover').textContent = '$' + price;
+            const dir = type === 'X'
+              ? '<span class="bull-txt">▲ Demand (X)</span>'
+              : '<span class="bear-txt">▼ Supply (O)</span>';
+            const dateStr = col.dates[0] ? col.dates[0] : '—';
+            showTip(
+              `<strong>$${price}</strong>` +
+              `${dir}<br>` +
+              `Col ${ci + 1} · Range $${col.bottom}–$${col.top}<br>` +
+              `Date ref: ${dateStr}` +
+              (markerCode ? `<br>Month marker: ${markerCode}` : ''),
+              event.clientX, event.clientY
+            );
+          })
+          .on('mouseleave', function () {
+            document.getElementById('stat-hover').textContent = '—';
+            hideTip();
+          })
+          .on('keydown', function (event) {
+            if (event.key === 'Enter' || event.key === ' ')
+              document.getElementById('stat-hover').textContent = '$' + price;
+          });
+      });
+
+      // Column index tick
+      if (ci % 5 === 0) {
+        g.append('text')
+          .attr('x', cx)
+          .attr('y', chartH - margin.bottom + 14)
+          .attr('text-anchor', 'middle')
+          .style('font-family', "'JetBrains Mono',monospace")
+          .style('font-size', '8px')
+          .style('fill', '#BBBBBB')
+          .text(ci + 1);
+      }
+    });
+
+    // ── Y AXIS LINE ───────────────────────────────────────────
+    g.append('line')
+      .attr('x1', margin.left - 1).attr('x2', margin.left - 1)
+      .attr('y1', margin.top - 10).attr('y2', chartH - margin.bottom)
+      .attr('stroke', '#EDEDED').attr('stroke-width', 1);
+  }
+
+  // ── DATA LOAD ─────────────────────────────────────────────────
+  d3.json('./point-figure/data.json').then(json => {
+    rawPrices = json.data;
+    redraw();
+
+    let rt;
+    const ro = new ResizeObserver(() => {
+      clearTimeout(rt);
+      rt = setTimeout(redraw, 160);
+    });
+    ro.observe(document.getElementById('chart-container'));
+  }).catch(err => {
+    document.getElementById('chart-container').innerHTML =
+      `<p style="padding:2rem;font-family:'JetBrains Mono',monospace;font-size:13px;color:#B52C2C;">
+        Data file not found. Place data.json in ./point-figure/data.json
+      </p>`;
+    console.error('D3 load error:', err);
+  });
+
+})();
+</script>
+</body>
+</html>

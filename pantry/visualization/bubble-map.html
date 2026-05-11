@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>U.S. Food Assistance Distribution — Bubble Map</title>
+  <meta name="description" content="Proportional symbol map showing household food assistance reach by U.S. state. Circle area is proportional to households served, FY 2024.">
+  <meta name="keywords" content="bubble map, proportional symbol map, humanitarian aid, food assistance, SNAP, US states, D3.js, geographic visualization, households served">
+  <meta name="author" content="Nik Bear Brown">
+  <meta name="category" content="Humanitarian Data Visualization">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --p1:#1B1B1B;--p2:#5C3317;--p3:#7A0000;--p4:#F7FAFD;
+      --p5:#4A4D4F;--p6:#797C7F;--p7:#EDEDED;--p8:#FFFFFF;
+      --font:'JetBrains Mono',monospace;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html,body{width:100%;background:var(--p8);color:var(--p1);font-family:var(--font);overflow-x:hidden}
+
+    /* ── SLIDE SYSTEM ──────────────────────────────── */
+    .slides-wrapper{width:100%;scroll-snap-type:y mandatory;overflow-y:scroll;height:100vh}
+    .slide{scroll-snap-align:start;min-height:100vh;display:flex;flex-direction:column}
+
+    /* ── SLIDE 1 LAYOUT ────────────────────────────── */
+    .slide-main{display:flex;flex-direction:column;height:100vh;padding:1.4rem 2.4rem 0;flex-shrink:0}
+    .slide-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;flex-shrink:0}
+    .label{font-size:9.5px;font-weight:600;letter-spacing:.13em;color:var(--p6);text-transform:uppercase}
+    h1.slide-title{font-size:clamp(13px,1.85vw,22px);font-weight:800;text-transform:uppercase;
+      letter-spacing:.045em;color:var(--p1);line-height:1.2;margin-bottom:.3rem;max-width:78ch;flex-shrink:0}
+    .subtitle{font-size:11px;color:var(--p5);margin-bottom:.7rem;line-height:1.55;flex-shrink:0}
+    .viz-container{flex:1;position:relative;min-height:0;border-top:1px solid var(--p7)}
+    #map-svg{width:100%;height:100%;display:block}
+
+    .state-path{fill:#EBEBEB;stroke:var(--p8);stroke-width:.8;transition:fill .1s}
+    .bubble{fill:var(--p2);fill-opacity:.48;stroke:var(--p2);stroke-width:1.2;stroke-opacity:.82;cursor:pointer}
+    .bubble:hover,.bubble:focus{fill-opacity:.80;outline:none}
+    .bubble.highlighted{fill:var(--p3);stroke:var(--p3);fill-opacity:.72;stroke-opacity:1}
+    .bubble.dimmed{fill-opacity:.10;stroke-opacity:.15}
+
+    #tooltip{position:absolute;pointer-events:none;background:var(--p1);color:var(--p8);
+      font-family:var(--font);font-size:11px;font-weight:400;line-height:1.65;
+      padding:8px 12px;border:1px solid var(--p2);max-width:210px;z-index:90;
+      opacity:0;transition:opacity .1s ease}
+    #tooltip.visible{opacity:1}
+    #tooltip .tt-state{font-size:11.5px;font-weight:800;text-transform:uppercase;
+      letter-spacing:.09em;color:#C4956A;border-bottom:1px solid #333;padding-bottom:3px;margin-bottom:4px}
+    #tooltip .tt-val{font-weight:800;color:var(--p8)}
+    #tooltip .tt-chg-pos{color:#7CC47C}
+    #tooltip .tt-chg-neg{color:#E08080}
+
+    .legend{position:absolute;bottom:.6rem;right:.8rem;background:rgba(255,255,255,.92);
+      padding:.55rem .8rem .4rem;border:1px solid var(--p7)}
+    .legend-title{font-size:9px;font-weight:600;letter-spacing:.1em;color:var(--p5);
+      text-transform:uppercase;margin-bottom:3px}
+
+    .controls{display:flex;gap:.65rem;align-items:center;padding:.45rem 2.4rem .55rem;
+      border-top:1px solid var(--p7);flex-shrink:0;background:var(--p8)}
+    .btn{font-family:var(--font);font-size:9.5px;font-weight:600;letter-spacing:.09em;
+      background:transparent;border:1px solid var(--p7);color:var(--p5);
+      padding:3px 9px;cursor:pointer;text-transform:uppercase;transition:border-color .1s,color .1s}
+    .btn:hover{border-color:var(--p2);color:var(--p2)}
+    .btn:focus{outline:2px solid var(--p2);outline-offset:1px}
+    .btn.playing{border-color:var(--p3);color:var(--p3)}
+
+    /* ── EXPLAINER (below map, still inside slide 1 scroll) ── */
+    .explainer{padding:28px 2.4rem 40px;max-width:860px;background:var(--p8)}
+    .explainer h3{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;
+      color:var(--p2);margin-bottom:9px}
+    .explainer p{font-size:13px;line-height:1.78;color:var(--p5);margin-bottom:16px}
+    .explainer p:last-of-type{margin-bottom:0}
+    .example-callout{font-size:12px;line-height:1.72;color:var(--p5);
+      border-left:3px solid var(--p2);padding:9px 14px;background:#5C33170a;margin-top:4px}
+    .meta-row{display:flex;gap:22px;flex-wrap:wrap;margin-top:18px;padding-top:14px;border-top:1px solid var(--p7)}
+    .meta-item .mk{font-size:10px;color:var(--p6);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:2px}
+    .meta-item .mv{font-size:11px;color:var(--p5);font-weight:600}
+
+    /* ── SLIDE 2 — LEARN ───────────────────────────── */
+    .slide-learn{padding:1.4rem 2.4rem 3rem;overflow-y:auto}
+    .learn-block{max-width:66ch}
+    .learn-block h2{font-size:clamp(10px,1vw,12px);font-weight:800;text-transform:uppercase;
+      letter-spacing:.11em;color:var(--p2);margin:1.4rem 0 .4rem;
+      border-bottom:1px solid var(--p7);padding-bottom:3px}
+    .learn-block h2:first-of-type{margin-top:.2rem}
+    .learn-block p{font-size:12.5px;color:var(--p1);line-height:1.82;margin-bottom:.45rem}
+    .learn-block code{font-family:var(--font);font-size:11px;background:var(--p7);padding:1px 5px}
+    .framework-ref{margin-top:1.3rem;padding:.6rem .9rem;border-left:3px solid var(--p2);background:#F6F4F2}
+    .framework-ref .label{display:block;margin-bottom:3px}
+    .framework-ref p{font-size:12px;color:var(--p5);margin-bottom:0}
+    .design-note{margin-top:.9rem;padding:.6rem .9rem;border:1px solid var(--p7);border-left:3px solid var(--p3)}
+    .design-note .label{display:block;margin-bottom:3px}
+    .design-note p{font-size:12px;color:var(--p5);margin-bottom:0}
+
+    /* ── NAV DOTS ───────────────────────────────────── */
+    .dot-nav{display:flex;gap:8px;margin-left:auto;align-items:center}
+    .nav-dot{width:7px;height:7px;border-radius:50%;background:var(--p7);
+      cursor:pointer;border:1px solid var(--p6);transition:background .2s;padding:0}
+    .nav-dot.active{background:var(--p2);border-color:var(--p2)}
+    .nav-dot:focus{outline:2px solid var(--p2);outline-offset:2px}
+
+    /* ── FOOTER ─────────────────────────────────────── */
+    footer{padding:16px 2.4rem;border-top:2px solid var(--p7);font-size:9px;
+      color:var(--p6);letter-spacing:.07em;line-height:2;background:var(--p8)}
+    footer a{color:var(--p6);text-decoration:none}
+    footer a:hover{color:var(--p2)}
+
+    [tabindex="0"]:focus-visible{outline:2px solid var(--p2);outline-offset:2px}
+  </style>
+</head>
+<body>
+
+<audio id="page-audio" src="./bubble-map/slide_1.mp3"></audio>
+
+<div class="slides-wrapper">
+
+  <!-- ══════════════════════════════════════════════
+       SLIDE 01 — MAP + EXPLAINER
+  ══════════════════════════════════════════════ -->
+  <section class="slide" id="slide-01" aria-label="Bubble map: U.S. food assistance distribution, FY 2024">
+
+    <!-- fixed-height map portion -->
+    <div class="slide-main">
+      <div class="slide-meta">
+        <span class="label">// geographic distribution — fy 2024</span>
+        <div class="dot-nav" role="navigation" aria-label="Slide navigation">
+          <button class="nav-dot active" onclick="goTo(0)" aria-label="Slide 1: Bubble Map"></button>
+          <button class="nav-dot" onclick="goTo(1)" aria-label="Slide 2: Learn Panel"></button>
+        </div>
+      </div>
+      <h1 class="slide-title">California and Texas Absorb Nearly Half of All Household Aid Disbursements</h1>
+      <p class="subtitle">Circle area is proportional to households reached — not geographic area. Overlapping bubbles indicate high-density aid corridors. Data: simulated SNAP reach, FY 2024.</p>
+
+      <div class="viz-container" id="chart-container">
+        <svg id="map-svg" viewBox="0 0 960 600" preserveAspectRatio="xMidYMid meet"
+             role="img" aria-labelledby="map-title" aria-describedby="map-desc">
+          <title id="map-title">Proportional bubble map: food assistance households by U.S. state, FY 2024</title>
+          <desc id="map-desc">Gray U.S. state polygons with walnut-colored proportional circles at each state centroid. California (3.84M) and Texas (3.21M) carry the largest bubbles.</desc>
+          <g id="states-g"></g>
+          <g id="bubbles-g"></g>
+        </svg>
+        <div id="tooltip" role="status" aria-live="polite"></div>
+        <div class="legend">
+          <div class="legend-title">Households Served</div>
+          <svg id="legend-svg" width="130" height="88" overflow="visible"></svg>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="btn" id="audio-btn" aria-label="Play narration audio">&#9654; narration</button>
+        <button class="btn" id="top5-btn" aria-label="Highlight the five states with highest aid volume">top 5 states</button>
+        <button class="btn" id="reset-btn" aria-label="Reset all highlights">reset</button>
+      </div>
+    </div>
+
+    <!-- scrollable explainer below map -->
+    <div class="explainer">
+      <h3>What is a Bubble Map?</h3>
+      <p>A Bubble Map (also called a Proportional Symbol Map) encodes a quantitative variable as the area of a circle placed at a geographic centroid. The fundamental rule is that circle area — not radius — must be proportional to the data value. This is achieved using a square-root scale: because perceived area scales with r², mapping radius linearly would make large values appear quadratically dominant and collapse small values to near-invisibility.</p>
+      <p>The encoding decouples visual weight from geographic area entirely. Wyoming and Rhode Island receive equally legible circles regardless of how much land each occupies. A choropleth map, by contrast, conflates polygon size with data magnitude — large states appear data-rich simply because they occupy more canvas.</p>
+      <p class="example-callout">This example shows simulated SNAP (Supplemental Nutrition Assistance Program) household reach by U.S. state for FY 2024. California (3.84M households) and Texas (3.21M) dominate the map visually — as they should, since together they account for nearly half of all disbursements nationally. The top-5 filter highlights these headline states while preserving geographic context for the rest of the country. Hover any bubble to see state-level breakdown including year-over-year change and HHS region.</p>
+      <div class="meta-row">
+        <div class="meta-item"><span class="mk">Chart type</span><span class="mv">Proportional Symbol Map</span></div>
+        <div class="meta-item"><span class="mk">FT Visual Vocabulary</span><span class="mv">Spatial — proportional symbol</span></div>
+        <div class="meta-item"><span class="mk">Best for</span><span class="mv">Absolute counts at geographic locations</span></div>
+        <div class="meta-item"><span class="mk">Avoid when</span><span class="mv">Rates, densities, or per-capita comparisons</span></div>
+        <div class="meta-item"><span class="mk">Key scale rule</span><span class="mv">d3.scaleSqrt() — area ∝ value</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════
+       SLIDE 02 — LEARN PANEL
+  ══════════════════════════════════════════════ -->
+  <section class="slide slide-learn" id="slide-02" aria-label="Learn: Proportional Symbol Map">
+    <div class="slide-meta">
+      <span class="label">// learn — proportional symbol map</span>
+      <div class="dot-nav" role="navigation" aria-label="Slide navigation">
+        <button class="nav-dot" onclick="goTo(0)" aria-label="Slide 1: Bubble Map"></button>
+        <button class="nav-dot active" onclick="goTo(1)" aria-label="Slide 2: Learn Panel"></button>
+      </div>
+    </div>
+    <h1 class="slide-title">Why a Bubble Map</h1>
+
+    <div class="learn-block">
+      <h2>What this chart is</h2>
+      <p>A proportional symbol map encodes a quantitative variable as the area of a circle placed at a geographic centroid. The active perceptual channel is 2D size estimation — viewers compare circle footprints to judge relative magnitude. Because the symbol is anchored to a point rather than filling the administrative polygon, the encoding decouples visual weight from geographic area entirely. Wyoming and Rhode Island receive equally legible circles regardless of how much land each occupies.</p>
+      <p>This chart type belongs to the FT Visual Vocabulary's Spatial category, specifically proportional symbol. Its task is singular and non-negotiable: show magnitude at place. It implies no rate, no density, no administrative share — only absolute counts at geographic locations.</p>
+
+      <h2>Why it was chosen here</h2>
+      <p>The message is about absolute reach — how many households were served, not how many per capita or per square mile. That distinction immediately disqualifies the choropleth: choropleth shading implies proportion relative to the polygon's area, which forces viewers to mentally normalize every shade against state population or geography. That cognitive burden belongs to the chart, not the viewer. The bubble map carries it by encoding raw count directly in circle area, leaving the viewer free to compare size.</p>
+      <p>The primary flaw of bubble maps — overlap in high-density regions — is addressed in three layers here. Partial fill opacity (0.48) ensures overlapping bubbles remain visually distinguishable. A contrasting stroke at 0.82 opacity preserves circle boundaries even under overlap. And a "top 5 states" filter dims all non-highlighted bubbles when the full field feels crowded, surfacing the headline states without removing geographic context.</p>
+
+      <h2>What a choropleth would break</h2>
+      <p>A choropleth of raw household counts would make Montana appear data-rich — large, mid-tone polygon — when its absolute count is among the lowest in the dataset. Texas's dominance would be undercut by the visual mass of vast, sparsely-populated Western states. The choropleth's failure mode here is area conflation: polygon darkness reads as magnitude, but polygon size is geographically determined, not data-determined. The message — California and Texas absorb nearly half of all disbursements — becomes nearly unreadable without normalization to per-capita rates, which changes the question entirely.</p>
+
+      <div class="framework-ref">
+        <span class="label">// framework — FT Visual Vocabulary</span>
+        <p>The FT Visual Vocabulary separates proportional symbols from choropleths on exactly this axis: use a choropleth for rates and ratios bounded by administrative units; use a proportional symbol for totals and absolute counts at a centroid. The operative test — does the polygon's area carry information about the variable? If no, remove it from the encoding channel and place a symbol at the centroid instead.</p>
+      </div>
+
+      <div class="design-note">
+        <span class="label">// design decision — sqrt radius scaling</span>
+        <p>Circle radius is set via <code>d3.scaleSqrt()</code>, which maps <code>sqrt(value)</code> to a pixel range. This is non-negotiable for proportional symbol maps. Because perceived area scales with <code>r²</code>, naive linear radius encoding would make the largest bubble appear quadratically dominant and collapse small values into near-invisibility. The square-root mapping ensures a state with twice the households receives a circle with twice the area — which is what the FT Visual Vocabulary and Flannery (1956) both require for honest proportional symbol encoding.</p>
+      </div>
+    </div>
+
+    <footer style="position:static;margin-top:2rem">
+      <p>Nik Bear Brown, Irreducibly Human, What AI Can and Can't Do</p>
+      <p>
+        <a href="https://humanitarians.ai" target="_blank" rel="noopener">humanitarians.ai</a> &nbsp;·&nbsp;
+        <a href="https://brutalist.art" target="_blank" rel="noopener">brutalist.art</a> &nbsp;·&nbsp;
+        <a href="https://nikbearbrown.com" target="_blank" rel="noopener">nikbearbrown.com</a>
+      </p>
+    </footer>
+  </section>
+
+</div><!-- end slides-wrapper -->
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+<script>
+'use strict';
+
+/* ── SLIDE NAV ───────────────────────────────────────── */
+const wrapper = document.querySelector('.slides-wrapper');
+const slideEls = Array.from(document.querySelectorAll('.slide'));
+
+function goTo(i) {
+  slideEls[i]?.scrollIntoView({ behavior:'smooth' });
+  /* update dot states */
+  document.querySelectorAll('.nav-dot').forEach((d, di) => {
+    d.classList.toggle('active', di % 2 === i);
+  });
+}
+
+/* keep nav dots in sync on scroll */
+wrapper.addEventListener('scroll', () => {
+  const scrollTop = wrapper.scrollTop;
+  let closest = 0, minDist = Infinity;
+  slideEls.forEach((sl, i) => {
+    const dist = Math.abs(sl.offsetTop - scrollTop);
+    if (dist < minDist) { minDist = dist; closest = i; }
+  });
+  document.querySelectorAll('.nav-dot').forEach((d, di) => {
+    d.classList.toggle('active', di % 2 === closest);
+  });
+});
+
+document.addEventListener('keydown', e => {
+  const scrollTop = wrapper.scrollTop;
+  let cur = 0, minDist = Infinity;
+  slideEls.forEach((sl,i)=>{ const d=Math.abs(sl.offsetTop-scrollTop); if(d<minDist){minDist=d;cur=i;} });
+  if (['ArrowRight','ArrowDown'].includes(e.key)) goTo(cur + 1);
+  if (['ArrowLeft', 'ArrowUp' ].includes(e.key)) goTo(cur - 1);
+});
+
+/* ── AUDIO ───────────────────────────────────────────── */
+const audio    = document.getElementById('page-audio');
+const audioBtn = document.getElementById('audio-btn');
+audioBtn.addEventListener('click', () => {
+  if (audio.paused) {
+    audio.play().catch(()=>{});
+    audioBtn.textContent = '⏸ narration';
+    audioBtn.classList.add('playing');
+  } else {
+    audio.pause();
+    audioBtn.textContent = '▶ narration';
+    audioBtn.classList.remove('playing');
+  }
+  audio.onended = () => {
+    audioBtn.innerHTML = '&#9654; narration';
+    audioBtn.classList.remove('playing');
+  };
+});
+
+/* ── MAP ─────────────────────────────────────────────── */
+const tooltip   = document.getElementById('tooltip');
+const container = document.getElementById('chart-container');
+const statesG   = d3.select('#states-g');
+const bubblesG  = d3.select('#bubbles-g');
+const geoPath   = d3.geoPath();
+
+let bubbleData = [];
+let bubbleScale;
+
+Promise.all([
+  d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/states-albers-10m.json'),
+  d3.json('./bubble-map/data.json')
+]).then(([us, dataset]) => {
+  const states = topojson.feature(us, us.objects.states);
+  const lookup = new Map(dataset.data.map(d => [d.fips, d]));
+
+  statesG.selectAll('path')
+    .data(states.features)
+    .join('path')
+    .attr('class','state-path')
+    .attr('d', geoPath)
+    .attr('aria-label', f => {
+      const r = lookup.get(f.id.toString().padStart(2,'0'));
+      return r ? r.state + ': ' + d3.format(',')(r.value) + ' households' : '';
+    });
+
+  bubbleData = states.features.map(f => {
+    const fips   = f.id.toString().padStart(2,'0');
+    const record = lookup.get(fips);
+    if (!record) return null;
+    const [cx, cy] = geoPath.centroid(f);
+    if (isNaN(cx) || isNaN(cy)) return null;
+    return { ...record, cx, cy };
+  }).filter(Boolean);
+
+  const maxVal = d3.max(bubbleData, d => d.value);
+  bubbleScale  = d3.scaleSqrt().domain([0, maxVal]).range([0, 50]);
+
+  bubbleData.sort((a,b) => b.value - a.value);
+
+  const circles = bubblesG.selectAll('circle')
+    .data(bubbleData, d => d.fips)
+    .join('circle')
+    .attr('class','bubble')
+    .attr('cx', d => d.cx).attr('cy', d => d.cy).attr('r', 0)
+    .attr('tabindex', 0)
+    .attr('aria-label', d =>
+      d.state + ': ' + d3.format(',')(d.value) + ' households, ' +
+      (d.yoy_pct > 0 ? '+' : '') + d.yoy_pct + '% year-over-year');
+
+  circles
+    .on('mouseover', (ev,d) => showTip(ev,d))
+    .on('mousemove', moveTip)
+    .on('mouseout',  hideTip)
+    .on('focus',     (ev,d) => showTip(ev,d))
+    .on('blur',      hideTip)
+    .on('keydown', (ev,d) => {
+      if (ev.key==='Enter'||ev.key===' ') { ev.preventDefault(); showTip(ev,d); }
+    });
+
+  circles.transition().duration(750).delay((_,i)=>i*16).ease(d3.easeCubicOut)
+    .attr('r', d => bubbleScale(d.value));
+
+  drawLegend(maxVal);
+
+}).catch(err => {
+  container.insertAdjacentHTML('afterbegin',
+    '<p style="padding:1rem;font-size:12px;color:var(--p3)">Map data failed to load. ' +
+    'Serve from a local server so ./bubble-map/data.json resolves.<br>' +
+    err.message + '</p>');
+});
+
+function showTip(event, d) {
+  const yoyClass = d.yoy_pct >= 0 ? 'tt-chg-pos' : 'tt-chg-neg';
+  const yoySign  = d.yoy_pct >= 0 ? '+' : '';
+  tooltip.innerHTML =
+    '<div class="tt-state">' + d.state + ' &nbsp;&middot;&nbsp; ' + d.abbr + '</div>' +
+    '<div>Households: <span class="tt-val">' + d3.format(',')(d.value) + '</span></div>' +
+    '<div>Program: ' + d.program + '</div>' +
+    '<div>YoY: <span class="' + yoyClass + '">' + yoySign + d.yoy_pct + '%</span></div>' +
+    '<div>HHS: ' + d.region + '</div>';
+  tooltip.classList.add('visible');
+  moveTip(event);
+}
+
+function moveTip(event) {
+  const r = container.getBoundingClientRect();
+  let x = event.clientX - r.left + 16;
+  let y = event.clientY - r.top  - 12;
+  if (x + 220 > r.width)  x -= 236;
+  if (y + 115 > r.height) y -= 125;
+  tooltip.style.left = x + 'px';
+  tooltip.style.top  = y + 'px';
+}
+
+function hideTip() { tooltip.classList.remove('visible'); }
+
+function drawLegend(maxVal) {
+  const legSvg = d3.select('#legend-svg');
+  const values = [maxVal, maxVal * 0.38, maxVal * 0.10].map(Math.round);
+  const baseY  = 84;
+  values.forEach(v => {
+    const r  = bubbleScale(v);
+    const cy = baseY - r;
+    legSvg.append('circle').attr('cx',22).attr('cy',cy).attr('r',r)
+      .attr('fill','none').attr('stroke','var(--p2)').attr('stroke-width',1);
+    legSvg.append('line').attr('x1',22).attr('y1',cy-r).attr('x2',52).attr('y2',cy-r)
+      .attr('stroke','var(--p6)').attr('stroke-width',.75).attr('stroke-dasharray','2,2');
+    legSvg.append('text').attr('x',54).attr('y',cy-r+3.5)
+      .attr('font-family','var(--font)').attr('font-size',9).attr('fill','var(--p5)')
+      .text(d3.format('.2s')(v).replace('G','B'));
+  });
+}
+
+document.getElementById('top5-btn').addEventListener('click', () => {
+  const top5 = new Set([...bubbleData].sort((a,b)=>b.value-a.value).slice(0,5).map(d=>d.fips));
+  bubblesG.selectAll('circle')
+    .classed('highlighted', d => top5.has(d.fips))
+    .classed('dimmed',      d => !top5.has(d.fips));
+});
+
+document.getElementById('reset-btn').addEventListener('click', () => {
+  bubblesG.selectAll('circle').classed('highlighted',false).classed('dimmed',false);
+});
+</script>
+</body>
+</html>

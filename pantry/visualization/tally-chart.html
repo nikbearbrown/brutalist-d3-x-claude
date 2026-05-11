@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<!--
+  INFERENCES: chart=tally chart, message=accuracy and performance failures dominate
+  AI incident reports in Q3 2024 — safety incidents are least reported but may be
+  under-counted, palette=hai, filename=tally-chart, audience=data-literate adult.
+  NOTE: tally marks animate row-by-row, mark-by-mark using stroke-dashoffset.
+  Phantom group boxes (faint rectangles) show the pre-printed form structure —
+  marks fill into them. Speed toggle changes animation delay between marks.
+  Bars do NOT start from zero — tally marks are discrete counts, not a scale.
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tally Chart — AI Incident Reports by Category</title>
+  <meta name="description" content="Animated tally chart showing AI incident report frequency by category for Q3 2024. Marks appear one by one using D3's stroke-dashoffset animation. Phantom group boxes show the pre-printed form structure.">
+  <meta name="keywords" content="tally chart, frequency chart, tally marks, D3.js, incident reports, AI safety, data visualization, counting animation">
+  <meta name="author" content="Nik Bear Brown">
+  <meta name="category" content="Frequency Distribution">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* ── HAI PALETTE ──────────────────────────────────────────── */
+    :root {
+      --p1: #1B1B1B;
+      --p2: #5C3317;
+      --p3: #B52C2C;
+      --p4: #F7FAFD;
+      --p5: #4A4D4F;
+      --p6: #797C7F;
+      --p7: #EDEDED;
+      --p8: #FFFFFF;
+      --font: 'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      font-family: var(--font);
+      background: var(--p8);
+      color: var(--p1);
+      overflow: hidden;
+    }
+
+    /* ── SLIDE ENGINE ─────────────────────────────────────────── */
+    .slides {
+      position: relative;
+      width: 100%;
+      height: calc(100vh - 40px);
+      overflow: hidden;
+    }
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 22px 44px 0;
+      transform: translateX(100%);
+      transition: transform 0.55s cubic-bezier(0.77, 0, 0.175, 1);
+      overflow: hidden;
+    }
+    .slide.active  { transform: translateX(0); }
+    .slide.exiting { transform: translateX(-100%); }
+
+    /* ── TYPE ─────────────────────────────────────────────────── */
+    .label {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      color: var(--p6);
+      text-transform: uppercase;
+    }
+    .slide-meta {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 8px;
+    }
+    .slide-title {
+      font-size: clamp(11px, 1.7vw, 21px);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--p1);
+      line-height: 1.1;
+      max-width: 840px;
+      margin-bottom: 10px;
+    }
+
+    /* ── VIZ CONTAINER ────────────────────────────────────────── */
+    .viz-container {
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+      position: relative;
+    }
+    #svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* ── LIVE COUNTER READOUT ─────────────────────────────────── */
+    #counter-bar {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+    }
+    .counter-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      color: var(--p6);
+    }
+    .counter-val {
+      font-weight: 800;
+      color: var(--p2);
+      font-size: 12px;
+      min-width: 24px;
+    }
+
+    /* ── TOOLTIP ──────────────────────────────────────────────── */
+    #tooltip {
+      position: fixed;
+      background: var(--p1);
+      color: var(--p8);
+      font-family: var(--font);
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1.7;
+      padding: 8px 13px;
+      border: 1px solid var(--p2);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.1s;
+      z-index: 200;
+      white-space: nowrap;
+    }
+    #tooltip.visible { opacity: 1; }
+
+    /* ── CONTROLS ─────────────────────────────────────────────── */
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 0 10px;
+      border-top: 2px solid var(--p7);
+      margin-top: 4px;
+      flex-wrap: wrap;
+    }
+    button {
+      font-family: var(--font);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      background: transparent;
+      border: 1px solid var(--p5);
+      color: var(--p5);
+      padding: 5px 10px;
+      cursor: pointer;
+      transition: background 0.13s, color 0.13s, border-color 0.13s;
+    }
+    button:hover, button:focus-visible {
+      background: var(--p1);
+      color: var(--p8);
+      border-color: var(--p1);
+      outline: none;
+    }
+    .nav-dots {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-left: auto;
+    }
+    .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--p7);
+      cursor: pointer; border: none; padding: 0;
+      transition: background 0.2s;
+    }
+    .dot.active { background: var(--p2); }
+
+    /* ── LEARN SLIDE ──────────────────────────────────────────── */
+    .learn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px 32px;
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 8px;
+      min-height: 0;
+    }
+    .learn-block { border-left: 3px solid var(--p2); padding-left: 16px; }
+    .learn-block h2 {
+      font-size: 10px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.12em; color: var(--p2); margin-bottom: 8px;
+    }
+    .learn-block p { font-size: 11px; line-height: 1.85; color: var(--p5); }
+    .learn-block strong { color: var(--p1); font-weight: 800; }
+    .learn-block em     { color: var(--p2); font-style: normal; font-weight: 600; }
+    .framework-box {
+      background: var(--p4);
+      border: 1px solid var(--p7);
+      padding: 12px 15px;
+      margin-top: 10px;
+    }
+    .framework-box .label { display: block; margin-bottom: 7px; }
+
+    /* ── FOOTER ───────────────────────────────────────────────── */
+    footer {
+      border-top: 2px solid var(--p7);
+      padding: 9px 44px;
+      font-size: 10px;
+      color: var(--p6);
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+
+<div id="tooltip" role="tooltip" aria-live="polite"></div>
+
+<div class="slides" id="slides">
+
+  <!-- ══ SLIDE 01 — VISUALIZATION ════════════════════════════ -->
+  <section class="slide active" id="slide-01"
+           aria-label="Tally chart — AI incident reports by category Q3 2024">
+
+    <div class="slide-meta">
+      <span class="label">// TALLY CHART — 01 / 02</span>
+    </div>
+    <h1 class="slide-title">Accuracy failures lead at 31 — safety incidents, at 8, may be the most under-reported</h1>
+
+    <!-- Live counter bar -->
+    <div id="counter-bar" aria-live="polite" aria-label="Running totals">
+      <div class="counter-item">
+        <span>incidents counted:</span>
+        <span class="counter-val" id="live-count">0</span>
+      </div>
+      <div class="counter-item">
+        <span>of</span>
+        <span class="counter-val" id="total-count">—</span>
+        <span>total</span>
+      </div>
+      <div class="counter-item" id="pct-item" style="opacity:0;">
+        <span>current row:</span>
+        <span class="counter-val" id="row-pct">—</span>
+      </div>
+    </div>
+
+    <div class="viz-container" id="chart" role="img"
+         aria-labelledby="chart-accessible-title">
+      <svg id="svg">
+        <title id="chart-accessible-title">
+          Tally chart showing AI incident reports for Q3 2024, across six categories.
+          Each mark represents one incident; marks group in fives (four vertical,
+          one diagonal slash). Accuracy and Performance leads with 31 marks (7 full
+          groups of 5 plus 1). Safety is lowest at 8 marks. Total: 105 incidents.
+        </title>
+        <desc>
+          Marks animate into the chart row by row, left to right. Hover a row to
+          see count and percentage of total. Use speed toggle to change animation pace.
+        </desc>
+      </svg>
+    </div>
+
+    <div class="controls">
+      <button id="audio-toggle" tabindex="0" aria-label="Play narration">▶ narration</button>
+      <button id="replay-btn" tabindex="0">replay</button>
+      <button id="speed-btn" tabindex="0">speed: normal</button>
+      <button id="sort-btn" tabindex="0">sort: count ↓</button>
+      <div class="nav-dots" aria-label="Slide navigation">
+        <button class="dot active" data-slide="0" tabindex="0"
+                aria-label="Slide 1: visualization" aria-current="true"></button>
+        <button class="dot" data-slide="1" tabindex="0"
+                aria-label="Slide 2: learn panel"></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SLIDE 02 — LEARN ════════════════════════════════════ -->
+  <section class="slide" id="slide-02"
+           aria-label="Learn panel — Tally Chart">
+
+    <div class="slide-meta">
+      <span class="label">// LEARN — TALLY CHART — 02 / 02</span>
+    </div>
+    <h1 class="slide-title">A recording tool made visual — what tally marks do that bars cannot</h1>
+
+    <div class="learn-grid">
+
+      <div class="learn-block">
+        <h2>What this chart is</h2>
+        <p>A Tally Chart is simultaneously a <em>data collection method</em> and a
+        <em>visual display</em>. The tally mark numeral system — four vertical strokes
+        crossed by a diagonal — groups counts in fives, making totals readable at a
+        glance without arithmetic. Historically made with pen and paper, the form
+        conveys something that no bar chart can: the <strong>process of counting</strong>.
+        Each mark is a discrete event. The chart does not abstract the data into a
+        continuous scale; it preserves the unit nature of what was counted. The
+        animation here restores that accumulative process — marks appear as they
+        would be drawn, one incident at a time.</p>
+      </div>
+
+      <div class="learn-block">
+        <h2>Why it was chosen here</h2>
+        <p>The data is a count of discrete events (reported incidents) across a small
+        number of categories with relatively modest counts (8–31 per category). A bar
+        chart would be more precise, and a dot plot would be more elegant. But the
+        tally form makes an argument that precision does not: these are
+        <em>individually countable events</em>, not a measured quantity. Every mark is
+        an incident that was filed by a real person. The form grounds the data in its
+        origin — a manual counting process — which is appropriate when the act of
+        counting is itself part of the story. When counts exceed ~60 per category,
+        the form breaks down and a histogram is correct.</p>
+      </div>
+
+      <div class="learn-block">
+        <h2>What a histogram would do differently</h2>
+        <p>A histogram bins continuous values into intervals and shows their
+        frequency as bars. A tally chart counts discrete events in categorical rows.
+        They look similar when complete — the Data Visualisation Catalogue notes
+        that "the final result is similar to a histogram" — but they are conceptually
+        different. The histogram's x-axis is a continuous scale; the tally chart's
+        rows are independent categories. You <strong>cannot</strong> use a tally
+        chart for continuous data (temperature, time-to-resolution) without first
+        binning it, at which point a histogram is the correct form. The tally chart's
+        limitation is also its strength: it only works for countable, discrete data.</p>
+      </div>
+
+      <div class="learn-block">
+        <h2>Framework reference &amp; the one decision worth knowing</h2>
+        <div class="framework-box">
+          <span class="label">// FT Visual Vocabulary + Tufte</span>
+          <p style="margin-top:6px;font-size:11px;line-height:1.8;color:var(--p5);">
+            FT Visual Vocabulary: <strong>Distribution — Frequency</strong>
+            (closest match; tally charts predate most formal charting frameworks).
+            Abela quadrant: <strong>Comparison</strong> — comparing discrete
+            frequency counts across categories. Tufte: tally charts achieve
+            near-perfect data-ink ratio — <em>every mark is one data point</em>.
+          </p>
+        </div>
+        <p style="margin-top:12px;">
+          <strong>The one decision worth knowing:</strong> phantom group boxes
+          (faint rectangles) are drawn <em>before</em> the marks animate in.
+          This mirrors the pre-printed form structure of a physical tally sheet,
+          where blank boxes exist before any data is recorded. The boxes also
+          make the group-of-5 structure legible from the first frame —
+          the viewer understands the encoding before a single mark appears.
+        </p>
+      </div>
+
+    </div>
+
+    <div class="controls">
+      <button id="audio-toggle-2" tabindex="0" aria-label="Play narration">▶ narration</button>
+      <div class="nav-dots" aria-label="Slide navigation">
+        <button class="dot" data-slide="0" tabindex="0"
+                aria-label="Slide 1: visualization"></button>
+        <button class="dot active" data-slide="1" tabindex="0"
+                aria-label="Slide 2: learn panel" aria-current="true"></button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <span>Nik Bear Brown, Irreducibly Human, What AI Can and Can't Do</span>
+  <span>boondoggling.ai · irreducibly.xyz · brutalist.art · bearbrown.co · frictional.xyz</span>
+</footer>
+
+<audio id="page-audio" src="./tally-chart/audio.mp3" preload="none"></audio>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script>
+'use strict';
+
+/* ══ SLIDE SYSTEM ══════════════════════════════════════════════ */
+let currentSlide = 0;
+const slideEls = document.querySelectorAll('.slide');
+const allDots  = document.querySelectorAll('.dot');
+
+function goToSlide(idx) {
+  if (idx === currentSlide) return;
+  slideEls[currentSlide].classList.remove('active');
+  slideEls[currentSlide].classList.add('exiting');
+  const old = currentSlide;
+  currentSlide = idx;
+  slideEls[currentSlide].classList.add('active');
+  allDots.forEach((d, i) => {
+    d.classList.toggle('active', i === currentSlide);
+    d.setAttribute('aria-current', i === currentSlide ? 'true' : 'false');
+  });
+  setTimeout(() => slideEls[old].classList.remove('exiting'), 600);
+}
+
+allDots.forEach((dot, i) => dot.addEventListener('click', () => goToSlide(i)));
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') goToSlide(Math.min(currentSlide + 1, slideEls.length - 1));
+  if (e.key === 'ArrowLeft')  goToSlide(Math.max(currentSlide - 1, 0));
+});
+
+/* ══ AUDIO ═════════════════════════════════════════════════════ */
+const audio = document.getElementById('page-audio');
+['audio-toggle','audio-toggle-2'].forEach(id => {
+  document.getElementById(id).addEventListener('click', () => {
+    const btns = document.querySelectorAll('[id^="audio-toggle"]');
+    if (audio.paused) {
+      audio.play().catch(() => {});
+      btns.forEach(b => b.textContent = '⏸ narration');
+    } else {
+      audio.pause();
+      btns.forEach(b => b.textContent = '▶ narration');
+    }
+  });
+});
+
+/* ══ TOOLTIP ═══════════════════════════════════════════════════ */
+const tip = document.getElementById('tooltip');
+function showTip(html, cx, cy) {
+  tip.innerHTML = html;
+  tip.classList.add('visible');
+  const tw = tip.offsetWidth, th = tip.offsetHeight;
+  tip.style.left = Math.min(cx + 14, window.innerWidth  - tw - 6) + 'px';
+  tip.style.top  = Math.max(cy - th - 12, 6) + 'px';
+}
+function hideTip() { tip.classList.remove('visible'); }
+
+/* ══ SPEED CONFIG ═══════════════════════════════════════════════ */
+const SPEEDS = [
+  { label: 'speed: slow',   markDur: 80,  markDelay: 80,  rowDelay: 220 },
+  { label: 'speed: normal', markDur: 28,  markDelay: 28,  rowDelay: 100 },
+  { label: 'speed: fast',   markDur: 8,   markDelay: 8,   rowDelay: 35  }
+];
+let speedIdx  = 1; // normal
+let sortDesc  = true;
+let chartData = null;
+// Track running animation transitions for cancellation
+let activeTransitions = [];
+
+/* ══ SORT ═══════════════════════════════════════════════════════ */
+function getSorted(cats) {
+  return [...cats].sort((a, b) => sortDesc ? b.count - a.count : a.count - b.count);
+}
+
+/* ══ BUILD CHART ════════════════════════════════════════════════ */
+function buildChart(data, animate) {
+  // Kill any in-progress animation timers
+  activeTransitions.forEach(t => clearTimeout(t));
+  activeTransitions = [];
+
+  const container = document.getElementById('chart');
+  const W = container.clientWidth;
+  const H = container.clientHeight;
+  if (W < 20 || H < 20) return;
+
+  const sorted = getSorted(data.categories);
+  const n = sorted.length;
+  const totalCount = d3.sum(data.categories, d => d.count);
+  const maxCount   = d3.max(data.categories, d => d.count);
+  const maxGroups  = Math.ceil(maxCount / 5);
+
+  // Update static counter
+  document.getElementById('total-count').textContent = totalCount;
+  document.getElementById('live-count').textContent  = animate ? '0' : totalCount;
+  document.getElementById('pct-item').style.opacity  = '0';
+
+  // Layout
+  const HEADER_H  = 30;
+  const FOOTER_H  = 36;
+  const LABEL_W   = Math.min(180, W * 0.28);
+  const COUNT_W   = 56;
+  const TALLY_W   = W - LABEL_W - COUNT_W - 8;
+  const ROW_H     = (H - HEADER_H - FOOTER_H) / n;
+  const MARK_H    = Math.max(Math.min(ROW_H * 0.52, 28), 14);
+  const MARK_STK  = Math.max(Math.min(MARK_H * 0.085, 2.2), 1.2); // stroke width
+
+  // Group dimensions
+  const GROUP_W   = TALLY_W / (maxGroups + 0.5);
+  const INNER_W   = GROUP_W * 0.72;
+  const M_SPACE   = INNER_W / 3; // spacing between 4 vertical marks (3 gaps)
+
+  // Clear SVG
+  const svg = d3.select('#svg');
+  svg.selectAll('*').remove();
+
+  // ── DEFS: clip path for tally area
+  svg.append('defs').append('clipPath').attr('id','tally-clip')
+    .append('rect')
+    .attr('x', LABEL_W).attr('y', HEADER_H)
+    .attr('width', TALLY_W + COUNT_W).attr('height', H - HEADER_H - FOOTER_H);
+
+  // ── COLUMN HEADERS
+  const hdG = svg.append('g');
+  hdG.append('text')
+    .attr('x', LABEL_W / 2).attr('y', HEADER_H - 8)
+    .attr('text-anchor','middle')
+    .attr('font-family','var(--font)').attr('font-size',9)
+    .attr('font-weight','800').attr('fill','var(--p6)')
+    .text('CATEGORY');
+
+  hdG.append('text')
+    .attr('x', LABEL_W + TALLY_W / 2).attr('y', HEADER_H - 8)
+    .attr('text-anchor','middle')
+    .attr('font-family','var(--font)').attr('font-size',9)
+    .attr('font-weight','800').attr('fill','var(--p6)')
+    .text('TALLY');
+
+  hdG.append('text')
+    .attr('x', LABEL_W + TALLY_W + COUNT_W / 2).attr('y', HEADER_H - 8)
+    .attr('text-anchor','middle')
+    .attr('font-family','var(--font)').attr('font-size',9)
+    .attr('font-weight','800').attr('fill','var(--p6)')
+    .text('COUNT');
+
+  // Header divider
+  hdG.append('line')
+    .attr('x1',0).attr('x2',W).attr('y1',HEADER_H).attr('y2',HEADER_H)
+    .attr('stroke','var(--p5)').attr('stroke-width',1.5);
+
+  // ── ROW GROUPS
+  const speed = SPEEDS[speedIdx];
+  let globalMarkIdx = 0; // running total across all rows (for live counter)
+
+  sorted.forEach((cat, rowIdx) => {
+    const rowY   = HEADER_H + rowIdx * ROW_H;
+    const midY   = rowY + ROW_H / 2;
+    const nGroups = Math.ceil(cat.count / 5);
+
+    // Row background (alternating)
+    if (rowIdx % 2 === 0) {
+      svg.append('rect')
+        .attr('x', 0).attr('y', rowY)
+        .attr('width', W).attr('height', ROW_H)
+        .attr('fill','var(--p7)').attr('opacity', 0.18);
+    }
+
+    // Row divider
+    svg.append('line')
+      .attr('x1',0).attr('x2',W)
+      .attr('y1', rowY + ROW_H).attr('y2', rowY + ROW_H)
+      .attr('stroke','var(--p7)').attr('stroke-width',0.8);
+
+    // Category label
+    svg.append('text')
+      .attr('x', LABEL_W - 10).attr('y', midY)
+      .attr('text-anchor','end')
+      .attr('dominant-baseline','middle')
+      .attr('font-family','var(--font)')
+      .attr('font-size', Math.max(Math.min(ROW_H * 0.32, 12), 9))
+      .attr('font-weight','800')
+      .attr('fill','var(--p1)')
+      .text(cat.label);
+
+    // Count column divider
+    svg.append('line')
+      .attr('x1', LABEL_W + TALLY_W).attr('x2', LABEL_W + TALLY_W)
+      .attr('y1', rowY).attr('y2', rowY + ROW_H)
+      .attr('stroke','var(--p7)').attr('stroke-width',0.8);
+
+    // Count text (appears after row is done)
+    const countText = svg.append('text')
+      .attr('x', LABEL_W + TALLY_W + COUNT_W / 2).attr('y', midY)
+      .attr('text-anchor','middle')
+      .attr('dominant-baseline','middle')
+      .attr('font-family','var(--font)')
+      .attr('font-size', Math.max(Math.min(ROW_H * 0.38, 14), 10))
+      .attr('font-weight','800')
+      .attr('fill','var(--p2)')
+      .attr('opacity', animate ? 0 : 1)
+      .text(cat.count);
+
+    // ── PHANTOM GROUP BOXES (pre-printed form structure)
+    const phantomG = svg.append('g').attr('clip-path','url(#tally-clip)');
+    for (let pg = 0; pg < maxGroups; pg++) {
+      const bx = LABEL_W + pg * GROUP_W + (GROUP_W - INNER_W) / 2;
+      phantomG.append('rect')
+        .attr('x', bx - 2)
+        .attr('y', midY - MARK_H / 2 - 3)
+        .attr('width', INNER_W + 4)
+        .attr('height', MARK_H + 6)
+        .attr('fill','none')
+        .attr('stroke','var(--p7)')
+        .attr('stroke-width', 0.8)
+        .attr('rx', 2);
+    }
+
+    // ── TALLY MARKS
+    const marksG = svg.append('g').attr('clip-path','url(#tally-clip)');
+
+    function drawMark(markNum, cumulativeIdx) {
+      const posInGroup = markNum % 5;
+      const groupNum   = Math.floor(markNum / 5);
+      const gx         = LABEL_W + groupNum * GROUP_W + (GROUP_W - INNER_W) / 2;
+      const isDiag     = posInGroup === 4;
+
+      let line;
+      if (isDiag) {
+        // Diagonal slash through 4 marks
+        line = marksG.append('line')
+          .attr('x1', gx - 3)
+          .attr('y1', midY - MARK_H / 2 + 2)
+          .attr('x2', gx + INNER_W + 3)
+          .attr('y2', midY + MARK_H / 2 - 2);
+      } else {
+        // Vertical mark
+        const mx = gx + posInGroup * M_SPACE;
+        line = marksG.append('line')
+          .attr('x1', mx).attr('y1', midY - MARK_H / 2)
+          .attr('x2', mx).attr('y2', midY + MARK_H / 2);
+      }
+
+      line.attr('stroke', 'var(--p2)')
+          .attr('stroke-width', MARK_STK)
+          .attr('stroke-linecap','round');
+
+      if (animate) {
+        const len = line.node().getTotalLength() || 1;
+        line.attr('stroke-dasharray', `${len} ${len}`)
+            .attr('stroke-dashoffset', len);
+
+        // Compute cumulative delay
+        const rowOffset = (() => {
+          let offset = 0;
+          for (let ri = 0; ri < rowIdx; ri++) {
+            offset += sorted[ri].count * speed.markDelay + speed.rowDelay;
+          }
+          return offset;
+        })();
+
+        const delay = rowOffset + markNum * speed.markDelay;
+
+        // Schedule via setTimeout for live counter update
+        const tId = setTimeout(() => {
+          line.transition()
+            .duration(speed.markDur)
+            .ease(d3.easeLinear)
+            .attr('stroke-dashoffset', 0);
+
+          // Update live counter
+          const liveEl = document.getElementById('live-count');
+          if (liveEl) liveEl.textContent = cumulativeIdx + 1;
+
+          // When last mark in this row completes, show count total
+          if (markNum === cat.count - 1) {
+            const tId2 = setTimeout(() => {
+              countText.transition().duration(200).attr('opacity', 1);
+            }, speed.markDur + 30);
+            activeTransitions.push(tId2);
+          }
+        }, delay);
+        activeTransitions.push(tId);
+      }
+    }
+
+    for (let m = 0; m < cat.count; m++) {
+      drawMark(m, globalMarkIdx);
+      globalMarkIdx++;
+    }
+  });
+
+  // ── COLUMN DIVIDER (label | tally)
+  svg.append('line')
+    .attr('x1', LABEL_W).attr('x2', LABEL_W)
+    .attr('y1', HEADER_H).attr('y2', H - FOOTER_H)
+    .attr('stroke','var(--p5)').attr('stroke-width',1.5);
+
+  // ── FOOTER ROW (total)
+  const ftY = H - FOOTER_H;
+  svg.append('line')
+    .attr('x1',0).attr('x2',W).attr('y1',ftY).attr('y2',ftY)
+    .attr('stroke','var(--p5)').attr('stroke-width',1.5);
+
+  svg.append('text')
+    .attr('x', LABEL_W - 10).attr('y', ftY + FOOTER_H / 2)
+    .attr('text-anchor','end').attr('dominant-baseline','middle')
+    .attr('font-family','var(--font)').attr('font-size',11)
+    .attr('font-weight','800').attr('fill','var(--p5)')
+    .text('TOTAL');
+
+  const totalEl = svg.append('text')
+    .attr('x', LABEL_W + TALLY_W + COUNT_W / 2)
+    .attr('y', ftY + FOOTER_H / 2)
+    .attr('text-anchor','middle').attr('dominant-baseline','middle')
+    .attr('font-family','var(--font)').attr('font-size',13)
+    .attr('font-weight','800').attr('fill','var(--p3)')
+    .attr('opacity', animate ? 0 : 1)
+    .text(totalCount);
+
+  if (animate) {
+    const totalDelay = d3.sum(sorted, d => d.count) * speed.markDelay +
+                       n * speed.rowDelay + speed.markDur + 60;
+    const tId = setTimeout(() => {
+      totalEl.transition().duration(300).attr('opacity', 1);
+      document.getElementById('live-count').textContent = totalCount;
+    }, totalDelay);
+    activeTransitions.push(tId);
+  }
+
+  // ── HOVER INTERACTIONS (row overlay rects)
+  sorted.forEach((cat, rowIdx) => {
+    const rowY = HEADER_H + rowIdx * ROW_H;
+    const pct  = ((cat.count / totalCount) * 100).toFixed(1);
+
+    svg.append('rect')
+      .attr('x', 0).attr('y', rowY)
+      .attr('width', W).attr('height', ROW_H)
+      .attr('fill','transparent')
+      .attr('cursor','crosshair')
+      .attr('tabindex', 0)
+      .attr('aria-label', `${cat.label}: ${cat.count} incidents (${pct}%)`)
+      .on('mouseover', function(event) {
+        d3.select(this).attr('fill','var(--p2)').attr('opacity', 0.08);
+        document.getElementById('pct-item').style.opacity = '1';
+        document.getElementById('row-pct').textContent    = `${pct}%`;
+        showTip(
+          `<strong>${cat.label}</strong><br>` +
+          `incidents: ${cat.count}<br>` +
+          `% of total: ${pct}%<br>` +
+          `groups of 5: ${Math.floor(cat.count/5)} complete + ${cat.count%5}`,
+          event.clientX, event.clientY
+        );
+      })
+      .on('mouseout', function() {
+        d3.select(this).attr('fill','transparent').attr('opacity',1);
+        document.getElementById('pct-item').style.opacity = '0';
+        hideTip();
+      })
+      .on('keydown', function(event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          showTip(
+            `<strong>${cat.label}</strong><br>incidents: ${cat.count}  ·  ${pct}%`,
+            200, 200
+          );
+        }
+        if (event.key === 'Escape') hideTip();
+      });
+  });
+}
+
+/* ══ CONTROLS ═══════════════════════════════════════════════════ */
+document.getElementById('replay-btn').addEventListener('click', () => {
+  if (chartData) buildChart(chartData, true);
+});
+
+document.getElementById('speed-btn').addEventListener('click', function() {
+  speedIdx = (speedIdx + 1) % SPEEDS.length;
+  this.textContent = SPEEDS[speedIdx].label;
+  if (chartData) buildChart(chartData, true);
+});
+
+document.getElementById('sort-btn').addEventListener('click', function() {
+  sortDesc = !sortDesc;
+  this.textContent = sortDesc ? 'sort: count ↓' : 'sort: count ↑';
+  if (chartData) buildChart(chartData, true);
+});
+
+/* ══ RESPONSIVE ═════════════════════════════════════════════════ */
+let resizeTimer;
+const ro = new ResizeObserver(() => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    if (chartData) buildChart(chartData, false);
+  }, 150);
+});
+ro.observe(document.getElementById('chart'));
+
+/* ══ FALLBACK DATA ══════════════════════════════════════════════ */
+const FALLBACK = {
+  title: 'AI Incident Reports by Category',
+  unit: 'Each mark = 1 reported incident',
+  period: 'Q3 2024',
+  categories: [
+    { id:'acc', label:'Accuracy & Performance', count:31 },
+    { id:'bia', label:'Bias & Fairness',         count:23 },
+    { id:'pri', label:'Privacy & Security',      count:17 },
+    { id:'gov', label:'Governance',              count:14 },
+    { id:'tra', label:'Transparency',            count:12 },
+    { id:'saf', label:'Safety',                  count: 8 }
+  ]
+};
+
+/* ══ LOAD & INIT ════════════════════════════════════════════════ */
+d3.json('./tally-chart/data.json')
+  .then(d => { chartData = d; buildChart(d, true); })
+  .catch(() => { chartData = FALLBACK; buildChart(FALLBACK, true); });
+</script>
+</body>
+</html>

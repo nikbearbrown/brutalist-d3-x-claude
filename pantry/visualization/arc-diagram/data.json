@@ -1,0 +1,41 @@
+{
+  "_schema": {
+    "description": "Character co-occurrence network from a fictional novel. Each node is a character; each link records how many scenes two characters share.",
+    "fields": {
+      "nodes[].id":          "string — unique identifier, matches source/target in links",
+      "nodes[].label":       "string — display name shown on the axis",
+      "nodes[].totalScenes": "number — total scenes this character appears in (drives node radius)",
+      "links[].source":      "string — id of first character in the pair",
+      "links[].target":      "string — id of second character in the pair",
+      "links[].weight":      "number — shared scene count (drives arc thickness and color)"
+    },
+    "replace": "Swap nodes[] with your entities (people, words, documents) and links[] with co-occurrence counts. Keep id values consistent between nodes and links."
+  },
+  "nodes": [
+    { "id": "elara", "label": "Elara",  "totalScenes": 42 },
+    { "id": "fenn",  "label": "Fenn",   "totalScenes": 31 },
+    { "id": "voss",  "label": "Voss",   "totalScenes": 28 },
+    { "id": "mira",  "label": "Mira",   "totalScenes": 25 },
+    { "id": "cas",   "label": "Cas",    "totalScenes": 19 },
+    { "id": "theo",  "label": "Theo",   "totalScenes": 17 },
+    { "id": "lena",  "label": "Lena",   "totalScenes": 14 },
+    { "id": "dax",   "label": "Dax",    "totalScenes": 11 }
+  ],
+  "links": [
+    { "source": "elara", "target": "fenn",  "weight": 18 },
+    { "source": "elara", "target": "voss",  "weight": 12 },
+    { "source": "elara", "target": "mira",  "weight":  9 },
+    { "source": "elara", "target": "cas",   "weight":  7 },
+    { "source": "elara", "target": "theo",  "weight":  5 },
+    { "source": "fenn",  "target": "voss",  "weight": 14 },
+    { "source": "fenn",  "target": "mira",  "weight":  6 },
+    { "source": "fenn",  "target": "dax",   "weight":  8 },
+    { "source": "voss",  "target": "cas",   "weight": 10 },
+    { "source": "voss",  "target": "lena",  "weight":  4 },
+    { "source": "mira",  "target": "theo",  "weight":  7 },
+    { "source": "mira",  "target": "lena",  "weight":  5 },
+    { "source": "cas",   "target": "dax",   "weight":  3 },
+    { "source": "theo",  "target": "lena",  "weight":  6 },
+    { "source": "lena",  "target": "dax",   "weight":  2 }
+  ]
+}

@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monthly Aid Delivery Volume — Radial Bar Chart</title>
+  <meta name="description" content="Radial bar chart showing humanitarian aid delivery volume across 12 months. November peaks at 318,000 MT; June troughs at 188,000 MT. Polar coordinate aesthetic with honest distortion acknowledgement.">
+  <meta name="keywords" content="radial bar chart, polar bar chart, D3.js, humanitarian aid, monthly distribution, circular visualization, aesthetic visualization, seasonal pattern">
+  <meta name="author" content="Nik Bear Brown">
+  <meta name="category" content="Humanitarian Data Visualization">
+
+  <!-- PALETTE: hai — Humanitarians AI
+       WCAG NOTE:
+         p4 (#F7FAFD) FAIL — not used for text
+         p7 (#EDEDED) FAIL — grid rings and borders only
+       Text: p1 (18.2:1), p5 (9.4:1), p6 (4.6:1) — all AA+
+       Bar fills (graphical, 3:1 threshold):
+         p2 #5C3317 on white bg: 9.3:1 ✓
+         p3 #B52C2C on white bg (hover): 5.8:1 ✓
+
+       DISTORTION NOTE: In a radial bar chart, the outer arc of a taller bar
+       spans MORE pixels than the outer arc of a shorter bar at the same angular
+       width, because arc length = radius × angle. This means larger values
+       look disproportionately larger than they are — the visual area of each
+       bar scales with outerRadius², not linearly with value. This is the
+       known and unavoidable perceptual distortion of the radial bar form.
+       It is mitigated here by: (1) showing a regular bar chart option in
+       the learn panel, (2) annotating exact values in tooltips, (3) providing
+       grid rings to support estimation, and (4) the learn panel's explicit
+       explanation of the distortion mechanism.
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --p1: #1B1B1B;
+      --p2: #5C3317;
+      --p3: #B52C2C;
+      --p4: #F7FAFD;
+      --p5: #4A4D4F;
+      --p6: #797C7F;
+      --p7: #EDEDED;
+      --p8: #FFFFFF;
+      --font: 'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%; height: 100%;
+      background: var(--p8); color: var(--p1);
+      font-family: var(--font); overflow: hidden;
+    }
+
+    /* ─── SLIDES ─────────────────────────────────── */
+    .slide {
+      position: absolute; inset: 0;
+      display: none; flex-direction: column;
+      padding: 1.3rem 2.2rem 2.7rem;
+    }
+    .slide.active { display: flex; }
+
+    .slide-meta {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 0.42rem; flex-shrink: 0;
+    }
+
+    .label {
+      font-size: 9.5px; font-weight: 600;
+      letter-spacing: 0.13em; color: var(--p6);
+      text-transform: uppercase;
+    }
+
+    h1.slide-title {
+      font-size: clamp(11px, 1.5vw, 18px);
+      font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.042em; color: var(--p1);
+      line-height: 1.2; margin-bottom: 0.25rem;
+      max-width: 90ch; flex-shrink: 0;
+    }
+
+    .subtitle {
+      font-size: 10.5px; color: var(--p5);
+      margin-bottom: 0.5rem; line-height: 1.5; flex-shrink: 0;
+    }
+
+    /* ─── VIZ ────────────────────────────────────── */
+    .viz-container {
+      flex: 1; position: relative; min-height: 0;
+      border-top: 1px solid var(--p7);
+    }
+
+    #chart-svg { width: 100%; height: 100%; display: block; }
+
+    /* ─── CHART ELEMENTS ─────────────────────────── */
+    .grid-ring {
+      fill: none; stroke: var(--p7);
+      stroke-width: 0.8; stroke-dasharray: 3,5;
+    }
+
+    .grid-label {
+      font-family: var(--font); font-size: 7.5px;
+      fill: var(--p6); letter-spacing: 0.04em;
+    }
+
+    .bar-arc {
+      cursor: pointer;
+      transition: fill-opacity 0.12s;
+    }
+    .bar-arc:focus { outline: 2px solid var(--p2); outline-offset: 2px; }
+    .bar-arc.dimmed { fill-opacity: 0.12 !important; }
+    .bar-arc.lit    { fill-opacity: 1 !important; stroke: var(--p3); stroke-width: 0.8; }
+
+    .month-label {
+      font-family: var(--font);
+      font-size: clamp(8.5px, 0.85vw, 10.5px);
+      font-weight: 600; fill: var(--p1);
+      letter-spacing: 0.05em; text-transform: uppercase;
+      pointer-events: none;
+    }
+
+    .value-label {
+      font-family: var(--font); font-size: 7px;
+      fill: var(--p6); letter-spacing: 0.04em;
+      pointer-events: none;
+    }
+
+    /* Center label */
+    #center-main {
+      font-family: var(--font); font-size: clamp(15px, 1.6vw, 22px);
+      font-weight: 800; fill: var(--p1); text-anchor: middle;
+    }
+
+    #center-sub {
+      font-family: var(--font); font-size: 9px;
+      font-weight: 600; fill: var(--p6); text-anchor: middle;
+      text-transform: uppercase; letter-spacing: 0.1em;
+    }
+
+    /* ─── TOOLTIP ────────────────────────────────── */
+    #tooltip {
+      position: absolute; pointer-events: none;
+      background: var(--p1); color: var(--p8);
+      font-family: var(--font); font-size: 11px;
+      font-weight: 400; line-height: 1.65;
+      padding: 7px 11px; border: 1px solid var(--p2);
+      z-index: 90; opacity: 0; transition: opacity 0.1s ease;
+      max-width: 210px; white-space: nowrap;
+    }
+    #tooltip.visible { opacity: 1; }
+    #tooltip .tt-head {
+      font-size: 12px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      color: #C4956A; border-bottom: 1px solid #333;
+      padding-bottom: 3px; margin-bottom: 4px;
+    }
+
+    /* ─── CONTROLS ───────────────────────────────── */
+    .controls {
+      display: flex; gap: 0.6rem; align-items: center;
+      padding-top: 0.35rem;
+      border-top: 1px solid var(--p7); flex-shrink: 0;
+    }
+
+    .btn {
+      font-family: var(--font); font-size: 9.5px;
+      font-weight: 600; letter-spacing: 0.09em;
+      background: transparent; border: 1px solid var(--p7);
+      color: var(--p5); padding: 3px 9px;
+      cursor: pointer; text-transform: uppercase;
+      transition: border-color 0.1s, color 0.1s;
+    }
+    .btn:hover  { border-color: var(--p2); color: var(--p2); }
+    .btn:focus  { outline: 2px solid var(--p2); outline-offset: 1px; }
+    .btn.active { border-color: var(--p2); color: var(--p2); background: rgba(92,51,23,.07); }
+
+    /* ─── LEARN SLIDE ────────────────────────────── */
+    .slide-learn { overflow-y: auto; }
+    .learn-block { max-width: 66ch; }
+
+    .learn-block h2 {
+      font-size: clamp(10px, 0.95vw, 12px);
+      font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.11em; color: var(--p2);
+      margin: 1.35rem 0 0.38rem;
+      border-bottom: 1px solid var(--p7); padding-bottom: 3px;
+    }
+    .learn-block h2:first-of-type { margin-top: 0.2rem; }
+
+    .learn-block p {
+      font-size: 12.5px; color: var(--p1);
+      line-height: 1.82; margin-bottom: 0.45rem;
+    }
+
+    .learn-block code {
+      font-family: var(--font); font-size: 11px;
+      background: var(--p7); padding: 1px 5px;
+    }
+
+    .warning-box {
+      margin-top: 0.4rem; padding: 0.65rem 0.9rem;
+      border: 1px solid var(--p3); border-left: 3px solid var(--p3);
+      background: rgba(181,44,44,0.04);
+    }
+    .warning-box .label { display: block; margin-bottom: 3px; }
+    .warning-box p { font-size: 12px; color: var(--p5); margin-bottom: 0; }
+
+    .framework-ref {
+      margin-top: 1.25rem; padding: 0.6rem 0.9rem;
+      border-left: 3px solid var(--p2); background: #F5F3EF;
+    }
+    .framework-ref .label { display: block; margin-bottom: 3px; }
+    .framework-ref p { font-size: 12px; color: var(--p5); margin-bottom: 0; }
+
+    .design-note {
+      margin-top: 0.85rem; padding: 0.6rem 0.9rem;
+      border: 1px solid var(--p7); border-left: 3px solid var(--p5);
+    }
+    .design-note .label { display: block; margin-bottom: 3px; }
+    .design-note p { font-size: 12px; color: var(--p5); margin-bottom: 0; }
+
+    /* ─── NAV ────────────────────────────────────── */
+    .slide-nav {
+      position: fixed; bottom: 1.4rem;
+      left: 50%; transform: translateX(-50%);
+      display: flex; gap: 7px; z-index: 200;
+    }
+    .dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--p7); border: 1px solid var(--p6);
+      cursor: pointer; padding: 0; transition: background 0.15s;
+    }
+    .dot.active { background: var(--p2); border-color: var(--p2); }
+    .dot:focus  { outline: 2px solid var(--p2); outline-offset: 2px; }
+
+    /* ─── FOOTER ─────────────────────────────────── */
+    footer {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      padding: 0.22rem 2.2rem;
+      border-top: 2px solid var(--p7);
+      display: flex; justify-content: space-between; align-items: center;
+      background: var(--p8); z-index: 150;
+    }
+    footer p { font-size: 9px; color: var(--p6); letter-spacing: 0.07em; }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════
+     SLIDE 01 — RADIAL BAR CHART
+══════════════════════════════════════════════════ -->
+<section class="slide active" id="slide-01"
+         aria-label="Radial bar chart: monthly aid delivery volume, FY 2024">
+  <div class="slide-meta">
+    <span class="label">// monthly distribution — aid delivery volume — fy 2024</span>
+    <span class="label">01 / 02</span>
+  </div>
+  <h1 class="slide-title">Aid Deliveries Peak in November and January Around Winter Emergencies — June Access Constraints Create the Annual Trough at 188K MT</h1>
+  <p class="subtitle">
+    Bar length (radial extent) encodes monthly volume. Jan at 12 o'clock, clockwise.
+    Grid rings at 100K, 200K, 300K MT. Hover for exact values and notes. Caution: outer bars appear longer than inner bars for equal values — see Learn panel.
+  </p>
+
+  <div class="viz-container" id="chart-container">
+    <svg id="chart-svg" viewBox="0 0 960 470"
+         preserveAspectRatio="xMidYMid meet"
+         role="img"
+         aria-labelledby="chart-title"
+         aria-describedby="chart-desc">
+      <title id="chart-title">Radial bar chart: monthly humanitarian aid delivery volume, FY 2024</title>
+      <desc id="chart-desc">
+        12 bars arranged in a circle, one per month. January at 12 o'clock, clockwise.
+        November is the tallest bar (318,000 MT). June is the shortest (188,000 MT).
+        Winter months (Nov–Feb) are consistently taller than summer months (May–Jul).
+      </desc>
+      <!-- Chart group — translated to center -->
+      <g id="chart-g" transform="translate(480, 242)">
+        <g id="grid-g"></g>
+        <g id="bars-g"></g>
+        <g id="labels-g"></g>
+        <g id="center-g">
+          <!-- Inner fill circle -->
+          <circle r="51" fill="var(--p8)" stroke="var(--p7)" stroke-width="1"/>
+          <text id="center-main" dy="-0.3em">—</text>
+          <text id="center-sub" dy="1.3em">Annual</text>
+        </g>
+      </g>
+    </svg>
+    <div id="tooltip" role="status" aria-live="polite"></div>
+  </div>
+
+  <div class="controls">
+    <button class="btn" id="audio-btn" aria-label="Play narration">▶ narration</button>
+    <button class="btn" id="sort-val-btn" aria-label="Sort bars by value descending, highest at top">sort by value</button>
+    <button class="btn" id="sort-cal-btn" aria-label="Restore calendar month order">calendar order</button>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════
+     SLIDE 02 — LEARN
+══════════════════════════════════════════════════ -->
+<section class="slide slide-learn" id="slide-02"
+         aria-label="Learn: Radial Bar Chart">
+  <div class="slide-meta">
+    <span class="label">// learn — radial bar chart (polar bar chart)</span>
+    <span class="label">02 / 02</span>
+  </div>
+  <h1 class="slide-title">Why a Radial Bar Chart — and When Not To</h1>
+
+  <div class="learn-block">
+
+    <h2>What this chart is</h2>
+    <p>A radial bar chart is a bar chart plotted on polar coordinates. Each category occupies an angular band; the bar's radial length encodes the value. The viewer reads the same information as a regular bar chart — bar length — but in a circular arrangement. The angular axis replaces the categorical x-axis, and the radial axis replaces the value y-axis.</p>
+    <p>In D3 terms: the angular scale is <code>d3.scaleBand()</code> with a range of <code>[0, 2π]</code>; the radial scale is <code>d3.scaleLinear()</code> mapping values to the bar height in pixels (from <code>innerRadius</code> to <code>outerRadius</code>). Each bar is a <code>d3.arc()</code> with fixed <code>innerRadius</code> and a data-driven <code>outerRadius</code>.</p>
+
+    <h2>The distortion — why this chart misleads</h2>
+    <p>The outer arc of a taller bar is not just <em>further from the center</em> — it is literally <em>longer in pixels</em> than the outer arc of a shorter bar, even accounting for proportion. This is because <strong>arc length = radius × angle</strong>. Two bars with the same angular width but different heights have different outer arc lengths. The November bar (318K MT) has an outer arc roughly 1.69× longer than the June bar (188K MT) — but the ratio of their values is only 1.69× anyway. The distortion doesn't change the ratio, but it does change the perceived area: area scales with <code>r²</code>, not <code>r</code>, so the November bar appears to dominate the field of view far more than its 1.69× value ratio would justify.</p>
+    <p>The bar closest to the outer edge gets a disproportionate visual footprint compared to its neighbours. In a 12-bar radial chart, a bar at 170px radius has an outer arc about 3.3× as long as a bar at the same angular width starting at the same inner radius but only 52px tall. A viewer reading the chart via perceived arc length rather than radial extent will systematically overestimate the largest values.</p>
+
+    <div class="warning-box">
+      <span class="label">// distortion warning</span>
+      <p>This chart is analytically inferior to a regular bar chart for precise value comparison. Use it when the circular form has semantic meaning (cyclical data like months, hours, directions) and when aesthetic communication is as important as precise reading. Always pair it with exact values in tooltips and scale rings for estimation. Do not use it to compare non-cyclical data where the circular arrangement is purely decorative.</p>
+    </div>
+
+    <h2>When it is justified — and why it was used here</h2>
+    <p>Monthly data has a genuine cyclic structure. January follows December — the wrap-around is not an arbitrary visual choice but a property of the data itself. Plotting monthly aid deliveries on a polar axis makes the winter peak visible as a continuous arc (Nov–Jan), which a regular bar chart would split into two ends of the x-axis with a gap in between. The viewer can immediately see that the high-delivery cluster is contiguous, not separated. This is information the bar chart form suppresses.</p>
+    <p>The second justification is communication context. This chart appeared in a slide deck, not a data-analysis tool. For an audience reading quickly, the circular form makes the seasonal pattern memorable in a way that a horizontal bar chart at the same size does not. The Catalogue is correct that a bar chart is analytically superior; the radial form was chosen because the communication goal was pattern recognition, not precise value reading. The tooltip provides exact values for viewers who need them.</p>
+
+    <h2>What a regular bar chart would do better</h2>
+    <p>A horizontal bar chart of the same 12 months, sorted by value, would allow precise comparison using the most accurate perceptual mechanism available: length along a common scale. The November–June difference (130K MT) would be immediately readable by comparing bar endpoints against the x-axis. No arc-length distortion. No area amplification. Any analyst who needs to argue a 41% seasonal swing would use the bar chart, not the radial form, in a technical context.</p>
+
+    <div class="framework-ref">
+      <span class="label">// framework — FT Visual Vocabulary + Data Visualisation Catalogue</span>
+      <p>Both the FT Visual Vocabulary and the Data Visualisation Catalogue classify radial bar charts as aesthetic-first tools. The Catalogue states directly: "Since our visual systems are better at interpreting straight lines, a regular Bar Chart is a better choice for comparing values. The main reason to use a Radial Bar Chart instead is aesthetic." This is the correct framing. The chart is aesthetically motivated; the bar chart is analytically correct. When you choose the radial form, own the tradeoff.</p>
+    </div>
+
+    <div class="design-note">
+      <span class="label">// design decision — January at 12 o'clock, not angular index 0</span>
+      <p>The angular scale starts at 0 radians with January, which in D3's arc convention places it at 12 o'clock (top). This matches how most people read a clock face — January at the top reads intuitively as "the start." An alternative would be to start the scale at −π/2 and map January to the left (9 o'clock, matching a standard Cartesian x-axis). The 12 o'clock convention was chosen because the audience's mental model of "year as clock" makes the seasonal pattern (winter peaks at top and left, summer trough at bottom-right) immediately spatially resonant.</p>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ─── NAV + FOOTER ──────────────────────────── -->
+<nav class="slide-nav" aria-label="Slide navigation">
+  <button class="dot active" data-target="0" aria-label="Slide 1: Radial Bar Chart"></button>
+  <button class="dot"        data-target="1" aria-label="Slide 2: Learn Panel"></button>
+</nav>
+
+<footer>
+  <p>Nik Bear Brown, Irreducibly Human, What AI Can and Can't Do</p>
+  <p>boondoggling.ai · irreducibly.xyz · brutalist.art · bearbrown.co · frictional.xyz</p>
+</footer>
+
+<audio id="page-audio" src="./radial-bar/audio.mp3"></audio>
+
+<!-- ─── SCRIPTS ────────────────────────────────── -->
+<script src="https://d3js.org/d3.v7.min.js"></script>
+
+<script>
+'use strict';
+
+// ══════════════════════════════════════════════
+// SLIDE NAV
+// ══════════════════════════════════════════════
+const slides = Array.from(document.querySelectorAll('.slide'));
+const dots   = Array.from(document.querySelectorAll('.dot'));
+let current  = 0;
+
+function goTo(i) {
+  const n = Math.max(0, Math.min(i, slides.length - 1));
+  slides[current].classList.remove('active');
+  dots[current].classList.remove('active');
+  current = n;
+  slides[current].classList.add('active');
+  dots[current].classList.add('active');
+}
+
+dots.forEach(d => d.addEventListener('click', () => goTo(+d.dataset.target)));
+document.addEventListener('keydown', e => {
+  if (['ArrowRight','ArrowDown'].includes(e.key)) goTo(current + 1);
+  if (['ArrowLeft', 'ArrowUp'  ].includes(e.key)) goTo(current - 1);
+});
+
+// ══════════════════════════════════════════════
+// AUDIO
+// ══════════════════════════════════════════════
+const audio    = document.getElementById('page-audio');
+const audioBtn = document.getElementById('audio-btn');
+audioBtn.addEventListener('click', () => {
+  if (audio.paused) { audio.play().catch(() => {}); audioBtn.textContent = '⏸ narration'; }
+  else              { audio.pause();                 audioBtn.textContent = '▶ narration'; }
+});
+
+// ══════════════════════════════════════════════
+// CHART CONSTANTS
+// ══════════════════════════════════════════════
+const INNER_R   = 52;    // inner radius (donut hole)
+const MAX_R     = 172;   // outer radius for maximum value
+const LABEL_R   = 192;   // radius for month labels
+const PAD_ANGLE = 0.04;  // arc padding in radians
+const CORNER_R  = 3;     // arc corner radius px
+
+const BULL_COLOR = '#5C3317'; // walnut — all bars (single series)
+const HOVER_STROKE = '#B52C2C';
+
+// ── D3 selections ─────────────────────────────
+const tooltip   = document.getElementById('tooltip');
+const container = document.getElementById('chart-container');
+const gridG     = d3.select('#grid-g');
+const barsG     = d3.select('#bars-g');
+const labelsG   = d3.select('#labels-g');
+const centerMain = d3.select('#center-main');
+const centerSub  = d3.select('#center-sub');
+
+// ── State ─────────────────────────────────────
+let calendarOrder = [];
+let barPaths;
+
+// ══════════════════════════════════════════════
+// LOAD DATA
+// ══════════════════════════════════════════════
+d3.json('./radial-bar/data.json').then(dataset => {
+
+  calendarOrder = dataset.data.map(d => d.month);
+  const total   = d3.sum(dataset.data, d => d.value);
+  const fmt     = d3.format(',');
+
+  // Initialize center label
+  centerMain.text(d3.format('.2s')(total));
+  centerSub.text('Annual MT');
+
+  render(dataset.data, calendarOrder);
+
+  // Controls
+  document.getElementById('sort-val-btn').addEventListener('click', function() {
+    resetBtns(); this.classList.add('active');
+    const sorted = [...dataset.data].sort((a,b) => b.value - a.value).map(d => d.month);
+    reorder(dataset.data, sorted);
+  });
+
+  document.getElementById('sort-cal-btn').addEventListener('click', function() {
+    resetBtns(); this.classList.add('active');
+    reorder(dataset.data, calendarOrder);
+  });
+
+}).catch(err => {
+  console.error('Load error:', err);
+  container.insertAdjacentHTML('afterbegin',
+    `<p style="padding:1rem;font-size:12px;color:#B52C2C">
+      Data failed to load. Serve from a local server so
+      <code>./radial-bar/data.json</code> resolves.<br>Error: ${err.message}
+    </p>`
+  );
+});
+
+// ══════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════
+function render(data, domain) {
+  gridG.selectAll('*').remove();
+  barsG.selectAll('*').remove();
+  labelsG.selectAll('*').remove();
+
+  const maxVal = d3.max(data, d => d.value);
+
+  // ── Scales ─────────────────────────────────
+  // Angular: categorical band, Jan at top (0 rad = 12 o'clock)
+  const aScale = d3.scaleBand()
+    .domain(domain)
+    .range([0, 2 * Math.PI])
+    .paddingInner(0.09)
+    .paddingOuter(0.04);
+
+  // Radial: value → bar height (from innerR outward)
+  const rScale = d3.scaleLinear()
+    .domain([0, maxVal])
+    .range([0, MAX_R - INNER_R]);
+
+  // ── Helpers ─────────────────────────────────
+  function midAngle(d)  { return aScale(d.month) + aScale.bandwidth() / 2; }
+  function outerR(d)    { return INNER_R + rScale(d.value); }
+
+  // Polar → SVG coords (D3 arc convention: 0 = 12 o'clock, CW)
+  function polarX(r, a) { return r * Math.sin(a); }
+  function polarY(r, a) { return -r * Math.cos(a); }
+
+  // Arc generator factory (takes outerRadius as param for animation)
+  function makeArc(oR) {
+    return d3.arc()
+      .innerRadius(INNER_R)
+      .outerRadius(oR)
+      .startAngle(d => aScale(d.month))
+      .endAngle(d => aScale(d.month) + aScale.bandwidth())
+      .padAngle(PAD_ANGLE)
+      .cornerRadius(CORNER_R);
+  }
+
+  const arcFull = d => makeArc(outerR(d))(d);
+  const arcZero = d => makeArc(INNER_R)(d);
+
+  // ── Grid rings ──────────────────────────────
+  const gridVals = rScale.ticks(3).filter(v => v > 0);
+  gridG.selectAll('circle.grid-ring')
+    .data(gridVals)
+    .join('circle')
+    .attr('class','grid-ring')
+    .attr('cx', 0).attr('cy', 0)
+    .attr('r', d => INNER_R + d);
+
+  // Grid labels at ~3 o'clock position (between Apr and May, roughly)
+  gridG.selectAll('text.grid-label')
+    .data(gridVals)
+    .join('text')
+    .attr('class','grid-label')
+    .attr('x', d => INNER_R + d + 4)
+    .attr('y', 3)
+    .attr('text-anchor','start')
+    .text(d => d3.format('.0s')(maxVal * d / (MAX_R - INNER_R)));
+
+  // ── Bars ─────────────────────────────────────
+  barPaths = barsG.selectAll('path.bar-arc')
+    .data(data, d => d.month)
+    .join('path')
+    .attr('class','bar-arc')
+    .attr('d', arcZero)       // start at zero height
+    .attr('fill', BULL_COLOR)
+    .attr('fill-opacity', 0.68)
+    .attr('stroke','none')
+    .attr('tabindex', 0)
+    .attr('role','img')
+    .attr('aria-label', d =>
+      `${d.month}: ${d3.format(',')(d.value)} metric tons — ${d.note}`
+    );
+
+  // ── Entrance animation — bars grow outward ───
+  barPaths.transition()
+    .delay((d, i) => i * 55 + 100)
+    .duration(650)
+    .ease(d3.easeCubicOut)
+    .attrTween('d', function(d) {
+      const finalOuter = outerR(d);
+      const interp = d3.interpolate(INNER_R, finalOuter);
+      return t => makeArc(interp(t))(d);
+    });
+
+  // ── Interactions ─────────────────────────────
+  barPaths
+    .on('mouseover', (ev, d) => {
+      showTip(ev, d);
+      updateCenter(d);
+      barPaths
+        .classed('lit',    x => x.month === d.month)
+        .classed('dimmed', x => x.month !== d.month);
+    })
+    .on('mousemove', moveTip)
+    .on('mouseout', () => {
+      hideTip();
+      resetCenter();
+      barPaths.classed('lit', false).classed('dimmed', false);
+    })
+    .on('focus', (ev, d) => { showTip(ev, d); updateCenter(d); })
+    .on('blur',  () => { hideTip(); resetCenter(); })
+    .on('keydown', (ev, d) => {
+      if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); showTip(ev, d); }
+      // Arrow key navigation between bars
+      if (ev.key === 'ArrowRight') {
+        const idx = data.findIndex(x => x.month === d.month);
+        const next = barPaths.nodes()[(idx + 1) % data.length];
+        if (next) next.focus();
+      }
+      if (ev.key === 'ArrowLeft') {
+        const idx = data.findIndex(x => x.month === d.month);
+        const prev = barPaths.nodes()[(idx - 1 + data.length) % data.length];
+        if (prev) prev.focus();
+      }
+    });
+
+  // ── Month labels ─────────────────────────────
+  labelsG.selectAll('text.month-label')
+    .data(data)
+    .join('text')
+    .attr('class','month-label')
+    .attr('x', d => polarX(LABEL_R, midAngle(d)))
+    .attr('y', d => polarY(LABEL_R, midAngle(d)))
+    .attr('text-anchor', d => {
+      const sin = Math.sin(midAngle(d));
+      if (Math.abs(sin) < 0.2) return 'middle';
+      return sin > 0 ? 'start' : 'end';
+    })
+    .attr('dy', d => {
+      const cos = Math.cos(midAngle(d));
+      if (cos > 0.65)  return '-0.35em';
+      if (cos < -0.65) return '1.1em';
+      return '0.35em';
+    })
+    .attr('opacity', 0)
+    .text(d => d.month)
+    .transition().delay(900).duration(300)
+    .attr('opacity', 1);
+
+  // ── Highlight peak and trough ─────────────────
+  setTimeout(() => {
+    const peakD  = data.reduce((a,b) => b.value > a.value ? b : a);
+    const troughD = data.reduce((a,b) => b.value < a.value ? b : a);
+
+    [peakD, troughD].forEach((d, i) => {
+      const r  = outerR(d) + 10;
+      const a  = midAngle(d);
+      labelsG.append('text')
+        .attr('class','value-label')
+        .attr('x', polarX(r, a))
+        .attr('y', polarY(r, a))
+        .attr('text-anchor', Math.sin(a) > 0 ? 'start' : 'end')
+        .attr('dy','0.35em')
+        .attr('fill', i === 0 ? BULL_COLOR : '#B52C2C')
+        .attr('font-weight','600')
+        .attr('font-size', '8px')
+        .text(d3.format('.0s')(d.value))
+        .attr('opacity', 0)
+        .transition().delay(1100).duration(300)
+        .attr('opacity', 1);
+    });
+  }, 100);
+}
+
+// ══════════════════════════════════════════════
+// REORDER (sort animation — fade/update/fade)
+// ══════════════════════════════════════════════
+function reorder(data, newDomain) {
+  const aScale = d3.scaleBand()
+    .domain(newDomain)
+    .range([0, 2 * Math.PI])
+    .paddingInner(0.09)
+    .paddingOuter(0.04);
+
+  const maxVal = d3.max(data, d => d.value);
+  const rScale = d3.scaleLinear()
+    .domain([0, maxVal]).range([0, MAX_R - INNER_R]);
+
+  function outerR(d) { return INNER_R + rScale(d.value); }
+  function makeArc(oR) {
+    return d3.arc()
+      .innerRadius(INNER_R).outerRadius(oR)
+      .startAngle(d => aScale(d.month))
+      .endAngle(d => aScale(d.month) + aScale.bandwidth())
+      .padAngle(PAD_ANGLE).cornerRadius(CORNER_R);
+  }
+
+  function midAngle(d) { return aScale(d.month) + aScale.bandwidth() / 2; }
+  function polarX(r,a) { return r * Math.sin(a); }
+  function polarY(r,a) { return -r * Math.cos(a); }
+
+  // Fade out → reposition → fade in
+  if (barPaths) {
+    barPaths.transition().duration(180).attr('fill-opacity', 0)
+      .end().then(() => {
+        barPaths
+          .attr('d', d => makeArc(outerR(d))(d))
+          .transition().duration(220)
+          .attr('fill-opacity', 0.68);
+      });
+  }
+
+  // Update labels
+  labelsG.selectAll('text.month-label')
+    .transition().duration(180).attr('opacity', 0)
+    .end().then(() => {
+      labelsG.selectAll('text.month-label')
+        .attr('x', d => polarX(LABEL_R, midAngle(d)))
+        .attr('y', d => polarY(LABEL_R, midAngle(d)))
+        .attr('text-anchor', d => {
+          const sin = Math.sin(midAngle(d));
+          if (Math.abs(sin) < 0.2) return 'middle';
+          return sin > 0 ? 'start' : 'end';
+        })
+        .attr('dy', d => {
+          const cos = Math.cos(midAngle(d));
+          if (cos > 0.65) return '-0.35em';
+          if (cos < -0.65) return '1.1em';
+          return '0.35em';
+        })
+        .transition().duration(220).attr('opacity', 1);
+    });
+}
+
+// ══════════════════════════════════════════════
+// CENTER LABEL
+// ══════════════════════════════════════════════
+function updateCenter(d) {
+  centerMain.text(d3.format(',')(d.value));
+  centerSub.text(d.month);
+}
+
+function resetCenter() {
+  // Wait for data — just reset to dashes for now, overwritten after load
+  centerMain.text(centerMain.attr('data-total') || '—');
+  centerSub.text('Annual MT');
+}
+
+// Store total after data loads
+d3.json('./radial-bar/data.json').then(ds => {
+  const total = d3.sum(ds.data, d => d.value);
+  centerMain.attr('data-total', d3.format('.2s')(total));
+  centerMain.text(d3.format('.2s')(total));
+});
+
+// ══════════════════════════════════════════════
+// TOOLTIP
+// ══════════════════════════════════════════════
+function showTip(ev, d) {
+  tooltip.innerHTML = `
+    <div class="tt-head">${d.month}</div>
+    <div>Volume: <strong>${d3.format(',')(d.value)} MT</strong></div>
+    <div>${d.note}</div>
+  `;
+  tooltip.classList.add('visible');
+  moveTip(ev);
+}
+
+function moveTip(ev) {
+  const r = container.getBoundingClientRect();
+  let x = ev.clientX - r.left + 16;
+  let y = ev.clientY - r.top  - 12;
+  if (x + 220 > r.width)  x -= 238;
+  if (y + 80  > r.height) y -= 90;
+  tooltip.style.left = x + 'px';
+  tooltip.style.top  = y + 'px';
+}
+
+function hideTip() { tooltip.classList.remove('visible'); }
+
+// ══════════════════════════════════════════════
+// UTILITIES
+// ══════════════════════════════════════════════
+function resetBtns() {
+  document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+}
+</script>
+</body>
+</html>

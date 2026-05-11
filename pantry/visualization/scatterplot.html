@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scatterplot — Correlation &amp; Relationships</title>
+  <meta name="description" content="Interactive D3 scatterplot with OLS trend line, brush selection, group colour filter, and live Pearson r readout. hai palette. Correlation is not causation.">
+  <meta name="keywords" content="scatterplot, scatter chart, correlation, trend line, OLS, regression, d3, data visualisation, relationships, patterns, brutalist, hai palette">
+  <meta name="author" content="Nik Bear Brown">
+  <meta name="category" content="Relationships / Patterns">
+
+  <style>
+    :root {
+      --p1: #1B1B1B;
+      --p2: #5C3317;
+      --p3: #B52C2C;
+      --p4: #F7FAFD;
+      --p5: #4A4D4F;
+      --p6: #797C7F;
+      --p7: #EDEDED;
+      --p8: #FFFFFF;
+      --font: 'JetBrains Mono', monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--p8); color: var(--p1);
+      font-family: var(--font); min-height: 100vh; overflow-x: hidden;
+    }
+
+    .slide {
+      min-height: 100vh; display: flex; flex-direction: column;
+      padding: 28px 36px 14px;
+    }
+    .slide + .slide { border-top: 2px solid var(--p7); }
+    .slide-meta { margin-bottom: 4px; }
+    .label {
+      font-size: 10px; color: var(--p6);
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .slide-title {
+      font-size: clamp(15px, 2.6vw, 28px); font-weight: 800;
+      text-transform: uppercase; color: var(--p1);
+      letter-spacing: 0.04em; line-height: 1.1; margin-bottom: 4px;
+    }
+    .slide-sub { font-size: 11px; color: var(--p6); margin-bottom: 8px; }
+
+    .viz-container { flex: 1; position: relative; min-height: 460px; }
+    #chart { width: 100%; height: 100%; min-height: 460px; display: block; }
+
+    /* points */
+    circle.pt {
+      cursor: pointer;
+      transition: opacity 0.15s, r 0.1s;
+    }
+    circle.pt:hover { opacity: 1 !important; }
+    circle.pt.dimmed { opacity: 0.1; }
+    circle.pt.highlighted { stroke: var(--p1) !important; stroke-width: 2px; }
+
+    /* trend line */
+    path.trend {
+      fill: none;
+      stroke: var(--p2);
+      stroke-width: 1.5;
+      stroke-dasharray: 5 4;
+      opacity: 0.7;
+    }
+
+    /* brush */
+    .brush .selection {
+      fill: var(--p2);
+      fill-opacity: 0.06;
+      stroke: var(--p2);
+      stroke-width: 1;
+      stroke-dasharray: 3 2;
+    }
+
+    /* stat bar */
+    #stat-bar {
+      display: flex; gap: 20px; flex-wrap: wrap;
+      font-size: 10px; color: var(--p5);
+      margin-bottom: 6px; align-items: center;
+    }
+    #stat-bar .stat { display: flex; align-items: baseline; gap: 4px; }
+    #stat-bar .stat-val { font-weight: 700; font-size: 13px; color: var(--p1); }
+    #stat-bar .stat-label { color: var(--p6); }
+    #corr-interpretation {
+      font-size: 10px; color: var(--p6); font-style: italic;
+    }
+
+    /* legend */
+    .legend-row {
+      display: flex; flex-wrap: wrap; gap: 8px 16px;
+      font-size: 10px; color: var(--p5); margin-bottom: 6px;
+    }
+    .legend-item {
+      display: flex; align-items: center; gap: 5px;
+      cursor: pointer; transition: opacity 0.15s;
+    }
+    .legend-item.dimmed { opacity: 0.35; }
+    .legend-dot {
+      width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0;
+    }
+
+    /* controls */
+    .controls {
+      display: flex; align-items: center; gap: 14px;
+      padding: 10px 0 0; border-top: 1px solid var(--p7);
+      margin-top: 8px; flex-wrap: wrap;
+    }
+    .ctrl-label { font-size: 10px; color: var(--p6); letter-spacing: 0.06em; }
+
+    .toggle-wrap {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 10px; color: var(--p6); cursor: pointer; user-select: none;
+    }
+    .toggle-track {
+      position: relative; width: 28px; height: 16px;
+      background: var(--p7); border-radius: 8px;
+      transition: background 0.15s; flex-shrink: 0;
+    }
+    .toggle-track.on { background: var(--p2); }
+    .toggle-knob {
+      position: absolute; top: 2px; left: 2px;
+      width: 12px; height: 12px; background: var(--p8);
+      border-radius: 50%; transition: transform 0.15s; pointer-events: none;
+    }
+    .toggle-track.on .toggle-knob { transform: translateX(12px); }
+
+    button.ctrl-btn {
+      font-family: var(--font); font-size: 10px;
+      color: var(--p5); background: none;
+      border: 1px solid var(--p7); padding: 4px 10px;
+      cursor: pointer; letter-spacing: 0.06em;
+      transition: border-color 0.12s, color 0.12s;
+    }
+    button.ctrl-btn:hover { border-color: var(--p2); color: var(--p2); }
+    #audio-toggle { margin-left: auto; }
+
+    /* tooltip */
+    #tooltip {
+      position: fixed; background: var(--p1); color: var(--p8);
+      font-family: var(--font); font-size: 11px; font-weight: 600;
+      border: 1px solid var(--p2); padding: 7px 12px;
+      pointer-events: none; opacity: 0; transition: opacity 0.1s;
+      z-index: 200; line-height: 1.65; max-width: 230px;
+    }
+    #tooltip .tt-row { font-weight: 400; color: #C49A72; }
+
+    /* brush-selection count badge */
+    #brush-badge {
+      position: absolute; top: 8px; left: 8px;
+      font-family: var(--font); font-size: 10px;
+      color: var(--p5); background: var(--p7);
+      border: 1px solid var(--p7); padding: 3px 8px;
+      opacity: 0; transition: opacity 0.2s; pointer-events: none;
+    }
+    #brush-badge.visible { opacity: 1; }
+
+    /* learn */
+    .slide-learn { background: var(--p8); }
+    .learn-block { max-width: 720px; padding-top: 8px; }
+    .learn-block h2 {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--p2);
+      margin: 20px 0 6px; border-bottom: 1px solid var(--p7); padding-bottom: 4px;
+    }
+    .learn-block h2:first-child { margin-top: 0; }
+    .learn-block p { font-size: 12px; color: var(--p5); line-height: 1.75; margin-bottom: 6px; }
+    .learn-block strong { color: var(--p1); font-weight: 700; }
+    .learn-block .warn { color: var(--p3); font-weight: 700; }
+    .framework-ref {
+      margin-top: 20px; padding: 10px 14px;
+      border-left: 3px solid var(--p2); background: var(--p7);
+    }
+    .framework-ref p { margin: 0; color: var(--p5); font-size: 11px; }
+
+    /* nav */
+    #slide-nav {
+      position: fixed; right: 18px; top: 50%;
+      transform: translateY(-50%);
+      display: flex; flex-direction: column; gap: 8px; z-index: 100;
+    }
+    .nav-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--p7); border: 1px solid var(--p6);
+      cursor: pointer; transition: background 0.15s;
+    }
+    .nav-dot.active { background: var(--p2); border-color: var(--p2); }
+
+    footer {
+      font-family: var(--font); font-size: 10px;
+      color: var(--p6); border-top: 2px solid var(--p7);
+      padding: 10px 36px; line-height: 1.7;
+    }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- SLIDE 1 -->
+<section class="slide" id="slide-01" aria-label="Scatterplot">
+  <div class="slide-meta"><span class="label">// RELATIONSHIPS · PATTERNS · CORRELATION</span></div>
+  <h1 class="slide-title" id="chart-main-title">Scatterplot</h1>
+  <p class="slide-sub">Hover points · Drag to brush-select · Click legend to filter · Correlation ≠ causation</p>
+
+  <div id="stat-bar" aria-live="polite">
+    <span class="stat"><span class="stat-val" id="stat-n">—</span><span class="stat-label">points</span></span>
+    <span class="stat"><span class="stat-label">Pearson r =</span><span class="stat-val" id="stat-r">—</span></span>
+    <span class="stat"><span class="stat-label">R² =</span><span class="stat-val" id="stat-r2">—</span></span>
+    <span id="corr-interpretation"></span>
+  </div>
+
+  <div class="legend-row" id="legend" role="list" aria-label="Colour groups"></div>
+
+  <div class="viz-container">
+    <svg id="chart" role="img" aria-labelledby="chart-svg-title">
+      <title id="chart-svg-title">Scatterplot comparing two numeric variables. Each point is one observation. A trend line shows the direction and strength of correlation.</title>
+      <desc>Interactive D3 scatterplot. Hover points for labels and values. Drag to brush-select a region. Click legend groups to isolate. Toggle trend line and labels.</desc>
+    </svg>
+    <div id="brush-badge"></div>
+  </div>
+
+  <div class="controls">
+    <label class="toggle-wrap">
+      <div class="toggle-track on" id="trend-track"><div class="toggle-knob"></div></div>
+      <span>Trend line</span>
+    </label>
+    <label class="toggle-wrap">
+      <div class="toggle-track" id="pointlabels-track"><div class="toggle-knob"></div></div>
+      <span>Point labels</span>
+    </label>
+    <label class="toggle-wrap">
+      <div class="toggle-track on" id="grid-track"><div class="toggle-knob"></div></div>
+      <span>Gridlines</span>
+    </label>
+    <button class="ctrl-btn" id="clear-brush-btn">✕ clear selection</button>
+    <button class="ctrl-btn" id="reset-btn">↺ reset</button>
+    <button class="ctrl-btn" id="audio-toggle" aria-label="Play narration">▶ narration</button>
+  </div>
+</section>
+
+<!-- SLIDE 2: LEARN -->
+<section class="slide slide-learn" id="slide-02" aria-label="Learn panel — Scatterplot">
+  <div class="slide-meta"><span class="label">// LEARN — SCATTERPLOT</span></div>
+  <h1 class="slide-title">What a scatterplot is</h1>
+
+  <div class="learn-block">
+    <h2>The perceptual mechanism</h2>
+    <p>A scatterplot encodes two quantitative variables simultaneously as <strong>position on two orthogonal axes</strong> — the most accurate perceptual channel available for quantitative data. Each observation becomes a point whose X coordinate encodes one variable and Y coordinate encodes the other. The spatial distribution of the point cloud reveals the <strong>relationship between the two variables</strong>: the viewer's visual system detects the overall slope, clustering, spread, and outliers pre-attentively, before any conscious analysis.</p>
+    <p>No other chart type answers the question "do these two variables move together?" as directly. A bar chart can show both variables, but not their relationship. A line chart can show one variable over time, but not its relationship to a second. The scatterplot is the only chart built specifically for this task.</p>
+
+    <h2>Reading correlation from a scatterplot</h2>
+    <p><strong>Direction:</strong> a cloud sloping up-right is a positive correlation (both variables increase together); down-right is negative (one rises as the other falls); horizontal or circular is null (no relationship). <strong>Shape:</strong> a straight diagonal band is linear; a curved band may be exponential, logarithmic, or U-shaped — each requiring a different model. <strong>Strength:</strong> a narrow, tight band indicates strong correlation; a wide dispersed cloud indicates weak correlation. <strong>Outliers:</strong> points far from the main cloud are worth naming — they often carry the most analytical value.</p>
+    <p>This chart computes and displays the <strong>Pearson correlation coefficient (r)</strong> and <strong>R²</strong> live. Pearson r ranges from −1 (perfect negative) to +1 (perfect positive); 0 = no linear relationship. R² is the proportion of variance in Y explained by X under the linear model.</p>
+
+    <h2>The trend line and its limits</h2>
+    <p>The dashed trend line is an <strong>Ordinary Least Squares (OLS) linear regression line</strong> — it minimises the sum of squared vertical distances from each point to the line. It is the correct summary of a linear relationship and can be used for interpolation within the observed range. Three things it cannot do: extrapolate reliably beyond the data range; detect non-linear relationships (a curved trend would require a polynomial or log model); or prove causation.</p>
+    <p><span class="warn">⚠ Correlation is not causation.</span> A strong Pearson r means the two variables move together — it does not mean one causes the other. A third unobserved variable (a <em>confounder</em>) may be driving both. This is not a limitation of the chart type; it is a fundamental principle of statistical inference that must be stated whenever correlation is presented.</p>
+
+    <h2>Why it was chosen for this data</h2>
+    <p>The dataset is <strong>paired numerical observations across named entities</strong> (countries), where the message is a bivariate relationship — does economic wealth predict longevity? The scatterplot is the only correct chart for this question. A bar chart of GDP and a separate bar chart of life expectancy would show both variables but hide their relationship entirely. The scatterplot shows the positive correlation, the logarithmic saturation at high GDP, and the outliers (USA: high GDP, lower life expectancy than peers; Nigeria: low on both) all at once.</p>
+
+    <h2>The one design decision worth knowing</h2>
+    <p>The <strong>brush selection</strong> (drag on the chart) isolates a rectangular region of the point cloud and recomputes Pearson r and R² for only the selected points. This is not a decoration — it is the correct way to investigate whether correlation holds within a sub-range, or whether a different relationship structure operates in one part of the space (e.g., among high-income countries only). Local correlation analysis is how scatterplots graduate from presentation to analysis.</p>
+
+    <div class="framework-ref">
+      <span class="label">// Framework — FT Visual Vocabulary</span>
+      <p>FT Visual Vocabulary category: <strong>Correlation</strong> — "Showing the relationship between two or more variables." Abela quadrant: <strong>Relationship</strong> (variables against each other). Tufte principle applied: the point cloud is all data; the trend line summarises it; the axis labels name it. No legend is needed for the primary encoding — position is self-explaining. Colour is added only for secondary grouping, always with a redundant text label.</p>
+    </div>
+  </div>
+</section>
+
+<!-- NAV -->
+<nav id="slide-nav" aria-label="Slide navigation">
+  <div class="nav-dot active" data-slide="slide-01" role="button" tabindex="0" aria-label="Slide 1: Chart"></div>
+  <div class="nav-dot"        data-slide="slide-02" role="button" tabindex="0" aria-label="Slide 2: Learn"></div>
+</nav>
+
+<footer>
+  <p>Nik Bear Brown, Irreducibly Human, What AI Can and Can't Do</p>
+  <p>boondoggling.ai · irreducibly.xyz · brutalist.art · bearbrown.co · frictional.xyz</p>
+</footer>
+
+<div id="tooltip"></div>
+<audio id="page-audio" src="./scatterplot/audio.mp3"></audio>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script>
+// ── GROUP COLOURS — earthy hai-family ─────────────────────────
+const GROUP_COLOURS = {
+  'Europe'  : '#5C3317',
+  'Asia'    : '#2A4A2E',
+  'Americas': '#7A3B3B',
+  'Africa'  : '#8B7040',
+  'Oceania' : '#3A4A6A'
+};
+const DEFAULT_CLR = '#5C3317';
+
+// ── STATE ─────────────────────────────────────────────────────
+let allData, xLabel, yLabel, titleText, showTrendDefault;
+let showTrend      = true;
+let showLabels     = false;
+let showGrid       = true;
+let activeGroup    = null;
+let brushedIndices = null;   // null = no brush active
+
+// ── TOOLTIP ───────────────────────────────────────────────────
+const tip = document.getElementById('tooltip');
+function showTip(e, d, xl, yl) {
+  tip.innerHTML =
+    `<strong>${d.label}</strong>` +
+    (d.group ? `<br><span class="tt-row">group &nbsp;</span>${d.group}` : '') +
+    `<br><span class="tt-row">${xl.slice(0,14).padEnd(14)} </span>${d.x.toLocaleString()}` +
+    `<br><span class="tt-row">${yl.slice(0,14).padEnd(14)} </span>${d.y.toLocaleString()}` +
+    (d.note ? `<br><span class="tt-row">note &nbsp;&nbsp;</span>${d.note}` : '');
+  tip.style.opacity = 1; moveTip(e);
+}
+function moveTip(e) {
+  tip.style.left = Math.min(e.clientX + 14, window.innerWidth  - 250) + 'px';
+  tip.style.top  = Math.min(e.clientY - 10, window.innerHeight - 150) + 'px';
+}
+function hideTip() { tip.style.opacity = 0; }
+
+// ── STATISTICS ────────────────────────────────────────────────
+function pearsonR(pts) {
+  const n = pts.length;
+  if (n < 2) return { r: null, r2: null };
+  const mx = d3.mean(pts, d => d.x), my = d3.mean(pts, d => d.y);
+  let num = 0, dx2 = 0, dy2 = 0;
+  pts.forEach(d => {
+    const ex = d.x - mx, ey = d.y - my;
+    num += ex * ey; dx2 += ex * ex; dy2 += ey * ey;
+  });
+  const r = dx2 && dy2 ? num / Math.sqrt(dx2 * dy2) : 0;
+  return { r, r2: r * r };
+}
+
+function ols(pts) {
+  const n = pts.length;
+  if (n < 2) return null;
+  const mx = d3.mean(pts, d => d.x), my = d3.mean(pts, d => d.y);
+  let num = 0, den = 0;
+  pts.forEach(d => { num += (d.x - mx) * (d.y - my); den += (d.x - mx) ** 2; });
+  const slope = den ? num / den : 0;
+  const intercept = my - slope * mx;
+  return { slope, intercept };
+}
+
+function corrLabel(r) {
+  if (r === null) return '';
+  const a = Math.abs(r);
+  const dir = r > 0 ? 'positive' : r < 0 ? 'negative' : '';
+  const str = a > 0.7 ? 'strong' : a > 0.4 ? 'moderate' : a > 0.2 ? 'weak' : 'negligible';
+  return `${str} ${dir} linear correlation`;
+}
+
+function updateStats(pts) {
+  const { r, r2 } = pearsonR(pts);
+  document.getElementById('stat-n').textContent = pts.length;
+  document.getElementById('stat-r').textContent  = r  !== null ? r.toFixed(3)  : '—';
+  document.getElementById('stat-r2').textContent = r2 !== null ? r2.toFixed(3) : '—';
+  document.getElementById('corr-interpretation').textContent = corrLabel(r);
+}
+
+// ── DRAW ──────────────────────────────────────────────────────
+function draw(animate) {
+  const el = document.getElementById('chart');
+  const W  = el.clientWidth  || 860;
+  const H  = el.clientHeight || 480;
+  const margin = { top: 20, right: 28, bottom: 52, left: 64 };
+  const iW = W - margin.left - margin.right;
+  const iH = H - margin.top  - margin.bottom;
+
+  const visibleData = activeGroup
+    ? allData.filter(d => d.group === activeGroup)
+    : allData;
+
+  const xExt = d3.extent(allData, d => d.x);
+  const yExt = d3.extent(allData, d => d.y);
+  const xPad = (xExt[1] - xExt[0]) * 0.06;
+  const yPad = (yExt[1] - yExt[0]) * 0.06;
+
+  const xScale = d3.scaleLinear()
+    .domain([xExt[0] - xPad, xExt[1] + xPad]).nice().range([0, iW]);
+  const yScale = d3.scaleLinear()
+    .domain([yExt[0] - yPad, yExt[1] + yPad]).nice().range([iH, 0]);
+
+  const svg = d3.select('#chart');
+  svg.selectAll('*').remove();
+
+  const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+
+  // ── GRIDLINES ──────────────────────────────────────────────
+  if (showGrid) {
+    g.append('g').call(d3.axisLeft(yScale).tickSize(-iW).tickFormat(''))
+      .call(gg => gg.select('.domain').remove())
+      .call(gg => gg.selectAll('line').attr('stroke','var(--p7)').attr('stroke-width',0.4));
+    g.append('g').attr('transform',`translate(0,${iH})`)
+      .call(d3.axisBottom(xScale).tickSize(-iH).tickFormat(''))
+      .call(gg => gg.select('.domain').remove())
+      .call(gg => gg.selectAll('line').attr('stroke','var(--p7)').attr('stroke-width',0.4));
+  }
+
+  // ── AXES ───────────────────────────────────────────────────
+  g.append('g').attr('transform',`translate(0,${iH})`)
+    .call(d3.axisBottom(xScale).ticks(6).tickSize(0))
+    .call(ax => ax.select('.domain').attr('stroke','var(--p7)'))
+    .call(ax => ax.selectAll('text')
+      .attr('font-family','var(--font)').attr('font-size','10px').attr('fill','var(--p6)'));
+
+  g.append('g')
+    .call(d3.axisLeft(yScale).ticks(6).tickSize(0))
+    .call(ax => ax.select('.domain').attr('stroke','var(--p7)'))
+    .call(ax => ax.selectAll('text')
+      .attr('font-family','var(--font)').attr('font-size','10px').attr('fill','var(--p6)'));
+
+  // X label
+  g.append('text').attr('x', iW / 2).attr('y', iH + 40)
+    .attr('text-anchor','middle').attr('font-family','var(--font)')
+    .attr('font-size','10px').attr('fill','var(--p6)').text(xLabel);
+  // Y label
+  g.append('text').attr('transform','rotate(-90)').attr('x', -iH / 2).attr('y', -50)
+    .attr('text-anchor','middle').attr('font-family','var(--font)')
+    .attr('font-size','10px').attr('fill','var(--p6)').text(yLabel);
+
+  // ── TREND LINE ─────────────────────────────────────────────
+  if (showTrend) {
+    const reg = ols(visibleData);
+    if (reg) {
+      const x0 = xScale.domain()[0], x1 = xScale.domain()[1];
+      const y0 = reg.slope * x0 + reg.intercept;
+      const y1 = reg.slope * x1 + reg.intercept;
+      g.append('line')
+        .attr('class','trend')
+        .attr('x1', xScale(x0)).attr('y1', yScale(y0))
+        .attr('x2', xScale(x1)).attr('y2', yScale(y1));
+    }
+  }
+
+  // ── POINTS ─────────────────────────────────────────────────
+  const isHighlighted = brushedIndices !== null
+    ? new Set(brushedIndices) : null;
+
+  const pts = g.selectAll('circle.pt')
+    .data(allData, d => d.label)
+    .join('circle')
+    .attr('class', d => {
+      let cls = 'pt';
+      const grouped = activeGroup && d.group !== activeGroup;
+      const brushed  = isHighlighted && !isHighlighted.has(d.label);
+      if (grouped || brushed) cls += ' dimmed';
+      if (isHighlighted && isHighlighted.has(d.label)) cls += ' highlighted';
+      return cls;
+    })
+    .attr('cx', d => xScale(d.x))
+    .attr('cy', d => animate ? iH : yScale(d.y))
+    .attr('r', 5)
+    .attr('fill', d => GROUP_COLOURS[d.group] || DEFAULT_CLR)
+    .attr('fill-opacity', 0.78)
+    .attr('stroke', d => GROUP_COLOURS[d.group] || DEFAULT_CLR)
+    .attr('stroke-width', 0.8)
+    .attr('tabindex', 0)
+    .attr('role', 'img')
+    .attr('aria-label', d => `${d.label}: x=${d.x}, y=${d.y}`)
+    .on('mouseover', (e, d) => { showTip(e, d, xLabel, yLabel); d3.select(e.currentTarget).attr('r', 7); })
+    .on('mousemove', moveTip)
+    .on('mouseout',  (e) => { hideTip(); d3.select(e.currentTarget).attr('r', 5); })
+    .on('keydown', function(e, d) { if (e.key === 'Enter') showTip({clientX:400,clientY:200}, d, xLabel, yLabel); });
+
+  if (animate) {
+    pts.transition().duration(700).ease(d3.easeCubicOut).attr('cy', d => yScale(d.y));
+  }
+
+  // ── POINT LABELS ───────────────────────────────────────────
+  if (showLabels) {
+    g.selectAll('text.ptlbl')
+      .data(allData)
+      .join('text')
+      .attr('class','ptlbl')
+      .attr('x', d => xScale(d.x) + 6)
+      .attr('y', d => yScale(d.y) - 5)
+      .attr('font-family','var(--font)').attr('font-size','8px')
+      .attr('fill','var(--p5)').attr('pointer-events','none')
+      .text(d => d.label);
+  }
+
+  // ── BRUSH ──────────────────────────────────────────────────
+  const brush = d3.brush()
+    .extent([[0, 0], [iW, iH]])
+    .on('brush end', function(event) {
+      if (!event.selection) {
+        brushedIndices = null;
+        document.getElementById('brush-badge').classList.remove('visible');
+        updateStats(visibleData);
+        draw(false);
+        return;
+      }
+      const [[x0, y0], [x1, y1]] = event.selection;
+      const sel = allData.filter(d => {
+        const px = xScale(d.x), py = yScale(d.y);
+        return px >= x0 && px <= x1 && py >= y0 && py <= y1;
+      });
+      brushedIndices = sel.map(d => d.label);
+      const badge = document.getElementById('brush-badge');
+      badge.textContent = `${sel.length} point${sel.length !== 1 ? 's' : ''} selected`;
+      badge.classList.add('visible');
+      updateStats(sel);
+      draw(false);
+    });
+
+  const brushG = g.append('g').attr('class','brush').call(brush);
+  // Restore brush if active
+  if (brushedIndices !== null) {
+    // Don't restore visually — brush is cleared on redraw intentionally
+    brushedIndices = null;
+  }
+
+  // Stats
+  updateStats(visibleData);
+}
+
+// ── LEGEND ────────────────────────────────────────────────────
+function buildLegend(groups) {
+  const legEl = document.getElementById('legend');
+  legEl.innerHTML = '';
+  groups.forEach(grp => {
+    const item = document.createElement('div');
+    item.className = `legend-item${activeGroup && activeGroup !== grp ? ' dimmed' : ''}`;
+    item.setAttribute('role','listitem'); item.setAttribute('tabindex','0');
+    item.setAttribute('aria-label', `Filter by ${grp}`);
+
+    const dot = document.createElement('span');
+    dot.className = 'legend-dot';
+    dot.style.background = GROUP_COLOURS[grp] || DEFAULT_CLR;
+
+    const lbl = document.createElement('span');
+    lbl.textContent = grp;
+
+    item.appendChild(dot); item.appendChild(lbl);
+    item.addEventListener('click', () => {
+      activeGroup = activeGroup === grp ? null : grp;
+      buildLegend(groups); draw(false);
+    });
+    item.addEventListener('keydown', e => { if (e.key === 'Enter') item.click(); });
+    legEl.appendChild(item);
+  });
+}
+
+// ── CONTROLS ──────────────────────────────────────────────────
+document.getElementById('trend-track').closest('label').addEventListener('click', () => {
+  showTrend = !showTrend;
+  document.getElementById('trend-track').classList.toggle('on', showTrend);
+  draw(false);
+});
+document.getElementById('pointlabels-track').closest('label').addEventListener('click', () => {
+  showLabels = !showLabels;
+  document.getElementById('pointlabels-track').classList.toggle('on', showLabels);
+  draw(false);
+});
+document.getElementById('grid-track').closest('label').addEventListener('click', () => {
+  showGrid = !showGrid;
+  document.getElementById('grid-track').classList.toggle('on', showGrid);
+  draw(false);
+});
+document.getElementById('clear-brush-btn').addEventListener('click', () => {
+  brushedIndices = null;
+  document.getElementById('brush-badge').classList.remove('visible');
+  draw(false);
+});
+document.getElementById('reset-btn').addEventListener('click', () => {
+  brushedIndices = null; activeGroup = null;
+  document.getElementById('brush-badge').classList.remove('visible');
+  const groups = [...new Set(allData.map(d => d.group).filter(Boolean))];
+  buildLegend(groups); draw(true);
+});
+
+// ── AUDIO ──────────────────────────────────────────────────────
+const audio    = document.getElementById('page-audio');
+const audioBtn = document.getElementById('audio-toggle');
+audioBtn.addEventListener('click', () => {
+  if (audio.paused) { audio.play().catch(() => {}); audioBtn.textContent = '⏸ narration'; }
+  else              { audio.pause(); audioBtn.textContent = '▶ narration'; }
+});
+
+// ── INIT ──────────────────────────────────────────────────────
+async function init() {
+  const payload = await d3.json('./scatterplot/data.json');
+  allData    = payload.data;
+  xLabel     = payload.xLabel || 'X';
+  yLabel     = payload.yLabel || 'Y';
+  titleText  = payload.title  || 'Scatterplot';
+  showTrendDefault = payload.showTrend !== false;
+  showTrend  = showTrendDefault;
+  document.getElementById('trend-track').classList.toggle('on', showTrend);
+
+  document.getElementById('chart-main-title').textContent = titleText;
+
+  const groups = [...new Set(allData.map(d => d.group).filter(Boolean))];
+  buildLegend(groups);
+  draw(true);
+}
+
+// ── RESPONSIVE ────────────────────────────────────────────────
+let rt;
+const ro = new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(() => draw(false), 160); });
+ro.observe(document.getElementById('chart'));
+
+// ── NAV ────────────────────────────────────────────────────────
+document.querySelectorAll('.nav-dot').forEach(dot => {
+  dot.addEventListener('click', () => document.getElementById(dot.dataset.slide).scrollIntoView({behavior:'smooth'}));
+  dot.addEventListener('keydown', e => { if (e.key === 'Enter') dot.click(); });
+});
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(en => {
+    if (en.isIntersecting) {
+      document.querySelectorAll('.nav-dot').forEach(d => d.classList.remove('active'));
+      document.querySelector(`.nav-dot[data-slide="${en.target.id}"]`)?.classList.add('active');
+    }
+  });
+}, {threshold: 0.5});
+document.querySelectorAll('.slide').forEach(s => obs.observe(s));
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowDown') document.getElementById('slide-02').scrollIntoView({behavior:'smooth'});
+  if (e.key === 'ArrowUp')   document.getElementById('slide-01').scrollIntoView({behavior:'smooth'});
+});
+
+init();
+</script>
+</body>
+</html>

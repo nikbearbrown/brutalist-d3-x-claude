@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cyclical Patterns Emerge When Bars Radiate From a Shared Centre</title>
+  <meta name="description" content="Radial Column Chart: monthly average temperatures plotted on a polar coordinate system, with bars extending outward from the centre on concentric circle value rings, revealing the cyclical seasonal pattern as a visual shape.">
+  <meta name="keywords" content="radial column chart, circular column graph, star graph, polar coordinates, D3.js, seasonal data, cyclical patterns, data visualisation, brutalist design, hai palette">
+  <meta name="author" content="Nik Bear Brown">
+  <meta name="category" content="Climate / Cyclical Analysis">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <style>
+    :root {
+      --p1: #1B1B1B;
+      --p2: #5C3317;
+      --p3: #B52C2C;
+      --p4: #F7FAFD;
+      --p5: #4A4D4F;
+      --p6: #797C7F;
+      --p7: #EDEDED;
+      --p8: #FFFFFF;
+      --font: 'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      font-family: var(--font);
+      background: var(--p8);
+      color: var(--p1);
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+
+    .slide {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: clamp(2rem, 4vw, 4.5rem) clamp(1.5rem, 6vw, 6.5rem);
+      border-bottom: 2px solid var(--p7);
+    }
+
+    .slide-meta { margin-bottom: 1rem; }
+
+    .label {
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.13em;
+      color: var(--p6);
+      text-transform: uppercase;
+    }
+
+    .slide-title {
+      font-size: clamp(14px, 2.2vw, 25px);
+      font-weight: 800;
+      text-transform: uppercase;
+      line-height: 1.15;
+      max-width: 74ch;
+      margin-bottom: 1.2rem;
+      border-left: 4px solid var(--p2);
+      padding-left: 1rem;
+      animation: fadeUp 0.5s ease-out both 0.1s;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── STATS ───────────────────────────────────────────────── */
+    .stats-bar {
+      display: flex;
+      gap: clamp(0.8rem, 2.5vw, 2rem);
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      animation: fadeUp 0.5s ease-out both 0.2s;
+    }
+
+    .stat-item { line-height: 1.3; }
+
+    .stat-label {
+      font-size: 9px;
+      letter-spacing: 0.13em;
+      color: var(--p6);
+      text-transform: uppercase;
+      display: block;
+    }
+
+    .stat-value {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--p2);
+    }
+
+    .stat-value.muted { color: var(--p5); }
+    .stat-value.hot   { color: var(--p3); }
+
+    /* ── VIZ ─────────────────────────────────────────────────── */
+    .viz-container {
+      flex: 1;
+      min-height: 440px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    #chart { display: block; overflow: visible; }
+
+    /* ── TOOLTIP ─────────────────────────────────────────────── */
+    .tooltip {
+      position: fixed;
+      pointer-events: none;
+      background: var(--p1);
+      color: var(--p8);
+      font-family: var(--font);
+      font-size: 11px;
+      padding: 8px 13px;
+      border: 1px solid var(--p2);
+      opacity: 0;
+      transition: opacity 0.1s;
+      z-index: 200;
+      line-height: 1.85;
+      min-width: 150px;
+    }
+
+    .tooltip strong { color: var(--p2); display: block; font-size: 12px; }
+
+    /* ── CONTROLS ────────────────────────────────────────────── */
+    .controls {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      margin-top: 1.1rem;
+      flex-wrap: wrap;
+      animation: fadeUp 0.5s ease-out both 0.3s;
+    }
+
+    .ctl-group { display: flex; align-items: center; gap: 0.5rem; }
+
+    .ctl-label {
+      font-size: 10px;
+      color: var(--p6);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100px;
+      height: 3px;
+      background: var(--p7);
+      outline: none;
+      border-radius: 0;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 11px; height: 11px;
+      background: var(--p2);
+      border: none; border-radius: 0;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 11px; height: 11px;
+      background: var(--p2);
+      border: none; border-radius: 0;
+    }
+
+    .slider-val {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--p2);
+      min-width: 36px;
+    }
+
+    .sep { width: 1px; height: 20px; background: var(--p7); }
+
+    .btn {
+      font-family: var(--font);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: transparent;
+      color: var(--p1);
+      border: 1px solid var(--p5);
+      padding: 5px 12px;
+      cursor: pointer;
+      transition: background 0.14s, color 0.14s;
+      white-space: nowrap;
+    }
+
+    .btn:hover, .btn.active { background: var(--p1); color: var(--p8); }
+    .btn:focus { outline: 2px solid var(--p2); outline-offset: 2px; }
+
+    .hint { font-size: 9px; color: var(--p6); letter-spacing: 0.08em; margin-top: 0.4rem; }
+
+    /* ── NAV DOTS ────────────────────────────────────────────── */
+    .nav-dots {
+      position: fixed;
+      right: clamp(0.75rem, 2.5vw, 2rem);
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      z-index: 100;
+    }
+
+    .navdot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--p7);
+      border: 1px solid var(--p6);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .navdot.active { background: var(--p2); border-color: var(--p2); }
+
+    /* ── LEARN ───────────────────────────────────────────────── */
+    .slide-learn { background: var(--p4); }
+
+    .learn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem 3rem;
+      max-width: 112ch;
+    }
+
+    @media (max-width: 720px) { .learn-grid { grid-template-columns: 1fr; } }
+
+    .learn-block h2 {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--p2);
+      letter-spacing: 0.1em;
+      margin: 0 0 0.6rem;
+      padding-bottom: 0.35rem;
+      border-bottom: 1px solid var(--p7);
+    }
+
+    .learn-block p {
+      font-size: clamp(11px, 1.1vw, 13px);
+      line-height: 1.9;
+      color: var(--p1);
+      margin-bottom: 0.65rem;
+    }
+
+    .anatomy-svg { width: 100%; max-width: 300px; margin: 0.75rem 0; display: block; }
+
+    .framework-ref {
+      grid-column: 1 / -1;
+      padding: 1rem 1.25rem;
+      border-left: 4px solid var(--p2);
+      background: var(--p8);
+    }
+
+    .framework-ref p { font-size: 12px; color: var(--p5); line-height: 1.75; }
+
+    footer {
+      padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1.5rem, 6vw, 6.5rem);
+      border-top: 2px solid var(--p7);
+    }
+
+    footer p { font-size: 11px; color: var(--p6); line-height: 1.9; }
+  </style>
+</head>
+<body>
+
+<div class="tooltip" id="tooltip" role="tooltip"></div>
+
+<nav class="nav-dots" aria-label="Slide navigation">
+  <div class="navdot active" data-slide="0" tabindex="0" role="button" aria-label="Chart slide"></div>
+  <div class="navdot"        data-slide="1" tabindex="0" role="button" aria-label="Learn panel"></div>
+</nav>
+
+<!-- ── SLIDE 1 ───────────────────────────────────────────────── -->
+<section class="slide" id="slide-01" aria-label="Radial column chart: monthly temperature distribution">
+  <div class="slide-meta">
+    <span class="label">// RADIAL COLUMN — POLAR COORDINATE BARS</span>
+  </div>
+  <h1 class="slide-title">The seasonal arc of temperature reads as a single shape — peak summer bars dominate the upper arc</h1>
+
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-label">Categories</span>
+      <span class="stat-value" id="stat-n">—</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Peak month</span>
+      <span class="stat-value hot" id="stat-peak">—</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Lowest month</span>
+      <span class="stat-value muted" id="stat-low">—</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Hovered</span>
+      <span class="stat-value" id="stat-hover">—</span>
+    </div>
+  </div>
+
+  <div class="viz-container" id="chart-container">
+    <svg id="chart"
+      role="img"
+      aria-labelledby="chart-title-el"
+      aria-describedby="chart-desc-el">
+      <title id="chart-title-el">Radial Column Chart — Average Monthly Temperature</title>
+      <desc id="chart-desc-el">
+        12 bars radiating from the centre on a polar coordinate system. Each bar represents
+        one month. Bar length encodes average temperature in °F. Concentric circles show the
+        value scale. Peak summer months (June–August) produce the longest bars in the upper arc.
+      </desc>
+    </svg>
+  </div>
+
+  <div class="controls">
+    <div class="ctl-group">
+      <span class="ctl-label">Inner radius</span>
+      <input type="range" id="inner-slider" min="0" max="60" step="5" value="30"
+        aria-label="Inner radius as percentage of outer radius" tabindex="0">
+      <span class="slider-val" id="inner-val">30%</span>
+    </div>
+    <div class="sep" aria-hidden="true"></div>
+    <button class="btn active" id="btn-grid"  aria-pressed="true"  tabindex="0">Grid rings</button>
+    <button class="btn active" id="btn-labels" aria-pressed="true" tabindex="0">Value labels</button>
+    <button class="btn"        id="btn-sort"  aria-pressed="false" tabindex="0">Sort by value</button>
+    <div class="sep" aria-hidden="true"></div>
+    <button class="btn" id="audio-toggle" tabindex="0" aria-label="Play narration">▶ narration</button>
+  </div>
+  <p class="hint">Hover bars for details · Adjust inner radius to change donut depth · Toggle grid rings and value labels</p>
+</section>
+
+<!-- ── SLIDE 2 ───────────────────────────────────────────────── -->
+<section class="slide slide-learn" id="slide-02" aria-label="Learn: Radial Column Chart">
+  <div class="slide-meta">
+    <span class="label">// LEARN — RADIAL COLUMN CHART / CIRCULAR COLUMN GRAPH</span>
+  </div>
+  <h1 class="slide-title">What radial bars encode — and the perceptual cost of polar coordinates</h1>
+
+  <div class="learn-grid">
+
+    <div class="learn-block">
+      <h2>What this chart is</h2>
+      <p>A Radial Column Chart maps a standard bar chart onto a polar coordinate system. Each category is assigned an angular position (a radial divider), and its bar extends outward from a central baseline along that angle. The value scale is encoded by concentric circles: the innermost circle represents the lowest scale value (often zero), and each successive circle outward represents a higher value. Bar length — measured radially from the baseline to the bar's outer edge — encodes the quantitative value.</p>
+      <p>The result is that all bars share a common centre rather than a common baseline. The overall silhouette of the chart — the shape formed by the bar tips — becomes a gestalt encoding of the data's distribution. A symmetric silhouette indicates uniform values; a spiky silhouette reveals outliers; a smooth arc reveals cyclical progression.</p>
+    </div>
+
+    <div class="learn-block">
+      <h2>Anatomy of the encoding</h2>
+      <svg class="anatomy-svg" viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg"
+        aria-label="Radial column chart anatomy: concentric circle grid, radial dividers, bars, centre point, value ring labels">
+
+        <circle cx="130" cy="130" r="90" fill="none" stroke="#EDEDED" stroke-width="1"/>
+        <circle cx="130" cy="130" r="65" fill="none" stroke="#EDEDED" stroke-width="1" stroke-dasharray="3,3"/>
+        <circle cx="130" cy="130" r="40" fill="none" stroke="#EDEDED" stroke-width="1" stroke-dasharray="2,4"/>
+        <circle cx="130" cy="130" r="18" fill="none" stroke="#EDEDED" stroke-width="1"/>
+
+        <!-- Radial dividers -->
+        <line x1="130" y1="40"  x2="130" y2="220" stroke="#F0F0F0" stroke-width="0.8"/>
+        <line x1="40"  y1="130" x2="220" y2="130" stroke="#F0F0F0" stroke-width="0.8"/>
+        <line x1="67"  y1="67"  x2="193" y2="193" stroke="#F0F0F0" stroke-width="0.8"/>
+        <line x1="193" y1="67"  x2="67"  y2="193" stroke="#F0F0F0" stroke-width="0.8"/>
+
+        <!-- Bars — 8 sample bars at varying lengths -->
+        <!-- Top (12 o'clock) -->
+        <path d="M119,40 A90,90 0 0,1 141,40 L136,82 A40,40 0 0,0 124,82 Z"
+              fill="#5C3317" opacity="0.85"/>
+        <!-- Top-right -->
+        <path d="M175,60 A90,90 0 0,1 190,80 L162,102 A40,40 0 0,0 153,86 Z"
+              fill="#7A4A2A" opacity="0.8"/>
+        <!-- Right (3 o'clock) -->
+        <path d="M178,119 A90,90 0 0,1 178,141 L148,136 A40,40 0 0,0 148,124 Z"
+              fill="#9B6B4A" opacity="0.7"/>
+        <!-- Bottom-right -->
+        <path d="M190,180 A90,90 0 0,1 175,200 L153,174 A40,40 0 0,0 162,158 Z"
+              fill="#BC9070" opacity="0.6"/>
+        <!-- Bottom -->
+        <path d="M141,212 A90,90 0 0,1 119,212 L124,178 A40,40 0 0,0 136,178 Z"
+              fill="#D4B090" opacity="0.5"/>
+        <!-- Bottom-left -->
+        <path d="M70,200 A90,90 0 0,1 55,180 L97,158 A40,40 0 0,0 107,174 Z"
+              fill="#9B6B4A" opacity="0.65"/>
+        <!-- Left -->
+        <path d="M40,141 A90,90 0 0,1 40,119 L82,124 A40,40 0 0,0 82,136 Z"
+              fill="#7A4A2A" opacity="0.75"/>
+        <!-- Top-left -->
+        <path d="M55,80 A90,90 0 0,1 70,60 L97,86 A40,40 0 0,0 107,102 Z"
+              fill="#5C3317" opacity="0.85"/>
+
+        <!-- Centre dot -->
+        <circle cx="130" cy="130" r="4" fill="#1B1B1B"/>
+
+        <!-- Value ring label -->
+        <text x="133" y="68"  font-family="JetBrains Mono,monospace" font-size="7" fill="#797C7F">max</text>
+        <text x="133" y="92"  font-family="JetBrains Mono,monospace" font-size="7" fill="#797C7F">mid</text>
+        <text x="133" y="118" font-family="JetBrains Mono,monospace" font-size="7" fill="#797C7F">zero</text>
+
+        <!-- Annotation: bar length = value -->
+        <line x1="130" y1="40" x2="130" y2="112" stroke="#B52C2C" stroke-width="1.2"/>
+        <text x="108" y="36" font-family="JetBrains Mono,monospace" font-size="7" fill="#B52C2C">bar length</text>
+        <text x="113" y="46" font-family="JetBrains Mono,monospace" font-size="7" fill="#B52C2C">= value</text>
+
+        <!-- Annotation: radial divider -->
+        <text x="196" y="128" font-family="JetBrains Mono,monospace" font-size="7" fill="#797C7F">radial</text>
+        <text x="196" y="138" font-family="JetBrains Mono,monospace" font-size="7" fill="#797C7F">divider</text>
+
+        <!-- Concentric ring label -->
+        <text x="50" y="55" font-family="JetBrains Mono,monospace" font-size="7" fill="#EDEDED">outer ring</text>
+        <text x="42" y="65" font-family="JetBrains Mono,monospace" font-size="7" fill="#EDEDED">= max scale</text>
+      </svg>
+    </div>
+
+    <div class="learn-block">
+      <h2>Why it was chosen here</h2>
+      <p>The data has 12 categories (months) with an inherent cyclical order — January follows December, the data wraps. The radial column chart honours this cyclicality: the last bar and first bar are visually adjacent, so the viewer perceives the year as a continuous loop rather than a sequence with an arbitrary start and end.</p>
+      <p>The seasonal pattern produces a recognisable shape — a broad arc of tall summer bars, a compressed arc of short winter bars — that the viewer reads as a gestalt before reading individual values. This whole-shape perception is only possible because the bars share a common centre rather than a common baseline. For data that genuinely cycles, the radial form earns its coordinate distortion.</p>
+    </div>
+
+    <div class="learn-block">
+      <h2>The perceptual cost — and when to pay it</h2>
+      <p>Radial columns suffer a well-documented perceptual distortion: bars further from the centre appear longer than equally-valued bars closer to it, because their outer arc is physically larger. This is the same distortion that makes pie slices and donut segments hard to compare precisely. The viewer's eye misjudges bar length when bars are at different angular positions, because length-along-a-radius is harder to compare than length-along-a-shared-baseline.</p>
+      <p>This cost is worth paying only when two conditions hold: (1) the data is genuinely cyclical — it wraps, and the adjacency of first and last categories is meaningful; (2) the message is about the overall shape, not precise value comparison between categories. If the message is "July is 18.3°F warmer than February," a standard bar chart delivers that comparison with far less cognitive effort. If the message is "the year forms a smooth temperature arc," the radial chart delivers it in a single glance.</p>
+    </div>
+
+    <div class="learn-block">
+      <h2>What the rejected alternative breaks</h2>
+      <p>A standard <strong>Bar Chart</strong> — the direct equivalent — plots the same 12 months as horizontal or vertical bars on a linear axis. It is more precise for value retrieval and supports direct comparison between any two bars. What it loses is the cyclical wrap: December and January appear at opposite ends of the chart, breaking the visual continuity of the seasonal loop. For non-cyclical categorical data, the bar chart is always preferable. The radial form is justified only by the calendar's circularity.</p>
+      <p>A <strong>Radial Bar Chart</strong> (the close relative) uses concentric arcs rather than radial bars — each category is assigned a ring, and its arc length encodes the value. The Radial Column Chart uses radial bars on shared rings. The distinction: Radial Bar compares categories by arc length (angle), which is harder to read than length; Radial Column uses bar length (radius), which is more legible but still inferior to a linear baseline.</p>
+    </div>
+
+    <div class="framework-ref">
+      <span class="label">// FRAMEWORK REFERENCE</span>
+      <p><strong>FT Visual Vocabulary — Part-to-Whole / Comparison (cyclical variant).</strong> The Radial Column Chart sits in the Comparison category but is only appropriate when the categories have an inherent circular ordering. Without cyclicality, the polar coordinate distortion is pure cost with no benefit. Abela quadrant: Comparison (items, few periods — specialised for circular ordering). Tufte principle partially violated: the polar coordinate system introduces a non-data-ink distortion (outer bars appear larger than inner bars of equal value). The inner radius slider in this implementation lets the viewer control the "donut hole" size — a larger inner radius compresses the range of the radial scale, reducing the perceptual distortion at the cost of reducing the visual range between minimum and maximum values. Set inner radius to 0% to see the maximum distortion; set it to 60% to see the most compressed, least distorted version.</p>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <p>Nik Bear Brown, Irreducibly Human, What AI Can and Can't Do</p>
+  <p>boondoggling.ai · irreducibly.xyz · brutalist.art · bearbrown.co · frictional.xyz</p>
+</footer>
+
+<audio id="page-audio" src="./radial-column/audio.mp3"></audio>
+
+<script>
+(function () {
+
+  // ── NAV ──────────────────────────────────────────────────────
+  const slides  = document.querySelectorAll('.slide');
+  const navDots = document.querySelectorAll('.navdot');
+
+  function scrollToSlide(i) { slides[i].scrollIntoView({ behavior: 'smooth' }); }
+
+  navDots.forEach((d, i) => {
+    d.addEventListener('click', () => scrollToSlide(i));
+    d.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); scrollToSlide(i); }
+    });
+  });
+
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const idx = Array.from(slides).indexOf(entry.target);
+      navDots.forEach((d, i) => d.classList.toggle('active', i === idx));
+    });
+  }, { threshold: 0.45 });
+  slides.forEach(s => io.observe(s));
+
+  document.addEventListener('keydown', e => {
+    const cur = Array.from(navDots).findIndex(d => d.classList.contains('active'));
+    if (e.key === 'ArrowDown' && cur < slides.length - 1) scrollToSlide(cur + 1);
+    if (e.key === 'ArrowUp'   && cur > 0)                 scrollToSlide(cur - 1);
+  });
+
+  // ── AUDIO ────────────────────────────────────────────────────
+  const audio = document.getElementById('page-audio');
+  const audioBtn = document.getElementById('audio-toggle');
+  let playing = false;
+  audioBtn.addEventListener('click', () => {
+    if (playing) { audio.pause(); audioBtn.textContent = '▶ narration'; }
+    else         { audio.play().catch(() => {}); audioBtn.textContent = '⏸ narration'; }
+    playing = !playing;
+  });
+  audio.addEventListener('ended', () => { playing = false; audioBtn.textContent = '▶ narration'; });
+
+  // ── TOOLTIP ──────────────────────────────────────────────────
+  const tip = document.getElementById('tooltip');
+
+  function showTip(html, cx, cy) {
+    tip.innerHTML = html;
+    tip.style.opacity = 1;
+    const tw = tip.offsetWidth  || 170;
+    const th = tip.offsetHeight || 60;
+    let left = cx + 14, top = cy - th / 2;
+    if (left + tw > window.innerWidth  - 8) left = cx - tw - 14;
+    if (top < 8)                            top  = 8;
+    if (top + th > window.innerHeight - 8) top  = window.innerHeight - th - 8;
+    tip.style.left = left + 'px';
+    tip.style.top  = top  + 'px';
+  }
+
+  function hideTip() { tip.style.opacity = 0; }
+
+  // ── TOGGLE STATE ─────────────────────────────────────────────
+  let showGrid   = true;
+  let showLabels = true;
+  let sortByVal  = false;
+
+  document.getElementById('btn-grid').addEventListener('click', function () {
+    showGrid = !showGrid;
+    this.classList.toggle('active', showGrid);
+    this.setAttribute('aria-pressed', showGrid);
+    redraw();
+  });
+
+  document.getElementById('btn-labels').addEventListener('click', function () {
+    showLabels = !showLabels;
+    this.classList.toggle('active', showLabels);
+    this.setAttribute('aria-pressed', showLabels);
+    redraw();
+  });
+
+  document.getElementById('btn-sort').addEventListener('click', function () {
+    sortByVal = !sortByVal;
+    this.classList.toggle('active', sortByVal);
+    this.setAttribute('aria-pressed', sortByVal);
+    redraw();
+  });
+
+  // ── INNER RADIUS SLIDER ───────────────────────────────────────
+  const innerSlider = document.getElementById('inner-slider');
+  const innerValEl  = document.getElementById('inner-val');
+  innerSlider.addEventListener('input', () => {
+    innerValEl.textContent = innerSlider.value + '%';
+    redraw();
+  });
+
+  // ── COLOUR SCALE ─────────────────────────────────────────────
+  // Map normalised value (0–1) to walnut gradient
+  function barColour(norm) {
+    // Low values: parchment-walnut tone; high values: deep walnut
+    const low  = [188, 154, 120];  // warm sand
+    const high = [ 92,  51,  23];  // walnut #5C3317
+    const r = Math.round(low[0] + (high[0] - low[0]) * norm);
+    const g = Math.round(low[1] + (high[1] - low[1]) * norm);
+    const b = Math.round(low[2] + (high[2] - low[2]) * norm);
+    return `rgb(${r},${g},${b})`;
+  }
+
+  // ── CHART ────────────────────────────────────────────────────
+  let allData = [];
+
+  function redraw() {
+    if (!allData.length) return;
+
+    const container = document.getElementById('chart-container');
+    const W = container.clientWidth  || 700;
+    const H = container.clientHeight || 480;
+
+    const size    = Math.min(W, H, 520);
+    const cx      = size / 2;
+    const cy      = size / 2;
+    const outerR  = size / 2 - 48;  // leave room for labels
+    const innerPct = +innerSlider.value / 100;
+    const innerR  = outerR * innerPct;
+    const barZone = outerR - innerR;
+
+    const svg = d3.select('#chart')
+      .attr('width', size)
+      .attr('height', size)
+      .attr('viewBox', `0 0 ${size} ${size}`);
+
+    svg.selectAll('*').remove();
+
+    const g = svg.append('g').attr('transform', `translate(${cx},${cy})`);
+
+    // Sort / order
+    let data = [...allData];
+    if (sortByVal) {
+      data.sort((a, b) => b.value - a.value);
+    }
+
+    const n   = data.length;
+    const max = d3.max(data, d => d.value);
+    const min = d3.min(data, d => d.value);
+
+    // Angular scale — one bar per category
+    const angleSlice = (2 * Math.PI) / n;
+    const barPad     = 0.12;  // fraction of slice angle used as gap
+
+    // Radial scale
+    const rScale = d3.scaleLinear()
+      .domain([0, max])
+      .range([innerR, outerR]);
+
+    // ── GRID RINGS ────────────────────────────────────────────
+    if (showGrid) {
+      const ringValues = rScale.ticks(4);
+
+      g.selectAll('.ring')
+        .data(ringValues)
+        .join('circle')
+          .attr('r', v => rScale(v))
+          .attr('fill', 'none')
+          .attr('stroke', '#EDEDED')
+          .attr('stroke-width', 1)
+          .attr('stroke-dasharray', (v, i) => i === 0 ? 'none' : '3,3');
+
+      // Ring labels
+      g.selectAll('.ring-label')
+        .data(ringValues)
+        .join('text')
+          .attr('x', 4)
+          .attr('y', v => -rScale(v) - 3)
+          .style('font-family', "'JetBrains Mono',monospace")
+          .style('font-size', '8px')
+          .style('fill', '#BBBBBB')
+          .text(v => v + '°F');
+    }
+
+    // Inner baseline circle
+    g.append('circle')
+      .attr('r', innerR)
+      .attr('fill', '#FAFAF8')
+      .attr('stroke', '#EDEDED')
+      .attr('stroke-width', 1);
+
+    // ── RADIAL DIVIDERS ───────────────────────────────────────
+    g.selectAll('.radial-div')
+      .data(data)
+      .join('line')
+        .attr('x1', 0).attr('y1', 0)
+        .attr('x2', (d, i) => Math.cos(angleSlice * i - Math.PI / 2) * (outerR + 10))
+        .attr('y2', (d, i) => Math.sin(angleSlice * i - Math.PI / 2) * (outerR + 10))
+        .attr('stroke', '#F0F0F0')
+        .attr('stroke-width', 0.8);
+
+    // ── BARS ──────────────────────────────────────────────────
+    const arc = d3.arc();
+
+    const bars = g.selectAll('.bar')
+      .data(data)
+      .join('path')
+        .attr('class', 'bar')
+        .attr('d', (d, i) => {
+          const startAngle = angleSlice * i - Math.PI / 2 + barPad * angleSlice;
+          const endAngle   = angleSlice * (i + 1) - Math.PI / 2 - barPad * angleSlice;
+          return arc({
+            innerRadius: innerR,
+            outerRadius: innerR,   // animate from baseline
+            startAngle,
+            endAngle
+          });
+        })
+        .attr('fill', (d, i) => barColour((d.value - min) / (max - min || 1)))
+        .attr('fill-opacity', 0.88)
+        .attr('stroke', '#FFFFFF')
+        .attr('stroke-width', 0.5)
+        .attr('tabindex', 0)
+        .attr('role', 'img')
+        .attr('aria-label', d => `${d.label}: ${d.value}°F — ${d.note || ''}`)
+        .on('mousemove', function (event, d) {
+          d3.select(this).attr('fill-opacity', 1).attr('stroke', '#1B1B1B').attr('stroke-width', 1.5);
+          document.getElementById('stat-hover').textContent = `${d.label}: ${d.value}°F`;
+          showTip(
+            `<strong>${d.label}</strong>${d.value}°F avg<br>${d.note || ''}`,
+            event.clientX, event.clientY
+          );
+        })
+        .on('mouseleave', function (event, d) {
+          d3.select(this).attr('fill-opacity', 0.88).attr('stroke', '#FFFFFF').attr('stroke-width', 0.5);
+          document.getElementById('stat-hover').textContent = '—';
+          hideTip();
+        })
+        .on('keydown', function (event, d) {
+          if (event.key === 'Enter' || event.key === ' ')
+            document.getElementById('stat-hover').textContent = `${d.label}: ${d.value}°F`;
+        });
+
+    // Animate bars growing from inner radius outward
+    bars.transition()
+      .duration(700)
+      .delay((d, i) => i * 45)
+      .ease(d3.easeCubicOut)
+      .attr('d', (d, i) => {
+        const startAngle = angleSlice * i - Math.PI / 2 + barPad * angleSlice;
+        const endAngle   = angleSlice * (i + 1) - Math.PI / 2 - barPad * angleSlice;
+        return arc({
+          innerRadius: innerR,
+          outerRadius: rScale(d.value),
+          startAngle,
+          endAngle
+        });
+      });
+
+    // ── CATEGORY LABELS ───────────────────────────────────────
+    g.selectAll('.cat-label')
+      .data(data)
+      .join('text')
+        .attr('class', 'cat-label')
+        .attr('x', (d, i) => Math.cos(angleSlice * (i + 0.5) - Math.PI / 2) * (outerR + 20))
+        .attr('y', (d, i) => Math.sin(angleSlice * (i + 0.5) - Math.PI / 2) * (outerR + 20))
+        .attr('text-anchor', (d, i) => {
+          const angle = angleSlice * (i + 0.5) - Math.PI / 2;
+          const cos   = Math.cos(angle);
+          return cos < -0.1 ? 'end' : cos > 0.1 ? 'start' : 'middle';
+        })
+        .attr('dominant-baseline', (d, i) => {
+          const angle = angleSlice * (i + 0.5) - Math.PI / 2;
+          const sin   = Math.sin(angle);
+          return sin < -0.3 ? 'auto' : sin > 0.3 ? 'hanging' : 'middle';
+        })
+        .style('font-family', "'JetBrains Mono',monospace")
+        .style('font-size', Math.max(9, Math.min(12, size / 48)) + 'px')
+        .style('font-weight', '600')
+        .style('fill', '#1B1B1B')
+        .text(d => d.label);
+
+    // ── VALUE LABELS AT BAR TIPS ─────────────────────────────
+    if (showLabels) {
+      g.selectAll('.val-label')
+        .data(data)
+        .join('text')
+          .attr('class', 'val-label')
+          .attr('x', (d, i) => Math.cos(angleSlice * (i + 0.5) - Math.PI / 2) * (rScale(d.value) - 8))
+          .attr('y', (d, i) => Math.sin(angleSlice * (i + 0.5) - Math.PI / 2) * (rScale(d.value) - 8))
+          .attr('text-anchor', 'middle')
+          .attr('dominant-baseline', 'middle')
+          .style('font-family', "'JetBrains Mono',monospace")
+          .style('font-size', '8px')
+          .style('fill', '#FFFFFF')
+          .style('font-weight', '600')
+          .attr('opacity', 0)
+          .text(d => d.value + '°')
+          .transition()
+          .duration(300)
+          .delay((d, i) => i * 45 + 650)
+          .attr('opacity', 1);
+    }
+
+    // ── CENTRE LABEL ─────────────────────────────────────────
+    if (innerPct > 0.2) {
+      g.append('text')
+        .attr('text-anchor', 'middle')
+        .attr('dominant-baseline', 'middle')
+        .style('font-family', "'JetBrains Mono',monospace")
+        .style('font-size', Math.max(9, innerR * 0.28) + 'px')
+        .style('font-weight', '800')
+        .style('fill', '#4A4D4F')
+        .text('°F');
+    }
+  }
+
+  // ── DATA LOAD ─────────────────────────────────────────────────
+  d3.json('./radial-column/data.json').then(json => {
+    allData = json.data;
+
+    const peak = allData.reduce((a, b) => a.value > b.value ? a : b);
+    const low  = allData.reduce((a, b) => a.value < b.value ? a : b);
+    document.getElementById('stat-n').textContent    = allData.length;
+    document.getElementById('stat-peak').textContent = `${peak.label} (${peak.value}°F)`;
+    document.getElementById('stat-low').textContent  = `${low.label} (${low.value}°F)`;
+
+    redraw();
+
+    let rt;
+    const ro = new ResizeObserver(() => {
+      clearTimeout(rt);
+      rt = setTimeout(redraw, 160);
+    });
+    ro.observe(document.getElementById('chart-container'));
+  }).catch(err => {
+    document.getElementById('chart-container').innerHTML =
+      `<p style="padding:2rem;font-family:'JetBrains Mono',monospace;font-size:13px;color:#B52C2C;">
+        Data file not found. Place data.json in ./radial-column/data.json
+      </p>`;
+    console.error('D3 load error:', err);
+  });
+
+})();
+</script>
+</body>
+</html>

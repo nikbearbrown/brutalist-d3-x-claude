@@ -1,0 +1,182 @@
+{
+  "_schema": {
+    "description": "Multi-track timeline of key events in humanitarian response history 1991–2024. Four thematic tracks with both point events (single date) and span events (start–end duration). Fictional structuring of plausible historical events — proves the timeline renders before real data is substituted.",
+    "fields": {
+      "domain":                 "array [ISO date, ISO date] — x-axis start and end",
+      "today":                  "string ISO date — draws a reference line at this date",
+      "tracks[].id":            "string — unique track identifier",
+      "tracks[].label":         "string — track name displayed in left header column",
+      "tracks[].color":         "string — hex color from/derived from hai palette",
+      "tracks[].events[].id":   "string — unique event identifier",
+      "tracks[].events[].label":"string — short label displayed on chart (≤18 chars)",
+      "tracks[].events[].description": "string — full detail shown in tooltip",
+      "tracks[].events[].type": "string — 'point' (single moment) or 'span' (duration)",
+      "tracks[].events[].date": "string ISO date — used for type='point' events",
+      "tracks[].events[].start":"string ISO date — start of type='span' events",
+      "tracks[].events[].end":  "string ISO date — end of type='span' events"
+    },
+    "replace": "Replace tracks[] and their events[] with your own data. Mix 'point' and 'span' types freely. The chart derives its xScale domain from the domain[] field — update it to match your time range."
+  },
+  "domain": ["1990-01-01", "2025-06-01"],
+  "today":  "2025-04-11",
+  "tracks": [
+    {
+      "id":    "legal",
+      "label": "Legal & Policy",
+      "color": "#5C3317",
+      "events": [
+        {
+          "id": "L1", "type": "point", "date": "1991-12-19",
+          "label": "UN Res. 46/182",
+          "description": "UN General Assembly Resolution 46/182 establishes OCHA and the modern humanitarian coordination framework."
+        },
+        {
+          "id": "L2", "type": "span", "start": "1994-06-01", "end": "1996-03-31",
+          "label": "IDRL Drafting",
+          "description": "International Disaster Response Law negotiations and drafting of core principles for cross-border humanitarian access."
+        },
+        {
+          "id": "L3", "type": "point", "date": "2005-01-14",
+          "label": "Cluster System",
+          "description": "IASC humanitarian reform launches the cluster approach — coordinating actors by sector (shelter, health, food, WASH, etc.)."
+        },
+        {
+          "id": "L4", "type": "point", "date": "2016-05-23",
+          "label": "World Hum. Summit",
+          "description": "First World Humanitarian Summit in Istanbul. Commitments include the Grand Bargain and New Way of Working."
+        },
+        {
+          "id": "L5", "type": "span", "start": "2019-06-01", "end": "2019-12-31",
+          "label": "Grand Bargain Review",
+          "description": "Mid-term review of 2016 Grand Bargain commitments on localization, transparency, and efficiency."
+        },
+        {
+          "id": "L6", "type": "point", "date": "2023-07-01",
+          "label": "AI Governance",
+          "description": "UN Secretary-General's AI Advisory Body issues recommendations; humanitarian agencies adopt first AI governance frameworks."
+        }
+      ]
+    },
+    {
+      "id":    "tech",
+      "label": "Data & Technology",
+      "color": "#B52C2C",
+      "events": [
+        {
+          "id": "T1", "type": "point", "date": "1996-09-20",
+          "label": "ReliefWeb Launch",
+          "description": "OCHA launches ReliefWeb — first major online humanitarian information platform, aggregating situation reports and maps."
+        },
+        {
+          "id": "T2", "type": "point", "date": "2011-07-01",
+          "label": "HDX Launch",
+          "description": "Humanitarian Data Exchange (HDX) goes live, providing open humanitarian datasets and interoperability standards."
+        },
+        {
+          "id": "T3", "type": "span", "start": "2014-01-01", "end": "2016-12-31",
+          "label": "Open Data Initiative",
+          "description": "GFDRR and World Bank drive open data for disaster resilience; first structured humanitarian data standards adopted."
+        },
+        {
+          "id": "T4", "type": "span", "start": "2017-01-01", "end": "2019-12-31",
+          "label": "AI Pilots",
+          "description": "First systematic AI applications in refugee registration (UNHCR), needs assessment (WFP), and predictive analytics (OCHA)."
+        },
+        {
+          "id": "T5", "type": "span", "start": "2020-03-01", "end": "2022-06-30",
+          "label": "COVID Digital Response",
+          "description": "Rapid digitisation of humanitarian coordination during COVID-19: remote sensing, digital cash, contactless registration."
+        },
+        {
+          "id": "T6", "type": "point", "date": "2024-03-01",
+          "label": "HAI Frameworks",
+          "description": "Major humanitarian agencies adopt shared frameworks for responsible AI in humanitarian response and refugee contexts."
+        }
+      ]
+    },
+    {
+      "id":    "ops",
+      "label": "Major Operations",
+      "color": "#4A4D4F",
+      "events": [
+        {
+          "id": "O1", "type": "span", "start": "1994-04-01", "end": "1994-09-30",
+          "label": "Rwanda Crisis",
+          "description": "Genocide and refugee crisis; 2 million people displaced in 100 days — largest and fastest refugee movement ever recorded."
+        },
+        {
+          "id": "O2", "type": "point", "date": "2004-12-26",
+          "label": "Indian Ocean Tsunami",
+          "description": "Magnitude 9.1 earthquake triggers tsunami across 14 countries. 230,000 deaths; $7 billion humanitarian response mobilised."
+        },
+        {
+          "id": "O3", "type": "span", "start": "2010-01-12", "end": "2012-01-31",
+          "label": "Haiti EQ Response",
+          "description": "Haiti earthquake: largest urban humanitarian operation in history; 10 million affected, 1.5 million initially displaced."
+        },
+        {
+          "id": "O4", "type": "point", "date": "2013-11-08",
+          "label": "Typhoon Haiyan",
+          "description": "Super Typhoon Haiyan in the Philippines — 6,300 deaths, 14 million affected. Became benchmark for rapid onset response."
+        },
+        {
+          "id": "O5", "type": "span", "start": "2019-08-01", "end": "2020-11-30",
+          "label": "DRC Ebola",
+          "description": "Second-largest Ebola outbreak in history, in a conflict-affected zone. 3,400+ deaths; first major AI-assisted health response."
+        },
+        {
+          "id": "O6", "type": "point", "date": "2022-02-24",
+          "label": "Ukraine Crisis",
+          "description": "Russia's full-scale invasion triggers fastest European displacement since WWII: 8 million external refugees within 3 months."
+        },
+        {
+          "id": "O7", "type": "point", "date": "2023-02-06",
+          "label": "Turkey-Syria EQ",
+          "description": "7.8 magnitude earthquake strikes Turkey and Syria. 50,000+ deaths; 9 million displaced. Record response in first 72 hours."
+        }
+      ]
+    },
+    {
+      "id":    "finance",
+      "label": "Financing",
+      "color": "#797C7F",
+      "events": [
+        {
+          "id": "F1", "type": "point", "date": "2004-06-17",
+          "label": "GHD Principles",
+          "description": "23 donor governments adopt the Good Humanitarian Donorship (GHD) principles — first global framework for principled funding."
+        },
+        {
+          "id": "F2", "type": "point", "date": "2006-03-09",
+          "label": "CERF Established",
+          "description": "UN Central Emergency Response Fund (CERF) formally established with $450M target — pooled funding for rapid onset crises."
+        },
+        {
+          "id": "F3", "type": "span", "start": "2010-01-01", "end": "2012-12-31",
+          "label": "CERF Scale-up",
+          "description": "CERF expands dramatically post-Haiti; record disbursements. CBPF country-level pooled funds also established."
+        },
+        {
+          "id": "F4", "type": "point", "date": "2016-05-23",
+          "label": "Grand Bargain",
+          "description": "Grand Bargain signed by 51 donors and aid organisations — commitments on transparency, cash, and localisation."
+        },
+        {
+          "id": "F5", "type": "span", "start": "2020-01-01", "end": "2020-12-31",
+          "label": "COVID Funding Surge",
+          "description": "Global humanitarian funding reaches record $28.9B in 2020; COVID triggers emergency reprogramming across all portfolios."
+        },
+        {
+          "id": "F6", "type": "point", "date": "2022-06-01",
+          "label": "Financing Reform",
+          "description": "Major OCHA-led review of humanitarian financing architecture; proposals for sovereign debt relief and climate-humanitarian links."
+        },
+        {
+          "id": "F7", "type": "point", "date": "2024-06-01",
+          "label": "AI Funding Tools",
+          "description": "First AI-driven resource allocation models piloted by CERF and major CBPFs; predictive needs-based distribution tested."
+        }
+      ]
+    }
+  ]
+}

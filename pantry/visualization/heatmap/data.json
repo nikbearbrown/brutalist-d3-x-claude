@@ -1,0 +1,46 @@
+{
+  "_schema": {
+    "description": "Matrix dataset. rows[] and cols[] define the two categorical axes. values[][] is a 2D array indexed [row][col] in the same order as rows[] and cols[]. All values are on a 0–100 scale.",
+    "fields": {
+      "title":      "string — chart headline",
+      "unit":       "string — what each cell value represents",
+      "colorDomain":"[number, number] — min and max of the color scale (usually [0, 100] or [dataMin, dataMax])",
+      "rows[]":     "string — row category labels (displayed on left axis)",
+      "cols[]":     "string — column category labels (displayed on top axis)",
+      "values[][]": "number — 2D array, values[i][j] is the cell at row i, column j"
+    },
+    "replace": "Swap rows[], cols[], and values[][] with your categories and data. Ensure values[][] has exactly rows.length arrays, each of length cols.length. Adjust colorDomain if your scale is not 0–100."
+  },
+  "title": "AI Adoption Intensity Index by Region and Sector",
+  "unit": "Index score (0 – 100)",
+  "colorDomain": [0, 100],
+  "rows": [
+    "North America",
+    "Western Europe",
+    "East Asia",
+    "Eastern Europe",
+    "Latin America",
+    "Middle East & N. Africa",
+    "South Asia",
+    "Sub-Saharan Africa"
+  ],
+  "cols": [
+    "Healthcare",
+    "Education",
+    "Finance",
+    "Research",
+    "Agriculture",
+    "Government",
+    "Humanitarian"
+  ],
+  "values": [
+    [82, 78, 91, 88, 65, 74, 62],
+    [79, 81, 86, 85, 58, 72, 55],
+    [71, 74, 83, 79, 72, 68, 41],
+    [58, 63, 71, 64, 49, 61, 33],
+    [51, 55, 63, 48, 54, 44, 28],
+    [47, 49, 68, 42, 38, 52, 22],
+    [38, 44, 52, 41, 47, 35, 19],
+    [24, 31, 38, 28, 35, 27, 14]
+  ]
+}

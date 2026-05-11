@@ -1,0 +1,66 @@
+{
+  "_schema": {
+    "description": "Monthly humanitarian funding by sector, Jan 2022–Dec 2024 (simulated). Five series stacked to show both sectoral composition and total trend. Replace with any multi-series time data where components are additive and non-negative.",
+    "fields": {
+      "series":              "array of string keys — defines stack order (bottom to top) and legend order",
+      "series_labels[key]":  "string, human-readable label shown in legend and right-edge annotation",
+      "series_colors[key]":  "string, hex fill color for each series area",
+      "data[].date":         "string, ISO month YYYY-MM — parsed as d3.timeParse('%Y-%m')",
+      "data[].[key]":        "number, funding in USD millions for that sector in that month"
+    },
+    "replace": "Add or remove keys from 'series', 'series_labels', 'series_colors', and each data record. Keep series count ≤ 6 for readability. All values must be non-negative — stacked area charts cannot handle negative values. Add data records to extend the time range; the x and y scales recalibrate automatically."
+  },
+  "series": ["food_m","health_m","shelter_m","wash_m","protection_m"],
+  "series_labels": {
+    "food_m":       "Food Security",
+    "health_m":     "Health",
+    "shelter_m":    "Shelter & NFI",
+    "wash_m":       "WASH",
+    "protection_m": "Protection"
+  },
+  "series_colors": {
+    "food_m":       "#5C3317",
+    "health_m":     "#A0522D",
+    "shelter_m":    "#B85450",
+    "wash_m":       "#4A4D4F",
+    "protection_m": "#797C7F"
+  },
+  "data": [
+    {"date":"2022-01","food_m":418,"health_m":178,"shelter_m":135,"wash_m":90,"protection_m":62},
+    {"date":"2022-02","food_m":402,"health_m":168,"shelter_m":128,"wash_m":86,"protection_m":58},
+    {"date":"2022-03","food_m":425,"health_m":175,"shelter_m":132,"wash_m":88,"protection_m":60},
+    {"date":"2022-04","food_m":438,"health_m":182,"shelter_m":142,"wash_m":94,"protection_m":64},
+    {"date":"2022-05","food_m":412,"health_m":172,"shelter_m":158,"wash_m":90,"protection_m":62},
+    {"date":"2022-06","food_m":428,"health_m":178,"shelter_m":178,"wash_m":92,"protection_m":64},
+    {"date":"2022-07","food_m":445,"health_m":185,"shelter_m":195,"wash_m":96,"protection_m":68},
+    {"date":"2022-08","food_m":458,"health_m":192,"shelter_m":212,"wash_m":98,"protection_m":72},
+    {"date":"2022-09","food_m":442,"health_m":186,"shelter_m":204,"wash_m":94,"protection_m":68},
+    {"date":"2022-10","food_m":465,"health_m":195,"shelter_m":198,"wash_m":100,"protection_m":72},
+    {"date":"2022-11","food_m":488,"health_m":204,"shelter_m":192,"wash_m":106,"protection_m":76},
+    {"date":"2022-12","food_m":510,"health_m":215,"shelter_m":186,"wash_m":112,"protection_m":80},
+    {"date":"2023-01","food_m":492,"health_m":208,"shelter_m":182,"wash_m":108,"protection_m":78},
+    {"date":"2023-02","food_m":476,"health_m":196,"shelter_m":175,"wash_m":102,"protection_m":74},
+    {"date":"2023-03","food_m":488,"health_m":202,"shelter_m":170,"wash_m":105,"protection_m":76},
+    {"date":"2023-04","food_m":502,"health_m":212,"shelter_m":165,"wash_m":110,"protection_m":80},
+    {"date":"2023-05","food_m":478,"health_m":198,"shelter_m":158,"wash_m":105,"protection_m":76},
+    {"date":"2023-06","food_m":464,"health_m":192,"shelter_m":152,"wash_m":102,"protection_m":74},
+    {"date":"2023-07","food_m":456,"health_m":188,"shelter_m":148,"wash_m":100,"protection_m":72},
+    {"date":"2023-08","food_m":472,"health_m":196,"shelter_m":154,"wash_m":106,"protection_m":76},
+    {"date":"2023-09","food_m":484,"health_m":204,"shelter_m":160,"wash_m":112,"protection_m":80},
+    {"date":"2023-10","food_m":506,"health_m":215,"shelter_m":168,"wash_m":118,"protection_m":84},
+    {"date":"2023-11","food_m":524,"health_m":226,"shelter_m":175,"wash_m":122,"protection_m":88},
+    {"date":"2023-12","food_m":518,"health_m":218,"shelter_m":170,"wash_m":118,"protection_m":85},
+    {"date":"2024-01","food_m":498,"health_m":210,"shelter_m":164,"wash_m":114,"protection_m":82},
+    {"date":"2024-02","food_m":482,"health_m":202,"shelter_m":158,"wash_m":110,"protection_m":78},
+    {"date":"2024-03","food_m":495,"health_m":208,"shelter_m":162,"wash_m":115,"protection_m":80},
+    {"date":"2024-04","food_m":488,"health_m":205,"shelter_m":158,"wash_m":118,"protection_m":78},
+    {"date":"2024-05","food_m":474,"health_m":196,"shelter_m":152,"wash_m":114,"protection_m":75},
+    {"date":"2024-06","food_m":458,"health_m":188,"shelter_m":146,"wash_m":110,"protection_m":72},
+    {"date":"2024-07","food_m":445,"health_m":182,"shelter_m":142,"wash_m":108,"protection_m":70},
+    {"date":"2024-08","food_m":462,"health_m":192,"shelter_m":148,"wash_m":114,"protection_m":74},
+    {"date":"2024-09","food_m":478,"health_m":200,"shelter_m":155,"wash_m":120,"protection_m":78},
+    {"date":"2024-10","food_m":492,"health_m":208,"shelter_m":162,"wash_m":126,"protection_m":82},
+    {"date":"2024-11","food_m":508,"health_m":216,"shelter_m":168,"wash_m":130,"protection_m":85},
+    {"date":"2024-12","food_m":502,"health_m":212,"shelter_m":164,"wash_m":128,"protection_m":83}
+  ]
+}

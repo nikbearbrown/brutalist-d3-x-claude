@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chicago Wheat Futures — OHLC Chart</title>
+  <meta name="description" content="Open-High-Low-Close chart of Chicago Wheat futures. January selloff of 9.6% peak-to-trough before February recovery. Daily price bars with 10-session SMA overlay.">
+  <meta name="keywords" content="OHLC chart, open high low close, price chart, wheat futures, food security, financial visualization, D3.js, candlestick alternative, trading chart, time series">
+  <meta name="author" content="Nik Bear Brown">
+  <meta name="category" content="Humanitarian Data Visualization">
+
+  <!-- PALETTE: hai — Humanitarians AI
+       WCAG NOTE:
+         p4 (#F7FAFD) FAIL on white — not used for text
+         p7 (#EDEDED) FAIL on white — grid lines and borders only
+       Text uses p1 (18.2:1), p5 (9.4:1), p6 (4.6:1) — all AA+
+       OHLC bar fills (graphical, 3:1 threshold):
+         Bullish #5C3317 on white: 9.3:1 ✓
+         Bearish #B52C2C on white: 5.8:1 ✓
+       Y-AXIS NOTE: axis is truncated (does not start at zero).
+         This is correct for price charts where rate-of-change is the story.
+         A zero baseline for wheat futures would compress 9.6% swings into
+         sub-pixel noise. Price change is the encoding; absolute price from
+         zero carries no analytical information.
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --p1: #1B1B1B;
+      --p2: #5C3317;  /* walnut  — bullish bars  */
+      --p3: #B52C2C;  /* blood-red — bearish bars */
+      --p4: #F7FAFD;
+      --p5: #4A4D4F;
+      --p6: #797C7F;
+      --p7: #EDEDED;
+      --p8: #FFFFFF;
+      --font: 'JetBrains Mono', monospace;
+      --bull: #5C3317;
+      --bear: #B52C2C;
+      --sma:  #797C7F;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%; height: 100%;
+      background: var(--p8); color: var(--p1);
+      font-family: var(--font); overflow: hidden;
+    }
+
+    /* ─── SLIDES ─────────────────────────────────── */
+    .slide {
+      position: absolute; inset: 0;
+      display: none; flex-direction: column;
+      padding: 1.3rem 2.2rem 2.7rem;
+    }
+    .slide.active { display: flex; }
+
+    .slide-meta {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 0.42rem; flex-shrink: 0;
+    }
+
+    .label {
+      font-size: 9.5px; font-weight: 600;
+      letter-spacing: 0.13em; color: var(--p6);
+      text-transform: uppercase;
+    }
+
+    h1.slide-title {
+      font-size: clamp(11px, 1.55vw, 18px);
+      font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.042em; color: var(--p1);
+      line-height: 1.2; margin-bottom: 0.25rem;
+      max-width: 90ch; flex-shrink: 0;
+    }
+
+    .subtitle {
+      font-size: 10.5px; color: var(--p5);
+      margin-bottom: 0.5rem; line-height: 1.5; flex-shrink: 0;
+    }
+
+    /* ─── VIZ ────────────────────────────────────── */
+    .viz-container {
+      flex: 1; position: relative;
+      min-height: 0; border-top: 1px solid var(--p7);
+    }
+
+    #chart-svg { width: 100%; height: 100%; display: block; overflow: visible; }
+
+    /* ─── CHART ELEMENTS ─────────────────────────── */
+    .grid-line { stroke: var(--p7); stroke-width: 0.8; }
+
+    .axis-tick-text {
+      font-family: var(--font); font-size: 10px;
+      fill: var(--p5); letter-spacing: 0.04em;
+    }
+
+    .axis-label-text {
+      font-family: var(--font); font-size: 9px;
+      fill: var(--p6); letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+
+    .ohlc-bar { cursor: crosshair; }
+    .ohlc-bar:focus { outline: 2px solid var(--p2); outline-offset: 2px; }
+
+    .sma-path {
+      fill: none;
+      stroke: var(--sma);
+      stroke-width: 1.1;
+      stroke-dasharray: 4,3;
+      opacity: 0.8;
+    }
+
+    /* Crosshair */
+    .crosshair-line {
+      stroke: var(--p5); stroke-width: 0.7;
+      stroke-dasharray: 3,4; pointer-events: none;
+      visibility: hidden;
+    }
+
+    /* Last-price callout */
+    .last-price-box { pointer-events: none; }
+
+    /* Period selector */
+    .period-bar {
+      display: flex; gap: 0; align-items: center;
+      flex-shrink: 0; margin-bottom: 0.1rem;
+    }
+
+    .period-btn {
+      font-family: var(--font); font-size: 9px;
+      font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: transparent;
+      border: 1px solid var(--p7);
+      border-right: none;
+      color: var(--p6); padding: 2px 8px;
+      cursor: pointer;
+      transition: background 0.1s, color 0.1s;
+    }
+    .period-btn:last-child { border-right: 1px solid var(--p7); }
+    .period-btn:hover  { color: var(--p2); border-color: var(--p2); z-index:1; }
+    .period-btn.active { background: var(--p2); color: var(--p8); border-color: var(--p2); z-index:1; }
+    .period-btn:focus  { outline: 2px solid var(--p2); outline-offset: 1px; z-index:2; }
+
+    /* ─── OHLC INFO BAR ──────────────────────────── */
+    .info-bar {
+      display: flex; gap: 1.4rem; align-items: baseline;
+      font-size: 10px; color: var(--p5);
+      letter-spacing: 0.05em; flex-shrink: 0;
+      padding: 0.2rem 0 0.3rem;
+      border-bottom: 1px solid var(--p7);
+      margin-bottom: 0.2rem;
+    }
+
+    .info-val { font-weight: 600; color: var(--p1); }
+    .info-bull { color: var(--bull); }
+    .info-bear { color: var(--bear); }
+
+    /* ─── TOOLTIP ────────────────────────────────── */
+    #tooltip {
+      position: absolute; pointer-events: none;
+      background: var(--p1); color: var(--p8);
+      font-family: var(--font); font-size: 11px;
+      font-weight: 400; line-height: 1.65;
+      padding: 7px 11px; border: 1px solid var(--p2);
+      z-index: 90; opacity: 0; transition: opacity 0.08s ease;
+      white-space: nowrap;
+    }
+    #tooltip.visible { opacity: 1; }
+    #tooltip .tt-head {
+      font-size: 11px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 0.09em;
+      color: #C4956A; padding-bottom: 3px;
+      border-bottom: 1px solid #333; margin-bottom: 4px;
+    }
+    .tt-grid { display: grid; grid-template-columns: auto auto; gap: 1px 10px; }
+    .tt-key  { color: #AAA; font-size: 10px; }
+    .tt-val  { font-weight: 700; text-align: right; }
+    .tt-bull { color: #C4956A; }
+    .tt-bear { color: #E08080; }
+
+    /* ─── LEGEND ─────────────────────────────────── */
+    .chart-legend {
+      display: flex; gap: 1.2rem; align-items: center;
+      font-size: 9px; color: var(--p5);
+      letter-spacing: 0.06em; flex-shrink: 0;
+    }
+
+    .leg-item { display: flex; align-items: center; gap: 5px; }
+
+    /* ─── CONTROLS FOOTER ────────────────────────── */
+    .controls {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-top: 0.35rem;
+      border-top: 1px solid var(--p7); flex-shrink: 0;
+    }
+
+    .btn {
+      font-family: var(--font); font-size: 9.5px;
+      font-weight: 600; letter-spacing: 0.09em;
+      background: transparent; border: 1px solid var(--p7);
+      color: var(--p5); padding: 3px 9px;
+      cursor: pointer; text-transform: uppercase;
+    }
+    .btn:hover { border-color: var(--p2); color: var(--p2); }
+    .btn:focus { outline: 2px solid var(--p2); outline-offset: 1px; }
+
+    /* ─── LEARN ──────────────────────────────────── */
+    .slide-learn { overflow-y: auto; }
+    .learn-block { max-width: 66ch; }
+
+    .learn-block h2 {
+      font-size: clamp(10px, 0.95vw, 12px);
+      font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.11em; color: var(--p2);
+      margin: 1.35rem 0 0.38rem;
+      border-bottom: 1px solid var(--p7); padding-bottom: 3px;
+    }
+    .learn-block h2:first-of-type { margin-top: 0.2rem; }
+
+    .learn-block p {
+      font-size: 12.5px; color: var(--p1);
+      line-height: 1.82; margin-bottom: 0.45rem;
+    }
+
+    .learn-block code {
+      font-family: var(--font); font-size: 11px;
+      background: var(--p7); padding: 1px 5px;
+    }
+
+    .framework-ref {
+      margin-top: 1.25rem; padding: 0.6rem 0.9rem;
+      border-left: 3px solid var(--p2); background: #F5F3EF;
+    }
+    .framework-ref .label { display: block; margin-bottom: 3px; }
+    .framework-ref p { font-size: 12px; color: var(--p5); margin-bottom: 0; }
+
+    .design-note {
+      margin-top: 0.85rem; padding: 0.6rem 0.9rem;
+      border: 1px solid var(--p7); border-left: 3px solid var(--p3);
+    }
+    .design-note .label { display: block; margin-bottom: 3px; }
+    .design-note p { font-size: 12px; color: var(--p5); margin-bottom: 0; }
+
+    /* ─── NAV ────────────────────────────────────── */
+    .slide-nav {
+      position: fixed; bottom: 1.4rem;
+      left: 50%; transform: translateX(-50%);
+      display: flex; gap: 7px; z-index: 200;
+    }
+    .dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--p7); border: 1px solid var(--p6);
+      cursor: pointer; padding: 0; transition: background 0.15s;
+    }
+    .dot.active { background: var(--p2); border-color: var(--p2); }
+    .dot:focus  { outline: 2px solid var(--p2); outline-offset: 2px; }
+
+    /* ─── FOOTER ─────────────────────────────────── */
+    footer {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      padding: 0.22rem 2.2rem;
+      border-top: 2px solid var(--p7);
+      display: flex; justify-content: space-between; align-items: center;
+      background: var(--p8); z-index: 150;
+    }
+    footer p { font-size: 9px; color: var(--p6); letter-spacing: 0.07em; }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════
+     SLIDE 01 — OHLC CHART
+══════════════════════════════════════════════════ -->
+<section class="slide active" id="slide-01"
+         aria-label="OHLC price chart: Chicago Wheat Futures, January–February 2024">
+  <div class="slide-meta">
+    <span class="label">// price chart — chicago wheat futures (zw) — jan–feb 2024</span>
+    <span class="label">01 / 02</span>
+  </div>
+  <h1 class="slide-title">January Wheat Selloff Hit 9.6% Peak-to-Trough in Three Weeks — Futures Recovered Through February as Supply Concerns Eased</h1>
+  <p class="subtitle">
+    Each bar shows open (left tick), high–low range (vertical line), and close (right tick).
+    Walnut = bullish session. Blood-red = bearish. Dashed line = 10-session SMA. Hover for detail.
+  </p>
+
+  <!-- Info bar: updates on hover -->
+  <div class="info-bar" id="info-bar" aria-live="polite" aria-atomic="true">
+    <span>Chicago Wheat Futures</span>
+    <span>O: <span class="info-val" id="ib-open">—</span></span>
+    <span>H: <span class="info-val" id="ib-high">—</span></span>
+    <span>L: <span class="info-val" id="ib-low">—</span></span>
+    <span>C: <span class="info-val" id="ib-close">—</span></span>
+    <span id="ib-chg">—</span>
+  </div>
+
+  <!-- Period selector + legend row -->
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.1rem;flex-shrink:0">
+    <div class="period-bar" aria-label="Time period selector">
+      <button class="period-btn" data-days="5"  aria-label="Show last 5 sessions (1 week)">1W</button>
+      <button class="period-btn" data-days="22" aria-label="Show last 22 sessions (1 month)">1M</button>
+      <button class="period-btn active" data-days="0" aria-label="Show all sessions">All</button>
+    </div>
+    <div class="chart-legend">
+      <div class="leg-item">
+        <svg width="14" height="12"><line x1="1" y1="6" x2="13" y2="6" stroke="#5C3317" stroke-width="2"/><line x1="4" y1="6" x2="4" y2="2" stroke="#5C3317" stroke-width="2"/><line x1="10" y1="6" x2="10" y2="10" stroke="#5C3317" stroke-width="2"/></svg>
+        <span>Bullish</span>
+      </div>
+      <div class="leg-item">
+        <svg width="14" height="12"><line x1="1" y1="6" x2="13" y2="6" stroke="#B52C2C" stroke-width="2"/><line x1="4" y1="6" x2="4" y2="10" stroke="#B52C2C" stroke-width="2"/><line x1="10" y1="6" x2="10" y2="2" stroke="#B52C2C" stroke-width="2"/></svg>
+        <span>Bearish</span>
+      </div>
+      <div class="leg-item">
+        <svg width="20" height="12"><line x1="0" y1="6" x2="20" y2="6" stroke="#797C7F" stroke-width="1.2" stroke-dasharray="4,3"/></svg>
+        <span>SMA(10)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="viz-container" id="chart-container">
+    <svg id="chart-svg" viewBox="0 0 960 380"
+         preserveAspectRatio="xMidYMid meet"
+         role="img"
+         aria-labelledby="chart-title"
+         aria-describedby="chart-desc">
+      <title id="chart-title">OHLC chart: Chicago Wheat Futures January–February 2024</title>
+      <desc id="chart-desc">
+        41 daily OHLC bars. Prices rise from 603 to a peak of 641.8 on Jan 11,
+        then fall sharply to a trough of 580.2 on Jan 26 (−9.6%), then recover
+        through February to close at 632.2 on Feb 29. A 10-session SMA overlay
+        shows the trend lag behind the price action.
+      </desc>
+      <defs>
+        <clipPath id="chart-clip">
+          <rect id="clip-rect" x="0" y="0" width="0" height="380"/>
+        </clipPath>
+      </defs>
+      <g id="grid-g"></g>
+      <g id="axes-g"></g>
+      <g id="sma-g"  clip-path="url(#chart-clip)"></g>
+      <g id="bars-g" clip-path="url(#chart-clip)"></g>
+      <g id="last-price-g"></g>
+      <g id="crosshair-g"></g>
+    </svg>
+    <div id="tooltip" role="status" aria-live="polite"></div>
+  </div>
+
+  <div class="controls">
+    <button class="btn" id="audio-btn" aria-label="Play narration">▶ narration</button>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════
+     SLIDE 02 — LEARN
+══════════════════════════════════════════════════ -->
+<section class="slide slide-learn" id="slide-02"
+         aria-label="Learn: OHLC Chart">
+  <div class="slide-meta">
+    <span class="label">// learn — ohlc chart (open-high-low-close · price chart · bar chart)</span>
+    <span class="label">02 / 02</span>
+  </div>
+  <h1 class="slide-title">Why an OHLC Chart</h1>
+
+  <div class="learn-block">
+
+    <h2>What this chart is</h2>
+    <p>An OHLC chart encodes four price dimensions per time period with a single symbol. A vertical line spans the session's high and low — the full intraday range. Two horizontal ticks branch off this line: one on the left at the opening price, one on the right at the closing price. The viewer reads the symbol's length as volatility (tall = high-volatility session), the tick positions as the session's net direction (close tick above open = the market gained), and the color as a single binary judgment (bullish or bearish).</p>
+    <p>The perceptual contract is position along a common scale — the y-axis — applied to four values simultaneously through a single glyph. No other chart type encodes the full OHLC tuple per period in comparably compact form at high session counts. At 41 sessions, each OHLC bar takes about 14px of horizontal space. A grouped bar chart rendering the same four values per day would be unusable.</p>
+
+    <h2>Why it was chosen — and why not the candlestick</h2>
+    <p>The candlestick chart encodes the same four values but uses a filled rectangle (the "body") for the open-to-close range, with thin wicks extending to the high and low. The body's fill distinguishes bullish from bearish. For sparse time series (weekly, monthly data, or fewer than ~20 sessions), candlestick bodies are immediately legible. For dense series — 40+ daily sessions — the filled bodies begin to occlude each other, and the chart reads as a mass of colored blocks rather than distinct symbols.</p>
+    <p>The OHLC format uses only lines. At 41 sessions in ~820px, the tick marks are roughly 6px wide and the stroke is 1.7px — enough to read individually without collision. At the same density with candlestick bodies, body widths would be 8–10px, and adjacent bullish/bearish bodies would visually merge. OHLC was chosen because the session count sits in the density range where tick-mark symbols outperform filled rectangles.</p>
+    <p>Redundant encoding compensates for the thinner visual weight: the close tick's vertical position relative to the open tick encodes direction without color. A bullish session always has the close tick above the open tick; a bearish session always has it below. A viewer who cannot distinguish the walnut (bullish) from blood-red (bearish) can still read the chart correctly through tick position alone.</p>
+
+    <h2>What a line chart loses</h2>
+    <p>A line chart of closing prices would show the January peak and trough clearly, but would erase all intraday information. The session of Jan 18 — in which the price opened at 608.6 and fell 16 cents to close at 599.4, with an intraday low of 596.8 — is analytically significant for food security analysis. The low of 596.8 means that at some point during that session, wheat was accessible at a price not seen since mid-December. A line chart at the closing price of 599.4 would miss this. The high-low range is not noise; it is information about the market's indecision, its volatility, and its potential support and resistance levels.</p>
+
+    <h2>Y-axis truncation — why it is correct here</h2>
+    <p>Unlike bar charts, the OHLC y-axis does not start at zero. For bar charts, a zero baseline is mandatory because bar length encodes absolute magnitude — a bar twice as long should represent twice the value, which only holds when the baseline is zero. The OHLC chart encodes change, not absolute magnitude. The viewer's question is "how much did the price move?" not "how large is the price?" A wheat price of zero has no meaning — the commodity would not exist. Starting the y-axis at the lowest low (approximately 578) and ending at the highest high (approximately 642) maximises the visual resolution of the price movements that constitute the actual data story.</p>
+
+    <div class="framework-ref">
+      <span class="label">// framework — FT Visual Vocabulary</span>
+      <p>The FT Visual Vocabulary places OHLC charts in the <strong>Change Over Time</strong> category alongside line charts and area charts, with an additional <strong>Ranges</strong> quality for the high-low dimension. Its guidance on axis truncation for time-series charts: truncation is acceptable when the analyst's goal is to show change rather than absolute quantity. The OHLC chart's entire purpose is change — this is the one chart type where a zero baseline would be actively misleading.</p>
+    </div>
+
+    <div class="design-note">
+      <span class="label">// design decision — walnut for bullish, not conventional green</span>
+      <p>Financial charts conventionally use green for bullish and red for bearish. The hai palette has no green — the palette was designed for earthy gravitas, not traffic-light signaling. Walnut (p2, #5C3317) is used for bullish sessions and blood-red (p3, #B52C2C) for bearish. The positive/negative distinction is preserved: walnut is darker, warmer, and associated with stability; blood-red is a clear danger signal. More importantly, the redundant positional encoding (close tick above/below open tick) means the color choice does not compromise readability. On black-and-white output, the chart remains fully interpretable through tick position alone — which is the WCAG-correct design.</p>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ─── NAV + FOOTER ──────────────────────────── -->
+<nav class="slide-nav" aria-label="Slide navigation">
+  <button class="dot active" data-target="0" aria-label="Slide 1: OHLC Chart"></button>
+  <button class="dot"        data-target="1" aria-label="Slide 2: Learn Panel"></button>
+</nav>
+
+<footer>
+  <p>Nik Bear Brown, Irreducibly Human, What AI Can and Can't Do</p>
+  <p>boondoggling.ai · irreducibly.xyz · brutalist.art · bearbrown.co · frictional.xyz</p>
+</footer>
+
+<audio id="page-audio" src="./ohlc-chart/audio.mp3"></audio>
+
+<!-- ─── SCRIPTS ────────────────────────────────── -->
+<script src="https://d3js.org/d3.v7.min.js"></script>
+
+<script>
+'use strict';
+
+// ══════════════════════════════════════════════
+// SLIDE NAV
+// ══════════════════════════════════════════════
+const slides = Array.from(document.querySelectorAll('.slide'));
+const dots   = Array.from(document.querySelectorAll('.dot'));
+let current  = 0;
+
+function goTo(i) {
+  const n = Math.max(0, Math.min(i, slides.length - 1));
+  slides[current].classList.remove('active');
+  dots[current].classList.remove('active');
+  current = n;
+  slides[current].classList.add('active');
+  dots[current].classList.add('active');
+}
+
+dots.forEach(d => d.addEventListener('click', () => goTo(+d.dataset.target)));
+document.addEventListener('keydown', e => {
+  if (['ArrowRight','ArrowDown'].includes(e.key)) goTo(current + 1);
+  if (['ArrowLeft', 'ArrowUp'  ].includes(e.key)) goTo(current - 1);
+});
+
+// ══════════════════════════════════════════════
+// AUDIO
+// ══════════════════════════════════════════════
+const audio    = document.getElementById('page-audio');
+const audioBtn = document.getElementById('audio-btn');
+audioBtn.addEventListener('click', () => {
+  if (audio.paused) { audio.play().catch(() => {}); audioBtn.textContent = '⏸ narration'; }
+  else              { audio.pause();                 audioBtn.textContent = '▶ narration'; }
+});
+
+// ══════════════════════════════════════════════
+// CHART CONSTANTS
+// ══════════════════════════════════════════════
+const W = 960, H = 380;
+const margin = { top: 18, right: 68, bottom: 42, left: 66 };
+const chartW = W - margin.left - margin.right;
+const chartH = H - margin.top - margin.bottom;
+
+const BULL = '#5C3317';
+const BEAR = '#B52C2C';
+
+const tooltip   = document.getElementById('tooltip');
+const container = document.getElementById('chart-container');
+
+const gridG      = d3.select('#grid-g');
+const axesG      = d3.select('#axes-g');
+const smaG       = d3.select('#sma-g');
+const barsG      = d3.select('#bars-g');
+const lastPriceG = d3.select('#last-price-g');
+const crosshairG = d3.select('#crosshair-g');
+
+// Crosshair lines
+const crossV = crosshairG.append('line').attr('class','crosshair-line')
+  .attr('y1', margin.top).attr('y2', margin.top + chartH);
+const crossH = crosshairG.append('line').attr('class','crosshair-line')
+  .attr('x1', margin.left).attr('x2', margin.left + chartW);
+
+let allData      = [];
+let currentData  = [];
+
+// ── SMA calculator ──────────────────────────
+function computeSMA(data, period) {
+  return data
+    .map((d, i) => {
+      if (i < period - 1) return null;
+      return { date: d.date, sma: d3.mean(data.slice(i - period + 1, i + 1), x => x.close) };
+    })
+    .filter(Boolean);
+}
+
+// ══════════════════════════════════════════════
+// LOAD DATA
+// ══════════════════════════════════════════════
+d3.json('./ohlc-chart/data.json').then(dataset => {
+
+  const parser = d3.timeParse('%Y-%m-%d');
+  allData = dataset.data.map(d => ({
+    ...d,
+    date: parser(d.date)
+  }));
+
+  render(allData, dataset.sma_period);
+  initInfoBar(allData[allData.length - 1]);
+
+  // Period selector
+  document.querySelectorAll('.period-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      const days = +this.dataset.days;
+      const filtered = days === 0 ? allData : allData.slice(-days);
+      render(filtered, dataset.sma_period);
+      initInfoBar(filtered[filtered.length - 1]);
+    });
+  });
+
+}).catch(err => {
+  console.error('Load error:', err);
+  container.insertAdjacentHTML('afterbegin',
+    `<p style="padding:1rem;font-size:12px;color:var(--bear)">
+      Data failed to load. Serve from a local server so
+      <code>./ohlc-chart/data.json</code> resolves.<br>Error: ${err.message}
+    </p>`
+  );
+});
+
+// ══════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════
+function render(data, smaPeriod) {
+  currentData = data;
+
+  gridG.selectAll('*').remove();
+  axesG.selectAll('*').remove();
+  smaG.selectAll('*').remove();
+  barsG.selectAll('*').remove();
+  lastPriceG.selectAll('*').remove();
+
+  const fmt = d3.format('.1f');
+  const dateFmt = d3.timeFormat('%b %d');
+
+  // ── Scales ─────────────────────────────────
+  // Band scale — treats each trading day as a category slot (no weekend gaps)
+  const x = d3.scaleBand()
+    .domain(data.map(d => d.date.toISOString().slice(0,10)))
+    .range([margin.left, margin.left + chartW])
+    .padding(0.28);
+
+  const yPad = (d3.max(data, d => d.high) - d3.min(data, d => d.low)) * 0.06;
+  const y = d3.scaleLinear()
+    .domain([d3.min(data, d => d.low) - yPad, d3.max(data, d => d.high) + yPad])
+    .nice()
+    .range([margin.top + chartH, margin.top]);
+
+  // Bar sizing
+  const bw      = x.bandwidth();
+  const effBW   = Math.min(bw, 36);  // cap for sparse zoom levels
+  const tickW   = effBW * 0.44;
+  const strokeW = Math.max(1.2, Math.min(2.4, effBW * 0.115));
+
+  function cx(d) { return x(d.date.toISOString().slice(0,10)) + bw / 2; }
+  function col(d) { return d.close >= d.open ? BULL : BEAR; }
+
+  // ── Grid lines ──────────────────────────────
+  y.ticks(5).forEach(t => {
+    gridG.append('line')
+      .attr('class','grid-line')
+      .attr('x1', margin.left).attr('x2', margin.left + chartW)
+      .attr('y1', y(t)).attr('y2', y(t));
+  });
+
+  // Baseline
+  gridG.append('line')
+    .attr('x1', margin.left).attr('x2', margin.left + chartW)
+    .attr('y1', margin.top + chartH).attr('y2', margin.top + chartH)
+    .attr('stroke','var(--p7)').attr('stroke-width', 1.5);
+
+  // ── Y axis ──────────────────────────────────
+  axesG.append('g')
+    .attr('transform', `translate(${margin.left},0)`)
+    .call(
+      d3.axisLeft(y).ticks(5)
+        .tickSize(0)
+        .tickFormat(fmt)
+    )
+    .call(g => g.select('.domain').remove())
+    .call(g => g.selectAll('text')
+      .attr('class','axis-tick-text').attr('dx','-7'));
+
+  // Y axis label
+  axesG.append('text')
+    .attr('class','axis-label-text')
+    .attr('transform','rotate(-90)')
+    .attr('x', -(margin.top + chartH/2))
+    .attr('y', margin.left - 52)
+    .attr('text-anchor','middle')
+    .text('USc / bushel');
+
+  // ── X axis ──────────────────────────────────
+  // Select tick positions: month-start dates, or all if ≤ 7
+  const tickData = data.length <= 7
+    ? data
+    : data.filter((d, i) => i === 0 || data[i-1].date.getMonth() !== d.date.getMonth());
+
+  tickData.forEach(d => {
+    axesG.append('text')
+      .attr('class','axis-tick-text')
+      .attr('x', cx(d))
+      .attr('y', margin.top + chartH + 16)
+      .attr('text-anchor','middle')
+      .text(dateFmt(d.date));
+  });
+
+  // ── Clip-path animation ──────────────────────
+  const clipRect = d3.select('#clip-rect')
+    .attr('x', margin.left - 2).attr('y', 0)
+    .attr('width', 0).attr('height', H);
+
+  clipRect.transition()
+    .duration(1500).ease(d3.easeLinear)
+    .attr('width', chartW + margin.right);
+
+  // ── OHLC bars ───────────────────────────────
+  const barGroups = barsG.selectAll('g.ohlc-bar')
+    .data(data, d => d.date.toISOString())
+    .join('g')
+    .attr('class','ohlc-bar')
+    .attr('tabindex', 0)
+    .attr('role','img')
+    .attr('aria-label', d =>
+      `${dateFmt(d.date)} — O:${fmt(d.open)} H:${fmt(d.high)} L:${fmt(d.low)} C:${fmt(d.close)} ${d.close >= d.open ? 'Bullish' : 'Bearish'}`
+    );
+
+  // High-Low line
+  barGroups.append('line')
+    .attr('x1', cx).attr('x2', cx)
+    .attr('y1', d => y(d.high))
+    .attr('y2', d => y(d.low))
+    .attr('stroke', col)
+    .attr('stroke-width', strokeW)
+    .attr('stroke-linecap','round');
+
+  // Open tick (left)
+  barGroups.append('line')
+    .attr('x1', d => cx(d) - tickW).attr('x2', cx)
+    .attr('y1', d => y(d.open)).attr('y2', d => y(d.open))
+    .attr('stroke', col)
+    .attr('stroke-width', strokeW)
+    .attr('stroke-linecap','round');
+
+  // Close tick (right)
+  barGroups.append('line')
+    .attr('x1', cx).attr('x2', d => cx(d) + tickW)
+    .attr('y1', d => y(d.close)).attr('y2', d => y(d.close))
+    .attr('stroke', col)
+    .attr('stroke-width', strokeW)
+    .attr('stroke-linecap','round');
+
+  // Bar hover / focus
+  barGroups
+    .on('mouseover', (ev, d) => { showTip(ev, d); updateInfoBar(d); highlightBar(d, barGroups); })
+    .on('mousemove', moveTip)
+    .on('mouseout', () => { hideTip(); crossV.attr('visibility','hidden'); crossH.attr('visibility','hidden'); barGroups.attr('opacity', 1); })
+    .on('focus', (ev, d) => { showTip(ev, d); updateInfoBar(d); })
+    .on('blur',  hideTip)
+    .on('keydown', (ev, d) => {
+      if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); showTip(ev, d); }
+    });
+
+  // ── SMA overlay ─────────────────────────────
+  const smaData = computeSMA(data, Math.min(smaPeriod, data.length));
+  if (smaData.length > 1) {
+    const smaLine = d3.line()
+      .x(d => {
+        const key = d.date.toISOString().slice(0,10);
+        const band = x(key);
+        return band !== undefined ? band + bw/2 : 0;
+      })
+      .y(d => y(d.sma));
+
+    smaG.append('path')
+      .datum(smaData)
+      .attr('class','sma-path')
+      .attr('d', smaLine);
+  }
+
+  // ── Last-price callout ───────────────────────
+  const last = data[data.length - 1];
+  const lastY = y(last.close);
+  const lastColor = last.close >= last.open ? BULL : BEAR;
+
+  lastPriceG.append('rect')
+    .attr('class','last-price-box')
+    .attr('x', margin.left + chartW + 2)
+    .attr('y', lastY - 10)
+    .attr('width', 58)
+    .attr('height', 20)
+    .attr('fill', lastColor);
+
+  lastPriceG.append('text')
+    .attr('class','last-price-box')
+    .attr('x', margin.left + chartW + 31)
+    .attr('y', lastY + 4.5)
+    .attr('text-anchor','middle')
+    .attr('font-family','var(--font)')
+    .attr('font-size', 10.5)
+    .attr('font-weight', 700)
+    .attr('fill','var(--p8)')
+    .text(fmt(last.close));
+
+  // Tick line to the callout box
+  lastPriceG.append('line')
+    .attr('x1', margin.left + chartW)
+    .attr('x2', margin.left + chartW + 2)
+    .attr('y1', lastY).attr('y2', lastY)
+    .attr('stroke', lastColor).attr('stroke-width', 0.8);
+
+  // ── Mousemove crosshair on SVG ───────────────
+  d3.select('#chart-svg').on('mousemove', function(event) {
+    const [mx, my] = d3.pointer(event);
+    if (mx < margin.left || mx > margin.left + chartW ||
+        my < margin.top  || my > margin.top + chartH) {
+      crossV.attr('visibility','hidden');
+      crossH.attr('visibility','hidden');
+      return;
+    }
+    // Snap to nearest bar
+    const allCx = data.map(d => cx(d));
+    const nearestIdx = d3.minIndex(allCx, c => Math.abs(c - mx));
+    const nd = data[nearestIdx];
+    const snapX = cx(nd);
+
+    crossV.attr('x1', snapX).attr('x2', snapX)
+          .attr('y1', margin.top).attr('y2', margin.top + chartH)
+          .attr('visibility','visible');
+    crossH.attr('y1', my).attr('y2', my)
+          .attr('x1', margin.left).attr('x2', margin.left + chartW)
+          .attr('visibility','visible');
+  });
+
+  d3.select('#chart-svg').on('mouseleave', () => {
+    crossV.attr('visibility','hidden');
+    crossH.attr('visibility','hidden');
+  });
+}
+
+// ══════════════════════════════════════════════
+// INFO BAR (header metrics row)
+// ══════════════════════════════════════════════
+function initInfoBar(d) { updateInfoBar(d); }
+
+function updateInfoBar(d) {
+  const fmt = v => d3.format('.1f')(v);
+  const chg = d.close - d.open;
+  const pct = (chg / d.open) * 100;
+  document.getElementById('ib-open').textContent  = fmt(d.open);
+  document.getElementById('ib-high').textContent  = fmt(d.high);
+  document.getElementById('ib-low').textContent   = fmt(d.low);
+  document.getElementById('ib-close').textContent = fmt(d.close);
+  const chgEl = document.getElementById('ib-chg');
+  const isBull = chg >= 0;
+  chgEl.innerHTML = `<span class="${isBull ? 'info-bull' : 'info-bear'}">${isBull ? '+' : ''}${fmt(chg)} (${isBull ? '+' : ''}${pct.toFixed(2)}%)</span>`;
+}
+
+// ══════════════════════════════════════════════
+// HIGHLIGHT
+// ══════════════════════════════════════════════
+function highlightBar(d, barGroups) {
+  barGroups.attr('opacity', x => x.date === d.date ? 1 : 0.4);
+}
+
+// ══════════════════════════════════════════════
+// TOOLTIP
+// ══════════════════════════════════════════════
+function showTip(ev, d) {
+  const fmt   = d3.format('.1f');
+  const chg   = d.close - d.open;
+  const pct   = (chg / d.open * 100).toFixed(2);
+  const isBull = chg >= 0;
+  const hlKey  = isBull ? 'tt-bull' : 'tt-bear';
+
+  tooltip.innerHTML = `
+    <div class="tt-head">${d3.timeFormat('%a %b %d, %Y')(d.date)}</div>
+    <div class="tt-grid">
+      <span class="tt-key">Open</span>  <span class="tt-val">${fmt(d.open)}</span>
+      <span class="tt-key">High</span>  <span class="tt-val">${fmt(d.high)}</span>
+      <span class="tt-key">Low</span>   <span class="tt-val">${fmt(d.low)}</span>
+      <span class="tt-key">Close</span> <span class="tt-val">${fmt(d.close)}</span>
+      <span class="tt-key">Change</span>
+      <span class="tt-val ${hlKey}">${isBull ? '+' : ''}${fmt(chg)} (${isBull ? '+' : ''}${pct}%)</span>
+      <span class="tt-key">Range</span> <span class="tt-val">${fmt(d.high - d.low)}</span>
+      <span class="tt-key">Sentiment</span>
+      <span class="tt-val ${hlKey}">${isBull ? '▲ Bullish' : '▼ Bearish'}</span>
+    </div>
+  `;
+  tooltip.classList.add('visible');
+  moveTip(ev);
+}
+
+function moveTip(ev) {
+  const r = container.getBoundingClientRect();
+  let x = ev.clientX - r.left + 16;
+  let y = ev.clientY - r.top  - 12;
+  if (x + 200 > r.width)  x -= 218;
+  if (y + 180 > r.height) y -= 192;
+  tooltip.style.left = x + 'px';
+  tooltip.style.top  = y + 'px';
+}
+
+function hideTip() { tooltip.classList.remove('visible'); }
+</script>
+</body>
+</html>

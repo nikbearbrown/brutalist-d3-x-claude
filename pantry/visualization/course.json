@@ -1,0 +1,6 @@
+{
+  "title": "Data Visualization with D3",
+  "description": "A hands-on survey of 30 chart types using D3.js v7. Each lesson is a live, interactive visualization demonstrating a distinct graph type — from arc diagrams to violin plots. All examples are themed to the Irreducibly Human framework.",
+  "keywords": ["D3", "data visualization", "charts", "JavaScript", "interactive"],
+  "order": 1
+}

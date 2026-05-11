@@ -1,0 +1,61 @@
+{
+  "_schema": {
+    "description": "Hierarchical dataset for circle packing. Each leaf node has a numeric value determining circle area. Parent nodes group leaves into categories. Maximum recommended depth is 3 (root → category → leaf).",
+    "fields": {
+      "name":     "string — label displayed inside or beside the circle",
+      "value":    "number (leaf nodes only) — determines circle area. Omit on parent nodes.",
+      "children": "array (parent nodes only) — nested child nodes. Omit on leaf nodes."
+    },
+    "replace": "Replace leaf 'value' fields with your real quantities (file sizes, counts, percentages, etc.). Add or remove categories and children to match your hierarchy. Keep depth to 3 levels for legibility."
+  },
+  "name": "AI in Humanitarian Work",
+  "children": [
+    {
+      "name": "Crisis Response",
+      "children": [
+        { "name": "Damage Assessment",    "value": 85 },
+        { "name": "Evacuation Routing",   "value": 72 },
+        { "name": "Resource Allocation",  "value": 91 },
+        { "name": "Missing Persons",      "value": 43 },
+        { "name": "Early Warning",        "value": 67 }
+      ]
+    },
+    {
+      "name": "Healthcare",
+      "children": [
+        { "name": "Disease Surveillance", "value": 78 },
+        { "name": "Medical Triage",       "value": 65 },
+        { "name": "Supply Chain",         "value": 54 },
+        { "name": "Mental Health",        "value": 38 },
+        { "name": "Diagnostics",          "value": 82 }
+      ]
+    },
+    {
+      "name": "Education",
+      "children": [
+        { "name": "Adaptive Learning",    "value": 60 },
+        { "name": "Language Access",      "value": 74 },
+        { "name": "Teacher Support",      "value": 49 },
+        { "name": "Refugee Schooling",    "value": 55 }
+      ]
+    },
+    {
+      "name": "Food Security",
+      "children": [
+        { "name": "Crop Monitoring",      "value": 88 },
+        { "name": "Yield Prediction",     "value": 76 },
+        { "name": "Distribution Mapping", "value": 62 },
+        { "name": "Market Analysis",      "value": 45 }
+      ]
+    },
+    {
+      "name": "Climate Resilience",
+      "children": [
+        { "name": "Flood Modelling",      "value": 70 },
+        { "name": "Drought Prediction",   "value": 58 },
+        { "name": "Displacement Mapping", "value": 83 },
+        { "name": "Carbon Monitoring",    "value": 41 }
+      ]
+    }
+  ]
+}

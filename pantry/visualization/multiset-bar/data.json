@@ -1,0 +1,33 @@
+{
+  "_schema": {
+    "description": "Humanitarian funding pipeline by geographic region, FY 2024 (simulated). Three series — Requested, Received, Expenditure — grouped by region. Illustrates the funding gap and spending efficiency across response contexts.",
+    "fields": {
+      "series":                  "array of string, series keys in display order (left → right within each group)",
+      "series_labels[key]":      "string, human-readable label for each series key",
+      "series_colors[key]":      "string, hex color for each series — applied to bars and legend swatches",
+      "data[].region":           "string, parent category (x-axis group label)",
+      "data[].requested_m":      "number, funding requested in USD millions",
+      "data[].received_m":       "number, funding received in USD millions",
+      "data[].expenditure_m":    "number, actual expenditure in USD millions"
+    },
+    "replace": "Add or remove entries in 'data[]' to change the groups. Add series keys to 'series', 'series_labels', 'series_colors', and each data record to add more bars per group. Keep series count ≤ 4 for readability. Values are in USD millions — adjust axis format string if your units differ."
+  },
+  "series": ["requested_m", "received_m", "expenditure_m"],
+  "series_labels": {
+    "requested_m":   "Funding Requested",
+    "received_m":    "Funding Received",
+    "expenditure_m": "Actual Expenditure"
+  },
+  "series_colors": {
+    "requested_m":   "#5C3317",
+    "received_m":    "#B52C2C",
+    "expenditure_m": "#4A4D4F"
+  },
+  "data": [
+    {"region":"East Africa",   "requested_m":4820, "received_m":2940, "expenditure_m":2710},
+    {"region":"West Africa",   "requested_m":2640, "received_m":1380, "expenditure_m":1220},
+    {"region":"Middle East",   "requested_m":6150, "received_m":3820, "expenditure_m":3580},
+    {"region":"South Asia",    "requested_m":3480, "received_m":1960, "expenditure_m":1840},
+    {"region":"Latin America", "requested_m":1920, "received_m":1340, "expenditure_m":1280}
+  ]
+}

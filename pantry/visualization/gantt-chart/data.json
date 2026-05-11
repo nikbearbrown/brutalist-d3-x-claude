@@ -1,0 +1,65 @@
+{
+  "_schema": {
+    "description": "Project schedule for the Humanitarian Data Platform Phase 1. Fictional placeholder with realistic structure. Proves Gantt renders before real data is substituted.",
+    "fields": {
+      "tasks[].id":           "string — unique task identifier (t01, t02, ...)",
+      "tasks[].label":        "string — task name displayed on chart row",
+      "tasks[].phase":        "string — phase id, must match a phases[].id",
+      "tasks[].start":        "string — ISO date YYYY-MM-DD, bar left edge",
+      "tasks[].end":          "string — ISO date YYYY-MM-DD, bar right edge",
+      "tasks[].completion":   "number — 0–100, percentage of task complete",
+      "tasks[].critical":     "boolean — true = critical path (distinct stroke)",
+      "milestones[].id":      "string — unique milestone identifier",
+      "milestones[].label":   "string — short label (5–10 chars) displayed above diamond",
+      "milestones[].date":    "string — ISO date YYYY-MM-DD",
+      "dependencies[].from":  "string — task id of predecessor (arrow source)",
+      "dependencies[].to":    "string — task id of successor (arrow target)",
+      "phases[].id":          "string — phase key referenced by tasks",
+      "phases[].label":       "string — phase name for legend",
+      "phases[].fill":        "string — hex color, mapped from hai palette"
+    },
+    "today": "2025-03-15",
+    "projectTitle": "Humanitarian Data Platform — Phase 1",
+    "replace": "Replace tasks, milestones, and dependencies with your actual schedule. today is used to draw the 'now' reference line and must be updated."
+  },
+  "projectTitle": "Humanitarian Data Platform — Phase 1",
+  "today": "2025-03-15",
+  "phases": [
+    { "id": "planning",    "label": "Planning",    "fill": "#5C3317" },
+    { "id": "design",      "label": "Design",      "fill": "#B52C2C" },
+    { "id": "development", "label": "Development", "fill": "#4A4D4F" },
+    { "id": "testing",     "label": "Testing",     "fill": "#797C7F" },
+    { "id": "deployment",  "label": "Deployment",  "fill": "#1B1B1B" }
+  ],
+  "tasks": [
+    { "id": "t01", "label": "Requirements Analysis",  "phase": "planning",    "start": "2025-01-06", "end": "2025-01-17", "completion": 100, "critical": true  },
+    { "id": "t02", "label": "Stakeholder Interviews", "phase": "planning",    "start": "2025-01-13", "end": "2025-01-24", "completion": 100, "critical": false },
+    { "id": "t03", "label": "Scope Definition",       "phase": "planning",    "start": "2025-01-20", "end": "2025-01-31", "completion": 100, "critical": true  },
+    { "id": "t04", "label": "UX Research",            "phase": "design",      "start": "2025-01-27", "end": "2025-02-07", "completion": 100, "critical": false },
+    { "id": "t05", "label": "Wireframing",            "phase": "design",      "start": "2025-02-03", "end": "2025-02-14", "completion": 100, "critical": true  },
+    { "id": "t06", "label": "Design Review",          "phase": "design",      "start": "2025-02-10", "end": "2025-02-14", "completion": 100, "critical": false },
+    { "id": "t07", "label": "Data Pipeline",          "phase": "development", "start": "2025-02-17", "end": "2025-03-14", "completion": 85,  "critical": true  },
+    { "id": "t08", "label": "API Development",        "phase": "development", "start": "2025-02-17", "end": "2025-03-07", "completion": 100, "critical": false },
+    { "id": "t09", "label": "Frontend Build",         "phase": "development", "start": "2025-03-03", "end": "2025-03-28", "completion": 60,  "critical": true  },
+    { "id": "t10", "label": "Dashboard Module",       "phase": "development", "start": "2025-03-10", "end": "2025-04-04", "completion": 30,  "critical": false },
+    { "id": "t11", "label": "Integration Testing",   "phase": "testing",     "start": "2025-03-24", "end": "2025-04-11", "completion": 10,  "critical": true  },
+    { "id": "t12", "label": "UAT",                   "phase": "testing",     "start": "2025-04-07", "end": "2025-04-18", "completion": 0,   "critical": false },
+    { "id": "t13", "label": "Staging Deploy",         "phase": "deployment",  "start": "2025-04-14", "end": "2025-04-18", "completion": 0,   "critical": true  },
+    { "id": "t14", "label": "Production Launch",      "phase": "deployment",  "start": "2025-04-22", "end": "2025-04-22", "completion": 0,   "critical": true  }
+  ],
+  "milestones": [
+    { "id": "m1", "label": "Kickoff",   "date": "2025-01-06" },
+    { "id": "m2", "label": "Design ✓", "date": "2025-02-14" },
+    { "id": "m3", "label": "Beta",      "date": "2025-03-28" },
+    { "id": "m4", "label": "Go-Live",   "date": "2025-04-22" }
+  ],
+  "dependencies": [
+    { "from": "t03", "to": "t07" },
+    { "from": "t05", "to": "t09" },
+    { "from": "t08", "to": "t11" },
+    { "from": "t09", "to": "t11" },
+    { "from": "t11", "to": "t12" },
+    { "from": "t12", "to": "t13" },
+    { "from": "t13", "to": "t14" }
+  ]
+}

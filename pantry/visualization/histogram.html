@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Distribution Shape Reveals Where Values Concentrate</title>
+  <meta name="description" content="Histogram: frequency distribution of daily commute times, revealing right-skewed distribution with peak concentration between 20–35 minutes and a long tail of extreme commuters.">
+  <meta name="keywords" content="histogram, frequency distribution, continuous interval, D3.js, commute times, data visualisation, brutalist design, hai palette, bin width, KDE, skewness">
+  <meta name="author" content="Nik Bear Brown">
+  <meta name="category" content="Statistics / Distribution Analysis">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <style>
+    /* ── HAI PALETTE ──────────────────────────────────────────── */
+    :root {
+      --p1: #1B1B1B;
+      --p2: #5C3317;
+      --p3: #B52C2C;
+      --p4: #F7FAFD;
+      --p5: #4A4D4F;
+      --p6: #797C7F;
+      --p7: #EDEDED;
+      --p8: #FFFFFF;
+      --font: 'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      font-family: var(--font);
+      background: var(--p8);
+      color: var(--p1);
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+
+    /* ── SLIDES ──────────────────────────────────────────────── */
+    .slide {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: clamp(2rem, 4vw, 4.5rem) clamp(1.5rem, 6vw, 6.5rem);
+      border-bottom: 2px solid var(--p7);
+    }
+
+    .slide-meta { margin-bottom: 1rem; }
+
+    .label {
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.13em;
+      color: var(--p6);
+      text-transform: uppercase;
+    }
+
+    .slide-title {
+      font-size: clamp(15px, 2.4vw, 27px);
+      font-weight: 800;
+      text-transform: uppercase;
+      line-height: 1.15;
+      max-width: 72ch;
+      margin-bottom: 1.4rem;
+      border-left: 4px solid var(--p2);
+      padding-left: 1rem;
+      animation: fadeUp 0.5s ease-out both 0.1s;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── STAT BAR ────────────────────────────────────────────── */
+    .stats-bar {
+      display: flex;
+      gap: clamp(1rem, 3vw, 2.5rem);
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      animation: fadeUp 0.5s ease-out both 0.2s;
+    }
+
+    .stat-item { line-height: 1.3; }
+
+    .stat-label {
+      font-size: 9px;
+      letter-spacing: 0.13em;
+      color: var(--p6);
+      text-transform: uppercase;
+      display: block;
+    }
+
+    .stat-value {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--p2);
+    }
+
+    .stat-value.accent { color: var(--p3); }
+
+    /* ── VIZ AREA ────────────────────────────────────────────── */
+    .viz-container {
+      flex: 1;
+      min-height: 380px;
+      position: relative;
+    }
+
+    #chart { display: block; width: 100%; }
+
+    /* ── CONTROLS ROW ────────────────────────────────────────── */
+    .controls {
+      display: flex;
+      gap: 1.25rem;
+      align-items: center;
+      margin-top: 1.2rem;
+      flex-wrap: wrap;
+      animation: fadeUp 0.5s ease-out both 0.3s;
+    }
+
+    .ctl-group {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .ctl-label {
+      font-size: 10px;
+      color: var(--p6);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    /* Slider */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 120px;
+      height: 3px;
+      background: var(--p7);
+      outline: none;
+      border-radius: 0;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 12px;
+      height: 12px;
+      background: var(--p2);
+      border: none;
+      border-radius: 0;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 12px;
+      height: 12px;
+      background: var(--p2);
+      border: none;
+      border-radius: 0;
+      cursor: pointer;
+    }
+
+    .slider-val {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--p2);
+      min-width: 28px;
+    }
+
+    .sep { width: 1px; height: 20px; background: var(--p7); }
+
+    /* Toggle buttons */
+    .btn {
+      font-family: var(--font);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: transparent;
+      color: var(--p1);
+      border: 1px solid var(--p5);
+      padding: 5px 12px;
+      cursor: pointer;
+      transition: background 0.14s, color 0.14s;
+      white-space: nowrap;
+    }
+
+    .btn:hover { background: var(--p1); color: var(--p8); }
+    .btn:focus { outline: 2px solid var(--p2); outline-offset: 2px; }
+    .btn.active { background: var(--p2); border-color: var(--p2); color: var(--p8); }
+    .btn.red.active { background: var(--p3); border-color: var(--p3); color: var(--p8); }
+
+    .hint { font-size: 9px; color: var(--p6); letter-spacing: 0.08em; margin-top: 0.4rem; }
+
+    /* ── TOOLTIP ─────────────────────────────────────────────── */
+    .tooltip {
+      position: fixed;
+      pointer-events: none;
+      background: var(--p1);
+      color: var(--p8);
+      font-family: var(--font);
+      font-size: 11px;
+      padding: 8px 13px;
+      border: 1px solid var(--p2);
+      opacity: 0;
+      transition: opacity 0.1s;
+      z-index: 200;
+      line-height: 1.85;
+    }
+
+    .tooltip strong { color: var(--p2); display: block; font-size: 12px; }
+
+    /* ── NAV DOTS ────────────────────────────────────────────── */
+    .nav-dots {
+      position: fixed;
+      right: clamp(0.75rem, 2.5vw, 2rem);
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      z-index: 100;
+    }
+
+    .navdot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--p7);
+      border: 1px solid var(--p6);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .navdot.active { background: var(--p2); border-color: var(--p2); }
+
+    /* ── LEARN SLIDE ─────────────────────────────────────────── */
+    .slide-learn { background: var(--p4); }
+
+    .learn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem 3rem;
+      max-width: 112ch;
+    }
+
+    @media (max-width: 720px) { .learn-grid { grid-template-columns: 1fr; } }
+
+    .learn-block h2 {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--p2);
+      letter-spacing: 0.1em;
+      margin: 0 0 0.6rem;
+      padding-bottom: 0.35rem;
+      border-bottom: 1px solid var(--p7);
+    }
+
+    .learn-block p {
+      font-size: clamp(11px, 1.1vw, 13px);
+      font-weight: 400;
+      line-height: 1.9;
+      color: var(--p1);
+      margin-bottom: 0.65rem;
+    }
+
+    .anatomy-svg { width: 100%; max-width: 340px; margin: 0.75rem 0; display: block; }
+
+    .framework-ref {
+      grid-column: 1 / -1;
+      padding: 1rem 1.25rem;
+      border-left: 4px solid var(--p2);
+      background: var(--p8);
+    }
+
+    .framework-ref p { font-size: 12px; color: var(--p5); line-height: 1.75; }
+
+    /* ── FOOTER ──────────────────────────────────────────────── */
+    footer {
+      padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1.5rem, 6vw, 6.5rem);
+      border-top: 2px solid var(--p7);
+    }
+
+    footer p { font-size: 11px; color: var(--p6); line-height: 1.9; }
+  </style>
+</head>
+<body>
+
+<div class="tooltip" id="tooltip" role="tooltip"></div>
+
+<nav class="nav-dots" aria-label="Slide navigation">
+  <div class="navdot active" data-slide="0" tabindex="0" role="button" aria-label="Chart slide"></div>
+  <div class="navdot"        data-slide="1" tabindex="0" role="button" aria-label="Learn panel"></div>
+</nav>
+
+<!-- ── SLIDE 1 — HISTOGRAM ───────────────────────────────────── -->
+<section class="slide" id="slide-01" aria-label="Histogram: commute time distribution">
+
+  <div class="slide-meta">
+    <span class="label">// HISTOGRAM — FREQUENCY DISTRIBUTION</span>
+  </div>
+  <h1 class="slide-title">Most commutes cluster between 20 and 40 minutes — a long tail of extreme commuters persists</h1>
+
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-label">N</span>
+      <span class="stat-value" id="stat-n">—</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Mean</span>
+      <span class="stat-value" id="stat-mean">—</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Median</span>
+      <span class="stat-value" id="stat-median">—</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Std Dev</span>
+      <span class="stat-value" id="stat-sd">—</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Hovered bin</span>
+      <span class="stat-value accent" id="stat-hovered">—</span>
+    </div>
+  </div>
+
+  <div class="viz-container" id="chart-container">
+    <svg id="chart"
+      role="img"
+      aria-labelledby="chart-title-el"
+      aria-describedby="chart-desc-el">
+      <title id="chart-title-el">Histogram — Daily Commute Time Distribution (minutes)</title>
+      <desc id="chart-desc-el">
+        Right-skewed histogram of daily commute times. Peak frequency between 20–35 minutes.
+        Long tail extends past 90 minutes. Mean is pulled right of the median by extreme values.
+      </desc>
+    </svg>
+  </div>
+
+  <div class="controls">
+    <div class="ctl-group">
+      <span class="ctl-label">Bin width</span>
+      <input type="range" id="bin-slider" min="2" max="20" step="1" value="5"
+        aria-label="Adjust histogram bin width in minutes" tabindex="0">
+      <span class="slider-val" id="bin-val">5 min</span>
+    </div>
+    <div class="sep" aria-hidden="true"></div>
+    <button class="btn active" id="btn-mean"   aria-pressed="true"  tabindex="0">Mean line</button>
+    <button class="btn active" id="btn-median" aria-pressed="true"  tabindex="0">Median line</button>
+    <button class="btn"        id="btn-kde"    aria-pressed="false" tabindex="0">Density curve</button>
+    <div class="sep" aria-hidden="true"></div>
+    <button class="btn" id="audio-toggle" tabindex="0" aria-label="Play narration">▶ narration</button>
+  </div>
+  <p class="hint">Adjust bin width to reveal or hide structure · Hover bars for frequency details · Toggle overlays</p>
+</section>
+
+<!-- ── SLIDE 2 — LEARN ──────────────────────────────────────── -->
+<section class="slide slide-learn" id="slide-02" aria-label="Learn: Histogram">
+
+  <div class="slide-meta">
+    <span class="label">// LEARN — HISTOGRAM / FREQUENCY DISTRIBUTION</span>
+  </div>
+  <h1 class="slide-title">What a histogram is — and why bin width is an editorial decision</h1>
+
+  <div class="learn-grid">
+
+    <div class="learn-block">
+      <h2>What this chart is</h2>
+      <p>A Histogram visualises the frequency distribution of a single continuous variable by dividing its range into equal-width intervals (bins) and drawing a bar for each bin whose height encodes how many observations fall within that interval. Unlike a Bar Chart, the x-axis is a continuous numeric scale — the bars are adjacent, with no gaps, because the underlying data has no categorical gaps either.</p>
+      <p>The perceptual mechanism is area: each bar's area (width × height) is proportional to the count or relative frequency it represents. Because bin widths are equal, height alone carries the frequency signal. The shape of the envelope — the outline formed across all bars — is what the viewer reads: symmetric, skewed left, skewed right, uniform, bimodal, or multimodal.</p>
+    </div>
+
+    <div class="learn-block">
+      <h2>Anatomy of the encoding</h2>
+      <!-- Anatomy SVG: annotated histogram shape -->
+      <svg class="anatomy-svg" viewBox="0 0 320 190" xmlns="http://www.w3.org/2000/svg"
+        aria-label="Histogram anatomy: bins, frequency axis, tail, peak, mean and median markers">
+        <!-- Axes -->
+        <line x1="40" y1="150" x2="300" y2="150" stroke="#EDEDED" stroke-width="1.5"/>
+        <line x1="40" y1="20"  x2="40"  y2="150" stroke="#EDEDED" stroke-width="1.5"/>
+        <!-- Bars (right-skewed shape) -->
+        <rect x="46"  y="138" width="22" height="12"  fill="#5C3317" opacity="0.4"/>
+        <rect x="69"  y="110" width="22" height="40"  fill="#5C3317" opacity="0.55"/>
+        <rect x="92"  y="68"  width="22" height="82"  fill="#5C3317" opacity="0.75"/>
+        <rect x="115" y="40"  width="22" height="110" fill="#5C3317" opacity="0.9"/>
+        <rect x="138" y="52"  width="22" height="98"  fill="#5C3317" opacity="0.85"/>
+        <rect x="161" y="80"  width="22" height="70"  fill="#5C3317" opacity="0.7"/>
+        <rect x="184" y="108" width="22" height="42"  fill="#5C3317" opacity="0.55"/>
+        <rect x="207" y="130" width="22" height="20"  fill="#5C3317" opacity="0.45"/>
+        <rect x="230" y="140" width="22" height="10"  fill="#5C3317" opacity="0.35"/>
+        <rect x="253" y="145" width="22" height="5"   fill="#5C3317" opacity="0.3"/>
+        <!-- Mean line -->
+        <line x1="166" y1="22" x2="166" y2="150" stroke="#B52C2C" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <text x="168" y="30" font-family="JetBrains Mono,monospace" font-size="8" fill="#B52C2C">MEAN</text>
+        <!-- Median line -->
+        <line x1="148" y1="22" x2="148" y2="150" stroke="#4A4D4F" stroke-width="1.5" stroke-dasharray="2,3"/>
+        <text x="118" y="30" font-family="JetBrains Mono,monospace" font-size="8" fill="#4A4D4F">MEDIAN</text>
+        <!-- Annotations -->
+        <text x="41"  y="168" font-family="JetBrains Mono,monospace" font-size="8" fill="#797C7F">min</text>
+        <text x="270" y="168" font-family="JetBrains Mono,monospace" font-size="8" fill="#797C7F">max</text>
+        <text x="108" y="168" font-family="JetBrains Mono,monospace" font-size="8" fill="#5C3317">peak (mode)</text>
+        <!-- Tail arrow -->
+        <text x="220" y="125" font-family="JetBrains Mono,monospace" font-size="8" fill="#797C7F">right tail →</text>
+        <!-- Y label -->
+        <text x="4" y="90" font-family="JetBrains Mono,monospace" font-size="8" fill="#797C7F" transform="rotate(-90,18,90)">frequency</text>
+        <!-- Bin bracket -->
+        <line x1="115" y1="156" x2="137" y2="156" stroke="#5C3317" stroke-width="1"/>
+        <text x="116" y="165" font-family="JetBrains Mono,monospace" font-size="7.5" fill="#5C3317">← bin width →</text>
+      </svg>
+    </div>
+
+    <div class="learn-block">
+      <h2>Why it was chosen here</h2>
+      <p>The message requires knowing <em>where values concentrate</em> across a continuous range — not how categories compare, not how something changed over time. Commute time is continuous: 23.4 minutes and 23.6 minutes are neighbouring values on a scale, not separate categories. The histogram is the correct chart when the variable is continuous and the question is distributional.</p>
+      <p>The right skew in this data — mean pulled above median, long tail to the right — is the actual finding. A summary statistic (just the mean) would hide this completely. Only the distributional view reveals that most commuters cluster in the 20–40 minute band while a meaningful minority commutes 75+ minutes, distorting the mean upward.</p>
+    </div>
+
+    <div class="learn-block">
+      <h2>Bin width is an editorial decision</h2>
+      <p>Bin width is the single most consequential design choice in a histogram. Too narrow: every bar contains one or two observations; the chart looks like noise and the shape is unreadable. Too wide: genuine structure (bimodality, gaps, secondary peaks) gets smoothed away. The right bin width reveals the distribution shape without overfitting to sample noise.</p>
+      <p>This implementation exposes the bin-width slider deliberately — it is a teaching tool. Slide from 2 minutes to 20 minutes and watch the same data tell different stories. The Freedman-Diaconis rule (bin width ≈ 2 × IQR × n^(−1/3)) is a principled starting point, but the analyst must verify the result makes distributional sense for the domain. A 5-minute bin for commute times is defensible; a 5-minute bin for geological strata would be absurd.</p>
+    </div>
+
+    <div class="learn-block">
+      <h2>What the rejected alternatives break</h2>
+      <p>A <strong>Bar Chart</strong> requires discrete, named categories. Applying it to continuous data requires first binning the values and assigning labels — at which point you have rebuilt a histogram with gaps inserted for no reason. The gap signals a categorical break that doesn't exist in the data.</p>
+      <p>A <strong>Box Plot</strong> summarises the same distribution in five numbers (min, Q1, median, Q3, max). It is more compact and better for comparing distributions across groups. But it hides shape: a symmetric unimodal distribution and a bimodal distribution with the same quartiles produce identical box plots. When the shape itself is the message, the histogram is the honest choice.</p>
+    </div>
+
+    <div class="framework-ref">
+      <span class="label">// FRAMEWORK REFERENCE</span>
+      <p><strong>FT Visual Vocabulary — Distribution category.</strong> "Use a histogram when you want to show the shape of a continuous variable's distribution — where values are concentrated, where the tails are, and whether the distribution is symmetric or skewed." Abela quadrant: Distribution (single variable, continuous). Tufte principle applied: the axis starts at zero — every bar's height is readable as an absolute count, and no baseline distortion inflates or deflates the visual difference between bins. The density curve overlay (KDE) provides a smoothed envelope that is less sensitive to bin-width choices, serving as a cross-check on the shape the binned bars suggest.</p>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <p>Nik Bear Brown, Irreducibly Human, What AI Can and Can't Do</p>
+  <p>boondoggling.ai · irreducibly.xyz · brutalist.art · bearbrown.co · frictional.xyz</p>
+</footer>
+
+<audio id="page-audio" src="./histogram/audio.mp3"></audio>
+
+<script>
+(function () {
+
+  // ── NAV ──────────────────────────────────────────────────────
+  const slides  = document.querySelectorAll('.slide');
+  const navDots = document.querySelectorAll('.navdot');
+
+  function scrollToSlide(i) { slides[i].scrollIntoView({ behavior: 'smooth' }); }
+
+  navDots.forEach((d, i) => {
+    d.addEventListener('click', () => scrollToSlide(i));
+    d.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); scrollToSlide(i); }
+    });
+  });
+
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const idx = Array.from(slides).indexOf(entry.target);
+        navDots.forEach((d, i) => d.classList.toggle('active', i === idx));
+      }
+    });
+  }, { threshold: 0.45 });
+  slides.forEach(s => io.observe(s));
+
+  document.addEventListener('keydown', e => {
+    const cur = Array.from(navDots).findIndex(d => d.classList.contains('active'));
+    if (e.key === 'ArrowDown' && cur < slides.length - 1) scrollToSlide(cur + 1);
+    if (e.key === 'ArrowUp'   && cur > 0)                 scrollToSlide(cur - 1);
+  });
+
+  // ── AUDIO ────────────────────────────────────────────────────
+  const audio    = document.getElementById('page-audio');
+  const audioBtn = document.getElementById('audio-toggle');
+  let playing = false;
+  audioBtn.addEventListener('click', () => {
+    if (playing) { audio.pause(); audioBtn.textContent = '▶ narration'; }
+    else         { audio.play().catch(() => {}); audioBtn.textContent = '⏸ narration'; }
+    playing = !playing;
+  });
+  audio.addEventListener('ended', () => { playing = false; audioBtn.textContent = '▶ narration'; });
+
+  // ── TOOLTIP ──────────────────────────────────────────────────
+  const tip = document.getElementById('tooltip');
+
+  function showTip(html, cx, cy) {
+    tip.innerHTML = html;
+    tip.style.opacity = 1;
+    const tw = tip.offsetWidth  || 180;
+    const th = tip.offsetHeight || 60;
+    let left = cx + 14, top = cy - th / 2;
+    if (left + tw > window.innerWidth  - 8) left = cx - tw - 14;
+    if (top < 8)                            top  = 8;
+    if (top + th > window.innerHeight - 8) top  = window.innerHeight - th - 8;
+    tip.style.left = left + 'px';
+    tip.style.top  = top  + 'px';
+  }
+
+  function hideTip() { tip.style.opacity = 0; }
+
+  // ── OVERLAY TOGGLES ──────────────────────────────────────────
+  let showMean   = true;
+  let showMedian = true;
+  let showKDE    = false;
+
+  function toggleBtn(btn, state) {
+    btn.classList.toggle('active', state);
+    btn.setAttribute('aria-pressed', state);
+  }
+
+  document.getElementById('btn-mean').addEventListener('click', function () {
+    showMean = !showMean;
+    toggleBtn(this, showMean);
+    redraw();
+  });
+
+  document.getElementById('btn-median').addEventListener('click', function () {
+    showMedian = !showMedian;
+    toggleBtn(this, showMedian);
+    redraw();
+  });
+
+  document.getElementById('btn-kde').addEventListener('click', function () {
+    showKDE = !showKDE;
+    toggleBtn(this, showKDE);
+    redraw();
+  });
+
+  // ── BIN SLIDER ───────────────────────────────────────────────
+  const binSlider = document.getElementById('bin-slider');
+  const binValEl  = document.getElementById('bin-val');
+
+  binSlider.addEventListener('input', () => {
+    binValEl.textContent = binSlider.value + ' min';
+    redraw();
+  });
+
+  // ── STATISTICS ───────────────────────────────────────────────
+  function stats(arr) {
+    const sorted = [...arr].sort((a, b) => a - b);
+    const n      = arr.length;
+    const mean   = arr.reduce((s, v) => s + v, 0) / n;
+    const median = n % 2 === 0
+      ? (sorted[n / 2 - 1] + sorted[n / 2]) / 2
+      : sorted[Math.floor(n / 2)];
+    const sd = Math.sqrt(arr.reduce((s, v) => s + (v - mean) ** 2, 0) / n);
+    return { n, mean, median, sd };
+  }
+
+  // ── KDE ──────────────────────────────────────────────────────
+  function kde(kernel, thresholds, data) {
+    return thresholds.map(x => [x, d3.mean(data, v => kernel(x - v))]);
+  }
+
+  function epanechnikov(bandwidth) {
+    return v => Math.abs(v /= bandwidth) <= 1 ? 0.75 * (1 - v * v) / bandwidth : 0;
+  }
+
+  // ── CHART ────────────────────────────────────────────────────
+  let values = [];
+
+  function redraw() {
+    if (!values.length) return;
+
+    const container = document.getElementById('chart-container');
+    const svg       = d3.select('#chart');
+    svg.selectAll('*').remove();
+
+    const W      = container.clientWidth || 800;
+    const margin = { top: 24, right: 40, bottom: 50, left: 60 };
+    const height = Math.max(container.clientHeight || 380, 300) - margin.top - margin.bottom;
+    const width  = W - margin.left - margin.right;
+    const H      = height + margin.top + margin.bottom;
+
+    svg.attr('viewBox', `0 0 ${W} ${H}`)
+       .attr('width', W)
+       .attr('height', H);
+
+    const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+
+    const binWidth = +binSlider.value;
+    const xMin     = 0;
+    const xMax     = Math.ceil(d3.max(values) / 10) * 10 + 5;
+
+    const x = d3.scaleLinear()
+      .domain([xMin, xMax])
+      .range([0, width]);
+
+    // Build bins
+    const thresholds = d3.range(xMin, xMax + binWidth, binWidth);
+    const binner = d3.bin()
+      .domain(x.domain())
+      .thresholds(thresholds.slice(0, -1));
+
+    const bins = binner(values);
+
+    const y = d3.scaleLinear()
+      .domain([0, d3.max(bins, d => d.length)])
+      .range([height, 0])
+      .nice();
+
+    // ── GRID ─────────────────────────────────────────────────
+    g.append('g')
+      .call(d3.axisLeft(y).ticks(5).tickSize(-width).tickFormat(''))
+      .call(gy => {
+        gy.select('.domain').remove();
+        gy.selectAll('line').attr('stroke', '#F0F0F0').attr('stroke-dasharray', '3,3');
+      });
+
+    // ── X AXIS ───────────────────────────────────────────────
+    g.append('g')
+      .attr('transform', `translate(0,${height})`)
+      .call(d3.axisBottom(x).ticks(Math.floor(width / 70)).tickFormat(d => d + ' min'))
+      .call(ax => {
+        ax.select('.domain').attr('stroke', '#EDEDED');
+        ax.selectAll('text')
+          .style('font-family', "'JetBrains Mono',monospace")
+          .style('font-size', '10px')
+          .style('fill', '#797C7F');
+        ax.selectAll('.tick line').attr('stroke', '#EDEDED');
+      });
+
+    // X axis label
+    g.append('text')
+      .attr('x', width / 2)
+      .attr('y', height + 44)
+      .attr('text-anchor', 'middle')
+      .style('font-family', "'JetBrains Mono',monospace")
+      .style('font-size', '10px')
+      .style('fill', '#797C7F')
+      .style('letter-spacing', '0.1em')
+      .text('COMMUTE TIME (MINUTES)');
+
+    // ── Y AXIS ───────────────────────────────────────────────
+    g.append('g')
+      .call(d3.axisLeft(y).ticks(5).tickFormat(d => d))
+      .call(ay => {
+        ay.select('.domain').remove();
+        ay.selectAll('text')
+          .style('font-family', "'JetBrains Mono',monospace")
+          .style('font-size', '10px')
+          .style('fill', '#797C7F');
+        ay.selectAll('.tick line').remove();
+      });
+
+    // Y axis label
+    g.append('text')
+      .attr('transform', 'rotate(-90)')
+      .attr('x', -height / 2)
+      .attr('y', -46)
+      .attr('text-anchor', 'middle')
+      .style('font-family', "'JetBrains Mono',monospace")
+      .style('font-size', '10px')
+      .style('fill', '#797C7F')
+      .style('letter-spacing', '0.1em')
+      .text('FREQUENCY (COUNT)');
+
+    // ── BARS ─────────────────────────────────────────────────
+    const st = stats(values);
+
+    g.selectAll('.bar')
+      .data(bins)
+      .join('rect')
+        .attr('class', 'bar')
+        .attr('x',      d => x(d.x0) + 0.5)
+        .attr('width',  d => Math.max(0, x(d.x1) - x(d.x0) - 1))
+        .attr('y',      height)
+        .attr('height', 0)
+        .attr('fill', d => {
+          // Colour bars in the peak range slightly differently
+          const pct = d.length / d3.max(bins, b => b.length);
+          return pct > 0.8 ? '#5C3317' : pct > 0.4 ? '#7A4A2A' : '#9B6B4A';
+        })
+        .attr('fill-opacity', 0.85)
+        .attr('stroke', '#3D2210')
+        .attr('stroke-width', 0.4)
+        .attr('tabindex', 0)
+        .attr('role', 'img')
+        .attr('aria-label', d => `${d.x0}–${d.x1} minutes: ${d.length} commuters (${((d.length / values.length) * 100).toFixed(1)}%)`)
+        .on('mousemove', function (event, d) {
+          const pct = ((d.length / values.length) * 100).toFixed(1);
+          document.getElementById('stat-hovered').textContent =
+            `${d.x0}–${d.x1} min (${d.length})`;
+          d3.select(this).attr('fill', '#B52C2C').attr('fill-opacity', 0.9);
+          showTip(
+            `<strong>${d.x0}–${d.x1} minutes</strong>` +
+            `Count: ${d.length}<br>Share: ${pct}%`,
+            event.clientX, event.clientY
+          );
+        })
+        .on('mouseleave', function (event, d) {
+          document.getElementById('stat-hovered').textContent = '—';
+          const pct = d.length / d3.max(bins, b => b.length);
+          d3.select(this)
+            .attr('fill', pct > 0.8 ? '#5C3317' : pct > 0.4 ? '#7A4A2A' : '#9B6B4A')
+            .attr('fill-opacity', 0.85);
+          hideTip();
+        })
+        .on('keydown', function (event, d) {
+          if (event.key === 'Enter' || event.key === ' ') {
+            document.getElementById('stat-hovered').textContent =
+              `${d.x0}–${d.x1} min (${d.length})`;
+          }
+        })
+        .transition()
+        .duration(550)
+        .delay((d, i) => i * 18)
+        .ease(d3.easeCubicOut)
+        .attr('y',      d => y(d.length))
+        .attr('height', d => height - y(d.length));
+
+    // ── KDE CURVE ────────────────────────────────────────────
+    if (showKDE) {
+      const bw        = binWidth * 2.5;
+      const kdePoints = d3.range(xMin, xMax, 0.5);
+      const density   = kde(epanechnikov(bw), kdePoints, values);
+
+      // Scale KDE to match frequency y-axis
+      const kdeMax  = d3.max(density, d => d[1]);
+      const freqMax = d3.max(bins, d => d.length) / values.length / binWidth;
+      const kScale  = (freqMax > 0 ? kdeMax / freqMax : 1);
+
+      const yKDE = d3.scaleLinear()
+        .domain([0, kdeMax])
+        .range([height, 0]);
+
+      const line = d3.line()
+        .x(d => x(d[0]))
+        .y(d => yKDE(d[1]))
+        .curve(d3.curveBasis);
+
+      const kdePath = g.append('path')
+        .datum(density)
+        .attr('fill', 'none')
+        .attr('stroke', '#B52C2C')
+        .attr('stroke-width', 2)
+        .attr('stroke-dasharray', '5,3')
+        .attr('opacity', 0)
+        .attr('d', line);
+
+      const totalLength = kdePath.node().getTotalLength();
+      kdePath
+        .attr('stroke-dasharray', `${totalLength} ${totalLength}`)
+        .attr('stroke-dashoffset', totalLength)
+        .transition().duration(700).ease(d3.easeLinear)
+        .attr('stroke-dashoffset', 0)
+        .attr('opacity', 0.9);
+
+      // KDE label
+      g.append('text')
+        .attr('x', width - 4)
+        .attr('y', 14)
+        .attr('text-anchor', 'end')
+        .style('font-family', "'JetBrains Mono',monospace")
+        .style('font-size', '9px')
+        .style('fill', '#B52C2C')
+        .text('── KDE density curve');
+    }
+
+    // ── MEAN LINE ────────────────────────────────────────────
+    if (showMean) {
+      const mx = x(st.mean);
+      g.append('line')
+        .attr('x1', mx).attr('x2', mx)
+        .attr('y1', 0).attr('y2', height)
+        .attr('stroke', '#B52C2C')
+        .attr('stroke-width', 1.5)
+        .attr('stroke-dasharray', '5,3')
+        .attr('opacity', 0)
+        .transition().duration(500).attr('opacity', 1);
+
+      g.append('text')
+        .attr('x', mx + 4)
+        .attr('y', 14)
+        .style('font-family', "'JetBrains Mono',monospace")
+        .style('font-size', '9px')
+        .style('fill', '#B52C2C')
+        .text('MEAN ' + st.mean.toFixed(1));
+    }
+
+    // ── MEDIAN LINE ──────────────────────────────────────────
+    if (showMedian) {
+      const mdx = x(st.median);
+      g.append('line')
+        .attr('x1', mdx).attr('x2', mdx)
+        .attr('y1', 0).attr('y2', height)
+        .attr('stroke', '#4A4D4F')
+        .attr('stroke-width', 1.5)
+        .attr('stroke-dasharray', '2,4')
+        .attr('opacity', 0)
+        .transition().duration(500).attr('opacity', 1);
+
+      g.append('text')
+        .attr('x', mdx + 4)
+        .attr('y', 26)
+        .style('font-family', "'JetBrains Mono',monospace")
+        .style('font-size', '9px')
+        .style('fill', '#4A4D4F')
+        .text('MEDIAN ' + st.median.toFixed(1));
+    }
+
+    // ── STATS BAR UPDATE ─────────────────────────────────────
+    document.getElementById('stat-n').textContent      = st.n.toLocaleString();
+    document.getElementById('stat-mean').textContent   = st.mean.toFixed(1) + ' min';
+    document.getElementById('stat-median').textContent = st.median.toFixed(1) + ' min';
+    document.getElementById('stat-sd').textContent     = st.sd.toFixed(1) + ' min';
+  }
+
+  // ── DATA LOAD ─────────────────────────────────────────────────
+  d3.json('./histogram/data.json').then(json => {
+    values = json.data.map(d => +d.value);
+    redraw();
+
+    // Responsive
+    let rt;
+    const ro = new ResizeObserver(() => {
+      clearTimeout(rt);
+      rt = setTimeout(redraw, 150);
+    });
+    ro.observe(document.getElementById('chart-container'));
+  }).catch(err => {
+    document.getElementById('chart-container').innerHTML =
+      `<p style="padding:2rem;font-family:'JetBrains Mono',monospace;font-size:13px;color:#B52C2C;">
+        Data file not found. Place data.json in ./histogram/data.json
+      </p>`;
+    console.error('D3 load error:', err);
+  });
+
+})();
+</script>
+</body>
+</html>

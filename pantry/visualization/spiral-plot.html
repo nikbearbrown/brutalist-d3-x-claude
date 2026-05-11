@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<!--
+  INFERENCES:
+  filename    = spiral-plot (slugified from chart type — no filename provided)
+  chart       = Spiral Plot / Time Series Spiral (stated explicitly)
+  message     = Aid disbursements follow a strong Q4 peak / Q2 trough seasonal pattern
+                that has intensified and grown year-over-year from 2021 to 2024 — the spiral
+                makes both the periodicity and the growth simultaneously visible
+  palette     = hai (Humanitarians AI — walnut on white, earthy gravitas)
+  data-topic  = Monthly humanitarian aid disbursements 2021–2024 (48 data points)
+  slides      = 2 (learn modifier active)
+-->
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Humanitarian Aid Seasonality — Spiral Plot 2021–2024</title>
+  <meta name="description" content="Spiral plot showing monthly humanitarian aid disbursements over four years. The Archimedean spiral layout reveals the Q4 peak and Q2 trough seasonal pattern aligned across all four annual arms.">
+  <meta name="keywords" content="spiral plot, time series spiral, Archimedean spiral, periodic pattern, seasonal trend, humanitarian aid, D3.js, data visualization, temporal data">
+  <meta name="author" content="Nik Bear Brown">
+  <meta name="category" content="Humanitarian Data / Temporal Pattern Analysis">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+
+  <style>
+    /* ============================================================
+       HAI PALETTE
+       WCAG: --p4 and --p7 fail on white — bg/border only.
+       Text: --p1 18.2:1 AAA, --p2 10.7:1 AAA, --p5 9.4:1, --p6 4.6:1
+    ============================================================ */
+    :root {
+      --p1: #1B1B1B;
+      --p2: #5C3317;
+      --p3: #B52C2C;
+      --p4: #F7FAFD;
+      --p5: #4A4D4F;
+      --p6: #797C7F;
+      --p7: #EDEDED;
+      --p8: #FFFFFF;
+      --font: 'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      font-family: var(--font);
+      background: var(--p8);
+      color: var(--p1);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .slides-wrapper {
+      display: flex; flex-direction: column;
+      width: 100%; height: 100vh;
+    }
+    .slide {
+      display: none; flex-direction: column;
+      flex: 1; min-height: 0;
+      padding: 16px 26px 5px;
+      overflow: hidden;
+    }
+    .slide.active { display: flex; }
+    .slide-learn  { overflow-y: auto; padding-bottom: 24px; }
+
+    .label {
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 0.13em; text-transform: uppercase; color: var(--p6);
+    }
+    .slide-title {
+      font-size: clamp(11px, 1.55vw, 17px);
+      font-weight: 800; letter-spacing: -0.01em;
+      text-transform: uppercase; color: var(--p1);
+      line-height: 1.2; margin-bottom: 8px;
+    }
+    .slide-meta {
+      display: flex; align-items: center;
+      justify-content: space-between; margin-bottom: 5px;
+    }
+
+    /* ── PERIOD LEGEND ── */
+    .period-legend {
+      display: grid;
+      grid-template-columns: repeat(6, auto);
+      gap: 3px 12px;
+      margin-bottom: 7px;
+      width: fit-content;
+    }
+    .legend-cell {
+      display: flex; align-items: center; gap: 5px;
+      cursor: pointer; padding: 2px 4px;
+      border: 1.5px solid transparent;
+      transition: border-color 0.18s, opacity 0.22s;
+    }
+    .legend-cell:hover         { border-color: var(--p7); }
+    .legend-cell:focus-visible { outline: 2px solid var(--p2); outline-offset: 2px; }
+    .legend-cell.period-off    { opacity: 0.22; }
+    .legend-dot {
+      width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0;
+    }
+    .legend-cell-label {
+      font-size: 9px; font-weight: 600;
+      letter-spacing: 0.09em; text-transform: uppercase; color: var(--p5);
+    }
+
+    /* ── CONTROLS ── */
+    .controls-bar {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 7px;
+    }
+    .btn {
+      font-family: var(--font); font-size: 10px; font-weight: 600;
+      letter-spacing: 0.09em; text-transform: uppercase;
+      padding: 3px 9px; background: transparent;
+      border: 1.5px solid var(--p7); color: var(--p6);
+      cursor: pointer; transition: border-color 0.18s, color 0.18s;
+    }
+    .btn:hover         { border-color: var(--p2); color: var(--p2); }
+    .btn:focus-visible { outline: 2px solid var(--p2); outline-offset: 2px; }
+
+    /* ── VIZ ── */
+    .viz-container {
+      flex: 1; min-height: 0; position: relative; overflow: hidden;
+    }
+    #chart-svg { display: block; width: 100%; height: 100%; }
+
+    /* ── TOOLTIP ── */
+    .tooltip {
+      position: fixed; pointer-events: none;
+      background: var(--p1); color: var(--p8);
+      padding: 9px 13px; font-family: var(--font);
+      font-size: 11px; line-height: 1.8;
+      border: 1px solid var(--p2); max-width: 200px;
+      opacity: 0; transition: opacity 0.1s; z-index: 200;
+    }
+    .tooltip.visible { opacity: 1; }
+    .tt-head {
+      font-weight: 800; font-size: 12px; color: var(--p4);
+      margin-bottom: 3px; padding-bottom: 4px;
+      border-bottom: 1px solid #333;
+    }
+    .tt-row  { color: var(--p6); }
+    .tt-val  { font-weight: 700; color: var(--p8); }
+    .tt-yoy  { font-size: 10px; margin-top: 3px; padding-top: 3px;
+               border-top: 1px solid #333; }
+    .tt-yoy-pos { color: #6BAF7A; font-weight: 700; }
+    .tt-yoy-neg { color: #B52C2C; font-weight: 700; }
+
+    /* ── NAV DOTS ── */
+    .slide-nav {
+      position: fixed; bottom: 46px; left: 50%;
+      transform: translateX(-50%); display: flex; gap: 8px; z-index: 100;
+    }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      border: 1.5px solid var(--p6); background: transparent;
+      cursor: pointer; padding: 0; transition: background 0.2s;
+    }
+    .dot.active        { background: var(--p2); border-color: var(--p2); }
+    .dot:focus-visible { outline: 2px solid var(--p2); outline-offset: 3px; }
+
+    /* ── FOOTER ── */
+    footer {
+      height: 38px; border-top: 2px solid var(--p7);
+      display: flex; align-items: center;
+      justify-content: space-between; padding: 0 26px; flex-shrink: 0;
+    }
+    footer p  { font-size: 10px; color: var(--p6); letter-spacing: 0.04em; }
+    .nav-hint { font-size: 10px; color: var(--p6); letter-spacing: 0.08em; }
+
+    /* ── LEARN ── */
+    .learn-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 17px 34px; padding-bottom: 26px;
+    }
+    .learn-block { border-left: 3px solid var(--p2); padding-left: 13px; }
+    .learn-block h2 {
+      font-size: 10px; font-weight: 800;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--p2); margin-bottom: 6px;
+    }
+    .learn-block p  { font-size: 11.5px; line-height: 1.8; color: var(--p5); }
+    .learn-block p strong { color: var(--p1); font-weight: 700; }
+    .learn-block code {
+      font-family: var(--font); font-size: 10px;
+      color: var(--p2); background: var(--p4); padding: 1px 4px;
+    }
+    .framework-ref {
+      grid-column: 1 / -1; background: var(--p4);
+      border: 1.5px solid var(--p7); padding: 13px 17px;
+    }
+    .framework-ref .label { display: block; color: var(--p2); margin-bottom: 6px; }
+    .framework-ref p      { font-size: 11.5px; line-height: 1.75; color: var(--p1); }
+    .framework-ref p strong { color: var(--p2); }
+    .design-decision {
+      grid-column: 1 / -1; border-top: 2px solid var(--p7); padding-top: 13px;
+    }
+    .design-decision h2 {
+      font-size: 10px; font-weight: 800;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--p6); margin-bottom: 6px;
+    }
+    .design-decision p { font-size: 11.5px; line-height: 1.8; color: var(--p5); }
+    .design-decision p strong { color: var(--p1); font-weight: 700; }
+    .design-decision code {
+      font-family: var(--font); font-size: 10px;
+      color: var(--p2); background: var(--p4); padding: 1px 4px;
+    }
+
+    @media (max-width: 700px) {
+      .learn-grid  { grid-template-columns: 1fr; }
+      .period-legend { grid-template-columns: repeat(4, auto); }
+      .slide       { padding: 11px 13px 4px; }
+      footer       { padding: 0 13px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="tooltip" id="tooltip" role="tooltip" aria-live="polite" aria-atomic="true"></div>
+
+<div class="slides-wrapper">
+
+  <!-- ── SLIDE 1: SPIRAL VISUALIZATION ── -->
+  <section class="slide active" id="slide-01"
+           aria-label="Spiral plot: Humanitarian aid disbursements 2021–2024">
+
+    <div class="slide-meta">
+      <span class="label">// HAI — AID DISBURSEMENTS · MONTHLY 2021–2024 · 48 OBSERVATIONS</span>
+      <span class="label" id="data-summary"></span>
+    </div>
+
+    <h1 class="slide-title">
+      Q4 Peak, Q2 Trough — The Seasonal Pattern Intensifies Year-Over-Year<br>
+      <span style="font-weight:400;font-size:0.85em">Inner arm = 2021 &nbsp;·&nbsp; Outer arm = 2024 &nbsp;·&nbsp; Bars colored by month</span>
+    </h1>
+
+    <div class="period-legend" id="period-legend"
+         role="list" aria-label="Month filter — click to highlight"></div>
+
+    <div class="controls-bar">
+      <button class="btn" id="reset-btn"    aria-label="Reset month filter">↺ reset</button>
+      <button class="btn" id="audio-toggle" aria-label="Play narration">▶ narration</button>
+    </div>
+
+    <div class="viz-container" id="chart-container">
+      <svg id="chart-svg" role="img" aria-labelledby="spiral-title spiral-desc">
+        <title id="spiral-title">Spiral Plot — Humanitarian Aid Disbursements 2021–2024</title>
+        <desc id="spiral-desc">
+          Archimedean spiral with 4 revolutions (one per year 2021–2024). Each revolution
+          contains 12 radial bars (one per month). The spiral grows outward so 2021 is the
+          innermost arm and 2024 the outermost. Bar height encodes disbursement in USD millions.
+          Color encodes month: walnut for Jan, progressing through amber, blood-red, dim-gray,
+          and deep forest for December. November–December bars are tallest at the top-left;
+          April bars are shortest at the right — the seasonal pattern is visible as aligned
+          short and tall bars across all four arms at the same angular positions.
+        </desc>
+      </svg>
+    </div>
+
+    <audio id="page-audio" src="./spiral-plot/audio.mp3" preload="none"></audio>
+
+  </section>
+
+  <!-- ── SLIDE 2: LEARN PANEL ── -->
+  <section class="slide slide-learn" id="slide-02"
+           aria-label="Learn panel: Spiral plot theory and design decisions">
+
+    <div class="slide-meta">
+      <span class="label">// LEARN — SPIRAL PLOT · FT VISUAL VOCABULARY: CHANGE OVER TIME + PATTERNS</span>
+      <span class="label">ABELA QUADRANT: DATA OVER TIME (periodic)</span>
+    </div>
+
+    <h1 class="slide-title">What Makes a Spiral Plot Work — And Why Periodicity Is Invisible in a Line Chart</h1>
+
+    <div class="learn-grid">
+
+      <div class="learn-block">
+        <h2>What this chart is</h2>
+        <p>
+          A spiral plot maps time-series data along an <strong>Archimedean spiral</strong>:
+          a curve defined by <code>r = a + bθ</code>, where r is the radius from center and
+          θ is the angle. Each period (month) occupies an equal angular increment
+          (<code>2π ÷ periodsPerCycle</code>), and the spiral grows outward with each complete
+          revolution. The perceptual mechanism is <strong>angular alignment</strong>: because
+          each cycle occupies exactly one revolution, the same period in different cycles
+          appears at the <em>same angle</em> in every arm. The viewer scans radially outward
+          and sees whether April (right side) is always short — confirming a seasonal trough —
+          without mentally aligning separate lines from different years.
+        </p>
+      </div>
+
+      <div class="learn-block">
+        <h2>Why it cannot be a line chart</h2>
+        <p>
+          A standard time-series line chart over 48 months shows the trend clearly —
+          but to confirm periodicity, the viewer must mentally fold the line back on
+          itself every 12 months and check whether peaks align. That is a
+          <strong>non-trivial cognitive task</strong> performed entirely in working memory.
+          The spiral performs that folding physically: the chart is already organized so
+          that the same month in 2021, 2022, 2023, and 2024 occupies the same angular
+          position. The periodic structure is <em>encoded in the layout</em>, not
+          left as an inference task for the viewer. The cost: radial distance from center
+          is harder to compare precisely than bar length along a common baseline.
+          The spiral trades <strong>precise value reading for structural pattern visibility</strong>.
+        </p>
+      </div>
+
+      <div class="learn-block">
+        <h2>The Archimedean choice</h2>
+        <p>
+          The spiral used here is <strong>Archimedean</strong> (equidistant spacing between
+          arms), not logarithmic or Fermat's. Equidistant arm spacing means each year's ring
+          has the same radial depth — the same maximum bar height is available for every year.
+          A logarithmic spiral would compress inner years and expand outer years, visually
+          underweighting early data. An equidistant spiral is the <strong>honest geometric
+          choice</strong> when all cycles contain equally important data. The implementation
+          uses <code>r_i = innerR + (i ÷ periodsPerCycle) × armSpacing</code>, giving each
+          year exactly <code>armSpacing</code> pixels of radial depth, regardless of
+          absolute data magnitude.
+        </p>
+      </div>
+
+      <div class="learn-block">
+        <h2>Seasonal pattern vs. trend</h2>
+        <p>
+          The spiral simultaneously shows two temporal signals: the
+          <strong>within-cycle seasonal pattern</strong> (which months peak, which trough)
+          and the <strong>across-cycle trend</strong> (do bars at the same angle grow
+          larger in each successive arm?). In this dataset, both are visible.
+          The Q4 cluster (Oct–Dec, top-left quadrant) grows taller arm by arm — the
+          seasonal peak intensifies. April bars (right side) also grow but remain the
+          shortest at each arm — the seasonal trough persists. A line chart with a
+          12-month moving average would show the trend but flatten the seasonality.
+          A seasonal decomposition chart would separate both signals but destroy their
+          geometric relationship.
+        </p>
+      </div>
+
+      <div class="framework-ref">
+        <span class="label">// FRAMEWORK REFERENCE</span>
+        <p>
+          The seminal papers on spiral plots — <strong>Carlis &amp; Konstan (1998)</strong>
+          and <strong>Weber, Alexa &amp; Müller (2001)</strong> — both identify the core
+          trade-off: the spiral excels at revealing periodic structure and is weaker at
+          supporting precise value extraction. The FT Visual Vocabulary classifies this
+          under <strong>Change over time</strong> with a note on pattern detection.
+          Tufte's principle of small multiples is adjacent: a 4-panel year-over-year small
+          multiple would offer better precision but destroy the angular alignment that
+          makes the periodic pattern immediately visible. The spiral is the
+          <strong>minimum-redundancy solution</strong> for showing periodicity in data
+          that exceeds two or three cycles — the angular alignment conveys the pattern
+          in one view that a small multiple requires four to establish.
+        </p>
+      </div>
+
+      <div class="design-decision">
+        <h2>// The one design decision worth knowing</h2>
+        <p>
+          <strong>January is placed at 12 o'clock (angle = 0 in d3.arc() convention),
+          and the spiral proceeds clockwise.</strong> This aligns the calendar cycle
+          with the viewer's intuitive reading of a clock face — January at top,
+          April at right, July at bottom, October at left. An arbitrary starting angle
+          (common in academic implementations) produces a correct chart that no one
+          can read without a legend. Placing January at 12 o'clock costs nothing
+          mathematically (<code>theta = (i / periodsPerCycle) × 2π</code>, with d3.arc's
+          native 0-at-top convention) and produces a chart where a viewer immediately
+          knows that the tall cluster of bars in the upper-left is Q4 (Oct–Nov–Dec)
+          without reading a single label. The calendar anchor turns the chart from
+          a pattern detector into a <strong>legible, self-orienting instrument</strong>.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    <p>Nik Bear Brown, Irreducibly Human, What AI Can and Can't Do
+       &nbsp;·&nbsp; boondoggling.ai &nbsp;·&nbsp; irreducibly.xyz &nbsp;·&nbsp;
+       brutalist.art &nbsp;·&nbsp; bearbrown.co &nbsp;·&nbsp; frictional.xyz</p>
+    <span class="nav-hint">← → slides &nbsp;|&nbsp; esc reset</span>
+  </footer>
+
+</div>
+
+<nav class="slide-nav" role="navigation" aria-label="Slide navigation">
+  <button class="dot active" data-slide="0"
+          aria-label="Go to slide 1: Spiral visualization" tabindex="0"></button>
+  <button class="dot"        data-slide="1"
+          aria-label="Go to slide 2: Learn panel"          tabindex="0"></button>
+</nav>
+
+
+<script>
+'use strict';
+
+// ============================================================
+//  SLIDES
+// ============================================================
+const slides  = document.querySelectorAll('.slide');
+const dots    = document.querySelectorAll('.dot');
+let   current = 0;
+
+function goToSlide(n) {
+  slides[current].classList.remove('active');
+  dots[current].classList.remove('active');
+  current = Math.max(0, Math.min(n, slides.length - 1));
+  slides[current].classList.add('active');
+  dots[current].classList.add('active');
+}
+
+dots.forEach(d => d.addEventListener('click', () => goToSlide(+d.dataset.slide)));
+document.addEventListener('keydown', e => {
+  if (['ArrowRight','ArrowDown'].includes(e.key)) goToSlide(current + 1);
+  if (['ArrowLeft', 'ArrowUp'  ].includes(e.key)) goToSlide(current - 1);
+  if (e.key === 'Escape') resetFilter();
+});
+
+// ============================================================
+//  AUDIO
+// ============================================================
+const audio    = document.getElementById('page-audio');
+const audioBtn = document.getElementById('audio-toggle');
+audioBtn.addEventListener('click', () => {
+  if (audio.paused) {
+    audio.play().catch(() => {});
+    audioBtn.textContent = '⏸ narration';
+    audioBtn.setAttribute('aria-label', 'Pause narration');
+  } else {
+    audio.pause();
+    audioBtn.textContent = '▶ narration';
+    audioBtn.setAttribute('aria-label', 'Play narration');
+  }
+});
+audio.addEventListener('ended', () => {
+  audioBtn.textContent = '▶ narration';
+  audioBtn.setAttribute('aria-label', 'Play narration');
+});
+
+// ============================================================
+//  TOOLTIP
+// ============================================================
+const tooltipEl = document.getElementById('tooltip');
+
+function showTooltip(event, rec, prevYearRec) {
+  let yoyHtml = '';
+  if (prevYearRec) {
+    const diff = rec.value - prevYearRec.value;
+    const pct  = ((diff / prevYearRec.value) * 100).toFixed(1);
+    const cls  = diff >= 0 ? 'tt-yoy-pos' : 'tt-yoy-neg';
+    const sign = diff >= 0 ? '+' : '';
+    yoyHtml = `<div class="tt-yoy">YoY: <span class="${cls}">${sign}${pct}%</span></div>`;
+  }
+  tooltipEl.innerHTML = `
+    <div class="tt-head">${rec.label}</div>
+    <div class="tt-row">Value &nbsp;<span class="tt-val">$${rec.value}M</span></div>
+    ${yoyHtml}
+  `;
+  moveTooltip(event);
+  tooltipEl.classList.add('visible');
+}
+
+function moveTooltip(event) {
+  const tw = tooltipEl.offsetWidth;
+  const th = tooltipEl.offsetHeight;
+  let x = event.clientX + 13;
+  let y = event.clientY - th / 2;
+  if (x + tw > window.innerWidth  - 8) x = event.clientX - tw - 13;
+  if (y < 5)                            y = 5;
+  if (y + th > window.innerHeight - 5) y = window.innerHeight - th - 5;
+  tooltipEl.style.left = x + 'px';
+  tooltipEl.style.top  = y + 'px';
+}
+
+function hideTooltip() { tooltipEl.classList.remove('visible'); }
+
+// ============================================================
+//  FILTER STATE
+// ============================================================
+let activePeriod = null;
+
+function setActivePeriod(p) {
+  activePeriod = (activePeriod === p) ? null : p;
+  applyFilter();
+}
+
+function resetFilter() {
+  activePeriod = null;
+  applyFilter();
+}
+
+function applyFilter() {
+  d3.selectAll('.spiral-bar').each(function(d) {
+    const dim = activePeriod !== null && d.period !== activePeriod;
+    d3.select(this).transition().duration(220)
+      .attr('opacity', dim ? 0.07 : 1);
+  });
+  document.querySelectorAll('.legend-cell').forEach((cell, i) => {
+    cell.classList.toggle('period-off', activePeriod !== null && i !== activePeriod);
+  });
+}
+
+document.getElementById('reset-btn').addEventListener('click', resetFilter);
+
+// ============================================================
+//  BUILD LEGEND
+// ============================================================
+function buildLegend(data) {
+  const legend = document.getElementById('period-legend');
+  data.periodLabels.forEach((label, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'legend-cell';
+    cell.setAttribute('role', 'listitem');
+    cell.setAttribute('tabindex', '0');
+    cell.setAttribute('aria-label', `Highlight ${label}`);
+
+    const dot = document.createElement('div');
+    dot.className = 'legend-dot';
+    dot.style.background = data.periodColors[i];
+
+    const lbl = document.createElement('span');
+    lbl.className   = 'legend-cell-label';
+    lbl.textContent = label;
+
+    cell.appendChild(dot);
+    cell.appendChild(lbl);
+
+    const act = () => setActivePeriod(i);
+    cell.addEventListener('click', act);
+    cell.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); act(); }
+    });
+    legend.appendChild(cell);
+  });
+}
+
+// ============================================================
+//  RENDER CHART
+// ============================================================
+const container = document.getElementById('chart-container');
+const chartSVG  = d3.select('#chart-svg');
+let   rawData   = null;
+
+function renderChart(data) {
+  chartSVG.selectAll('*').remove();
+
+  const rect   = container.getBoundingClientRect();
+  const W      = Math.max(rect.width, 360);
+  const H      = Math.max(rect.height, 280);
+  const dim    = Math.min(W, H);
+
+  const ppc    = data.periodsPerCycle;                    // 12
+  const nCyc   = data.cycleLabels.length;                 // 4
+  const maxVal = d3.max(data.records, r => r.value);
+
+  // Radial geometry
+  const innerR     = dim * 0.044;
+  const outerR     = dim * 0.385;
+  const armSpacing = (outerR - innerR) / nCyc;
+  const maxBarH    = armSpacing * 0.88;
+
+  // Arc width: each bar spans 86% of its angular slot
+  const halfArc = (Math.PI * 2 / ppc) * 0.43;
+
+  chartSVG.attr('width', W).attr('height', H).attr('viewBox', `0 0 ${W} ${H}`);
+  const g = chartSVG.append('g').attr('transform', `translate(${W / 2},${H / 2})`);
+
+  // Precompute angles — theta=0 at top (d3.arc convention: 0 = 12 o'clock, CW positive)
+  data.records.forEach((rec, i) => {
+    rec._index   = i;
+    rec._theta   = (i / ppc) * 2 * Math.PI;  // 0 = Jan, π/2 = Apr, π = Jul, 3π/2 = Oct
+    rec._baseR   = innerR + (i / ppc) * armSpacing;
+    rec._barH    = (rec.value / maxVal) * maxBarH;
+    // For tooltip: find same period in previous cycle
+    rec._prevRec = data.records.find(r => r.cycle === rec.cycle - 1 && r.period === rec.period) || null;
+  });
+
+  // ── SPIRAL REFERENCE PATH (thin background curve) ──
+  const spiralPts = [];
+  for (let t = 0; t <= nCyc * ppc; t += 0.25) {
+    const theta = (t / ppc) * 2 * Math.PI;
+    const r     = innerR + (t / ppc) * armSpacing;
+    // d3.arc convention: angle 0 = top, CW positive
+    // x = r*sin(theta), y = -r*cos(theta)
+    spiralPts.push([r * Math.sin(theta), -r * Math.cos(theta)]);
+  }
+
+  g.append('path')
+    .attr('d', 'M' + spiralPts.map(p => p.join(',')).join('L'))
+    .attr('fill', 'none')
+    .attr('stroke', '#EDEDED')
+    .attr('stroke-width', 0.8)
+    .attr('pointer-events', 'none');
+
+  // ── CYCLE REFERENCE RINGS (faint circles at each arm boundary) ──
+  for (let c = 0; c <= nCyc; c++) {
+    const r = innerR + c * armSpacing;
+    g.append('circle')
+      .attr('r', r)
+      .attr('fill', 'none')
+      .attr('stroke', '#F0F0F0')
+      .attr('stroke-width', 0.5)
+      .attr('stroke-dasharray', '2,4')
+      .attr('pointer-events', 'none');
+  }
+
+  // ── MONTH LABELS (outer ring) ──
+  const labelR = outerR + maxBarH + 16;
+  data.periodLabels.forEach((label, i) => {
+    const theta = (i / ppc) * 2 * Math.PI;
+    const lx    = labelR * Math.sin(theta);
+    const ly    = -labelR * Math.cos(theta);
+    const cosT  = Math.cos(theta);   // left/right
+    const sinT  = Math.sin(theta);   // up/down... wait, we're using non-standard coords
+    // For anchor: x-position determines anchor
+    const anchor = lx > 4 ? 'start' : lx < -4 ? 'end' : 'middle';
+    // For dy: position above/below
+    const dy = ly < -4 ? '-0.3em' : ly > 4 ? '1em' : '0.35em';
+
+    g.append('text')
+      .attr('x', lx).attr('y', ly)
+      .attr('text-anchor', anchor).attr('dy', dy)
+      .style('font-family', 'JetBrains Mono, monospace')
+      .style('font-size', dim < 380 ? '8px' : '10px').style('font-weight', '700')
+      .style('letter-spacing', '0.07em').style('text-transform', 'uppercase')
+      .style('fill', data.periodColors[i])
+      .attr('pointer-events', 'none')
+      .text(label);
+  });
+
+  // ── YEAR LABELS (at 12 o'clock, left side of Jan column) ──
+  data.cycleLabels.forEach((yearLabel, yi) => {
+    const midR = innerR + (yi + 0.5) * armSpacing;
+    g.append('text')
+      .attr('x', -8).attr('y', -midR)
+      .attr('dy', '0.35em').attr('text-anchor', 'end')
+      .style('font-family', 'JetBrains Mono, monospace')
+      .style('font-size', dim < 380 ? '7px' : '9px').style('font-weight', '600')
+      .style('fill', '#C0C0C0')
+      .attr('pointer-events', 'none')
+      .text(yearLabel);
+  });
+
+  // ── DRAW BARS ──
+  const arcGen = d3.arc();
+
+  const bars = g.selectAll('.spiral-bar')
+    .data(data.records, r => `${r.cycle}-${r.period}`)
+    .join('path')
+    .attr('class', 'spiral-bar')
+    .attr('fill', r => data.periodColors[r.period])
+    .attr('fill-opacity', 0.88)
+    .attr('stroke', '#FFFFFF')
+    .attr('stroke-width', 0.4)
+    .attr('tabindex', '0')
+    .attr('role', 'img')
+    .attr('aria-label', r => `${r.label}: $${r.value}M`)
+    // Animate: start at inner radius (zero height)
+    .attr('d', r => arcGen({
+      innerRadius: r._baseR,
+      outerRadius: r._baseR,      // zero height initially
+      startAngle:  r._theta - halfArc,
+      endAngle:    r._theta + halfArc
+    }))
+    .transition().duration(380).ease(d3.easeCubicOut)
+    .delay(r => r._index * 13 + 220)
+    .attr('d', r => arcGen({
+      innerRadius: r._baseR,
+      outerRadius: r._baseR + r._barH,
+      startAngle:  r._theta - halfArc,
+      endAngle:    r._theta + halfArc
+    }));
+
+  // Hover interaction (re-select after transition)
+  g.selectAll('.spiral-bar')
+    .on('mouseover', function(event, r) {
+      showTooltip(event, r, r._prevRec);
+      // Highlight this bar's period, dim others (non-permanently)
+      d3.selectAll('.spiral-bar')
+        .transition().duration(120)
+        .attr('opacity', d => d.period === r.period ? 1 : 0.15);
+      d3.select(this).raise();
+    })
+    .on('mousemove', event => moveTooltip(event))
+    .on('mouseout', function() {
+      hideTooltip();
+      applyFilter();  // restore active filter state
+    })
+    .on('click', (_, r) => setActivePeriod(r.period))
+    .on('focus', function(event, r) {
+      showTooltip({ clientX: 200, clientY: 200 }, r, r._prevRec);
+    })
+    .on('blur', () => hideTooltip())
+    .on('keydown', function(event, r) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        setActivePeriod(r.period);
+      }
+    });
+
+  // ── CENTER ANNOTATION ──
+  g.append('text')
+    .attr('text-anchor', 'middle').attr('y', -5)
+    .style('font-family', 'JetBrains Mono, monospace')
+    .style('font-size', '9px').style('font-weight', '700')
+    .style('letter-spacing', '0.1em').style('text-transform', 'uppercase')
+    .style('fill', '#DEDEDE').attr('pointer-events', 'none')
+    .text('2021');
+
+  g.append('text')
+    .attr('text-anchor', 'middle').attr('y', 7)
+    .style('font-family', 'JetBrains Mono, monospace')
+    .style('font-size', '7px').style('fill', '#DEDEDE')
+    .attr('pointer-events', 'none')
+    .text('→ 2024');
+}
+
+// ============================================================
+//  DATA LOAD
+// ============================================================
+d3.json('./spiral-plot/data.json').then(data => {
+  rawData = data;
+  document.getElementById('data-summary').textContent =
+    `${data.cycleLabels.length} cycles · ${data.periodsPerCycle} periods · ${data.records.length} bars`;
+
+  buildLegend(data);
+  renderChart(data);
+
+  const ro = new ResizeObserver(debounce(() => {
+    if (current === 0 && rawData) renderChart(rawData);
+  }, 160));
+  ro.observe(container);
+
+}).catch(() => {
+  document.getElementById('chart-container').innerHTML =
+    '<p style="color:var(--p3);padding:40px;font-size:12px;font-family:var(--font)">' +
+    '// data.json not found — add <strong>spiral-plot/data.json</strong> to run this visualization.</p>';
+});
+
+// ============================================================
+//  UTILS
+// ============================================================
+function debounce(fn, ms) {
+  let t;
+  return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
+}
+</script>
+</body>
+</html>

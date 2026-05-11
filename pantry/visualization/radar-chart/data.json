@@ -1,0 +1,46 @@
+{
+  "_schema": {
+    "description": "Humanitarian response capability scores across six variables for three regions. Fictional placeholder with realistic distributional shape — designed to produce distinct polygon profiles that illustrate the chart's strength. Proves the radar renders before real data is substituted.",
+    "fields": {
+      "variables[].key":         "string — field key referenced in series[].values",
+      "variables[].label":       "string — axis label displayed on chart (≤14 chars)",
+      "variables[].description": "string — fuller definition used in tooltip",
+      "scale.min":               "number — minimum value across all axes (always 0 for radar)",
+      "scale.max":               "number — maximum value across all axes (axes share one scale)",
+      "series[].id":             "string — unique series identifier",
+      "series[].label":          "string — series name for legend",
+      "series[].color":          "string — hex color from/derived from hai palette",
+      "series[].values":         "object — keys must match variables[].key; values 0–scale.max"
+    },
+    "scale": { "min": 0, "max": 100, "label": "Score (0–100)" },
+    "replace": "Replace variables[] with your dimensions (keep 4–8 for readability). Replace series[] with your entities. All series share the same scale — normalise your values to scale.max before substituting."
+  },
+  "variables": [
+    { "key": "access",  "label": "Access",        "description": "Humanitarian access to affected populations (0 = no access, 100 = full access)" },
+    { "key": "funding", "label": "Funding",        "description": "Percentage of humanitarian appeal funded (0–100%)" },
+    { "key": "coord",   "label": "Coordination",   "description": "Inter-agency coordination quality score" },
+    { "key": "capacity","label": "Capacity",       "description": "Operational and human resource capacity index" },
+    { "key": "coverage","label": "Coverage",       "description": "Percentage of people in need reached with assistance" },
+    { "key": "speed",   "label": "Speed",          "description": "Response speed index — higher = faster first delivery" }
+  ],
+  "series": [
+    {
+      "id":    "ssa",
+      "label": "Sub-Saharan Africa",
+      "color": "#5C3317",
+      "values": { "access": 42, "funding": 65, "coord": 60, "capacity": 50, "coverage": 48, "speed": 56 }
+    },
+    {
+      "id":    "mena",
+      "label": "MENA",
+      "color": "#B52C2C",
+      "values": { "access": 35, "funding": 80, "coord": 74, "capacity": 72, "coverage": 61, "speed": 71 }
+    },
+    {
+      "id":    "sasia",
+      "label": "South Asia",
+      "color": "#4A4D4F",
+      "values": { "access": 75, "funding": 52, "coord": 63, "capacity": 82, "coverage": 74, "speed": 65 }
+    }
+  ]
+}

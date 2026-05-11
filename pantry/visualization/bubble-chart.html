@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<!--
+  INFERENCES:
+  filename    = bubble-chart (slugified from chart type — no filename provided)
+  chart       = Bubble Chart (stated explicitly in command)
+  message     = Education correlates with life expectancy, but population scale differs enormously by region
+  palette     = hai (Humanitarians AI — walnut accent on white, Le Monde structure)
+  audience    = data-literate adult, humanitarian/development research context
+  data-topic  = Global development indicators (Education Index, Life Expectancy, Population, Region)
+  slides      = 2 (learn modifier active — viz + learn panel)
+-->
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Education and Longevity — Global Development Bubble Chart</title>
+  <meta name="description" content="Bubble chart showing the relationship between education index, life expectancy, and population size across 26 countries and five world regions, 2024 estimates.">
+  <meta name="keywords" content="bubble chart, education index, life expectancy, population, global development, humanitarian data, D3.js, data visualization, HDI, world regions">
+  <meta name="author" content="Nik Bear Brown">
+  <meta name="category" content="Global Development / Data Visualization">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+
+  <style>
+    /* ============================================================
+       HAI PALETTE — Humanitarians AI
+    ============================================================ */
+    :root {
+      --p1: #1B1B1B;
+      --p2: #5C3317;
+      --p3: #7A0000;
+      --p4: #F7FAFD;
+      --p5: #4A4D4F;
+      --p6: #797C7F;
+      --p7: #EDEDED;
+      --p8: #FFFFFF;
+      --font: 'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%;
+      font-family: var(--font);
+      background: var(--p8);
+      color: var(--p1);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ============================================================
+       SLIDE STRUCTURE — scrollable, not fixed-height
+    ============================================================ */
+    .slides-wrapper { width: 100%; }
+
+    .slide {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      padding: 20px 32px 32px;
+      border-bottom: 2px solid var(--p7);
+    }
+
+    .slide-learn {
+      background: var(--p4);
+    }
+
+    /* ============================================================
+       TYPOGRAPHY
+    ============================================================ */
+    .label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--p6);
+    }
+
+    .slide-title {
+      font-size: clamp(12px, 1.8vw, 20px);
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      text-transform: uppercase;
+      color: var(--p1);
+      line-height: 1.2;
+      margin-bottom: 10px;
+      max-width: 72ch;
+    }
+
+    .slide-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    /* ============================================================
+       LEGEND
+    ============================================================ */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 16px;
+      margin-bottom: 8px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      cursor: pointer;
+      padding: 3px 6px;
+      border: 1.5px solid transparent;
+      transition: border-color 0.2s, opacity 0.25s;
+    }
+
+    .legend-item:hover { border-color: var(--p7); }
+    .legend-item:focus-visible { outline: 2px solid var(--p2); outline-offset: 2px; }
+    .legend-item.dimmed { opacity: 0.25; }
+
+    .legend-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--p5);
+    }
+
+    /* ============================================================
+       CONTROLS
+    ============================================================ */
+    .controls-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .btn {
+      font-family: var(--font);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      background: transparent;
+      border: 1.5px solid var(--p7);
+      color: var(--p6);
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .btn:hover { border-color: var(--p2); color: var(--p2); }
+    .btn:focus-visible { outline: 2px solid var(--p2); outline-offset: 2px; }
+
+    /* ============================================================
+       VIZ CONTAINER
+    ============================================================ */
+    .viz-container {
+      width: 100%;
+      height: 480px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #chart-svg { display: block; width: 100%; height: 100%; }
+
+    /* ============================================================
+       EXPLANATION BLOCK
+    ============================================================ */
+    .chart-explanation {
+      margin-top: 1.5rem;
+      padding: 1.25rem 1.5rem;
+      border-left: 4px solid var(--p2);
+      background: var(--p4);
+      max-width: 82ch;
+    }
+
+    .chart-explanation h3 {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--p2);
+      margin-bottom: 0.75rem;
+    }
+
+    .chart-explanation p {
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 1.85;
+      color: var(--p5);
+      margin-bottom: 0.6rem;
+    }
+
+    .chart-explanation p:last-child { margin-bottom: 0; }
+    .chart-explanation strong { color: var(--p1); font-weight: 700; }
+
+    /* ============================================================
+       TOOLTIP
+    ============================================================ */
+    .tooltip {
+      position: fixed;
+      pointer-events: none;
+      background: var(--p1);
+      color: var(--p8);
+      padding: 10px 14px;
+      font-family: var(--font);
+      font-size: 11px;
+      line-height: 1.75;
+      border: 1px solid var(--p2);
+      max-width: 210px;
+      opacity: 0;
+      transition: opacity 0.12s;
+      z-index: 200;
+    }
+
+    .tooltip.visible { opacity: 1; }
+    .tt-country { font-weight: 800; font-size: 12px; color: var(--p4); margin-bottom: 2px; }
+    .tt-region  { font-weight: 600; font-size: 10px; letter-spacing: 0.09em; text-transform: uppercase; color: #C9A878; margin-bottom: 5px; }
+    .tt-row     { color: var(--p6); }
+    .tt-val     { font-weight: 700; color: var(--p8); }
+
+    /* ============================================================
+       SLIDE NAV DOTS
+    ============================================================ */
+    .slide-nav {
+      position: fixed;
+      bottom: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+      z-index: 100;
+    }
+
+    .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      border: 1.5px solid var(--p6);
+      background: transparent;
+      cursor: pointer;
+      padding: 0;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .dot.active { background: var(--p2); border-color: var(--p2); }
+    .dot:focus-visible { outline: 2px solid var(--p2); outline-offset: 3px; }
+
+    /* ============================================================
+       FOOTER
+    ============================================================ */
+    footer {
+      padding: clamp(1.25rem, 3vw, 2rem) 32px;
+      border-top: 2px solid var(--p7);
+    }
+
+    footer p {
+      font-size: 10px;
+      font-weight: 400;
+      color: var(--p6);
+      line-height: 2;
+    }
+
+    footer a {
+      color: var(--p2);
+      text-decoration: none;
+      transition: color 0.12s;
+    }
+
+    footer a:hover { color: var(--p1); text-decoration: underline; }
+
+    /* ============================================================
+       LEARN SLIDE
+    ============================================================ */
+    .learn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px 40px;
+      padding-bottom: 32px;
+    }
+
+    .learn-block {
+      border-left: 3px solid var(--p2);
+      padding-left: 14px;
+    }
+
+    .learn-block h2 {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--p2);
+      margin-bottom: 7px;
+    }
+
+    .learn-block p {
+      font-size: 11.5px;
+      font-weight: 400;
+      line-height: 1.8;
+      color: var(--p5);
+    }
+
+    .learn-block p strong { color: var(--p1); font-weight: 700; }
+
+    .learn-block code {
+      font-family: var(--font);
+      font-size: 10px;
+      color: var(--p2);
+      background: var(--p4);
+      padding: 1px 4px;
+    }
+
+    .framework-ref {
+      grid-column: 1 / -1;
+      background: var(--p8);
+      border: 1.5px solid var(--p7);
+      padding: 14px 18px;
+    }
+
+    .framework-ref .label { display: block; color: var(--p2); margin-bottom: 7px; }
+
+    .framework-ref p {
+      font-size: 11.5px;
+      line-height: 1.75;
+      color: var(--p1);
+    }
+
+    .framework-ref p strong { color: var(--p2); }
+
+    .design-decision {
+      grid-column: 1 / -1;
+      border-top: 2px solid var(--p7);
+      padding-top: 14px;
+    }
+
+    .design-decision h2 {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--p6);
+      margin-bottom: 7px;
+    }
+
+    .design-decision p { font-size: 11.5px; line-height: 1.8; color: var(--p5); }
+    .design-decision p strong { color: var(--p1); font-weight: 700; }
+    .design-decision code { font-family: var(--font); font-size: 10px; color: var(--p2); background: var(--p4); padding: 1px 4px; }
+
+    .bubble { cursor: pointer; }
+    .bubble:focus { outline: none; }
+
+    @media (max-width: 700px) {
+      .learn-grid { grid-template-columns: 1fr; }
+      .slide { padding: 14px 16px 24px; }
+      footer { padding: 1rem 16px; }
+      .slide-title { font-size: 12px; }
+      .viz-container { height: 340px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="tooltip" id="tooltip" role="tooltip" aria-live="polite" aria-atomic="true"></div>
+
+<div class="slides-wrapper">
+
+  <!-- ── SLIDE 1: VISUALIZATION ── -->
+  <section class="slide" id="slide-01"
+           aria-label="Bubble chart: Education Index vs Life Expectancy, sized by population">
+
+    <div class="slide-meta">
+      <span class="label">// HAI — GLOBAL DEVELOPMENT INDICATORS · 2024 ESTIMATES</span>
+      <span class="label" id="data-count"></span>
+    </div>
+
+    <h1 class="slide-title">
+      Education Correlates With Longevity —<br>But Population Scale Varies Dramatically
+    </h1>
+
+    <div class="legend" id="legend" role="list" aria-label="Region filter — click to isolate"></div>
+
+    <div class="controls-bar">
+      <button class="btn" id="reset-btn" aria-label="Reset region filter">↺ reset</button>
+      <button class="btn" id="audio-toggle" aria-label="Play narration">▶ narration</button>
+    </div>
+
+    <div class="viz-container" id="chart-container">
+      <svg id="chart-svg" role="img" aria-labelledby="chart-title chart-desc">
+        <title id="chart-title">Education and Longevity Bubble Chart</title>
+        <desc id="chart-desc">
+          26 countries plotted by Education Index on the x-axis (0 to 1 scale, HDI component)
+          and Life Expectancy on the y-axis (years). Bubble area encodes population in millions.
+          Color and stroke dash pattern indicate world region.
+        </desc>
+      </svg>
+    </div>
+
+    <!-- ── EXPLANATION BLOCK ──────────────────────────────────── -->
+    <div class="chart-explanation" aria-label="Chart explanation">
+      <h3>// About this chart type — Bubble Chart</h3>
+      <p>A <strong>bubble chart</strong> is a trivariate scatter plot: it places data points on a Cartesian grid where X and Y encode two quantitative variables using position — the most accurate perceptual channel available — and then encodes a third quantitative variable through <strong>circle area</strong>. A fourth variable (here, world region) is layered in via colour and stroke dash pattern, providing redundant encoding that works in monochrome and for colour-blind viewers. Bubbles are sized so that <strong>area is proportional to the data value</strong>, not radius — scaling by radius would produce exponential visual distortion and is a common implementation error.</p>
+      <p>The critical rule: bubble charts are appropriate only when three or more variables need to be shown simultaneously and when the correlation structure between the primary two is part of the message. When the message is a simple ranking, a bar chart is more readable. When the message is a single bivariate relationship, a scatter plot suffices. The bubble chart earns its complexity only when the third variable (here, population) is itself part of the story.</p>
+      <p><strong>About this example:</strong> Each bubble represents one country. The X axis shows the Education Index (0–1 scale, an HDI component measuring mean and expected years of schooling). The Y axis shows life expectancy in years. Bubble area encodes population in millions — China and India visibly dominate. Colour and stroke pattern encode world region. The positive correlation between education and longevity is immediately visible as an upward-right sweep of the point cloud, while the vast size differences between countries add a third layer of meaning. Click any bubble or legend item to isolate a region and examine its sub-pattern.</p>
+    </div>
+
+    <audio id="page-audio" src="./bubble-chart/slide_1.mp3" preload="none"></audio>
+  </section>
+
+  <!-- ── SLIDE 2: LEARN PANEL ── -->
+  <section class="slide slide-learn" id="slide-02"
+           aria-label="Learn panel: Bubble Chart theory and design decisions">
+
+    <div class="slide-meta">
+      <span class="label">// LEARN — BUBBLE CHART · FT VISUAL VOCABULARY: CORRELATION</span>
+      <span class="label">ABELA QUADRANT: RELATIONSHIP</span>
+    </div>
+
+    <h1 class="slide-title">What Makes a Bubble Chart Work — And Exactly When It Breaks</h1>
+
+    <div class="learn-grid">
+
+      <div class="learn-block">
+        <h2>What this chart is</h2>
+        <p>
+          A bubble chart is a <strong>trivariate scatter plot</strong>: it places data points
+          on a Cartesian grid using position (x, y) to encode two quantitative variables, then
+          encodes a third variable through circle area. The perceptual mechanism exploited is
+          <strong>position along a common axis</strong> — the most accurate channel in Cleveland
+          and McGill's encoding hierarchy — supplemented by <strong>area</strong>, which is less
+          accurate but allows a third quantitative dimension without adding a spatial axis.
+          Color and stroke pattern layer in a fourth variable: categorical region membership.
+        </p>
+      </div>
+
+      <div class="learn-block">
+        <h2>Why it was chosen</h2>
+        <p>
+          The data contains three quantitative variables (education, life expectancy, population)
+          and one categorical variable (region) — a structure that cannot be represented by any
+          two-variable chart without discarding information. A scatter plot loses population.
+          A bar chart loses the correlation structure entirely. A bubble chart is the
+          <strong>minimum-distortion solution</strong> for this data shape. The message —
+          that education and longevity correlate, but that population scale differs enormously
+          across regions — requires simultaneously visible x/y correlation and visible size
+          variation. This chart delivers both.
+        </p>
+      </div>
+
+      <div class="learn-block">
+        <h2>What the alternative would break</h2>
+        <p>
+          The nearest alternative, a <strong>grouped bar chart</strong>, could show either
+          education or life expectancy by country but cannot encode population size except
+          through supplementary labeling. More critically, it destroys the
+          <strong>correlation structure</strong>: the viewer sees regional averages or
+          individual bars — not the relationship between the two variables. Countries
+          where education is high but life expectancy lags (or vice versa) become invisible.
+          A <strong>stacked area chart</strong> fails for different reasons: stacking requires
+          values that sum to a meaningful total — this data has no such property.
+        </p>
+      </div>
+
+      <div class="learn-block">
+        <h2>The hard limits</h2>
+        <p>
+          Bubble charts fail at <strong>scale</strong>: beyond 30–40 bubbles, occlusion from
+          overlapping circles degrades legibility. This implementation addresses overlap with
+          semi-transparent fills (<code>fill-opacity: 0.75</code>) and renders largest bubbles
+          first so smaller ones remain visible above them.
+          The second hard limit — and the most common implementation error — is encoding size
+          by radius rather than area. Encoding by radius causes exponential visual distortion:
+          a circle twice the radius appears four times as large. This chart uses
+          <code>d3.scaleSqrt()</code>, mapping population values to radius such that
+          <strong>area scales linearly with the data</strong>.
+        </p>
+      </div>
+
+      <div class="framework-ref">
+        <span class="label">// FRAMEWORK REFERENCE</span>
+        <p>
+          The FT Visual Vocabulary classifies bubble charts under <strong>Correlation</strong>:
+          "Show the relationship between two or more variables — be careful that the chart does
+          not imply causation." The bubble chart extends the scatter plot's correlation function
+          into three dimensions. Abela's chart selection framework places it in the
+          <strong>Relationship quadrant</strong> when the primary question is correlation, or
+          the <strong>Comparison quadrant</strong> when the question is magnitude across
+          categories — this implementation serves both simultaneously, which is the bubble
+          chart's distinctive capability and its primary interpretive risk.
+          Tufte's principle of maximum data-ink ratio is honored: every visual element —
+          position, area, color, stroke pattern — encodes data. No decorative chrome.
+        </p>
+      </div>
+
+      <div class="design-decision">
+        <h2>// The one design decision worth knowing</h2>
+        <p>
+          <strong>Stroke dash patterns serve as redundant encoding</strong> alongside color —
+          a WCAG 2.1 requirement that benefits every user, not only those with color vision
+          deficiencies. Each region uses a distinct <code>stroke-dasharray</code>: Africa solid,
+          Americas 4-2 dash, Asia 1.5-3 dot, Europe 8-2 long-dash, Oceania 3-2 short-dash.
+          A monochrome printout or screenshot retains full categorical legibility. The decision
+          costs zero screen space and zero cognitive load — the patterns are subtle enough
+          not to compete with size and position as the primary encodings, but distinct enough
+          to survive any rendering environment.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+</div>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <p>Nik Bear Brown, Irreducibly Human, What AI Can and Can't Do</p>
+  <p>
+    <a href="https://humanitarians.ai"  target="_blank" rel="noopener">humanitarians.ai</a> ·
+    <a href="https://musinique.com"     target="_blank" rel="noopener">musinique.com</a> ·
+    <a href="https://frictional.xyz"    target="_blank" rel="noopener">frictional.xyz</a>
+  </p>
+</footer>
+
+<!-- SLIDE NAV DOTS -->
+<nav class="slide-nav" role="navigation" aria-label="Slide navigation">
+  <button class="dot active" data-slide="0" aria-label="Go to slide 1: Visualization" tabindex="0"></button>
+  <button class="dot"        data-slide="1" aria-label="Go to slide 2: Learn panel"   tabindex="0"></button>
+</nav>
+
+<script>
+// ============================================================
+//  SLIDE NAVIGATION — scroll-based
+// ============================================================
+const slides  = document.querySelectorAll('.slide');
+const dots    = document.querySelectorAll('.dot');
+
+function scrollToSlide(n) {
+  const idx = Math.max(0, Math.min(n, slides.length - 1));
+  slides[idx].scrollIntoView({ behavior: 'smooth' });
+}
+
+dots.forEach(d => d.addEventListener('click', () => scrollToSlide(+d.dataset.slide)));
+
+document.addEventListener('keydown', e => {
+  const current = Array.from(dots).findIndex(d => d.classList.contains('active'));
+  if (['ArrowRight','ArrowDown'].includes(e.key)) scrollToSlide(current + 1);
+  if (['ArrowLeft', 'ArrowUp'  ].includes(e.key)) scrollToSlide(current - 1);
+  if (e.key === 'Escape') resetFilter();
+});
+
+const slideObserver = new IntersectionObserver(entries => {
+  entries.forEach(en => {
+    if (en.isIntersecting) {
+      const idx = Array.from(slides).indexOf(en.target);
+      dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+    }
+  });
+}, { threshold: 0.5 });
+
+slides.forEach(s => slideObserver.observe(s));
+
+// ============================================================
+//  AUDIO
+// ============================================================
+const audio    = document.getElementById('page-audio');
+const audioBtn = document.getElementById('audio-toggle');
+
+audioBtn.addEventListener('click', () => {
+  if (audio.paused) {
+    audio.play().catch(() => {});
+    audioBtn.textContent = '⏸ narration';
+    audioBtn.setAttribute('aria-label', 'Pause narration');
+  } else {
+    audio.pause();
+    audioBtn.textContent = '▶ narration';
+    audioBtn.setAttribute('aria-label', 'Play narration');
+  }
+});
+
+audio.addEventListener('ended', () => {
+  audioBtn.textContent = '▶ narration';
+  audioBtn.setAttribute('aria-label', 'Play narration');
+});
+
+// ============================================================
+//  REGION CONFIG
+// ============================================================
+const REGIONS = {
+  'Africa'  : { fill: '#5C3317', dash: 'none',  label: 'Africa'   },
+  'Americas': { fill: '#7A0000', dash: '4,2',   label: 'Americas' },
+  'Asia'    : { fill: '#4A4D4F', dash: '1.5,3', label: 'Asia'     },
+  'Europe'  : { fill: '#1B1B1B', dash: '8,2',   label: 'Europe'   },
+  'Oceania' : { fill: '#797C7F', dash: '3,2',   label: 'Oceania'  }
+};
+
+// ============================================================
+//  FILTER STATE
+// ============================================================
+let activeRegion = null;
+
+function toggleRegion(r) {
+  activeRegion = (activeRegion === r) ? null : r;
+  applyFilter();
+}
+
+function resetFilter() {
+  activeRegion = null;
+  applyFilter();
+}
+
+function applyFilter() {
+  document.querySelectorAll('.legend-item').forEach(item => {
+    const r = item.dataset.region;
+    item.classList.toggle('dimmed', activeRegion !== null && r !== activeRegion);
+  });
+  d3.selectAll('.bubble').each(function(d) {
+    const dimmed = activeRegion !== null && d.region !== activeRegion;
+    d3.select(this).classed('dimmed', dimmed);
+    d3.select(this).select('circle')
+      .transition().duration(280)
+      .attr('fill-opacity',   dimmed ? 0.05 : 0.75)
+      .attr('stroke-opacity', dimmed ? 0.1  : 1);
+  });
+}
+
+document.getElementById('reset-btn').addEventListener('click', resetFilter);
+
+// ============================================================
+//  TOOLTIP
+// ============================================================
+const tooltip = document.getElementById('tooltip');
+
+function showTooltip(event, d) {
+  const pop = d.population >= 1000
+    ? (d.population / 1000).toFixed(2) + 'B'
+    : d.population.toFixed(1) + 'M';
+
+  tooltip.innerHTML = `
+    <div class="tt-country">${d.country}</div>
+    <div class="tt-region">${d.region}</div>
+    <div class="tt-row">Education Index &nbsp;<span class="tt-val">${d.education.toFixed(3)}</span></div>
+    <div class="tt-row">Life expectancy &nbsp;<span class="tt-val">${d.lifeExpectancy} yr</span></div>
+    <div class="tt-row">Population &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tt-val">${pop}</span></div>
+    <div class="tt-row">GDP / capita &nbsp;&nbsp;&nbsp;<span class="tt-val">$${d3.format(',')(d.gdpPerCapita)}</span></div>
+  `;
+  tooltip.classList.add('visible');
+  moveTooltip(event);
+}
+
+function moveTooltip(event) {
+  const tw = tooltip.offsetWidth;
+  const th = tooltip.offsetHeight;
+  let x = event.clientX + 16;
+  let y = event.clientY - th / 2;
+  if (x + tw > window.innerWidth  - 12) x = event.clientX - tw - 16;
+  if (y < 8)                             y = 8;
+  if (y + th > window.innerHeight -  8) y = window.innerHeight - th - 8;
+  tooltip.style.left = x + 'px';
+  tooltip.style.top  = y + 'px';
+}
+
+function hideTooltip() { tooltip.classList.remove('visible'); }
+
+// ============================================================
+//  LEGEND
+// ============================================================
+function buildLegend(data) {
+  const legend = document.getElementById('legend');
+  const presentRegions = [...new Set(data.map(d => d.region))].sort();
+
+  presentRegions.forEach(region => {
+    const cfg  = REGIONS[region] || { fill: '#888', dash: 'none' };
+    const item = document.createElement('div');
+    item.className = 'legend-item';
+    item.dataset.region = region;
+    item.setAttribute('role', 'listitem');
+    item.setAttribute('tabindex', '0');
+    item.setAttribute('aria-label', `Filter to ${region}`);
+
+    const ns  = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('width', '14'); svg.setAttribute('height', '14');
+    svg.setAttribute('aria-hidden', 'true');
+    const circle = document.createElementNS(ns, 'circle');
+    circle.setAttribute('cx', '7'); circle.setAttribute('cy', '7'); circle.setAttribute('r', '5');
+    circle.setAttribute('fill', cfg.fill); circle.setAttribute('fill-opacity', '0.75');
+    circle.setAttribute('stroke', cfg.fill); circle.setAttribute('stroke-width', '1.5');
+    if (cfg.dash !== 'none') circle.setAttribute('stroke-dasharray', cfg.dash);
+    svg.appendChild(circle);
+
+    const lbl = document.createElement('span');
+    lbl.className = 'legend-label';
+    lbl.textContent = region;
+
+    item.appendChild(svg); item.appendChild(lbl);
+
+    const act = () => toggleRegion(region);
+    item.addEventListener('click', act);
+    item.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); act(); }
+    });
+    legend.appendChild(item);
+  });
+}
+
+// ============================================================
+//  D3 VISUALIZATION
+// ============================================================
+const container = document.getElementById('chart-container');
+const chartSVG  = d3.select('#chart-svg');
+
+d3.json('./bubble-chart/data.json').then(raw => {
+  const data = raw.data;
+  document.getElementById('data-count').textContent = `n = ${data.length} countries`;
+  buildLegend(data);
+  renderChart(data);
+
+  let resizeTimer;
+  const ro = new ResizeObserver(() => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => { chartSVG.selectAll('*').remove(); renderChart(data); }, 150);
+  });
+  ro.observe(container);
+
+}).catch(() => {
+  container.innerHTML =
+    '<p style="color:var(--p3);padding:40px;font-size:12px;font-family:var(--font)">' +
+    '// data.json not found — add <strong>bubble-chart/data.json</strong> to run this visualization.</p>';
+});
+
+function renderChart(data) {
+  const rect   = container.getBoundingClientRect();
+  const W      = Math.max(rect.width,  300);
+  const H      = Math.max(rect.height, 200);
+  const margin = { top: 16, right: 36, bottom: 54, left: 62 };
+  const iW     = W - margin.left - margin.right;
+  const iH     = H - margin.top  - margin.bottom;
+
+  chartSVG.attr('width', W).attr('height', H).attr('viewBox', `0 0 ${W} ${H}`);
+
+  const g = chartSVG.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+
+  const xExt = d3.extent(data, d => d.education);
+  const yExt = d3.extent(data, d => d.lifeExpectancy);
+  const maxR  = Math.min(iW, iH) * 0.115;
+
+  const xScale = d3.scaleLinear()
+    .domain([Math.max(0, xExt[0] - 0.06), Math.min(1.01, xExt[1] + 0.025)])
+    .range([0, iW]).nice();
+
+  const yScale = d3.scaleLinear()
+    .domain([yExt[0] - 3, yExt[1] + 2])
+    .range([iH, 0]).nice();
+
+  const rScale = d3.scaleSqrt()
+    .domain([0, d3.max(data, d => d.population)])
+    .range([0, maxR]);
+
+  // Grid
+  g.append('g').selectAll('.vl').data(xScale.ticks(6)).join('line')
+    .attr('x1', d => xScale(d)).attr('x2', d => xScale(d))
+    .attr('y1', 0).attr('y2', iH)
+    .attr('stroke', '#EDEDED').attr('stroke-opacity', 0.85);
+
+  g.append('g').selectAll('.hl').data(yScale.ticks(6)).join('line')
+    .attr('x1', 0).attr('x2', iW)
+    .attr('y1', d => yScale(d)).attr('y2', d => yScale(d))
+    .attr('stroke', '#EDEDED').attr('stroke-opacity', 0.85);
+
+  // X axis
+  const xAxisG = g.append('g').attr('transform', `translate(0,${iH})`)
+    .call(d3.axisBottom(xScale).ticks(6).tickFormat(d3.format('.2f')).tickSize(4).tickPadding(6));
+  xAxisG.select('.domain').attr('stroke', '#EDEDED');
+  xAxisG.selectAll('.tick line').attr('stroke', '#EDEDED');
+  xAxisG.selectAll('.tick text').style('font-family','JetBrains Mono, monospace').style('font-size','10px').style('fill','#797C7F');
+
+  g.append('text').attr('x', iW / 2).attr('y', iH + 44).attr('text-anchor','middle')
+    .style('font-family','JetBrains Mono, monospace').style('font-size','10px')
+    .style('font-weight','600').style('letter-spacing','0.1em').style('text-transform','uppercase').style('fill','#4A4D4F')
+    .text('Education Index (HDI component, 0–1)');
+
+  // Y axis
+  const yAxisG = g.append('g')
+    .call(d3.axisLeft(yScale).ticks(6).tickFormat(d => `${d}yr`).tickSize(4).tickPadding(6));
+  yAxisG.select('.domain').attr('stroke', '#EDEDED');
+  yAxisG.selectAll('.tick line').attr('stroke', '#EDEDED');
+  yAxisG.selectAll('.tick text').style('font-family','JetBrains Mono, monospace').style('font-size','10px').style('fill','#797C7F');
+
+  g.append('text').attr('transform','rotate(-90)').attr('x', -iH/2).attr('y', -50)
+    .attr('text-anchor','middle')
+    .style('font-family','JetBrains Mono, monospace').style('font-size','10px')
+    .style('font-weight','600').style('letter-spacing','0.1em').style('text-transform','uppercase').style('fill','#4A4D4F')
+    .text('Life Expectancy (years)');
+
+  // Bubbles
+  const sorted = [...data].sort((a, b) => b.population - a.population);
+
+  const bGroups = g.selectAll('.bubble')
+    .data(sorted, d => d.id)
+    .join('g')
+    .attr('class', 'bubble')
+    .attr('transform', d => `translate(${xScale(d.education)},${yScale(d.lifeExpectancy)})`)
+    .attr('tabindex', '0').attr('role','img')
+    .attr('aria-label', d =>
+      `${d.country}: Education ${d.education.toFixed(3)}, ` +
+      `Life Expectancy ${d.lifeExpectancy} years, ` +
+      `Population ${d.population >= 1000 ? (d.population/1000).toFixed(2)+'B' : d.population.toFixed(1)+'M'}`
+    );
+
+  bGroups.append('circle')
+    .attr('r', 0).attr('fill', d => REGIONS[d.region]?.fill || '#888')
+    .attr('fill-opacity', 0).attr('stroke', d => REGIONS[d.region]?.fill || '#888')
+    .attr('stroke-width', 1.5).attr('stroke-opacity', 0)
+    .attr('stroke-dasharray', d => { const dash = REGIONS[d.region]?.dash; return (!dash || dash === 'none') ? null : dash; })
+    .transition().duration(750).ease(d3.easeCubicOut).delay((d, i) => i * 30 + 100)
+    .attr('r', d => Math.max(4, rScale(d.population)))
+    .attr('fill-opacity', 0.75).attr('stroke-opacity', 1);
+
+  bGroups.filter(d => d.population > 100)
+    .append('text')
+    .attr('text-anchor','middle').attr('dy','0.35em')
+    .style('font-family','JetBrains Mono, monospace').style('font-size','9px').style('font-weight','800')
+    .style('fill','#FFFFFF').style('pointer-events','none').style('opacity', 0)
+    .text(d => d.id)
+    .transition().delay(1400).duration(350).style('opacity', 1);
+
+  bGroups
+    .on('mouseover', function(event, d) {
+      showTooltip(event, d);
+      d3.select(this).select('circle').raise().transition().duration(100)
+        .attr('stroke-width', 2.5)
+        .attr('fill-opacity', d3.select(this).classed('dimmed') ? 0.05 : 0.9);
+    })
+    .on('mousemove',  (event)       => moveTooltip(event))
+    .on('mouseout',   function(event, d) {
+      hideTooltip();
+      d3.select(this).select('circle').transition().duration(200)
+        .attr('stroke-width', 1.5)
+        .attr('fill-opacity', d3.select(this).classed('dimmed') ? 0.05 : 0.75);
+    })
+    .on('click',    (event, d)    => toggleRegion(d.region))
+    .on('focus',    function(event, d) { showTooltip({ clientX: 200, clientY: 200 }, d); })
+    .on('blur',     ()            => hideTooltip())
+    .on('keydown',  function(event, d) {
+      if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggleRegion(d.region); }
+    });
+
+  // Size legend
+  const sLeg = g.append('g').attr('transform', `translate(${iW - 4}, ${iH - 4})`);
+  const sizeSamples = [50, 300, 800].filter(s => s <= d3.max(data, d => d.population) * 1.05);
+  sizeSamples.forEach((pop, i) => {
+    const r  = Math.max(4, rScale(pop));
+    const cx = -((sizeSamples.length - 1 - i) * 54 + 28);
+    const cy = -r;
+    sLeg.append('circle').attr('cx', cx).attr('cy', cy).attr('r', r)
+      .attr('fill','none').attr('stroke','#EDEDED').attr('stroke-width', 1);
+    sLeg.append('line').attr('x1', cx).attr('x2', cx).attr('y1', cy - r).attr('y2', cy - r - 6)
+      .attr('stroke','#EDEDED').attr('stroke-width', 1);
+    sLeg.append('text').attr('x', cx).attr('y', cy - r - 9).attr('text-anchor','middle')
+      .style('font-family','JetBrains Mono, monospace').style('font-size','8px').style('fill','#797C7F')
+      .text(`${pop}M`);
+  });
+  sLeg.append('text')
+    .attr('x', -((sizeSamples.length - 1) * 54) / 2 - 14).attr('y', 6).attr('text-anchor','middle')
+    .style('font-family','JetBrains Mono, monospace').style('font-size','8px').style('fill','#797C7F').style('letter-spacing','0.08em')
+    .text('POPULATION (area)');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+{
+  "_schema": {
+    "description": "Humanitarian crisis response coordination network. Each link represents the frequency and depth of coordination between two organizations. Fictional placeholder with realistic relational structure. Proves the chord diagram renders before real data is substituted.",
+    "fields": {
+      "nodes[].id":       "string — unique node identifier, referenced in links",
+      "nodes[].label":    "string — short name displayed on chart (≤12 chars preferred)",
+      "nodes[].sublabel": "string — secondary descriptor displayed beneath label",
+      "nodes[].color":    "string — hex color; derived from or harmonious with hai palette",
+      "links[].source":   "string — node id of first endpoint",
+      "links[].target":   "string — node id of second endpoint",
+      "links[].value":    "number — connection strength 0–100; drives stroke width and opacity"
+    },
+    "replace": "Replace nodes[] with your entities. Replace links[] with your undirected relationships. Connection values are relative — 100 = strongest connection in your dataset."
+  },
+  "nodes": [
+    { "id": "unhcr",  "label": "UNHCR",       "sublabel": "Refugee Agency",   "color": "#5C3317" },
+    { "id": "wfp",    "label": "WFP",          "sublabel": "Food Programme",   "color": "#B52C2C" },
+    { "id": "unicef", "label": "UNICEF",       "sublabel": "Children's Fund",  "color": "#4A4D4F" },
+    { "id": "who",    "label": "WHO",          "sublabel": "Health Org",       "color": "#797C7F" },
+    { "id": "ocha",   "label": "OCHA",         "sublabel": "Coordination",     "color": "#1B1B1B" },
+    { "id": "ingos",  "label": "Int'l NGOs",   "sublabel": "Int'l Partners",   "color": "#7A5230" },
+    { "id": "lngos",  "label": "Local NGOs",   "sublabel": "Local Partners",   "color": "#3D5C47" },
+    { "id": "donors", "label": "Gov Donors",   "sublabel": "Governments",      "color": "#5C5C3D" }
+  ],
+  "links": [
+    { "source": "unhcr",  "target": "wfp",    "value": 82 },
+    { "source": "unhcr",  "target": "unicef", "value": 74 },
+    { "source": "unhcr",  "target": "who",    "value": 42 },
+    { "source": "unhcr",  "target": "ocha",   "value": 91 },
+    { "source": "unhcr",  "target": "ingos",  "value": 68 },
+    { "source": "unhcr",  "target": "lngos",  "value": 45 },
+    { "source": "unhcr",  "target": "donors", "value": 38 },
+    { "source": "wfp",    "target": "unicef", "value": 56 },
+    { "source": "wfp",    "target": "who",    "value": 47 },
+    { "source": "wfp",    "target": "ocha",   "value": 78 },
+    { "source": "wfp",    "target": "ingos",  "value": 72 },
+    { "source": "wfp",    "target": "lngos",  "value": 51 },
+    { "source": "wfp",    "target": "donors", "value": 44 },
+    { "source": "unicef", "target": "who",    "value": 64 },
+    { "source": "unicef", "target": "ocha",   "value": 69 },
+    { "source": "unicef", "target": "ingos",  "value": 58 },
+    { "source": "unicef", "target": "lngos",  "value": 62 },
+    { "source": "unicef", "target": "donors", "value": 35 },
+    { "source": "who",    "target": "ocha",   "value": 55 },
+    { "source": "who",    "target": "ingos",  "value": 49 },
+    { "source": "who",    "target": "lngos",  "value": 38 },
+    { "source": "who",    "target": "donors", "value": 31 },
+    { "source": "ocha",   "target": "ingos",  "value": 85 },
+    { "source": "ocha",   "target": "lngos",  "value": 71 },
+    { "source": "ocha",   "target": "donors", "value": 66 },
+    { "source": "ingos",  "target": "lngos",  "value": 79 },
+    { "source": "ingos",  "target": "donors", "value": 55 },
+    { "source": "lngos",  "target": "donors", "value": 28 }
+  ]
+}

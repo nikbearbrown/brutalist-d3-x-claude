@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Area Encodes Proportion — Dominant Categories Claim Space Immediately</title>
+  <meta name="description" content="Treemap: global R&D spending by sector and subcategory, rendered as nested squarified rectangles. Area encodes proportion of total spend. Click any parent sector to zoom into its subcategories.">
+  <meta name="keywords" content="treemap, squarified algorithm, hierarchy, proportions, part-to-whole, D3.js, data visualisation, brutalist design, hai palette, R&D spending, nested rectangles">
+  <meta name="author" content="Nik Bear Brown">
+  <meta name="category" content="Economics / Hierarchical Proportion">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <style>
+    :root {
+      --p1: #1B1B1B;
+      --p2: #5C3317;
+      --p3: #B52C2C;
+      --p4: #F7FAFD;
+      --p5: #4A4D4F;
+      --p6: #797C7F;
+      --p7: #EDEDED;
+      --p8: #FFFFFF;
+      --font: 'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      font-family: var(--font);
+      background: var(--p8);
+      color: var(--p1);
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+
+    /* ── SLIDES ──────────────────────────────────────────────── */
+    .slide {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: clamp(2rem, 4vw, 4.5rem) clamp(1.5rem, 6vw, 6.5rem);
+      border-bottom: 2px solid var(--p7);
+    }
+
+    .slide-meta { margin-bottom: 1rem; }
+
+    .label {
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.13em;
+      color: var(--p6);
+      text-transform: uppercase;
+    }
+
+    .slide-title {
+      font-size: clamp(14px, 2.2vw, 25px);
+      font-weight: 800;
+      text-transform: uppercase;
+      line-height: 1.15;
+      max-width: 76ch;
+      margin-bottom: 1.2rem;
+      border-left: 4px solid var(--p2);
+      padding-left: 1rem;
+      animation: fadeUp 0.5s ease-out both 0.1s;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── STATS ───────────────────────────────────────────────── */
+    .stats-bar {
+      display: flex;
+      gap: clamp(0.8rem, 2.5vw, 2rem);
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      animation: fadeUp 0.5s ease-out both 0.2s;
+    }
+
+    .stat-item { line-height: 1.3; }
+
+    .stat-label {
+      font-size: 9px;
+      letter-spacing: 0.13em;
+      color: var(--p6);
+      text-transform: uppercase;
+      display: block;
+    }
+
+    .stat-value { font-size: 14px; font-weight: 800; color: var(--p2); }
+    .stat-value.red { color: var(--p3); }
+    .stat-value.muted { color: var(--p5); }
+
+    /* ── BREADCRUMB ──────────────────────────────────────────── */
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 0.7rem;
+      font-size: 11px;
+      color: var(--p6);
+      letter-spacing: 0.08em;
+      flex-wrap: wrap;
+      animation: fadeUp 0.4s ease-out both;
+    }
+
+    .bc-item {
+      cursor: pointer;
+      color: var(--p2);
+      font-weight: 600;
+      transition: color 0.12s;
+    }
+
+    .bc-item:hover { color: var(--p3); text-decoration: underline; }
+    .bc-item.current { cursor: default; color: var(--p1); font-weight: 800; }
+    .bc-sep { color: var(--p7); font-size: 13px; }
+
+    /* ── VIZ ─────────────────────────────────────────────────── */
+    .viz-container {
+      flex: 1;
+      min-height: 400px;
+      position: relative;
+    }
+
+    #chart { display: block; width: 100%; height: 100%; }
+
+    /* ── TOOLTIP ─────────────────────────────────────────────── */
+    .tooltip {
+      position: fixed;
+      pointer-events: none;
+      background: var(--p1);
+      color: var(--p8);
+      font-family: var(--font);
+      font-size: 11px;
+      padding: 9px 14px;
+      border: 1px solid var(--p2);
+      opacity: 0;
+      transition: opacity 0.1s;
+      z-index: 200;
+      line-height: 1.9;
+      min-width: 170px;
+    }
+
+    .tooltip strong { color: var(--p2); display: block; font-size: 12px; margin-bottom: 2px; }
+    .tooltip .pct   { color: #9b8060; font-size: 10px; }
+
+    /* ── CONTROLS ────────────────────────────────────────────── */
+    .controls {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      margin-top: 1.1rem;
+      flex-wrap: wrap;
+      animation: fadeUp 0.5s ease-out both 0.3s;
+    }
+
+    .ctl-label { font-size: 10px; color: var(--p6); letter-spacing: 0.1em; text-transform: uppercase; }
+
+    .btn {
+      font-family: var(--font);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: transparent;
+      color: var(--p1);
+      border: 1px solid var(--p5);
+      padding: 5px 12px;
+      cursor: pointer;
+      transition: background 0.14s, color 0.14s;
+      white-space: nowrap;
+    }
+
+    .btn:hover, .btn.active { background: var(--p1); color: var(--p8); }
+    .btn:focus { outline: 2px solid var(--p2); outline-offset: 2px; }
+
+    .sep { width: 1px; height: 20px; background: var(--p7); }
+
+    .hint { font-size: 9px; color: var(--p6); letter-spacing: 0.08em; margin-top: 0.4rem; }
+
+    /* ── NAV DOTS ────────────────────────────────────────────── */
+    .nav-dots {
+      position: fixed;
+      right: clamp(0.75rem, 2.5vw, 2rem);
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      z-index: 100;
+    }
+
+    .navdot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--p7);
+      border: 1px solid var(--p6);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .navdot.active { background: var(--p2); border-color: var(--p2); }
+
+    /* ── LEARN ───────────────────────────────────────────────── */
+    .slide-learn { background: var(--p4); }
+
+    .learn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem 3rem;
+      max-width: 112ch;
+    }
+
+    @media (max-width: 720px) { .learn-grid { grid-template-columns: 1fr; } }
+
+    .learn-block h2 {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--p2);
+      letter-spacing: 0.1em;
+      margin: 0 0 0.6rem;
+      padding-bottom: 0.35rem;
+      border-bottom: 1px solid var(--p7);
+    }
+
+    .learn-block p {
+      font-size: clamp(11px, 1.1vw, 13px);
+      line-height: 1.9;
+      color: var(--p1);
+      margin-bottom: 0.65rem;
+    }
+
+    .anatomy-svg { width: 100%; max-width: 320px; margin: 0.75rem 0; display: block; }
+
+    .framework-ref {
+      grid-column: 1 / -1;
+      padding: 1rem 1.25rem;
+      border-left: 4px solid var(--p2);
+      background: var(--p8);
+    }
+
+    .framework-ref p { font-size: 12px; color: var(--p5); line-height: 1.75; }
+
+    footer {
+      padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1.5rem, 6vw, 6.5rem);
+      border-top: 2px solid var(--p7);
+    }
+
+    footer p { font-size: 11px; color: var(--p6); line-height: 1.9; }
+  </style>
+</head>
+<body>
+
+<div class="tooltip" id="tooltip" role="tooltip"></div>
+
+<nav class="nav-dots" aria-label="Slide navigation">
+  <div class="navdot active" data-slide="0" tabindex="0" role="button" aria-label="Chart slide"></div>
+  <div class="navdot"        data-slide="1" tabindex="0" role="button" aria-label="Learn panel"></div>
+</nav>
+
+<!-- ── SLIDE 1 ───────────────────────────────────────────────── -->
+<section class="slide" id="slide-01" aria-label="Treemap: global R&D spending by sector and subcategory">
+  <div class="slide-meta">
+    <span class="label">// TREEMAP — HIERARCHICAL AREA PROPORTION</span>
+  </div>
+  <h1 class="slide-title">Technology and life sciences dominate global R&D — but the subcategory breakdown reveals where the real concentration lies</h1>
+
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-label">Total spend</span>
+      <span class="stat-value" id="stat-total">—</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Sectors</span>
+      <span class="stat-value muted" id="stat-sectors">—</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Subcategories</span>
+      <span class="stat-value muted" id="stat-subs">—</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Largest cell</span>
+      <span class="stat-value red" id="stat-largest">—</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Viewing</span>
+      <span class="stat-value" id="stat-view">All sectors</span>
+    </div>
+  </div>
+
+  <div class="breadcrumb" id="breadcrumb">
+    <span class="bc-item current" id="bc-root">All sectors</span>
+  </div>
+
+  <div class="viz-container" id="chart-container">
+    <svg id="chart"
+      role="img"
+      aria-labelledby="chart-title-el"
+      aria-describedby="chart-desc-el">
+      <title id="chart-title-el">Treemap — Global R&D Spending by Sector and Subcategory</title>
+      <desc id="chart-desc-el">
+        Nested squarified rectangles. Each outer rectangle is a sector; nested inner rectangles
+        are subcategories. Area is proportional to R&D spend in billions USD.
+        Click any sector rectangle to zoom into its subcategory breakdown.
+      </desc>
+    </svg>
+  </div>
+
+  <div class="controls">
+    <span class="ctl-label">Zoom —</span>
+    <button class="btn" id="btn-zoom-out" tabindex="0">↑ Zoom out</button>
+    <div class="sep" aria-hidden="true"></div>
+    <button class="btn active" id="btn-labels" aria-pressed="true" tabindex="0">Labels</button>
+    <button class="btn active" id="btn-values" aria-pressed="true" tabindex="0">Values</button>
+    <div class="sep" aria-hidden="true"></div>
+    <button class="btn" id="audio-toggle" tabindex="0" aria-label="Play narration">▶ narration</button>
+  </div>
+  <p class="hint">Hover cells for details · Click a sector to zoom into subcategories · Click zoom out or breadcrumb to return</p>
+</section>
+
+<!-- ── SLIDE 2 ───────────────────────────────────────────────── -->
+<section class="slide slide-learn" id="slide-02" aria-label="Learn: Treemap">
+  <div class="slide-meta">
+    <span class="label">// LEARN — TREEMAP</span>
+  </div>
+  <h1 class="slide-title">What a treemap encodes — and why the squarified algorithm matters</h1>
+
+  <div class="learn-grid">
+
+    <div class="learn-block">
+      <h2>What this chart is</h2>
+      <p>A Treemap encodes a hierarchical dataset as nested rectangles. At the top level, each parent category receives a rectangle whose area is proportional to its total value. Within each parent rectangle, child categories are drawn as smaller nested rectangles, again with area proportional to value. The entire chart area is divided exactly — there is no wasted space, and every pixel of area represents real data.</p>
+      <p>The perceptual mechanism is <em>area comparison</em>. Viewers can rapidly identify which cells are largest and which are smallest, even when the hierarchy has dozens of nodes. Unlike a bar chart (which encodes value as length) or a pie chart (which encodes value as angle), the treemap encodes value as the most holistic visual channel available: two-dimensional area. A cell that is twice as large occupies visually twice as much space — the comparison is immediate and preattentive.</p>
+    </div>
+
+    <div class="learn-block">
+      <h2>Anatomy of the encoding</h2>
+      <svg class="anatomy-svg" viewBox="0 0 280 220" xmlns="http://www.w3.org/2000/svg"
+        aria-label="Treemap anatomy: parent rectangles with nested child rectangles, area proportional to value">
+
+        <!-- Parent A: large -->
+        <rect x="10" y="10" width="160" height="200" fill="#F7FAFD" stroke="#EDEDED" stroke-width="1.5"/>
+        <!-- Children of A -->
+        <rect x="10" y="10" width="100" height="120" fill="#5C3317" opacity="0.75" rx="1"/>
+        <rect x="110" y="10" width="60" height="120" fill="#7A4A2A" opacity="0.65" rx="1"/>
+        <rect x="10" y="130" width="160" height="80" fill="#9B6B4A" opacity="0.55" rx="1"/>
+
+        <!-- Parent B: medium -->
+        <rect x="175" y="10" width="95" height="120" fill="#F7FAFD" stroke="#EDEDED" stroke-width="1.5"/>
+        <!-- Children of B -->
+        <rect x="175" y="10" width="95" height="65" fill="#4A4D4F" opacity="0.7" rx="1"/>
+        <rect x="175" y="75" width="55" height="55" fill="#797C7F" opacity="0.6" rx="1"/>
+        <rect x="230" y="75" width="40" height="55" fill="#ABABAB" opacity="0.5" rx="1"/>
+
+        <!-- Parent C: small -->
+        <rect x="175" y="135" width="95" height="75" fill="#F7FAFD" stroke="#EDEDED" stroke-width="1.5"/>
+        <rect x="175" y="135" width="95" height="75" fill="#B52C2C" opacity="0.45" rx="1"/>
+
+        <!-- Labels -->
+        <text x="55"  y="75"  font-family="JetBrains Mono,monospace" font-size="10" fill="#FFFFFF" font-weight="800" text-anchor="middle">A1</text>
+        <text x="55"  y="87"  font-family="JetBrains Mono,monospace" font-size="8"  fill="#FFFFFF" text-anchor="middle">largest child</text>
+        <text x="140" y="75"  font-family="JetBrains Mono,monospace" font-size="9"  fill="#FFFFFF" font-weight="600" text-anchor="middle">A2</text>
+        <text x="92"  y="175" font-family="JetBrains Mono,monospace" font-size="9"  fill="#FFFFFF" font-weight="600" text-anchor="middle">A3</text>
+
+        <text x="222" y="44"  font-family="JetBrains Mono,monospace" font-size="9"  fill="#FFFFFF" font-weight="600" text-anchor="middle">B1</text>
+        <text x="202" y="107" font-family="JetBrains Mono,monospace" font-size="8"  fill="#FFFFFF" text-anchor="middle">B2</text>
+        <text x="250" y="107" font-family="JetBrains Mono,monospace" font-size="8"  fill="#FFFFFF" text-anchor="middle">B3</text>
+        <text x="222" y="176" font-family="JetBrains Mono,monospace" font-size="9"  fill="#FFFFFF" font-weight="600" text-anchor="middle">C</text>
+
+        <!-- Annotations -->
+        <text x="10"  y="218" font-family="JetBrains Mono,monospace" font-size="7.5" fill="#5C3317">Sector A (largest area)</text>
+        <text x="175" y="218" font-family="JetBrains Mono,monospace" font-size="7.5" fill="#4A4D4F">Sector B</text>
+        <text x="240" y="218" font-family="JetBrains Mono,monospace" font-size="7.5" fill="#B52C2C">C</text>
+      </svg>
+    </div>
+
+    <div class="learn-block">
+      <h2>Why the squarified algorithm</h2>
+      <p>Early treemap algorithms used simple recursive slicing: divide the remaining area horizontally, then vertically, alternating on each level. This produces cells with extreme aspect ratios — thin slivers many times longer than they are wide. Perceptually, a 200×4 pixel rectangle and a 40×20 pixel rectangle of equal area are extremely difficult to compare because the viewer's eye reads length, not area, when shapes are highly elongated.</p>
+      <p>The <strong>squarified algorithm</strong> (Bruls, Huizing, van Wijk, 1999) specifically minimises the aspect ratio of each cell, keeping them as close to square as possible. This maximises the accuracy of area comparisons — squares and near-squares are the shapes for which human area perception is most reliable. D3's <code>d3.treemap().tile(d3.treemapSquarify)</code> implements this directly.</p>
+    </div>
+
+    <div class="learn-block">
+      <h2>Why it was chosen here</h2>
+      <p>The message is about relative proportions within a two-level hierarchy: how much does each sector spend, and within each sector, how is that spend distributed across subcategories? A bar chart could show one level at a time but would require two separate charts and lose the nested relationship. A Sunburst Diagram encodes the same hierarchy as concentric arcs but suffers the angle-comparison problem — arcs in different radial rings have different physical lengths for the same proportional value, introducing a systematic perceptual distortion.</p>
+      <p>The treemap encodes both levels simultaneously in a single view, with area as the encoding channel at both levels. The dominant sector claims the most screen space — the viewer sees this immediately, before reading any label. The dominant subcategory within each sector similarly claims proportional space within its parent rectangle.</p>
+    </div>
+
+    <div class="learn-block">
+      <h2>What the treemap cannot do clearly</h2>
+      <p>Treemaps do not convey hierarchical depth clearly. In a two-level treemap the nesting is obvious; in a three-or-more-level treemap, the visual boundaries between parent and grandparent become ambiguous. A Tree Diagram or Sunburst Diagram shows the hierarchical structure more explicitly, at the cost of space efficiency and area-comparison accuracy.</p>
+      <p>Treemaps also struggle with values of very different magnitudes: a cell representing 0.1% of the total may be too small to label or even see. The interactive zoom-into-branch approach used here addresses this: clicking a parent expands it to fill the full chart area, giving its smaller subcategories enough space to be individually readable.</p>
+    </div>
+
+    <div class="framework-ref">
+      <span class="label">// FRAMEWORK REFERENCE</span>
+      <p><strong>FT Visual Vocabulary — Part-to-Whole / Hierarchy category.</strong> "Use a treemap when you want to show both proportions and hierarchy simultaneously — especially when the dataset has many nodes that would produce an illegible pie chart." Abela quadrant: Composition (multiple levels, many items). Tufte principle applied: the squarified algorithm minimises chartjunk by maximising the accuracy of the primary encoding channel (area) — rounder cells waste less perceptual effort on aspect-ratio correction. The one design decision worth knowing: cell colour in this implementation encodes the parent sector (all subcategories within a sector share a tint of their parent's hue), not a second data dimension. Using colour to encode a second variable (e.g. growth rate) is valid but requires a legend and careful contrast checking — in this build, colour reinforces hierarchy, which is always informative, rather than adding a third encoding that may confuse.</p>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <p>Nik Bear Brown, Irreducibly Human, What AI Can and Can't Do</p>
+  <p>boondoggling.ai · irreducibly.xyz · brutalist.art · bearbrown.co · frictional.xyz</p>
+</footer>
+
+<audio id="page-audio" src="./treemap/audio.mp3"></audio>
+
+<script>
+(function () {
+
+  // ── NAV ──────────────────────────────────────────────────────
+  const slides  = document.querySelectorAll('.slide');
+  const navDots = document.querySelectorAll('.navdot');
+
+  function scrollToSlide(i) { slides[i].scrollIntoView({ behavior: 'smooth' }); }
+
+  navDots.forEach((d, i) => {
+    d.addEventListener('click', () => scrollToSlide(i));
+    d.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); scrollToSlide(i); }
+    });
+  });
+
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const idx = Array.from(slides).indexOf(entry.target);
+      navDots.forEach((d, i) => d.classList.toggle('active', i === idx));
+    });
+  }, { threshold: 0.45 });
+  slides.forEach(s => io.observe(s));
+
+  document.addEventListener('keydown', e => {
+    const cur = Array.from(navDots).findIndex(d => d.classList.contains('active'));
+    if (e.key === 'ArrowDown' && cur < slides.length - 1) scrollToSlide(cur + 1);
+    if (e.key === 'ArrowUp'   && cur > 0)                 scrollToSlide(cur - 1);
+  });
+
+  // ── AUDIO ────────────────────────────────────────────────────
+  const audio = document.getElementById('page-audio');
+  const audioBtn = document.getElementById('audio-toggle');
+  let playing = false;
+  audioBtn.addEventListener('click', () => {
+    if (playing) { audio.pause(); audioBtn.textContent = '▶ narration'; }
+    else         { audio.play().catch(() => {}); audioBtn.textContent = '⏸ narration'; }
+    playing = !playing;
+  });
+  audio.addEventListener('ended', () => { playing = false; audioBtn.textContent = '▶ narration'; });
+
+  // ── TOOLTIP ──────────────────────────────────────────────────
+  const tip = document.getElementById('tooltip');
+
+  function showTip(html, cx, cy) {
+    tip.innerHTML = html;
+    tip.style.opacity = 1;
+    const tw = tip.offsetWidth  || 180;
+    const th = tip.offsetHeight || 70;
+    let left = cx + 14, top = cy - th / 2;
+    if (left + tw > window.innerWidth  - 8) left = cx - tw - 14;
+    if (top < 8)                            top  = 8;
+    if (top + th > window.innerHeight - 8) top  = window.innerHeight - th - 8;
+    tip.style.left = left + 'px';
+    tip.style.top  = top  + 'px';
+  }
+
+  function hideTip() { tip.style.opacity = 0; }
+
+  // ── STATE ────────────────────────────────────────────────────
+  let showLabels = true;
+  let showValues = true;
+  let currentRoot = null;   // null = full tree; node = zoomed branch
+  let fullRoot    = null;   // root of the complete hierarchy
+  let totalValue  = 0;
+
+  // ── COLOUR PALETTES PER PARENT ────────────────────────────────
+  // Each parent sector gets a tint family from the walnut palette
+  const sectorPalettes = [
+    { bg: '#5C3317', text: '#FFFFFF', childBase: '#5C3317', childLight: '#9B6B4A' },
+    { bg: '#3D2210', text: '#FFFFFF', childBase: '#3D2210', childLight: '#7A4A2A' },
+    { bg: '#4A4D4F', text: '#FFFFFF', childBase: '#4A4D4F', childLight: '#8C8878' },
+    { bg: '#797C7F', text: '#FFFFFF', childBase: '#5F6163', childLight: '#A0A3A5' },
+    { bg: '#8C1F1F', text: '#FFFFFF', childBase: '#8C1F1F', childLight: '#C05050' },
+    { bg: '#1B1B1B', text: '#FFFFFF', childBase: '#333333', childLight: '#666666' },
+    { bg: '#6B3B1A', text: '#FFFFFF', childBase: '#6B3B1A', childLight: '#A06030' },
+  ];
+
+  // For a given node, find its parent palette index
+  function parentPaletteIdx(node, root) {
+    // If node is a leaf: walk up to find parent at depth 1
+    // If node is depth 1: use its own index
+    if (!node.parent) return 0;
+    if (node.depth === 1) {
+      return root.children.indexOf(node) % sectorPalettes.length;
+    }
+    if (node.depth === 2) {
+      return root.children.indexOf(node.parent) % sectorPalettes.length;
+    }
+    return 0;
+  }
+
+  // ── TREEMAP LAYOUT ────────────────────────────────────────────
+  function buildTreemap(rootNode, W, H) {
+    return d3.treemap()
+      .tile(d3.treemapSquarify.ratio(1))
+      .size([W, H])
+      .paddingOuter(3)
+      .paddingTop(22)
+      .paddingInner(2)
+      (d3.hierarchy(rootNode)
+        .sum(d => d.value || 0)
+        .sort((a, b) => b.value - a.value));
+  }
+
+  // ── RENDER ───────────────────────────────────────────────────
+  function render(viewRoot) {
+    const container = document.getElementById('chart-container');
+    const W = container.clientWidth  || 860;
+    const H = Math.max(container.clientHeight || 480, 380);
+
+    const svg = d3.select('#chart')
+      .attr('viewBox', `0 0 ${W} ${H}`)
+      .attr('width', W)
+      .attr('height', H);
+
+    svg.selectAll('*').remove();
+
+    // Build layout from viewRoot
+    const layout = buildTreemap(viewRoot, W, H);
+    const leaves = layout.leaves();
+    const parents = layout.children || [];
+
+    // Update stat bar
+    document.getElementById('stat-view').textContent =
+      viewRoot.name === fullRoot.name
+        ? 'All sectors'
+        : viewRoot.name;
+
+    // Largest leaf
+    const largest = leaves.reduce((a, b) => (a.value > b.value ? a : b), leaves[0]);
+    if (largest) {
+      document.getElementById('stat-largest').textContent =
+        `${largest.data.name} ($${largest.value}B)`;
+    }
+
+    const defs = svg.append('defs');
+    defs.append('clipPath').attr('id', 'chart-clip')
+      .append('rect').attr('width', W).attr('height', H);
+
+    const g = svg.append('g').attr('clip-path', 'url(#chart-clip)');
+
+    // ── PARENT HEADER CELLS ──────────────────────────────────
+    const allNodes = layout.descendants().filter(d => d.depth > 0);
+
+    // Depth-1 cells (sector headers)
+    const depth1 = allNodes.filter(d => d.depth === 1);
+
+    // Draw parent backgrounds with header strip
+    depth1.forEach((node, ni) => {
+      const pal = sectorPalettes[ni % sectorPalettes.length];
+      const cw  = node.x1 - node.x0;
+      const ch  = node.y1 - node.y0;
+
+      // Parent outer rect
+      g.append('rect')
+        .attr('x', node.x0).attr('y', node.y0)
+        .attr('width', cw).attr('height', ch)
+        .attr('fill', '#F7FAFD')
+        .attr('stroke', '#FFFFFF')
+        .attr('stroke-width', 2);
+
+      // Header strip
+      g.append('rect')
+        .attr('x', node.x0).attr('y', node.y0)
+        .attr('width', cw).attr('height', Math.min(22, ch))
+        .attr('fill', pal.bg)
+        .attr('opacity', 0.92);
+
+      // Sector label in header
+      if (showLabels && cw > 40) {
+        g.append('text')
+          .attr('x', node.x0 + 6)
+          .attr('y', node.y0 + 14)
+          .style('font-family', "'JetBrains Mono',monospace")
+          .style('font-size', Math.min(11, Math.max(8, cw / 12)) + 'px')
+          .style('font-weight', '800')
+          .style('fill', '#FFFFFF')
+          .style('pointer-events', 'none')
+          .style('letter-spacing', '0.06em')
+          .text(cw > 80 ? node.data.name.toUpperCase() : node.data.name.substring(0, Math.floor(cw / 8)));
+      }
+
+      // Click to zoom into this sector
+      const hitRect = g.append('rect')
+        .attr('x', node.x0).attr('y', node.y0)
+        .attr('width', cw).attr('height', Math.min(22, ch))
+        .attr('fill', 'transparent')
+        .attr('tabindex', 0)
+        .attr('role', 'button')
+        .attr('aria-label', `Zoom into ${node.data.name}: $${node.value}B total`)
+        .style('cursor', 'pointer');
+
+      hitRect.on('click', () => zoomTo(node.data))
+             .on('keydown', e => { if (e.key === 'Enter' || e.key === ' ') zoomTo(node.data); })
+             .on('mousemove', function (event) {
+               const pct = ((node.value / totalValue) * 100).toFixed(1);
+               showTip(
+                 `<strong>${node.data.name}</strong>Total: $${node.value}B<br><span class="pct">${pct}% of all R&D</span><br>Click header to zoom →`,
+                 event.clientX, event.clientY
+               );
+             })
+             .on('mouseleave', hideTip);
+    });
+
+    // ── LEAF CELLS ───────────────────────────────────────────
+    const depth2 = allNodes.filter(d => d.depth === 2);
+
+    depth2.forEach((node, li) => {
+      const ni  = fullRoot
+        ? (fullRoot.children || []).indexOf(node.parent) % sectorPalettes.length
+        : li % sectorPalettes.length;
+      const pal = sectorPalettes[Math.max(0, ni)];
+
+      const cw  = node.x1 - node.x0;
+      const ch  = node.y1 - node.y0;
+      if (cw < 1 || ch < 1) return;
+
+      // Interpolate fill: smaller cells get lighter shade
+      const normInParent = node.parent
+        ? node.value / node.parent.value
+        : 0.5;
+      const t = 0.35 + normInParent * 0.65;
+
+      // Mix between light and base colour
+      function lerpHex(c1, c2, t) {
+        const r1 = parseInt(c1.slice(1,3),16), g1 = parseInt(c1.slice(3,5),16), b1 = parseInt(c1.slice(5,7),16);
+        const r2 = parseInt(c2.slice(1,3),16), g2 = parseInt(c2.slice(3,5),16), b2 = parseInt(c2.slice(5,7),16);
+        const r = Math.round(r1 + (r2-r1)*t), gg2 = Math.round(g1+(g2-g1)*t), b = Math.round(b1+(b2-b1)*t);
+        return `rgb(${r},${gg2},${b})`;
+      }
+
+      const cellFill = lerpHex(pal.childLight, pal.childBase, t);
+
+      const rect = g.append('rect')
+        .attr('x', node.x0 + 0.5).attr('y', node.y0 + 0.5)
+        .attr('width',  Math.max(0, cw - 1))
+        .attr('height', Math.max(0, ch - 1))
+        .attr('fill', cellFill)
+        .attr('fill-opacity', 0)
+        .attr('stroke', '#FFFFFF')
+        .attr('stroke-width', 1)
+        .attr('tabindex', 0)
+        .attr('role', 'img')
+        .attr('aria-label', `${node.data.name}: $${node.value}B`)
+        .style('cursor', 'default');
+
+      rect.transition().duration(500).delay(li * 18).ease(d3.easeCubicOut)
+          .attr('fill-opacity', 0.88);
+
+      rect.on('mousemove', function (event) {
+            rect.attr('fill-opacity', 1).attr('stroke-width', 2).attr('stroke', '#1B1B1B');
+            const pct  = ((node.value / totalValue) * 100).toFixed(1);
+            const pPct = node.parent ? ((node.value / node.parent.value) * 100).toFixed(1) : '—';
+            showTip(
+              `<strong>${node.data.name}</strong>` +
+              `$${node.value}B R&D<br>` +
+              `<span class="pct">${pct}% of total · ${pPct}% of ${node.parent ? node.parent.data.name : ''}</span>`,
+              event.clientX, event.clientY
+            );
+          })
+          .on('mouseleave', function () {
+            rect.attr('fill-opacity', 0.88).attr('stroke-width', 1).attr('stroke', '#FFFFFF');
+            hideTip();
+          })
+          .on('keydown', function (event) {
+            if (event.key === 'Enter' || event.key === ' ') {
+              const pct = ((node.value / totalValue) * 100).toFixed(1);
+              showTip(`<strong>${node.data.name}</strong>$${node.value}B · ${pct}% of total`, 200, 200);
+            }
+          });
+
+      // ── LABELS ─────────────────────────────────────────────
+      if (showLabels && cw > 30 && ch > 18) {
+        g.append('text')
+          .attr('x', node.x0 + 5)
+          .attr('y', node.y0 + 13)
+          .style('font-family', "'JetBrains Mono',monospace")
+          .style('font-size', Math.min(10, Math.max(7, Math.min(cw, ch) / 5)) + 'px')
+          .style('font-weight', '600')
+          .style('fill', '#FFFFFF')
+          .style('pointer-events', 'none')
+          .style('opacity', 0.95)
+          .text(cw > 60 ? node.data.name : node.data.name.substring(0, Math.floor(cw / 7)));
+      }
+
+      if (showValues && cw > 28 && ch > 28) {
+        g.append('text')
+          .attr('x', node.x0 + 5)
+          .attr('y', node.y0 + 25)
+          .style('font-family', "'JetBrains Mono',monospace")
+          .style('font-size', Math.min(9, Math.max(7, Math.min(cw, ch) / 7)) + 'px')
+          .style('font-weight', '400')
+          .style('fill', '#FFFFFF')
+          .style('opacity', 0.7)
+          .style('pointer-events', 'none')
+          .text('$' + node.value + 'B');
+      }
+    });
+
+    // If zoomed into a single sector with only depth-1 leaf children
+    // Handle case where viewRoot's children are leaves (depth 1 in local layout)
+    const depth1leaves = allNodes.filter(d => d.depth === 1 && !d.children);
+    if (depth1leaves.length && !depth2.length) {
+      // Render them as flat leaf cells
+      depth1leaves.forEach((node, li) => {
+        const cw = node.x1 - node.x0;
+        const ch = node.y1 - node.y0;
+        const pal = sectorPalettes[li % sectorPalettes.length];
+        const normV = node.value / (layout.value || 1);
+        const t = 0.35 + normV * 0.65;
+
+        g.append('rect')
+          .attr('x', node.x0 + 0.5).attr('y', node.y0 + 0.5)
+          .attr('width', Math.max(0, cw - 1))
+          .attr('height', Math.max(0, ch - 1))
+          .attr('fill', pal.childBase)
+          .attr('fill-opacity', 0.85)
+          .attr('stroke', '#FFFFFF')
+          .attr('stroke-width', 1)
+          .attr('tabindex', 0)
+          .attr('role', 'img')
+          .attr('aria-label', `${node.data.name}: $${node.value}B`)
+          .on('mousemove', function (event) {
+            const pct = ((node.value / totalValue) * 100).toFixed(1);
+            showTip(
+              `<strong>${node.data.name}</strong>$${node.value}B<br><span class="pct">${pct}% of total</span>`,
+              event.clientX, event.clientY
+            );
+          })
+          .on('mouseleave', hideTip);
+
+        if (showLabels && cw > 30 && ch > 18) {
+          g.append('text')
+            .attr('x', node.x0 + 6).attr('y', node.y0 + 15)
+            .style('font-family', "'JetBrains Mono',monospace")
+            .style('font-size', Math.min(11, Math.max(8, Math.min(cw, ch) / 4)) + 'px')
+            .style('font-weight', '700').style('fill', '#FFFFFF').style('pointer-events', 'none')
+            .text(node.data.name);
+        }
+
+        if (showValues && ch > 30) {
+          g.append('text')
+            .attr('x', node.x0 + 6).attr('y', node.y0 + 28)
+            .style('font-family', "'JetBrains Mono',monospace")
+            .style('font-size', '9px').style('fill', '#FFFFFF').style('opacity', 0.7).style('pointer-events', 'none')
+            .text('$' + node.value + 'B');
+        }
+      });
+    }
+  }
+
+  // ── ZOOM ─────────────────────────────────────────────────────
+  function zoomTo(nodeData) {
+    currentRoot = nodeData;
+    updateBreadcrumb();
+    render(nodeData);
+  }
+
+  function zoomOut() {
+    currentRoot = null;
+    updateBreadcrumb();
+    render(fullRoot);
+  }
+
+  function updateBreadcrumb() {
+    const bc = document.getElementById('breadcrumb');
+    bc.innerHTML = '';
+
+    const rootSpan = document.createElement('span');
+    rootSpan.className = 'bc-item' + (currentRoot === null ? ' current' : '');
+    rootSpan.textContent = 'All sectors';
+    rootSpan.setAttribute('tabindex', '0');
+    rootSpan.setAttribute('role', 'button');
+    rootSpan.addEventListener('click',   zoomOut);
+    rootSpan.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') zoomOut(); });
+    bc.appendChild(rootSpan);
+
+    if (currentRoot && currentRoot !== fullRoot) {
+      const sep = document.createElement('span');
+      sep.className = 'bc-sep';
+      sep.setAttribute('aria-hidden', 'true');
+      sep.textContent = '›';
+      bc.appendChild(sep);
+
+      const childSpan = document.createElement('span');
+      childSpan.className = 'bc-item current';
+      childSpan.textContent = currentRoot.name;
+      bc.appendChild(childSpan);
+    }
+  }
+
+  // ── TOGGLE CONTROLS ──────────────────────────────────────────
+  document.getElementById('btn-zoom-out').addEventListener('click', zoomOut);
+
+  document.getElementById('btn-labels').addEventListener('click', function () {
+    showLabels = !showLabels;
+    this.classList.toggle('active', showLabels);
+    this.setAttribute('aria-pressed', showLabels);
+    render(currentRoot || fullRoot);
+  });
+
+  document.getElementById('btn-values').addEventListener('click', function () {
+    showValues = !showValues;
+    this.classList.toggle('active', showValues);
+    this.setAttribute('aria-pressed', showValues);
+    render(currentRoot || fullRoot);
+  });
+
+  // ── DATA LOAD ─────────────────────────────────────────────────
+  d3.json('./treemap/data.json').then(json => {
+    fullRoot    = json;
+    currentRoot = null;
+    totalValue  = d3.sum(json.children, s => d3.sum(s.children || [], c => c.value || 0));
+
+    const nSectors = json.children.length;
+    const nSubs    = d3.sum(json.children, s => (s.children || []).length);
+
+    document.getElementById('stat-total').textContent   = '$' + totalValue + 'B';
+    document.getElementById('stat-sectors').textContent = nSectors;
+    document.getElementById('stat-subs').textContent    = nSubs;
+
+    render(fullRoot);
+    updateBreadcrumb();
+
+    let rt;
+    const ro = new ResizeObserver(() => {
+      clearTimeout(rt);
+      rt = setTimeout(() => render(currentRoot || fullRoot), 160);
+    });
+    ro.observe(document.getElementById('chart-container'));
+  }).catch(err => {
+    document.getElementById('chart-container').innerHTML =
+      `<p style="padding:2rem;font-family:'JetBrains Mono',monospace;font-size:13px;color:#B52C2C;">
+        Data file not found. Place data.json in ./treemap/data.json
+      </p>`;
+    console.error('D3 load error:', err);
+  });
+
+})();
+</script>
+</body>
+</html>

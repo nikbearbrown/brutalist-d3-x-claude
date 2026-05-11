@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brainstorm / Mind Map — Irreducibly Human</title>
+  <meta name="description" content="A brainstorm rendered as a force-directed mind map. A central concept radiates outward to related ideas, which connect further to supporting concepts. Explanatory text covers how mind maps work and what this specific example shows.">
+  <meta name="keywords" content="brainstorm, mind map, force directed graph, D3.js, ideation, concept map, data visualisation, Irreducibly Human">
+  <meta name="author" content="Nik Bear Brown">
+  <meta name="category" content="Concept Mapping / Network Visualisation">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <style>
+    :root {
+      --p1: #0D0D0D;
+      --p2: #4A4A4A;
+      --p3: #8B0000;
+      --p4: #8B7536;
+      --p5: #2F2F2F;
+      --p6: #6B6B5E;
+      --p7: #9C9680;
+      --p8: #E8E0D0;
+      --font: 'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      font-family: var(--font);
+      background: var(--p8);
+      color: var(--p1);
+      min-height: 100%;
+    }
+
+    /* ── PAGE ────────────────────────────────────────────────── */
+    .page {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ── VIZ SECTION ─────────────────────────────────────────── */
+    .viz-section {
+      display: flex;
+      flex-direction: column;
+      padding: 32px 56px 0;
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 600px) {
+      .viz-section { padding: 24px 20px 0; }
+    }
+
+    /* ── HEADER ──────────────────────────────────────────────── */
+    .slide-meta { margin-bottom: 10px; }
+
+    .label {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      color: var(--p7);
+      text-transform: uppercase;
+    }
+
+    .slide-title {
+      font-size: clamp(14px, 2.2vw, 26px);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--p1);
+      line-height: 1.1;
+      max-width: 900px;
+      margin-bottom: 14px;
+      border-left: 4px solid var(--p3);
+      padding-left: 1rem;
+    }
+
+    /* ── CHART CANVAS ────────────────────────────────────────── */
+    .viz-container {
+      width: 100%;
+      height: 68vh;
+      min-height: 380px;
+      position: relative;
+      border: 1px solid rgba(0,0,0,0.08);
+      background: var(--p8);
+      overflow: hidden;
+    }
+
+    #viz-svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* ── CONTROLS ────────────────────────────────────────────── */
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0 0;
+      border-top: 2px solid rgba(0,0,0,0.1);
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      font-family: var(--font);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: transparent;
+      border: 1px solid var(--p2);
+      color: var(--p2);
+      padding: 5px 11px;
+      cursor: pointer;
+      transition: background 0.13s, color 0.13s;
+    }
+
+    button:hover, button:focus-visible {
+      background: var(--p1);
+      color: var(--p8);
+      outline: none;
+    }
+
+    /* ── TOOLTIP ─────────────────────────────────────────────── */
+    #tooltip {
+      position: fixed;
+      background: var(--p1);
+      color: var(--p8);
+      font-family: var(--font);
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1.6;
+      padding: 8px 13px;
+      border: 1px solid var(--p4);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.12s;
+      z-index: 300;
+      white-space: nowrap;
+    }
+
+    #tooltip.visible { opacity: 1; }
+
+    /* ── EXPLANATION SECTION ─────────────────────────────────── */
+    .explanation {
+      padding: 40px 56px 44px;
+      border-top: 2px solid rgba(0,0,0,0.1);
+      margin-top: 24px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px 56px;
+    }
+
+    @media (max-width: 700px) {
+      .explanation { grid-template-columns: 1fr; padding: 28px 20px 32px; }
+    }
+
+    .expl-header {
+      grid-column: 1 / -1;
+      border-left: 4px solid var(--p3);
+      padding-left: 1rem;
+      margin-bottom: 4px;
+    }
+
+    .expl-header h2 {
+      font-size: clamp(14px, 2vw, 22px);
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--p1);
+      line-height: 1.15;
+      letter-spacing: 0.04em;
+    }
+
+    .expl-header .subtitle {
+      font-size: 10px;
+      color: var(--p7);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .expl-block {
+      border-left: 2px solid rgba(0,0,0,0.12);
+      padding-left: 16px;
+    }
+
+    .expl-block h3 {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--p3);
+      margin-bottom: 10px;
+    }
+
+    .expl-block p {
+      font-size: 12px;
+      line-height: 1.9;
+      color: var(--p2);
+      font-weight: 400;
+    }
+
+    .expl-block p + p { margin-top: 10px; }
+
+    .expl-block strong { color: var(--p1); font-weight: 800; }
+    .expl-block em     { color: var(--p3); font-style: normal; font-weight: 600; }
+
+    .expl-block .note-box {
+      background: rgba(139,0,0,0.05);
+      border: 1px solid rgba(139,0,0,0.18);
+      border-left: 3px solid var(--p3);
+      padding: 12px 16px;
+      margin-top: 12px;
+      font-size: 11px;
+      line-height: 1.8;
+      color: var(--p2);
+    }
+
+    .expl-block .note-box .label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--p3);
+    }
+
+    /* ── EXAMPLE BLOCK ───────────────────────────────────────── */
+    .example-block {
+      grid-column: 1 / -1;
+      border-left: 4px solid var(--p4);
+      padding: 16px 20px;
+      background: rgba(139,117,54,0.06);
+      margin-top: 4px;
+    }
+
+    .example-block h3 {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--p4);
+      margin-bottom: 10px;
+    }
+
+    .example-block p {
+      font-size: 12px;
+      line-height: 1.9;
+      color: var(--p2);
+    }
+
+    .example-block p + p { margin-top: 10px; }
+    .example-block strong { color: var(--p1); font-weight: 800; }
+
+    /* ── RING KEY ────────────────────────────────────────────── */
+    .ring-key {
+      grid-column: 1 / -1;
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .ring-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 10px;
+      color: var(--p6);
+      letter-spacing: 0.06em;
+    }
+
+    .ring-dot {
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ── FOOTER ──────────────────────────────────────────────── */
+    footer {
+      border-top: 2px solid rgba(0,0,0,0.1);
+      padding: 14px 56px;
+      font-size: 10px;
+      color: var(--p7);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: auto;
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 600px) { footer { padding: 14px 20px; } }
+
+    footer .footer-name {
+      font-weight: 800;
+      color: var(--p2);
+      letter-spacing: 0.06em;
+    }
+
+    footer .footer-links {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    footer a {
+      color: var(--p4);
+      text-decoration: none;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      transition: color 0.13s;
+    }
+
+    footer a:hover { color: var(--p3); text-decoration: underline; }
+    footer .sep { color: rgba(0,0,0,0.2); user-select: none; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+<div id="tooltip" role="tooltip" aria-live="polite"></div>
+
+<!-- ── VIZ SECTION ───────────────────────────────────────────── -->
+<div class="viz-section">
+
+  <div class="slide-meta">
+    <span class="label">// BRAINSTORM — FORCE-DIRECTED MIND MAP</span>
+  </div>
+
+  <h1 class="slide-title">The five supervisory capacities of the Irreducibly Human framework</h1>
+
+  <div class="viz-container" id="chart" role="img"
+       aria-label="Force-directed mind map: Irreducibly Human at the centre, radiating to five supervisory capacities, each connecting to two supporting concepts.">
+    <svg id="viz-svg"></svg>
+  </div>
+
+  <div class="controls">
+    <button id="audio-toggle" aria-label="Play narration" tabindex="0">▶ narration</button>
+    <button id="restart-btn"  tabindex="0">restart simulation</button>
+  </div>
+
+</div>
+
+<!-- ── EXPLANATION SECTION ────────────────────────────────────── -->
+<div class="explanation">
+
+  <div class="expl-header">
+    <h2>Brainstorm / Mind Map</h2>
+    <p class="subtitle">Also known as: Mind Map · Concept Map · Thought Web · Radial Diagram</p>
+  </div>
+
+  <!-- Ring key -->
+  <div class="ring-key" aria-label="Node ring legend">
+    <div class="ring-item">
+      <div class="ring-dot" style="width:20px;height:20px;background:#8B0000;"></div>
+      <span>Central concept (ring 0)</span>
+    </div>
+    <div class="ring-item">
+      <div class="ring-dot" style="width:14px;height:14px;background:#8B7536;"></div>
+      <span>Primary branches (ring 1)</span>
+    </div>
+    <div class="ring-item">
+      <div class="ring-dot" style="width:9px;height:9px;background:#6B6B5E;"></div>
+      <span>Supporting concepts (ring 2)</span>
+    </div>
+    <div class="ring-item" style="font-size:10px;color:var(--p7);margin-left:auto;">
+      Drag any node to reposition · Simulation settles on its own
+    </div>
+  </div>
+
+  <div class="expl-block">
+    <h3>What this chart type is</h3>
+    <p>A <strong>Brainstorm</strong> or <strong>Mind Map</strong> is a radial network diagram that externalises associative thinking. A central concept occupies the hub; related ideas radiate outward as branches; each branch can extend further into sub-concepts, creating a tree-like hierarchy that sprawls in two dimensions rather than descending top-to-bottom.</p>
+    <p>When rendered as a <em>force-directed graph</em>, the layout is computed by a physics simulation: nodes repel each other like charged particles while edges pull connected nodes together like springs. The simulation runs until kinetic energy dissipates and the graph reaches equilibrium. The result is not deterministic — the same data produces a different spatial arrangement on each run — but the <em>connectivity structure</em> is always preserved.</p>
+    <p>Node size and colour encode hierarchy level: the central node is largest and most saturated; primary branches are mid-sized; supporting concepts are smallest and most muted.</p>
+  </div>
+
+  <div class="expl-block">
+    <h3>How to read this chart</h3>
+    <p>Start at the <strong>central node</strong> (dark red, largest). Follow any edge outward to reach a <strong>primary branch</strong> (brass/gold). Each primary branch connects to two <strong>supporting concepts</strong> (grey-green, smallest). The spatial positions are physics-determined — proximity does not necessarily mean conceptual closeness; only edges encode actual relationships.</p>
+    <p><strong>Drag any node</strong> to reposition it manually; the simulation will adjust surrounding nodes in response. Click <em>restart simulation</em> to re-randomise the starting positions and observe how the physics converges to a new (but structurally equivalent) layout.</p>
+    <p>The chart is best read <em>locally</em> — follow one branch at a time — rather than globally. The force-directed layout makes global pattern recognition difficult compared to a strictly hierarchical layout (tree diagram, sunburst), but it handles cross-branch connections more naturally if they exist.</p>
+
+    <div class="note-box">
+      <span class="label">// When to use a brainstorm vs a tree diagram</span>
+      Use a <strong>mind map / brainstorm</strong> when the connections are associative and exploratory — you are generating or communicating ideas, not auditing a strict hierarchy. Use a <strong>tree diagram</strong> when the structure is formally hierarchical, parent-child relationships are exclusive, and exact level-depth matters to the reader.
+    </div>
+  </div>
+
+  <div class="expl-block">
+    <h3>Strengths of this form</h3>
+    <p><strong>Spatial freedom</strong> — nodes are not constrained to rows or columns, so the diagram can grow organically in any direction. <strong>Immediate overview</strong> — a viewer can see the full scope of a concept and all its associations in a single glance, even before reading individual labels. <strong>Natural for ideation</strong> — the radial structure mirrors how associative memory works: one idea triggers adjacent ideas, which trigger further associations.</p>
+    <p><strong>Cross-connections</strong> — unlike a strict tree, a network mind map can show that a supporting concept connects to multiple branches (e.g. "Values" informing both Interpretive Judgment and Executive Integration), revealing shared underpinnings that a hierarchical layout would hide.</p>
+  </div>
+
+  <div class="expl-block">
+    <h3>Limitations and when not to use it</h3>
+    <p><strong>Non-deterministic layout</strong> — the force-directed positions change on each run, so a reader cannot reliably memorise where a node will appear. This makes mind maps unsuitable for reference use cases where spatial memory matters.</p>
+    <p><strong>Does not encode quantity</strong> — this form communicates structure and association, not size, frequency, or change over time. Adding quantitative data (e.g. node size = importance score) is possible but must be done carefully to avoid misleading area comparisons.</p>
+    <p><strong>Clutters at scale</strong> — beyond ~40–50 nodes, edge crossings and label overlap make the chart unreadable without interactive filtering. Large knowledge graphs require hierarchical clustering, node grouping, or a dedicated network layout algorithm.</p>
+  </div>
+
+  <!-- About this example -->
+  <div class="example-block">
+    <h3>About this example — the Irreducibly Human framework</h3>
+    <p>This mind map visualises the <strong>Irreducibly Human</strong> framework: a model of the supervisory and integrative capacities that remain distinctively human even as AI systems take over execution-layer tasks. The central node is the framework itself. Five primary branches represent the core supervisory capacities that the framework argues must remain under human judgment:</p>
+    <p><strong>Plausibility Auditing</strong> (supported by Domain Knowledge and Intuition) — the ability to evaluate whether an AI output is coherent and credible given what the domain actually requires. <strong>Problem Formulation</strong> (Calibration and Framing) — defining what question to ask before any AI tool is invoked. <strong>Tool Orchestration</strong> (Ambiguity and Sequencing) — selecting, ordering, and configuring AI tools for a given task. <strong>Interpretive Judgment</strong> (Accountability and Context) — interpreting outputs in context and accepting responsibility for decisions. <strong>Executive Integration</strong> (Synthesis and Values) — combining AI-generated content with organisational goals, ethical constraints, and strategic intent.</p>
+    <p>The brass/gold colour of the primary branches signals that these five capacities are the active, load-bearing structure of the framework. The muted grey-green of the supporting concepts signals that these are contextual properties that inform each capacity rather than standing alone. To substitute your own brainstorm, replace the <code>nodes</code> and <code>links</code> arrays in <code>brainstorm/data.json</code>.</p>
+  </div>
+
+</div><!-- /explanation -->
+
+<!-- ── FOOTER ─────────────────────────────────────────────────── -->
+<footer id="page-footer">
+  <span class="footer-name">Nik Bear Brown · Irreducibly Human · What AI Can and Can't Do</span>
+  <div class="footer-links" id="footer-links"></div>
+</footer>
+
+</div><!-- /page -->
+
+<audio id="page-audio" src="./brainstorm/slide_1.mp3" preload="none"></audio>
+
+<script>
+'use strict';
+
+/* ── RANDOM FOOTER LINKS ─────────────────────────────────────── */
+(function () {
+  const all = [
+    { label: 'boondoggling.ai',  href: 'https://boondoggling.ai'  },
+    { label: 'brutalist.art',    href: 'https://brutalist.art'    },
+    { label: 'bearbrown.co',     href: 'https://bearbrown.co'     },
+    { label: 'frictional.xyz',   href: 'https://frictional.xyz'   },
+    { label: 'irreducibly.xyz',  href: 'https://irreducibly.xyz'  },
+    { label: 'humanitarians.ai', href: 'https://humanitarians.ai' },
+    { label: 'musinique.com',    href: 'https://musinique.com'    },
+    { label: 'nikbearbrown.com', href: 'https://nikbearbrown.com' },
+  ];
+  // Shuffle and take 3
+  const shuffled = all.slice().sort(() => Math.random() - 0.5).slice(0, 3);
+  const container = document.getElementById('footer-links');
+  shuffled.forEach((item, i) => {
+    const a = document.createElement('a');
+    a.href = item.href;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.textContent = item.label;
+    container.appendChild(a);
+    if (i < shuffled.length - 1) {
+      const sep = document.createElement('span');
+      sep.className = 'sep';
+      sep.setAttribute('aria-hidden', 'true');
+      sep.textContent = '·';
+      container.appendChild(sep);
+    }
+  });
+})();
+
+/* ── AUDIO ───────────────────────────────────────────────────── */
+const audio    = document.getElementById('page-audio');
+const audioBtn = document.getElementById('audio-toggle');
+
+audioBtn.addEventListener('click', () => {
+  if (audio.paused) {
+    audio.play().catch(() => {});
+    audioBtn.textContent = '⏸ narration';
+  } else {
+    audio.pause();
+    audioBtn.textContent = '▶ narration';
+  }
+});
+audio.addEventListener('ended', () => { audioBtn.textContent = '▶ narration'; });
+
+/* ── TOOLTIP ─────────────────────────────────────────────────── */
+const tip = document.getElementById('tooltip');
+
+function showTip(html, cx, cy) {
+  tip.innerHTML = html;
+  tip.classList.add('visible');
+  const tw = tip.offsetWidth, th = tip.offsetHeight;
+  tip.style.left = Math.min(cx + 14, window.innerWidth  - tw - 8) + 'px';
+  tip.style.top  = Math.max(cy - th - 10, 6)                      + 'px';
+}
+function moveTip(cx, cy) {
+  const tw = tip.offsetWidth, th = tip.offsetHeight;
+  tip.style.left = Math.min(cx + 14, window.innerWidth  - tw - 8) + 'px';
+  tip.style.top  = Math.max(cy - th - 10, 6)                      + 'px';
+}
+function hideTip() { tip.classList.remove('visible'); }
+
+/* ── MIND MAP DATA ───────────────────────────────────────────── */
+const BASE_NODES = [
+  { id: 'Irreducibly Human',   r: 30, color: '#8B0000', ring: 0,
+    desc: 'The central framework — five capacities that remain distinctively human even as AI handles execution.' },
+  { id: 'Plausibility Auditing',  r: 20, color: '#8B7536', ring: 1,
+    desc: 'Evaluating whether an AI output is coherent and credible given domain reality.' },
+  { id: 'Problem Formulation',    r: 20, color: '#8B7536', ring: 1,
+    desc: 'Defining the right question before any AI tool is invoked.' },
+  { id: 'Tool Orchestration',     r: 20, color: '#8B7536', ring: 1,
+    desc: 'Selecting, ordering, and configuring AI tools for a specific task.' },
+  { id: 'Interpretive Judgment',  r: 20, color: '#8B7536', ring: 1,
+    desc: 'Interpreting outputs in context; accepting responsibility for decisions.' },
+  { id: 'Executive Integration',  r: 20, color: '#8B7536', ring: 1,
+    desc: 'Combining AI outputs with strategy, ethics, and organisational intent.' },
+  { id: 'Domain knowledge', r: 13, color: '#6B6B5E', ring: 2,
+    desc: 'Deep familiarity with what is plausible in a given field.' },
+  { id: 'Intuition',        r: 13, color: '#6B6B5E', ring: 2,
+    desc: 'Pattern recognition built from experience, not explicit rules.' },
+  { id: 'Calibration',      r: 13, color: '#6B6B5E', ring: 2,
+    desc: 'Matching confidence to actual evidence; avoiding over- or under-certainty.' },
+  { id: 'Framing',          r: 13, color: '#6B6B5E', ring: 2,
+    desc: 'Setting the conceptual boundaries of a problem before solving it.' },
+  { id: 'Ambiguity',        r: 13, color: '#6B6B5E', ring: 2,
+    desc: 'Tolerating and navigating underspecified inputs and outputs.' },
+  { id: 'Sequencing',       r: 13, color: '#6B6B5E', ring: 2,
+    desc: 'Ordering tool invocations for coherent, compounding progress.' },
+  { id: 'Accountability',   r: 13, color: '#6B6B5E', ring: 2,
+    desc: 'Owning decisions and their downstream consequences.' },
+  { id: 'Context',          r: 13, color: '#6B6B5E', ring: 2,
+    desc: 'Situating outputs within the specific human and organisational setting.' },
+  { id: 'Synthesis',        r: 13, color: '#6B6B5E', ring: 2,
+    desc: 'Combining disparate AI outputs into a coherent whole.' },
+  { id: 'Values',           r: 13, color: '#6B6B5E', ring: 2,
+    desc: 'Aligning outputs with ethical commitments and strategic goals.' },
+];
+
+const LINK_PAIRS = [
+  [0,1],[0,2],[0,3],[0,4],[0,5],
+  [1,6],[1,7],[2,8],[2,9],[3,10],[3,11],
+  [4,12],[4,13],[5,14],[5,15],
+];
+
+/* ── SIMULATION ──────────────────────────────────────────────── */
+let sim = null;
+
+function buildGraph() {
+  const el = document.getElementById('chart');
+  const W  = el.clientWidth;
+  const H  = el.clientHeight;
+  if (W < 10 || H < 10) return;
+
+  // Deep-copy nodes so simulation mutates fresh objects each run
+  const nodes = BASE_NODES.map(n => ({ ...n }));
+  const links = LINK_PAIRS.map(([s, t]) => ({ source: s, target: t }));
+
+  if (sim) sim.stop();
+
+  const svg = d3.select('#viz-svg');
+  svg.selectAll('*').remove();
+
+  // Subtitle
+  svg.append('text')
+    .attr('x', W / 2).attr('y', 18)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'JetBrains Mono',monospace")
+    .attr('font-size', 10)
+    .attr('fill', '#9C9680')
+    .text('Force-directed layout — drag nodes · connections encode association, not distance');
+
+  // Defs: subtle glow filter for centre node
+  const defs = svg.append('defs');
+  const filter = defs.append('filter').attr('id', 'glow');
+  filter.append('feGaussianBlur').attr('stdDeviation', '3').attr('result', 'blur');
+  const feMerge = filter.append('feMerge');
+  feMerge.append('feMergeNode').attr('in', 'blur');
+  feMerge.append('feMergeNode').attr('in', 'SourceGraphic');
+
+  sim = d3.forceSimulation(nodes)
+    .force('link',
+      d3.forceLink(links)
+        .id((d, i) => i)
+        .distance(d => d.target.ring === 1 ? 120 : 85)
+        .strength(0.8))
+    .force('charge',
+      d3.forceManyBody()
+        .strength(d => d.ring === 0 ? -700 : d.ring === 1 ? -320 : -160))
+    .force('center', d3.forceCenter(W / 2, H / 2))
+    .force('collision', d3.forceCollide(d => d.r + 14));
+
+  // Links
+  const linkSel = svg.append('g')
+    .selectAll('line')
+    .data(links)
+    .join('line')
+      .attr('stroke', 'rgba(0,0,0,0.12)')
+      .attr('stroke-width', d => d.target.ring === 1 ? 1.5 : 0.8);
+
+  // Node groups
+  const nodeSel = svg.append('g')
+    .selectAll('g')
+    .data(nodes)
+    .join('g')
+      .attr('tabindex', 0)
+      .attr('role', 'img')
+      .attr('aria-label', d => `${d.id}: ${d.desc}`)
+      .style('cursor', 'grab')
+      .call(
+        d3.drag()
+          .on('start', (event, d) => {
+            if (!event.active) sim.alphaTarget(0.3).restart();
+            d.fx = d.x; d.fy = d.y;
+          })
+          .on('drag', (event, d) => {
+            d.fx = event.x; d.fy = event.y;
+          })
+          .on('end', (event, d) => {
+            if (!event.active) sim.alphaTarget(0);
+            d.fx = null; d.fy = null;
+          })
+      );
+
+  // Circles
+  nodeSel.append('circle')
+    .attr('r', d => d.r)
+    .attr('fill', d => d.color)
+    .attr('opacity', d => d.ring === 0 ? 0.95 : d.ring === 1 ? 0.82 : 0.68)
+    .attr('stroke', '#E8E0D0')
+    .attr('stroke-width', 2)
+    .attr('filter', d => d.ring === 0 ? 'url(#glow)' : null);
+
+  // Labels
+  nodeSel.append('text')
+    .attr('text-anchor', 'middle')
+    .attr('dominant-baseline', 'central')
+    .attr('fill', '#E8E0D0')
+    .attr('font-family', "'JetBrains Mono',monospace")
+    .attr('font-size', d => d.ring === 0 ? 11 : d.ring === 1 ? 9 : 8)
+    .attr('font-weight', d => d.ring === 0 ? '800' : d.ring === 1 ? '600' : '400')
+    .attr('pointer-events', 'none')
+    .each(function (d) {
+      const words = d.id.split(' ');
+      if (words.length <= 2 || d.ring === 2) {
+        d3.select(this).text(d.id);
+      } else {
+        const t = d3.select(this);
+        t.text('');
+        words.forEach((w, i) => {
+          t.append('tspan')
+           .attr('x', 0)
+           .attr('dy', i === 0 ? -(words.length - 1) * 6 + 'px' : '12px')
+           .text(w);
+        });
+      }
+    });
+
+  // Hover
+  nodeSel
+    .on('mouseover', function (event, d) {
+      d3.select(this).select('circle')
+        .attr('opacity', 1)
+        .attr('stroke', '#0D0D0D')
+        .attr('stroke-width', 3);
+      showTip(
+        `<strong>${d.id}</strong><br>${d.desc}`,
+        event.clientX, event.clientY
+      );
+    })
+    .on('mousemove', event => moveTip(event.clientX, event.clientY))
+    .on('mouseout', function (event, d) {
+      d3.select(this).select('circle')
+        .attr('opacity', d.ring === 0 ? 0.95 : d.ring === 1 ? 0.82 : 0.68)
+        .attr('stroke', '#E8E0D0')
+        .attr('stroke-width', 2);
+      hideTip();
+    })
+    .on('keydown', function (event, d) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        showTip(`<strong>${d.id}</strong><br>${d.desc}`, 200, 200);
+      }
+    });
+
+  // Tick
+  sim.on('tick', () => {
+    linkSel
+      .attr('x1', d => Math.max(d.source.r, Math.min(W - d.source.r, d.source.x)))
+      .attr('y1', d => Math.max(d.source.r, Math.min(H - d.source.r, d.source.y)))
+      .attr('x2', d => Math.max(d.target.r, Math.min(W - d.target.r, d.target.x)))
+      .attr('y2', d => Math.max(d.target.r, Math.min(H - d.target.r, d.target.y)));
+
+    nodeSel.attr('transform', d =>
+      `translate(${Math.max(d.r, Math.min(W - d.r, d.x))},${Math.max(d.r, Math.min(H - d.r, d.y))})`
+    );
+  });
+}
+
+/* ── RESTART BUTTON ──────────────────────────────────────────── */
+document.getElementById('restart-btn').addEventListener('click', buildGraph);
+
+/* ── RESPONSIVE ──────────────────────────────────────────────── */
+let rt;
+const ro = new ResizeObserver(() => {
+  clearTimeout(rt);
+  rt = setTimeout(buildGraph, 160);
+});
+ro.observe(document.getElementById('chart'));
+
+/* ── INIT ────────────────────────────────────────────────────── */
+buildGraph();
+</script>
+</body>
+</html>

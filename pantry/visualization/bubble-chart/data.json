@@ -1,0 +1,43 @@
+{
+  "_schema": {
+    "description": "Global human development indicators by country, 2024 estimates. Fictional placeholder — realistic values derived from public HDI data. Proves the visualization renders before real data is substituted.",
+    "fields": {
+      "id":             "string — ISO 3166-1 alpha-3 country code (used as bubble label for large populations)",
+      "country":        "string — full country name for tooltip display",
+      "region":         "string — world region: Africa | Americas | Asia | Europe | Oceania",
+      "education":      "number — Education Index (HDI component), scale 0–1",
+      "lifeExpectancy": "number — average life expectancy at birth, years",
+      "population":     "number — estimated population in millions",
+      "gdpPerCapita":   "number — GDP per capita, current USD"
+    },
+    "replace": "Replace the data array with your actual records. Maintain all field names. The chart derives every scale from d3.extent() on the loaded data — no hardcoded domains to adjust."
+  },
+  "data": [
+    {"id":"NOR","country":"Norway",       "region":"Europe",   "education":0.957,"lifeExpectancy":83.2,"population":5.4,   "gdpPerCapita":89090},
+    {"id":"SWE","country":"Sweden",       "region":"Europe",   "education":0.945,"lifeExpectancy":82.8,"population":10.5,  "gdpPerCapita":55400},
+    {"id":"DEU","country":"Germany",      "region":"Europe",   "education":0.943,"lifeExpectancy":81.3,"population":84.1,  "gdpPerCapita":48400},
+    {"id":"GBR","country":"United Kingdom","region":"Europe",  "education":0.935,"lifeExpectancy":80.7,"population":67.7,  "gdpPerCapita":46100},
+    {"id":"FRA","country":"France",       "region":"Europe",   "education":0.921,"lifeExpectancy":82.5,"population":68.1,  "gdpPerCapita":43700},
+    {"id":"USA","country":"United States","region":"Americas", "education":0.921,"lifeExpectancy":78.5,"population":334.9, "gdpPerCapita":76400},
+    {"id":"CAN","country":"Canada",       "region":"Americas", "education":0.935,"lifeExpectancy":82.3,"population":40.1,  "gdpPerCapita":54200},
+    {"id":"BRA","country":"Brazil",       "region":"Americas", "education":0.759,"lifeExpectancy":75.9,"population":215.3, "gdpPerCapita":10300},
+    {"id":"MEX","country":"Mexico",       "region":"Americas", "education":0.748,"lifeExpectancy":75.1,"population":128.5, "gdpPerCapita":10800},
+    {"id":"ARG","country":"Argentina",    "region":"Americas", "education":0.826,"lifeExpectancy":76.7,"population":45.4,  "gdpPerCapita":13700},
+    {"id":"CHN","country":"China",        "region":"Asia",     "education":0.817,"lifeExpectancy":78.2,"population":1412.2,"gdpPerCapita":12700},
+    {"id":"IND","country":"India",        "region":"Asia",     "education":0.633,"lifeExpectancy":70.8,"population":1428.6,"gdpPerCapita":2600},
+    {"id":"JPN","country":"Japan",        "region":"Asia",     "education":0.934,"lifeExpectancy":84.3,"population":124.5, "gdpPerCapita":33800},
+    {"id":"KOR","country":"South Korea",  "region":"Asia",     "education":0.921,"lifeExpectancy":83.5,"population":51.7,  "gdpPerCapita":33400},
+    {"id":"IDN","country":"Indonesia",    "region":"Asia",     "education":0.703,"lifeExpectancy":71.5,"population":277.5, "gdpPerCapita":4800},
+    {"id":"PAK","country":"Pakistan",     "region":"Asia",     "education":0.509,"lifeExpectancy":67.3,"population":231.4, "gdpPerCapita":1560},
+    {"id":"BGD","country":"Bangladesh",   "region":"Asia",     "education":0.567,"lifeExpectancy":73.0,"population":169.4, "gdpPerCapita":2820},
+    {"id":"NGA","country":"Nigeria",      "region":"Africa",   "education":0.490,"lifeExpectancy":54.7,"population":220.0, "gdpPerCapita":2100},
+    {"id":"ETH","country":"Ethiopia",     "region":"Africa",   "education":0.434,"lifeExpectancy":67.0,"population":123.4, "gdpPerCapita":1020},
+    {"id":"ZAF","country":"South Africa", "region":"Africa",   "education":0.718,"lifeExpectancy":64.1,"population":59.9,  "gdpPerCapita":7100},
+    {"id":"EGY","country":"Egypt",        "region":"Africa",   "education":0.690,"lifeExpectancy":72.3,"population":105.9, "gdpPerCapita":4450},
+    {"id":"KEN","country":"Kenya",        "region":"Africa",   "education":0.587,"lifeExpectancy":66.7,"population":55.8,  "gdpPerCapita":2100},
+    {"id":"TZA","country":"Tanzania",     "region":"Africa",   "education":0.455,"lifeExpectancy":68.1,"population":63.3,  "gdpPerCapita":1180},
+    {"id":"GHA","country":"Ghana",        "region":"Africa",   "education":0.582,"lifeExpectancy":63.8,"population":33.5,  "gdpPerCapita":2400},
+    {"id":"AUS","country":"Australia",    "region":"Oceania",  "education":0.951,"lifeExpectancy":83.4,"population":26.5,  "gdpPerCapita":65100},
+    {"id":"NZL","country":"New Zealand",  "region":"Oceania",  "education":0.940,"lifeExpectancy":82.5,"population":5.1,   "gdpPerCapita":48400}
+  ]
+}

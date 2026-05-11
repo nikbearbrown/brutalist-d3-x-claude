@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Humanitarian Convoy Timetable — Kenya Operations</title>
+  <meta name="description" content="Visual timetable of humanitarian aid convoys across seven Kenya corridors. Monday shows one delayed convoy, one cancellation, and two concurrent northeast services requiring coordination.">
+  <meta name="keywords" content="timetable, schedule, gantt chart, humanitarian convoys, D3.js, time visualization, reference tool, transit schedule, logistics, Kenya operations">
+  <meta name="author" content="Nik Bear Brown">
+  <meta name="category" content="Humanitarian Data Visualization">
+
+  <!-- PALETTE: hai — Humanitarians AI
+       WCAG NOTE:
+         p4 (#F7FAFD) FAIL on white — row alt-background only
+         p7 (#EDEDED) FAIL on white — grid lines only
+       Text: p1 (18.2:1), p5 (9.4:1), p6 (4.6:1) — all AA+
+       Convoy type fills (graphical, 3:1 threshold):
+         food_aid  #5C3317: 9.3:1 ✓
+         medical   #B52C2C: 5.8:1 ✓
+         shelter   #4A4D4F: 9.4:1 ✓
+         wash      #797C7F: 4.6:1 ✓
+       White bar text on these fills: all pass WCAG AA ✓
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --p1: #1B1B1B;
+      --p2: #5C3317;
+      --p3: #B52C2C;
+      --p4: #F7FAFD;
+      --p5: #4A4D4F;
+      --p6: #797C7F;
+      --p7: #EDEDED;
+      --p8: #FFFFFF;
+      --font: 'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%; height: 100%;
+      background: var(--p8); color: var(--p1);
+      font-family: var(--font); overflow: hidden;
+    }
+
+    /* ─── SLIDES ─────────────────────────────────── */
+    .slide {
+      position: absolute; inset: 0;
+      display: none; flex-direction: column;
+      padding: 1.2rem 2.1rem 2.6rem;
+    }
+    .slide.active { display: flex; }
+
+    .slide-meta {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 0.38rem; flex-shrink: 0;
+    }
+
+    .label {
+      font-size: 9.5px; font-weight: 600;
+      letter-spacing: 0.13em; color: var(--p6); text-transform: uppercase;
+    }
+
+    h1.slide-title {
+      font-size: clamp(11px, 1.48vw, 17px);
+      font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.042em; color: var(--p1);
+      line-height: 1.2; margin-bottom: 0.22rem; max-width: 92ch; flex-shrink: 0;
+    }
+
+    .subtitle {
+      font-size: 10.5px; color: var(--p5);
+      margin-bottom: 0.35rem; line-height: 1.5; flex-shrink: 0;
+    }
+
+    /* ─── DAY + TYPE FILTER BAR ──────────────────── */
+    .filter-bar {
+      display: flex; gap: 0; align-items: center;
+      flex-shrink: 0; margin-bottom: 0.3rem;
+      justify-content: space-between;
+    }
+
+    .day-tabs, .type-tabs {
+      display: flex; gap: 0;
+    }
+
+    .tab-btn {
+      font-family: var(--font); font-size: 9px;
+      font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: transparent;
+      border: 1px solid var(--p7); border-right: none;
+      color: var(--p6); padding: 2px 8px;
+      cursor: pointer; transition: all 0.1s;
+    }
+    .tab-btn:last-child { border-right: 1px solid var(--p7); }
+    .tab-btn:hover  { color: var(--p2); border-color: var(--p2); z-index:1; }
+    .tab-btn.active { background: var(--p2); color: var(--p8); border-color: var(--p2); z-index:1; }
+    .tab-btn:focus  { outline: 2px solid var(--p2); outline-offset: 1px; z-index:2; }
+
+    .tab-dot {
+      display: inline-block;
+      width: 7px; height: 7px; border-radius: 50%;
+      margin-right: 4px; vertical-align: middle;
+    }
+
+    /* ─── VIZ ────────────────────────────────────── */
+    .viz-container {
+      flex: 1; position: relative; min-height: 0;
+      border-top: 1px solid var(--p7);
+    }
+
+    #chart-svg { width: 100%; height: 100%; display: block; overflow: visible; }
+
+    /* ─── TIMETABLE ELEMENTS ─────────────────────── */
+    .row-bg-even { fill: #F8F6F4; }
+    .row-bg-odd  { fill: var(--p8); }
+
+    .grid-hour {
+      stroke: var(--p7); stroke-width: 1;
+    }
+    .grid-half {
+      stroke: var(--p7); stroke-width: 0.4;
+      stroke-dasharray: 2, 5;
+    }
+
+    .axis-time-label {
+      font-family: var(--font); font-size: 9.5px;
+      fill: var(--p6); text-anchor: middle; letter-spacing: 0.04em;
+    }
+
+    .route-name {
+      font-family: var(--font);
+      font-size: clamp(8.5px, 0.85vw, 10.5px);
+      font-weight: 700; fill: var(--p1); text-anchor: end;
+      letter-spacing: 0.04em;
+    }
+
+    .route-corridor {
+      font-family: var(--font); font-size: 7.5px;
+      fill: var(--p6); text-anchor: end; letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .convoy-bar {
+      rx: 3px; cursor: pointer;
+      transition: opacity 0.12s;
+    }
+    .convoy-bar:focus { outline: 2px solid var(--p1); outline-offset: 2px; }
+    .convoy-bar.dimmed { opacity: 0.09 !important; }
+
+    .convoy-label {
+      font-family: var(--font); font-size: 8px;
+      fill: white; font-weight: 600; letter-spacing: 0.06em;
+      pointer-events: none; text-transform: uppercase;
+    }
+
+    /* NOW line */
+    .now-line {
+      stroke: var(--p3); stroke-width: 1.5;
+      stroke-dasharray: 3,3;
+    }
+    .now-label-rect { fill: var(--p3); }
+    .now-label-text {
+      font-family: var(--font); font-size: 8px;
+      font-weight: 700; fill: var(--p8); text-anchor: middle; letter-spacing: 0.06em;
+    }
+
+    /* Status border treatments */
+    .status-delayed   { stroke: #C08010; stroke-width: 1.5; }
+    .status-cancelled { stroke: var(--p3); stroke-width: 1.2; stroke-dasharray: 4,3; }
+    .status-in-transit { stroke: var(--p8); stroke-width: 1.5; }
+
+    /* Row separator */
+    .row-sep { stroke: var(--p7); stroke-width: 0.6; }
+
+    /* ─── TOOLTIP ────────────────────────────────── */
+    #tooltip {
+      position: absolute; pointer-events: none;
+      background: var(--p1); color: var(--p8);
+      font-family: var(--font); font-size: 11px;
+      font-weight: 400; line-height: 1.65;
+      padding: 8px 12px; border: 1px solid var(--p2);
+      z-index: 90; opacity: 0; transition: opacity 0.1s;
+      min-width: 200px;
+    }
+    #tooltip.visible { opacity: 1; }
+    #tooltip .tt-head {
+      font-size: 11px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 0.09em;
+      color: #C4956A; border-bottom: 1px solid #333;
+      padding-bottom: 3px; margin-bottom: 5px;
+    }
+    .tt-row {
+      display: flex; justify-content: space-between;
+      gap: 10px; margin-bottom: 1px; font-size: 10px;
+    }
+    .tt-row .tt-key { color: #AAA; flex-shrink: 0; }
+    .tt-row .tt-val { font-weight: 600; }
+    .tt-status-confirmed { color: #7CC47C; }
+    .tt-status-completed  { color: #AAA; }
+    .tt-status-in_transit { color: #86C1E8; }
+    .tt-status-delayed    { color: #E8B840; }
+    .tt-status-cancelled  { color: #E08080; }
+    .tt-note { font-size: 9px; color: #888; margin-top: 3px; line-height: 1.4; max-width: 190px; }
+
+    /* ─── STATUS LEGEND ──────────────────────────── */
+    .status-legend {
+      display: flex; gap: 1.1rem; align-items: center;
+      flex-shrink: 0; flex-wrap: wrap;
+      padding-top: 0.28rem; border-top: 1px solid var(--p7);
+    }
+
+    .status-item {
+      display: flex; align-items: center; gap: 4px;
+      font-size: 9px; color: var(--p5);
+      letter-spacing: 0.06em; text-transform: uppercase;
+    }
+
+    .status-bar-sample {
+      width: 22px; height: 7px; border-radius: 2px;
+      display: inline-block;
+    }
+
+    /* ─── CONTROLS ───────────────────────────────── */
+    .controls {
+      display: flex; gap: 0.6rem; align-items: center;
+      margin-top: 0.25rem; flex-shrink: 0;
+    }
+
+    .btn {
+      font-family: var(--font); font-size: 9.5px; font-weight: 600;
+      letter-spacing: 0.09em; background: transparent;
+      border: 1px solid var(--p7); color: var(--p5); padding: 3px 9px;
+      cursor: pointer; text-transform: uppercase;
+    }
+    .btn:hover { border-color: var(--p2); color: var(--p2); }
+    .btn:focus { outline: 2px solid var(--p2); outline-offset: 1px; }
+
+    /* ─── SUMMARY BAR ────────────────────────────── */
+    .summary-bar {
+      display: flex; gap: 1rem; align-items: center;
+      font-size: 9.5px; color: var(--p5);
+      flex-shrink: 0; margin-bottom: 0.2rem;
+    }
+    .summary-chip {
+      display: inline-flex; align-items: center; gap: 3px;
+      font-weight: 600;
+    }
+    .chip-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      display: inline-block;
+    }
+
+    /* ─── LEARN SLIDE ────────────────────────────── */
+    .slide-learn { overflow-y: auto; }
+    .learn-block { max-width: 66ch; }
+
+    .learn-block h2 {
+      font-size: clamp(10px, 0.95vw, 12px);
+      font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.11em; color: var(--p2);
+      margin: 1.35rem 0 0.38rem;
+      border-bottom: 1px solid var(--p7); padding-bottom: 3px;
+    }
+    .learn-block h2:first-of-type { margin-top: 0.2rem; }
+
+    .learn-block p {
+      font-size: 12.5px; color: var(--p1);
+      line-height: 1.82; margin-bottom: 0.45rem;
+    }
+
+    .learn-block code {
+      font-family: var(--font); font-size: 11px;
+      background: var(--p7); padding: 1px 5px;
+    }
+
+    .framework-ref {
+      margin-top: 1.25rem; padding: 0.6rem 0.9rem;
+      border-left: 3px solid var(--p2); background: #F5F3EF;
+    }
+    .framework-ref .label { display: block; margin-bottom: 3px; }
+    .framework-ref p { font-size: 12px; color: var(--p5); margin-bottom: 0; }
+
+    .design-note {
+      margin-top: 0.85rem; padding: 0.6rem 0.9rem;
+      border: 1px solid var(--p7); border-left: 3px solid var(--p3);
+    }
+    .design-note .label { display: block; margin-bottom: 3px; }
+    .design-note p { font-size: 12px; color: var(--p5); margin-bottom: 0; }
+
+    /* ─── NAV ────────────────────────────────────── */
+    .slide-nav {
+      position: fixed; bottom: 1.4rem;
+      left: 50%; transform: translateX(-50%);
+      display: flex; gap: 7px; z-index: 200;
+    }
+    .dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--p7); border: 1px solid var(--p6);
+      cursor: pointer; padding: 0; transition: background 0.15s;
+    }
+    .dot.active { background: var(--p2); border-color: var(--p2); }
+    .dot:focus  { outline: 2px solid var(--p2); outline-offset: 2px; }
+
+    /* ─── FOOTER ─────────────────────────────────── */
+    footer {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      padding: 0.22rem 2.1rem;
+      border-top: 2px solid var(--p7);
+      display: flex; justify-content: space-between; align-items: center;
+      background: var(--p8); z-index: 150;
+    }
+    footer p { font-size: 9px; color: var(--p6); letter-spacing: 0.07em; }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════
+     SLIDE 01 — TIMETABLE
+══════════════════════════════════════════════════ -->
+<section class="slide active" id="slide-01"
+         aria-label="Visual convoy timetable, Kenya humanitarian operations, week of Jan 8 2024">
+  <div class="slide-meta">
+    <span class="label">// convoy operations — kenya — week of jan 8 2024</span>
+    <span class="label">01 / 02</span>
+  </div>
+  <h1 class="slide-title">Monday: Garissa–Mandera Convoy Delayed, Western Corridor Cancelled — Northeast Services Run Concurrent Requiring Coordination</h1>
+  <p class="subtitle">
+    Bars show scheduled window (departure → arrival). Width = duration. Color = convoy type.
+    Hover for detail. Filter by type or select a different day.
+  </p>
+
+  <!-- Filter bar -->
+  <div class="filter-bar">
+    <div class="day-tabs" role="group" aria-label="Day selector">
+      <button class="tab-btn active" data-day="Mon" aria-label="Monday">Mon</button>
+      <button class="tab-btn" data-day="Tue" aria-label="Tuesday">Tue</button>
+      <button class="tab-btn" data-day="Wed" aria-label="Wednesday">Wed</button>
+      <button class="tab-btn" data-day="Thu" aria-label="Thursday">Thu</button>
+      <button class="tab-btn" data-day="Fri" aria-label="Friday">Fri</button>
+    </div>
+    <div class="type-tabs" role="group" aria-label="Convoy type filter">
+      <button class="tab-btn active" data-type="all" aria-label="Show all types">All</button>
+      <button class="tab-btn" data-type="food_aid" aria-label="Food aid convoys">
+        <span class="tab-dot" style="background:#5C3317"></span>Food
+      </button>
+      <button class="tab-btn" data-type="medical" aria-label="Medical convoys">
+        <span class="tab-dot" style="background:#B52C2C"></span>Medical
+      </button>
+      <button class="tab-btn" data-type="shelter" aria-label="Shelter convoys">
+        <span class="tab-dot" style="background:#4A4D4F"></span>Shelter
+      </button>
+      <button class="tab-btn" data-type="wash" aria-label="WASH convoys">
+        <span class="tab-dot" style="background:#797C7F"></span>WASH
+      </button>
+    </div>
+  </div>
+
+  <!-- Summary bar -->
+  <div class="summary-bar" id="summary-bar">
+    <span>Loading…</span>
+  </div>
+
+  <div class="viz-container" id="chart-container">
+    <svg id="chart-svg" viewBox="0 0 960 390"
+         preserveAspectRatio="xMidYMid meet"
+         role="img"
+         aria-labelledby="chart-title"
+         aria-describedby="chart-desc">
+      <title id="chart-title">Visual convoy timetable — Monday Jan 8 2024, Kenya humanitarian operations</title>
+      <desc id="chart-desc">
+        Seven route rows, time axis 06:00–20:00. Each bar shows a convoy's scheduled window.
+        Monday shows 12 convoys: 5 completed, 2 confirmed, 1 in-transit, 1 delayed, 1 cancelled,
+        plus 2 additional afternoon services. Northwest corridor has the longest route (06:00–18:00).
+      </desc>
+      <defs>
+        <pattern id="hatch-delayed" patternUnits="userSpaceOnUse" width="7" height="7"
+                 patternTransform="rotate(45)">
+          <rect width="3.5" height="7" fill="rgba(255,255,255,0.35)"/>
+        </pattern>
+      </defs>
+      <g id="bg-g"></g>
+      <g id="grid-g"></g>
+      <g id="axes-g"></g>
+      <g id="routes-g"></g>
+      <g id="bars-g"></g>
+      <g id="now-g"></g>
+    </svg>
+    <div id="tooltip" role="status" aria-live="polite"></div>
+  </div>
+
+  <!-- Status legend -->
+  <div class="status-legend">
+    <div class="status-item">
+      <span class="status-bar-sample" style="background:var(--p2);opacity:.85"></span> Confirmed
+    </div>
+    <div class="status-item">
+      <span class="status-bar-sample" style="background:var(--p5);opacity:.35"></span> Completed
+    </div>
+    <div class="status-item">
+      <span class="status-bar-sample" style="background:var(--p2);opacity:.90;outline:1.5px solid white"></span> In Transit
+    </div>
+    <div class="status-item">
+      <span class="status-bar-sample"
+        style="background:var(--p2);opacity:.7;outline:1.5px solid #C08010"></span> Delayed
+    </div>
+    <div class="status-item">
+      <span class="status-bar-sample"
+        style="background:var(--p3);opacity:.12;outline:1px dashed var(--p3)"></span> Cancelled
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn" id="audio-btn" aria-label="Play narration">▶ narration</button>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════
+     SLIDE 02 — LEARN
+══════════════════════════════════════════════════ -->
+<section class="slide slide-learn" id="slide-02"
+         aria-label="Learn: Timetable">
+  <div class="slide-meta">
+    <span class="label">// learn — timetable (visual schedule · gantt-style)</span>
+    <span class="label">02 / 02</span>
+  </div>
+  <h1 class="slide-title">Why a Visual Timetable — and When a Text Table Is Better</h1>
+
+  <div class="learn-block">
+
+    <h2>What this chart is</h2>
+    <p>A timetable organises scheduled events along a time axis and a categorical axis (routes, rooms, people, vehicles). The Data Visualisation Catalogue describes it as a reference and management tool — its primary function is lookup, not pattern discovery. This visual form is a specific interpretation: a Gantt-style timetable where bars encode duration as width rather than simply listing departure and arrival times in text cells.</p>
+    <p>In D3, the time axis is a <code>d3.scaleTime()</code> with a synthetic date domain — all events are normalised to the same calendar date (2024-01-01) so only the hour and minute matter. Each row is a <code>d3.scaleBand()</code> slot. Convoy bars are <code>&lt;rect&gt;</code> elements positioned at <code>xScale(parseTime(departure))</code> with width <code>xScale(arrival) - xScale(departure)</code>. This pixel-precise mapping is what standard spreadsheet timetables cannot provide: a 4h15m convoy bar is visually 15 minutes wider than a 4h00m bar.</p>
+
+    <h2>Visual timetable vs. text timetable — what each is for</h2>
+    <p>A text timetable (the form used for train schedules in printed books) is superior when users need to look up a specific departure time. Scan to the route row, scan to the time column, read the cell. The lookup is O(1) with a trained eye. A visual timetable is superior when users need to see <em>patterns across routes</em>: which routes overlap in ways that create vehicle conflicts; where the morning window is underused; how long each route takes relative to its neighbours. Monday's timetable makes it immediately visible that routes r2 and r3 both operate through the 07:00–14:00 window — potential competition for the same relay vehicles — which would be invisible in a text table.</p>
+    <p>The two forms answer different questions. "When does the next Garissa convoy leave?" is a text-table question. "Is there a gap in Northeast coverage between 14:00 and 17:00?" is a visual-timetable question. The chart here was built for the second question — an operations planner scanning for gaps, overlaps, and cancellation patterns — not for passengers checking departure boards.</p>
+
+    <h2>What D3 enables that standard tools cannot</h2>
+    <p>Google Docs, Excel, and Apple Numbers render timetables as fixed-cell grids. A 1-hour convoy and a 6-hour convoy both occupy one cell. D3's continuous time scale maps duration to pixels precisely — the Northwest Lodwar convoy (12 hours, 06:00–18:00) takes up 85% of the row width, and this is immediately legible as a full-day commitment without reading any numbers. Status encoding (opacity for completed, amber border for delayed, dashed border for cancelled) layers operational intelligence onto the schedule without adding columns. Hover tooltips surface detailed notes. Day and type filters reduce noise to the relevant slice. None of this is available in standard table tools.</p>
+
+    <h2>The baseline question for timetables</h2>
+    <p>Unlike bar charts, timetable bars should not start at zero — they start at the departure time. The axis baseline is the opening of the operational window (06:00 here), not zero. This is the correct approach: a bar starting at 06:00 means the convoy leaves at 06:00; starting at 00:00 would mean the entire time between midnight and departure is visually wasted space. The left edge of each bar is its scheduled departure; the right edge is its estimated arrival. Length = duration. This is semantically correct and visually efficient.</p>
+
+    <div class="framework-ref">
+      <span class="label">// framework — FT Visual Vocabulary</span>
+      <p>The FT Visual Vocabulary places timetables and Gantt charts in its <strong>Change Over Time</strong> category as a reference subtype. Its guidance on the table vs. visual distinction: use a text table when precise value lookup is the primary task; use a visual form when relative duration, overlap, or pattern across multiple entities is the analytical goal. The timetable is the only major chart type in the FT Visual Vocabulary that is explicitly described as a reference tool rather than an insight tool — the distinction matters for design decisions about density, precision, and interaction.</p>
+    </div>
+
+    <div class="design-note">
+      <span class="label">// design decision — time-of-day scale, not calendar date scale</span>
+      <p>The x-axis uses <code>d3.scaleTime()</code> with domain <code>[new Date(2024,0,1,6,0), new Date(2024,0,1,20,0)]</code> — an arbitrary single date where only hours and minutes carry information. All convoy departure and arrival strings are parsed by prepending this same date. The day selector swaps which subset of convoys is drawn, but the time axis never changes. This separation of <em>day</em> from <em>time-of-day</em> is the correct abstraction for operational timetables: the axis represents the rhythm of a day, and the day selector represents which calendar day's data is displayed. Using a multi-day time scale would make the chart a timeline rather than a timetable.</p>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ─── NAV + FOOTER ──────────────────────────── -->
+<nav class="slide-nav" aria-label="Slide navigation">
+  <button class="dot active" data-target="0" aria-label="Slide 1: Timetable"></button>
+  <button class="dot"        data-target="1" aria-label="Slide 2: Learn"></button>
+</nav>
+
+<footer>
+  <p>Nik Bear Brown, Irreducibly Human, What AI Can and Can't Do</p>
+  <p>boondoggling.ai · irreducibly.xyz · brutalist.art · bearbrown.co · frictional.xyz</p>
+</footer>
+
+<audio id="page-audio" src="./timetable/audio.mp3"></audio>
+
+<!-- ─── SCRIPTS ────────────────────────────────── -->
+<script src="https://d3js.org/d3.v7.min.js"></script>
+
+<script>
+'use strict';
+
+// ══════════════════════════════════════════════
+// SLIDE NAV
+// ══════════════════════════════════════════════
+const slides = Array.from(document.querySelectorAll('.slide'));
+const dots   = Array.from(document.querySelectorAll('.dot'));
+let current  = 0;
+
+function goTo(i) {
+  const n = Math.max(0, Math.min(i, slides.length - 1));
+  slides[current].classList.remove('active');
+  dots[current].classList.remove('active');
+  current = n;
+  slides[current].classList.add('active');
+  dots[current].classList.add('active');
+}
+
+dots.forEach(d => d.addEventListener('click', () => goTo(+d.dataset.target)));
+document.addEventListener('keydown', e => {
+  if (['ArrowRight','ArrowDown'].includes(e.key)) goTo(current + 1);
+  if (['ArrowLeft', 'ArrowUp'  ].includes(e.key)) goTo(current - 1);
+});
+
+// ══════════════════════════════════════════════
+// AUDIO
+// ══════════════════════════════════════════════
+const audio    = document.getElementById('page-audio');
+const audioBtn = document.getElementById('audio-btn');
+audioBtn.addEventListener('click', () => {
+  if (audio.paused) { audio.play().catch(() => {}); audioBtn.textContent = '⏸ narration'; }
+  else              { audio.pause();                 audioBtn.textContent = '▶ narration'; }
+});
+
+// ══════════════════════════════════════════════
+// CONSTANTS
+// ══════════════════════════════════════════════
+const W = 960, H = 390;
+const margin = { top: 44, right: 14, bottom: 10, left: 192 };
+const chartW = W - margin.left - margin.right;
+const chartH = H - margin.top - margin.bottom;
+
+// Colour + opacity per type and status
+const TYPE_COLORS = {
+  food_aid:  '#5C3317',
+  medical:   '#B52C2C',
+  shelter:   '#4A4D4F',
+  wash:      '#797C7F'
+};
+
+const STATUS_OPACITY = {
+  confirmed:  0.85,
+  completed:  0.32,
+  in_transit: 0.92,
+  delayed:    0.72,
+  cancelled:  0.10
+};
+
+const DAYS = ['Mon','Tue','Wed','Thu','Fri'];
+
+// State
+let allRoutes   = [];
+let allConvoys  = [];
+let activeDay   = 'Mon';
+let activeType  = 'all';
+let barEls; // D3 selection of convoy bars
+
+// D3 selections
+const tooltip   = document.getElementById('tooltip');
+const container = document.getElementById('chart-container');
+
+const bgG     = d3.select('#bg-g');
+const gridG   = d3.select('#grid-g');
+const axesG   = d3.select('#axes-g');
+const routesG = d3.select('#routes-g');
+const barsG   = d3.select('#bars-g');
+const nowG    = d3.select('#now-g');
+
+// ══════════════════════════════════════════════
+// TIME HELPERS
+// ══════════════════════════════════════════════
+function parseTime(timeStr) {
+  const [h, m] = timeStr.split(':').map(Number);
+  return new Date(2024, 0, 1, h, m, 0);
+}
+
+function formatDur(dep, arr) {
+  const diffMin = (parseTime(arr) - parseTime(dep)) / 60000;
+  const h = Math.floor(diffMin / 60);
+  const m = diffMin % 60;
+  return m > 0 ? `${h}h ${m}m` : `${h}h`;
+}
+
+// ══════════════════════════════════════════════
+// LOAD DATA
+// ══════════════════════════════════════════════
+d3.json('./timetable/data.json').then(dataset => {
+  allRoutes  = dataset.routes;
+  allConvoys = dataset.convoys;
+
+  buildStaticElements();
+  render();
+  setupFilters();
+
+}).catch(err => {
+  console.error('Load error:', err);
+  container.insertAdjacentHTML('afterbegin',
+    `<p style="padding:1rem;font-size:12px;color:var(--p3)">
+      Data failed to load. Serve from a local server so
+      <code>./timetable/data.json</code> resolves.<br>Error: ${err.message}
+    </p>`
+  );
+});
+
+// ══════════════════════════════════════════════
+// SCALES (fixed, don't change with day/type)
+// ══════════════════════════════════════════════
+const xScale = d3.scaleTime()
+  .domain([new Date(2024,0,1,6,0), new Date(2024,0,1,20,0)])
+  .range([margin.left, margin.left + chartW]);
+
+// yScale depends on route order (fixed)
+let yScale;
+
+// ══════════════════════════════════════════════
+// BUILD STATIC ELEMENTS (drawn once)
+// ══════════════════════════════════════════════
+function buildStaticElements() {
+
+  yScale = d3.scaleBand()
+    .domain(allRoutes.map(r => r.id))
+    .range([margin.top, margin.top + chartH])
+    .paddingInner(0.20)
+    .paddingOuter(0.06);
+
+  const bw = yScale.bandwidth();
+
+  // ── Alternating row backgrounds ───────────────
+  allRoutes.forEach((r, i) => {
+    bgG.append('rect')
+      .attr('class', i % 2 === 0 ? 'row-bg-even' : 'row-bg-odd')
+      .attr('x', margin.left)
+      .attr('y', yScale(r.id))
+      .attr('width', chartW)
+      .attr('height', bw + yScale.step() * yScale.paddingInner());
+  });
+
+  // ── Vertical grid: hours ──────────────────────
+  xScale.ticks(d3.timeHour.every(1)).forEach(t => {
+    gridG.append('line').attr('class','grid-hour')
+      .attr('x1', xScale(t)).attr('x2', xScale(t))
+      .attr('y1', margin.top)
+      .attr('y2', margin.top + chartH + 4);
+  });
+
+  // Half-hour subticks
+  xScale.ticks(d3.timeMinute.every(30)).forEach(t => {
+    if (t.getMinutes() === 30) {
+      gridG.append('line').attr('class','grid-half')
+        .attr('x1', xScale(t)).attr('x2', xScale(t))
+        .attr('y1', margin.top).attr('y2', margin.top + chartH);
+    }
+  });
+
+  // ── Row separators ────────────────────────────
+  allRoutes.forEach(r => {
+    const rowTop = yScale(r.id);
+    gridG.append('line').attr('class','row-sep')
+      .attr('x1', 0).attr('x2', margin.left + chartW)
+      .attr('y1', rowTop).attr('y2', rowTop);
+  });
+  // Bottom separator
+  gridG.append('line').attr('class','row-sep')
+    .attr('x1', 0).attr('x2', margin.left + chartW)
+    .attr('y1', margin.top + chartH).attr('y2', margin.top + chartH);
+
+  // ── Time axis labels (top) ────────────────────
+  xScale.ticks(d3.timeHour.every(1)).forEach(t => {
+    axesG.append('text').attr('class','axis-time-label')
+      .attr('x', xScale(t))
+      .attr('y', margin.top - 6)
+      .text(d3.timeFormat('%H:%M')(t));
+  });
+
+  // Left border
+  axesG.append('line')
+    .attr('x1', margin.left).attr('x2', margin.left)
+    .attr('y1', margin.top).attr('y2', margin.top + chartH)
+    .attr('stroke','var(--p7)').attr('stroke-width', 1);
+
+  // ── Route labels ──────────────────────────────
+  allRoutes.forEach(r => {
+    const midY = yScale(r.id) + bw / 2;
+    routesG.append('text').attr('class','route-name')
+      .attr('x', margin.left - 10).attr('y', midY - 3)
+      .text(r.name);
+    routesG.append('text').attr('class','route-corridor')
+      .attr('x', margin.left - 10).attr('y', midY + 9)
+      .text(`${r.corridor} · ${r.distance_km}km`);
+  });
+
+  // ── NOW indicator ─────────────────────────────
+  const now   = new Date();
+  const nowT  = new Date(2024, 0, 1, now.getHours(), now.getMinutes());
+  const nowX  = xScale(nowT);
+  const [domStart, domEnd] = xScale.domain();
+
+  if (nowT >= domStart && nowT <= domEnd) {
+    nowG.append('line').attr('class','now-line')
+      .attr('x1', nowX).attr('x2', nowX)
+      .attr('y1', margin.top - 10).attr('y2', margin.top + chartH);
+    nowG.append('rect').attr('class','now-label-rect')
+      .attr('x', nowX - 18).attr('y', margin.top - 22)
+      .attr('width', 36).attr('height', 13).attr('rx', 2);
+    nowG.append('text').attr('class','now-label-text')
+      .attr('x', nowX).attr('y', margin.top - 12)
+      .text('NOW');
+  }
+}
+
+// ══════════════════════════════════════════════
+// RENDER (called on day/type change)
+// ══════════════════════════════════════════════
+function render() {
+  barsG.selectAll('*').remove();
+
+  const filtered = allConvoys.filter(c =>
+    c.day === activeDay &&
+    (activeType === 'all' || c.type === activeType)
+  );
+
+  const bw = yScale.bandwidth();
+
+  // ── Draw bars ─────────────────────────────────
+  barEls = barsG.selectAll('g.convoy-group')
+    .data(filtered, d => d.id)
+    .join('g')
+    .attr('class','convoy-group');
+
+  // Background rect (for status effects)
+  barEls.append('rect')
+    .attr('class', d => `convoy-bar status-${d.status}`)
+    .attr('x', d => xScale(parseTime(d.departure)))
+    .attr('y', d => yScale(d.route_id) + bw * 0.08)
+    .attr('width', 0)  // start at 0 for animation
+    .attr('height', bw * 0.84)
+    .attr('rx', 3)
+    .attr('fill', d => {
+      const base = TYPE_COLORS[d.type] || '#5C3317';
+      return d.status === 'delayed' ? `url(#hatch-delayed)` : base;
+    })
+    .attr('fill-opacity', d => STATUS_OPACITY[d.status] ?? 0.85)
+    .attr('stroke', d => {
+      if (d.status === 'delayed')   return '#C08010';
+      if (d.status === 'cancelled') return '#B52C2C';
+      if (d.status === 'in_transit') return 'rgba(255,255,255,0.6)';
+      return 'none';
+    })
+    .attr('stroke-width', d => ['delayed','cancelled','in_transit'].includes(d.status) ? 1.5 : 0)
+    .attr('stroke-dasharray', d => d.status === 'cancelled' ? '4,3' : 'none')
+    .attr('tabindex', 0)
+    .attr('role','img')
+    .attr('aria-label', d => {
+      const route = allRoutes.find(r => r.id === d.route_id);
+      return `${route?.name} — ${d.type.replace('_',' ')}, ${d.departure}–${d.arrival}, ${d.vehicles} vehicles, ${d.status}, Lead: ${d.lead}`;
+    });
+
+  // Colored underlay for delayed (so you see the type color under hatch)
+  barEls.filter(d => d.status === 'delayed').insert('rect', ':first-child')
+    .attr('x', d => xScale(parseTime(d.departure)))
+    .attr('y', d => yScale(d.route_id) + bw * 0.08)
+    .attr('width', d => xScale(parseTime(d.arrival)) - xScale(parseTime(d.departure)))
+    .attr('height', bw * 0.84)
+    .attr('rx', 3)
+    .attr('fill', d => TYPE_COLORS[d.type])
+    .attr('fill-opacity', 0.65);
+
+  // Text labels inside bars (when wide enough)
+  barEls.each(function(d) {
+    const barW = xScale(parseTime(d.arrival)) - xScale(parseTime(d.departure));
+    if (barW < 38) return;
+    const bY = yScale(d.route_id) + bw / 2 + 3.5;
+    const bX = xScale(parseTime(d.departure)) + Math.min(barW/2, 8);
+
+    const typeAbbrev = {food_aid:'Food',medical:'Med',shelter:'Shelter',wash:'WASH'};
+    let label = typeAbbrev[d.type] || d.type;
+    if (barW > 80) label += ` · ${d.vehicles}v`;
+
+    d3.select(this).append('text')
+      .attr('class','convoy-label')
+      .attr('x', xScale(parseTime(d.departure)) + barW/2)
+      .attr('y', bY)
+      .attr('text-anchor','middle')
+      .attr('opacity', d.status === 'cancelled' ? 0 : (d.status === 'completed' ? 0.5 : 1))
+      .text(label);
+  });
+
+  // ── Entrance animation — bars grow from departure ─
+  const routeOrder = allRoutes.map(r => r.id);
+  barsG.selectAll('rect.convoy-bar')
+    .transition()
+    .delay(d => routeOrder.indexOf(d.route_id) * 65 + 120)
+    .duration(550)
+    .ease(d3.easeCubicOut)
+    .attr('width', d => Math.max(0, xScale(parseTime(d.arrival)) - xScale(parseTime(d.departure))));
+
+  // ── Bar interactions ──────────────────────────
+  barEls
+    .on('mouseover', (ev, d) => {
+      showTip(ev, d);
+      barEls.classed('dimmed', x => x.id !== d.id);
+    })
+    .on('mousemove', moveTip)
+    .on('mouseout', () => { hideTip(); barEls.classed('dimmed', false); })
+    .on('focus', (ev, d) => showTip(ev, d))
+    .on('blur',  hideTip)
+    .on('keydown', (ev, d) => {
+      if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); showTip(ev, d); }
+    });
+
+  // ── Summary bar ───────────────────────────────
+  updateSummary(filtered);
+}
+
+// ══════════════════════════════════════════════
+// SUMMARY BAR
+// ══════════════════════════════════════════════
+function updateSummary(convoys) {
+  const counts = {};
+  ['confirmed','in_transit','completed','delayed','cancelled'].forEach(s => { counts[s] = 0; });
+  convoys.forEach(c => { counts[c.status] = (counts[c.status] || 0) + 1; });
+
+  const statusColors = {
+    confirmed: '#5C8A5C', in_transit: '#5C7CA0',
+    completed: '#888', delayed: '#C08010', cancelled: '#B52C2C'
+  };
+  const statusLabels = {
+    confirmed:'Confirmed', in_transit:'In Transit',
+    completed:'Completed', delayed:'Delayed', cancelled:'Cancelled'
+  };
+
+  const el = document.getElementById('summary-bar');
+  el.innerHTML = Object.entries(counts)
+    .filter(([,n]) => n > 0)
+    .map(([s, n]) =>
+      `<span class="summary-chip">
+         <span class="chip-dot" style="background:${statusColors[s]}"></span>
+         ${n} ${statusLabels[s]}
+       </span>`
+    ).join('') || '<span>No convoys for this selection</span>';
+}
+
+// ══════════════════════════════════════════════
+// TOOLTIP
+// ══════════════════════════════════════════════
+function showTip(ev, d) {
+  const route = allRoutes.find(r => r.id === d.route_id);
+  const statusCls = `tt-status-${d.status}`;
+  const statusLabel = {
+    confirmed:'● Confirmed', in_transit:'▶ In Transit',
+    completed:'✓ Completed', delayed:'~ Delayed', cancelled:'✕ Cancelled'
+  }[d.status] || d.status;
+  const typeLabel = {food_aid:'Food Aid',medical:'Medical',shelter:'Shelter & NFI',wash:'WASH'}[d.type] || d.type;
+
+  tooltip.innerHTML = `
+    <div class="tt-head">${route?.name || d.route_id}</div>
+    <div class="tt-row"><span class="tt-key">Type</span><span class="tt-val">${typeLabel}</span></div>
+    <div class="tt-row"><span class="tt-key">Departs</span><span class="tt-val">${d.departure}</span></div>
+    <div class="tt-row"><span class="tt-key">Arrives</span><span class="tt-val">${d.arrival} (${formatDur(d.departure, d.arrival)})</span></div>
+    <div class="tt-row"><span class="tt-key">Vehicles</span><span class="tt-val">${d.vehicles}</span></div>
+    <div class="tt-row"><span class="tt-key">Lead</span><span class="tt-val">${d.lead}</span></div>
+    <div class="tt-row"><span class="tt-key">Status</span><span class="tt-val ${statusCls}">${statusLabel}</span></div>
+    ${d.note ? `<div class="tt-note">${d.note}</div>` : ''}
+  `;
+  tooltip.classList.add('visible');
+  moveTip(ev);
+}
+
+function moveTip(ev) {
+  const r = container.getBoundingClientRect();
+  let x = ev.clientX - r.left + 16;
+  let y = ev.clientY - r.top  - 14;
+  if (x + 230 > r.width)  x -= 248;
+  if (y + 210 > r.height) y -= 224;
+  tooltip.style.left = x + 'px';
+  tooltip.style.top  = y + 'px';
+}
+
+function hideTip() { tooltip.classList.remove('visible'); }
+
+// ══════════════════════════════════════════════
+// FILTERS
+// ══════════════════════════════════════════════
+function setupFilters() {
+  document.querySelectorAll('.day-tabs .tab-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.day-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      activeDay = this.dataset.day;
+      render();
+    });
+  });
+
+  document.querySelectorAll('.type-tabs .tab-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.type-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      activeType = this.dataset.type;
+      render();
+    });
+  });
+}
+</script>
+</body>
+</html>

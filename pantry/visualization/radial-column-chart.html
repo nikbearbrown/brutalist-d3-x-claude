@@ -1,0 +1,63 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Radial Column Chart | Irreducibly Human</title>
+<meta name="description" content="Columns arranged on a circular axis. Variation on radial bar — good for showing cyclic patterns like time-of-day or month-of-year data.">
+<meta name="keywords" content="radial column chart, circular, cyclic, D3, time series">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}html,body{width:100%;height:100%;overflow:hidden}
+body{font-family:Inter,-apple-system,sans-serif;background:#E8E0D0;color:#0D0D0D}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;height:44px;background:rgba(232,224,208,.94);
+backdrop-filter:blur(8px);border-bottom:1px solid rgba(0,0,0,.09);
+display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+nav a{font-size:13px;color:#4A4A4A;text-decoration:none;font-weight:500}
+nav a:hover{color:#0D0D0D}.nt{font-size:13px;color:#6B6B5E}.nc{font-size:12px;color:#9C9680}
+.nc a{color:#9C9680;text-decoration:none}.nc a:hover{color:#4A4A4A}
+#viz{position:fixed;top:44px;left:0;right:0;bottom:0;overflow:hidden}
+
+@media(prefers-color-scheme:dark){
+body{background:#0D0D0D;color:#E8E0D0}
+nav{background:rgba(13,13,13,.94);border-color:rgba(255,255,255,.07)}
+nav a{color:#9C9680}nav a:hover{color:#E8E0D0}}
+</style></head><body>
+<nav><a href="/">&#8592; Irreducibly Human</a><span class="nt">Radial Column Chart</span>
+<span class="nc">Built with <a href="https://d3js.org" target="_blank" rel="noopener">D3.js</a></span></nav>
+<div id="viz"></div><script>
+const dark=window.matchMedia("(prefers-color-scheme:dark)").matches;
+const fg=dark?"#E8E0D0":"#0D0D0D",mu="#9C9680";
+const months=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const data=[38,42,55,68,80,92,88,85,72,60,48,42];
+function draw(){
+  d3.select("#viz svg").remove();
+  const el=document.getElementById("viz"),W=el.clientWidth,H=el.clientHeight;
+  const cx=W/2,cy=H/2+10,rMin=60,rMax=Math.min(W,H)*.38;
+  const svg=d3.select("#viz").append("svg").attr("width",W).attr("height",H);
+  svg.append("text").attr("x",cx).attr("y",28).attr("text-anchor","middle")
+    .attr("font-size",12).attr("fill",mu).text("AI tool usage intensity by month — cyclic data shown on circular axis");
+  const n=data.length,pieW=(2*Math.PI/n)*.75;
+  const angle=i=>i*2*Math.PI/n-Math.PI/2;
+  const r=d3.scaleLinear().domain([0,100]).range([rMin,rMax]);
+  // Grid
+  [25,50,75,100].forEach(v=>{
+    const pts=d3.range(n+1).map(i=>{const a=angle(i%n);return[cx+r(v)*Math.cos(a),cy+r(v)*Math.sin(a)];});
+    svg.append("polyline").attr("points",pts.map(p=>p.join(",")).join(" ")).attr("fill","none")
+      .attr("stroke",dark?"rgba(255,255,255,.07)":"rgba(0,0,0,.07)").attr("stroke-width",1);
+  });
+  const defs=svg.append("defs");
+  const grad=defs.append("linearGradient").attr("id","rcg").attr("x1","0").attr("x2","0").attr("y1","0").attr("y2","1");
+  grad.append("stop").attr("offset","0%").attr("stop-color","#8B0000");
+  grad.append("stop").attr("offset","100%").attr("stop-color","#8B7536");
+  data.forEach((v,i)=>{
+    const a=angle(i);
+    const arc=d3.arc().innerRadius(rMin).outerRadius(r(v))
+      .startAngle(a-pieW/2).endAngle(a+pieW/2).cornerRadius(3);
+    svg.append("path").attr("transform","translate("+cx+","+cy+")").attr("d",arc())
+      .attr("fill","url(#rcg)").attr("opacity",.8);
+    const la=angle(i),ld=rMax+26;
+    svg.append("text").attr("x",cx+ld*Math.cos(la)).attr("y",cy+ld*Math.sin(la)+4)
+      .attr("text-anchor","middle").attr("font-size",11).attr("fill",fg).text(months[i]);
+  });
+}
+draw();window.addEventListener("resize",draw);
+</script></body></html>

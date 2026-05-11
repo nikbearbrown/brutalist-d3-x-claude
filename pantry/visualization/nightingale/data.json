@@ -1,0 +1,28 @@
+{
+  "_schema": {
+    "description": "Cyclic categorical data — typically 12 months or similar equal-interval periods. Each segment gets an equal angular slice; value encodes the petal radius (and thus area, which grows as r²). Best for cyclic patterns where the circular metaphor adds interpretive meaning.",
+    "fields": {
+      "title":            "string — chart headline",
+      "unit":             "string — what each value represents",
+      "segments[].label": "string — category or period label (keep short, displayed radially)",
+      "segments[].value": "number — positive value encoded as petal radius"
+    },
+    "replace": "Replace segments[] with your cyclic data. Any number of segments works; 8–16 is the practical readable range. The chart is honest about cyclic structure but distorts by area — use the area-correct toggle to see the difference."
+  },
+  "title": "AI Humanitarian Deployment Activity by Month",
+  "unit": "Deployment index (2024)",
+  "segments": [
+    { "label": "Jan", "value": 31 },
+    { "label": "Feb", "value": 27 },
+    { "label": "Mar", "value": 35 },
+    { "label": "Apr", "value": 44 },
+    { "label": "May", "value": 58 },
+    { "label": "Jun", "value": 69 },
+    { "label": "Jul", "value": 74 },
+    { "label": "Aug", "value": 71 },
+    { "label": "Sep", "value": 65 },
+    { "label": "Oct", "value": 52 },
+    { "label": "Nov", "value": 41 },
+    { "label": "Dec", "value": 36 }
+  ]
+}

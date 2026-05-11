@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pictogram Chart — Global Energy Mix</title>
+<meta name="description" content="Interactive pictogram chart comparing energy source adoption across five regions. Each icon represents 2% of a region's energy portfolio.">
+<meta name="keywords" content="pictogram chart, pictograph, pictorial chart, icon chart, d3, data visualization, comparison, distribution">
+<meta name="author" content="Nik Bear Brown">
+<meta name="category" content="Comparisons / Distribution">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --p1:#1B1B1B;--p2:#5C3317;--p3:#B52C2C;--p5:#4A4D4F;--p6:#797C7F;--p7:#EDEDED;--p8:#FFFFFF;
+  --font:'JetBrains Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;background:var(--p8);color:var(--p1);font-family:var(--font);overflow-x:hidden}
+.slides-wrapper{width:100%;scroll-snap-type:y mandatory;overflow-y:scroll;height:100vh}
+.slide{min-height:100vh;display:flex;flex-direction:column;padding:40px 48px 32px;scroll-snap-align:start;border-bottom:2px solid var(--p7)}
+.slide-meta{display:flex;align-items:center;gap:20px;margin-bottom:16px}
+.lbl{font-size:11px;font-weight:400;color:var(--p6);letter-spacing:.08em;text-transform:uppercase}
+.dot-nav{display:flex;gap:8px;margin-left:auto}
+.nav-dot{width:7px;height:7px;border-radius:50%;background:var(--p7);cursor:pointer;border:1px solid var(--p6);transition:background .2s}
+.nav-dot.active{background:var(--p2);border-color:var(--p2)}
+.slide-title{font-size:clamp(14px,2.6vw,27px);font-weight:800;text-transform:uppercase;letter-spacing:-.02em;line-height:1.1;color:var(--p1);max-width:900px;margin-bottom:5px}
+.slide-subtitle{font-size:12px;color:var(--p5);margin-bottom:20px;letter-spacing:.02em}
+.viz-container{flex:1;min-height:380px;overflow-x:auto}
+#tooltip{position:fixed;background:var(--p1);color:var(--p8);font-family:var(--font);font-size:12px;font-weight:600;padding:9px 13px;border:1px solid var(--p2);pointer-events:none;opacity:0;transition:opacity .12s;z-index:100;line-height:1.7;max-width:210px}
+.controls{display:flex;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap}
+.controls button{background:transparent;border:1px solid var(--p6);color:var(--p5);font-family:var(--font);font-size:11px;padding:5px 12px;cursor:pointer;letter-spacing:.06em;text-transform:uppercase;transition:all .15s}
+.controls button:hover,.controls button.active{border-color:var(--p2);color:var(--p2)}
+.controls button.active{background:#5C331710}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11px;color:var(--p6);margin-top:12px;align-items:center}
+.legend-item{display:flex;align-items:center;gap:6px;cursor:pointer;transition:opacity .2s}
+.legend-item:hover{opacity:.75}
+.legend-swatch{width:10px;height:10px;border-radius:50%}
+.slide-learn{background:#FAFAFA}
+.learn-block{max-width:860px;columns:2;column-gap:48px}
+@media(max-width:720px){.learn-block{columns:1}.slide{padding:24px 20px}}
+.learn-block h2{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--p2);margin:24px 0 8px;break-after:avoid}
+.learn-block h2:first-child{margin-top:0}
+.learn-block p{font-size:13px;font-weight:400;color:var(--p5);line-height:1.75;break-inside:avoid}
+.framework-ref{border-left:3px solid var(--p2);padding:12px 16px;margin-top:24px;break-inside:avoid}
+.framework-ref .lbl{display:block;margin-bottom:6px}
+.framework-ref p{font-size:12px;font-style:italic;color:var(--p6)}
+footer{padding:20px 48px;border-top:2px solid var(--p7);font-size:11px;color:var(--p6);letter-spacing:.04em;line-height:1.8}
+[tabindex="0"]:focus-visible{outline:2px solid var(--p2);outline-offset:2px}
+</style>
+</head>
+<body>
+
+<div id="tooltip"></div>
+
+<div class="slides-wrapper">
+
+<!-- SLIDE 1 ─────────────────────────────────────────────── -->
+<section class="slide" id="slide-01" aria-label="Pictogram Chart — Global Energy Mix">
+  <div class="slide-meta">
+    <span class="lbl">// PICTOGRAM CHART</span>
+    <div class="dot-nav" role="navigation" aria-label="Slide navigation">
+      <div class="nav-dot active" onclick="scrollToSlide(0)" tabindex="0" aria-label="Slide 1"></div>
+      <div class="nav-dot" onclick="scrollToSlide(1)" tabindex="0" aria-label="Slide 2 learn panel"></div>
+    </div>
+  </div>
+  <h1 class="slide-title">Energy Mix by Region — Each Icon = 2% of Portfolio</h1>
+  <p class="slide-subtitle">Hover any icon for exact value &nbsp; Click a source to isolate &nbsp; Toggle row / column layout &nbsp; Arrow keys navigate</p>
+  <div class="viz-container" id="chart" role="img" aria-label="Pictogram chart showing energy source distribution across five world regions. Each icon represents 2 percent of a region's energy portfolio. Sources: fossil fuels, nuclear, hydro, wind, solar."></div>
+  <div class="controls">
+    <button id="btn-rows" class="active" onclick="setLayout('rows')" aria-pressed="true">Rows</button>
+    <button id="btn-cols" onclick="setLayout('cols')" aria-pressed="false">Columns</button>
+    <button id="btn-sort" onclick="toggleSort()" aria-pressed="false">Sort by renewable</button>
+    <button id="audio-toggle" onclick="toggleAudio()" aria-label="Play narration">&#9654; narration</button>
+  </div>
+  <div class="legend" id="legend-row"></div>
+</section>
+
+<!-- SLIDE 2 ─────────────────────────────────────────────── -->
+<section class="slide slide-learn" id="slide-02" aria-label="Learn Panel — Pictogram Chart">
+  <div class="slide-meta">
+    <span class="lbl">// LEARN — Pictogram Chart</span>
+    <div class="dot-nav" role="navigation" aria-label="Slide navigation">
+      <div class="nav-dot" onclick="scrollToSlide(0)" tabindex="0" aria-label="Slide 1"></div>
+      <div class="nav-dot active" onclick="scrollToSlide(1)" tabindex="0" aria-label="Slide 2 learn panel"></div>
+    </div>
+  </div>
+  <div class="learn-block">
+    <h2>What this chart is</h2>
+    <p>A pictogram chart represents discrete quantities as rows or columns of icons, where each icon encodes a fixed unit count. The perceptual mechanism is counting and grouping: the viewer scans a row of icons the same way they scan a shelf of objects, building a concrete intuition for quantity that abstract bar lengths cannot match. When icons represent the subject of the data — energy symbols for energy data, people silhouettes for population data — the chart exploits associative memory, reducing the cognitive distance between the number and what it means. Color encodes category, but the icon shape provides a fully redundant second encoding, satisfying WCAG's requirement that color never be the sole differentiator.</p>
+    <h2>Why it was chosen here</h2>
+    <p>The dataset is a small set of discrete categorical proportions (five energy sources, five regions, all summing to 50 icons per region at 2% each) with a message about relative mix and regional comparison. The data is explicitly appropriate for pictograms: small counts, meaningful units, a comparison story. A bar chart would convey the same totals but strip the iconographic context that makes the energy mix legible without axis reading. A dot matrix would work for a single region but loses the side-by-side comparison that reveals which regions lead on renewables. The pictogram occupies the productive overlap between engaging infographic and honest statistical display.</p>
+    <h2>What the alternative would break</h2>
+    <p>A grouped bar chart would be the statistically rigorous alternative, and it is superior when precision matters more than engagement. The pictogram's failure mode is the partial icon problem: showing 3.7 icons is misleading because fractions of an icon imply fractional units. This implementation avoids partial icons entirely — all counts are rounded to whole icon multiples of the unit value before rendering. The dot matrix is the closest structural relative; the pictogram is preferred when the icon shape carries semantic meaning that helps the audience without a data-literacy background understand the subject immediately, as is common in policy briefings, annual reports, and journalism.</p>
+    <div class="framework-ref">
+      <span class="lbl">// FRAMEWORK</span>
+      <p>FT Visual Vocabulary category: Part-to-whole / Comparisons — "Show how discrete parts compare across categories when the subject can be represented iconographically." Tufte caution: pictograms are at risk of the lie factor when icons are scaled in two dimensions (area grows as the square of height). This implementation avoids that: every icon is the same size, and quantity is encoded only by count, never by scale. The one design decision worth knowing: icon unit value (here, 2%) was chosen so that no region requires more than 50 icons per row — beyond 50 discrete marks, counting becomes error-prone and the advantage over a bar chart disappears.</p>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  <p>Nik Bear Brown, Irreducibly Human, What AI Can and Can't Do</p>
+  <p>boondoggling.ai &nbsp; irreducibly.xyz &nbsp; brutalist.art &nbsp; bearbrown.co &nbsp; frictional.xyz</p>
+</footer>
+
+<audio id="page-audio" src="./pictogram-chart/audio.mp3"></audio>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script>
+/* ── DATA ─────────────────────────────────────────────────
+   Each value is a PERCENTAGE (0–100). Must sum to 100 per region.
+   Icons per region = value / UNIT_PCT (all integers after division).
+   Replace regions and source values with real data.
+   UNIT_PCT = what one icon represents (here: 2 = each icon = 2%)
+─────────────────────────────────────────────────────────── */
+const UNIT_PCT = 2;
+
+const SOURCES = [
+  { id:'fossil', label:'Fossil fuels' },
+  { id:'nuclear',label:'Nuclear'      },
+  { id:'hydro',  label:'Hydro'        },
+  { id:'wind',   label:'Wind'         },
+  { id:'solar',  label:'Solar'        },
+];
+
+const REGIONS = [
+  { name:'North America', values:{ fossil:60, nuclear:10, hydro:12, wind:10, solar:8 } },
+  { name:'Europe',        values:{ fossil:38, nuclear:14, hydro:14, wind:20, solar:14 } },
+  { name:'East Asia',     values:{ fossil:68, nuclear:6,  hydro:12, wind:8,  solar:6  } },
+  { name:'South America', values:{ fossil:42, nuclear:2,  hydro:34, wind:12, solar:10 } },
+  { name:'Middle East',   values:{ fossil:82, nuclear:0,  hydro:2,  wind:6,  solar:10 } },
+];
+
+/* ── HAI PALETTE — source colors ─────────────────────────── */
+const COLORS = {
+  fossil: '#1B1B1B',   /* obsidian  */
+  nuclear:'#5C3317',   /* walnut    */
+  hydro:  '#797C7F',   /* mist      */
+  wind:   '#4A4D4F',   /* dim-gray  */
+  solar:  '#B52C2C',   /* blood-red */
+};
+
+/* ── SVG ICON PATHS (all 20x20 viewBox) ─────────────────────
+   Each path is a simple schematic glyph. Same size, count = quantity.
+─────────────────────────────────────────────────────────── */
+const ICONS = {
+  fossil: 'M7 18V10L5 8V4h10v4l-2 2v8H7zm1-8h4V6H8v4z',
+  nuclear:'M10 2a8 8 0 100 16A8 8 0 0010 2zm0 5a3 3 0 110 6 3 3 0 010-6zm-5 8l2-2m6 2l-2-2M10 4v2m0 10v2M4 10H2m16 0h-2',
+  hydro:  'M10 2C7 6 4 9 4 12a6 6 0 0012 0c0-3-3-6-6-10zM8 14a3 3 0 003-3',
+  wind:   'M10 10m-2 0a2 2 0 104 0 2 2 0 10-4 0M10 8C8 5 5 4 3 5m7 5c0-2 2-5 5-5m-5 5c2 2 2 5 1 7',
+  solar:  'M10 6a4 4 0 100 8 4 4 0 000-8zm0-4v2m0 14v2M4.2 4.2l1.4 1.4m8.8 8.8l1.4 1.4M2 10h2m14 0h2M4.2 15.8l1.4-1.4M14.4 5.6l1.4-1.4',
+};
+
+/* ── STATE ─────────────────────────────────────────────────── */
+let layout     = 'rows';
+let activeSource = null;
+let sortRenew  = false;
+
+/* ── LEGEND ─────────────────────────────────────────────────── */
+const legendRow = document.getElementById('legend-row');
+SOURCES.forEach(src => {
+  const item = document.createElement('span');
+  item.className = 'legend-item';
+  item.setAttribute('tabindex','0');
+  item.setAttribute('aria-label','Filter ' + src.label);
+  item.innerHTML =
+    '<span class="legend-swatch" style="background:' + COLORS[src.id] + '"></span>' +
+    '<span>' + src.label + '</span>';
+  item.onclick = () => filterSource(activeSource === src.id ? null : src.id);
+  item.onkeydown = e => { if (e.key === 'Enter') item.click(); };
+  legendRow.appendChild(item);
+});
+
+/* ── DRAW ─────────────────────────────────────────────────── */
+function draw() {
+  const container = document.getElementById('chart');
+  container.innerHTML = '';
+  const tip = document.getElementById('tooltip');
+
+  const W = container.clientWidth || 900;
+  const ICON_SIZE = Math.max(16, Math.min(22, W / 55));
+  const GAP = Math.max(2, ICON_SIZE * 0.15);
+  const ROW_PAD = ICON_SIZE * 0.6;
+  const LABEL_W = Math.max(110, W * 0.16);
+
+  const regions = sortRenew
+    ? [...REGIONS].sort((a,b) => {
+        const renewA = a.values.hydro + a.values.wind + a.values.solar;
+        const renewB = b.values.hydro + b.values.wind + b.values.solar;
+        return renewB - renewA;
+      })
+    : REGIONS;
+
+  if (layout === 'rows') drawRows(container, tip, regions, ICON_SIZE, GAP, ROW_PAD, LABEL_W);
+  else                   drawCols(container, tip, regions, ICON_SIZE, GAP, ROW_PAD, LABEL_W);
+}
+
+function drawRows(container, tip, regions, IS, GAP, ROW_PAD, LABEL_W) {
+  const iconsPerRow = Math.floor((container.clientWidth - LABEL_W - 16) / (IS + GAP));
+  let totalH = 24;
+  regions.forEach(() => { totalH += (IS + GAP) * Math.ceil(50 / iconsPerRow) + IS * 1.4 + ROW_PAD * 2; });
+
+  const svg = d3.select('#chart').append('svg')
+    .attr('width','100%').attr('height', totalH).attr('role','img');
+
+  let yOff = 24;
+  regions.forEach((region, ri) => {
+    /* region label */
+    svg.append('text')
+      .attr('x', LABEL_W - 8).attr('y', yOff + IS * 0.9)
+      .attr('text-anchor','end').attr('dominant-baseline','middle')
+      .attr('font-family',"'JetBrains Mono',monospace").attr('font-size', Math.max(10, IS * 0.62) + 'px')
+      .attr('font-weight','800').attr('fill','#1B1B1B')
+      .text(region.name);
+
+    /* build flat icon array */
+    const icons = buildIconArray(region);
+    const rowCount = Math.ceil(icons.length / iconsPerRow);
+
+    icons.forEach((ic, ii) => {
+      const col = ii % iconsPerRow;
+      const row = Math.floor(ii / iconsPerRow);
+      const x = LABEL_W + col * (IS + GAP);
+      const y = yOff + row * (IS + GAP);
+      const dimmed = activeSource !== null && ic.sourceId !== activeSource;
+
+      const g = svg.append('g')
+        .attr('transform','translate(' + x + ',' + y + ')')
+        .attr('tabindex', 0)
+        .attr('aria-label', ic.label + ' — ' + region.name + ': ' + region.values[ic.sourceId] + '%')
+        .style('cursor','pointer')
+        .attr('opacity', dimmed ? 0.12 : 0)
+        .on('mousemove', function(event) {
+          tip.style.opacity = '1';
+          tip.style.left  = (event.clientX + 14) + 'px';
+          tip.style.top   = (event.clientY - 10) + 'px';
+          tip.innerHTML = '<strong style="color:' + COLORS[ic.sourceId] + '">' + ic.label + '</strong><br>' +
+            region.name + ': ' + region.values[ic.sourceId] + '%<br>' +
+            '<span style="color:var(--p6)">' + (region.values[ic.sourceId] / UNIT_PCT) + ' icons (1 icon = ' + UNIT_PCT + '%)</span>';
+          d3.select(this).select('path').attr('opacity', .65);
+        })
+        .on('mouseout', function() {
+          tip.style.opacity = '0';
+          d3.select(this).select('path').attr('opacity', 1);
+        })
+        .on('click', () => filterSource(activeSource === ic.sourceId ? null : ic.sourceId))
+        .on('keydown', function(event) {
+          if (event.key === 'Enter' || event.key === ' ') filterSource(activeSource === ic.sourceId ? null : ic.sourceId);
+        });
+
+      /* scale icon path from 20x20 to IS×IS */
+      const sc = IS / 20;
+      g.append('path')
+        .attr('d', ICONS[ic.sourceId])
+        .attr('transform','scale(' + sc + ')')
+        .attr('fill', COLORS[ic.sourceId])
+        .attr('stroke', COLORS[ic.sourceId])
+        .attr('stroke-width', 0.6)
+        .attr('stroke-linecap','round').attr('stroke-linejoin','round')
+        .attr('fill-opacity', ic.sourceId === 'nuclear' || ic.sourceId === 'wind' || ic.sourceId === 'solar' ? 0 : 1);
+
+      g.transition().duration(400)
+        .delay(ri * 80 + ii * 8).ease(d3.easeCubicOut)
+        .attr('opacity', dimmed ? 0.12 : 1);
+    });
+
+    yOff += rowCount * (IS + GAP) + IS * 1.4 + ROW_PAD;
+
+    /* separator */
+    if (ri < regions.length - 1) {
+      svg.append('line')
+        .attr('x1', 0).attr('x2','100%')
+        .attr('y1', yOff - ROW_PAD * 0.5).attr('y2', yOff - ROW_PAD * 0.5)
+        .attr('stroke','#EDEDED').attr('stroke-width',0.5);
+    }
+  });
+}
+
+function drawCols(container, tip, regions, IS, GAP, ROW_PAD, LABEL_W) {
+  const nRegions = regions.length;
+  const colW = Math.floor((container.clientWidth - 24) / nRegions);
+  const iconsPerRow = Math.max(5, Math.floor(colW / (IS + GAP)));
+  let maxRows = 0;
+  regions.forEach(r => {
+    const total = Math.round(100 / UNIT_PCT);
+    maxRows = Math.max(maxRows, Math.ceil(total / iconsPerRow));
+  });
+  const H = maxRows * (IS + GAP) + IS * 2 + ROW_PAD * 3;
+
+  const svg = d3.select('#chart').append('svg')
+    .attr('width','100%').attr('height', H).attr('role','img');
+
+  regions.forEach((region, ri) => {
+    const xBase = ri * colW + (colW - iconsPerRow * (IS + GAP)) / 2;
+
+    svg.append('text')
+      .attr('x', ri * colW + colW / 2).attr('y', IS * 1.1)
+      .attr('text-anchor','middle').attr('dominant-baseline','middle')
+      .attr('font-family',"'JetBrains Mono',monospace").attr('font-size', Math.max(9, IS * 0.55) + 'px')
+      .attr('font-weight','800').attr('fill','#1B1B1B')
+      .text(region.name);
+
+    const icons = buildIconArray(region);
+    icons.forEach((ic, ii) => {
+      const col = ii % iconsPerRow;
+      const row = Math.floor(ii / iconsPerRow);
+      const x = xBase + col * (IS + GAP);
+      const y = IS * 2 + row * (IS + GAP);
+      const dimmed = activeSource !== null && ic.sourceId !== activeSource;
+
+      const g = svg.append('g')
+        .attr('transform','translate(' + x + ',' + y + ')')
+        .attr('tabindex', 0)
+        .attr('aria-label', ic.label + ' ' + region.name + ' ' + region.values[ic.sourceId] + ' percent')
+        .style('cursor','pointer')
+        .attr('opacity', dimmed ? 0.12 : 0)
+        .on('mousemove', function(event) {
+          tip.style.opacity = '1';
+          tip.style.left  = (event.clientX + 14) + 'px';
+          tip.style.top   = (event.clientY - 10) + 'px';
+          tip.innerHTML = '<strong style="color:' + COLORS[ic.sourceId] + '">' + ic.label + '</strong><br>' + region.name + ': ' + region.values[ic.sourceId] + '%';
+        })
+        .on('mouseout', () => { tip.style.opacity = '0'; })
+        .on('click', () => filterSource(activeSource === ic.sourceId ? null : ic.sourceId))
+        .on('keydown', function(e) { if (e.key==='Enter') filterSource(activeSource===ic.sourceId?null:ic.sourceId); });
+
+      const sc = IS / 20;
+      g.append('path')
+        .attr('d', ICONS[ic.sourceId])
+        .attr('transform','scale(' + sc + ')')
+        .attr('fill', COLORS[ic.sourceId])
+        .attr('stroke', COLORS[ic.sourceId])
+        .attr('stroke-width',0.6).attr('stroke-linecap','round').attr('stroke-linejoin','round')
+        .attr('fill-opacity', ic.sourceId === 'nuclear' || ic.sourceId === 'wind' || ic.sourceId === 'solar' ? 0 : 1);
+
+      g.transition().duration(400)
+        .delay(ri * 60 + ii * 7).ease(d3.easeCubicOut)
+        .attr('opacity', dimmed ? 0.12 : 1);
+    });
+  });
+}
+
+function buildIconArray(region) {
+  const icons = [];
+  SOURCES.forEach(src => {
+    const count = Math.round(region.values[src.id] / UNIT_PCT);
+    for (let k = 0; k < count; k++) icons.push({ sourceId: src.id, label: src.label });
+  });
+  return icons;
+}
+
+/* ── FILTER ──────────────────────────────────────────────── */
+function filterSource(id) {
+  activeSource = id;
+  document.querySelectorAll('.legend-item').forEach((el, i) => {
+    el.style.opacity = (id === null || SOURCES[i].id === id) ? '1' : '0.35';
+  });
+  d3.select('#chart').selectAll('g[tabindex]')
+    .transition().duration(250).ease(d3.easeCubicOut)
+    .attr('opacity', function() {
+      const ariaLabel = d3.select(this).attr('aria-label') || '';
+      if (id === null) return 1;
+      return SOURCES.find(s => s.id === id && ariaLabel.toLowerCase().startsWith(s.label.toLowerCase())) ? 1 : 0.12;
+    });
+}
+
+/* ── CONTROLS ────────────────────────────────────────────── */
+function setLayout(l) {
+  layout = l;
+  document.getElementById('btn-rows').classList.toggle('active', l === 'rows');
+  document.getElementById('btn-cols').classList.toggle('active', l === 'cols');
+  document.getElementById('btn-rows').setAttribute('aria-pressed', l === 'rows');
+  document.getElementById('btn-cols').setAttribute('aria-pressed', l === 'cols');
+  draw();
+}
+
+function toggleSort() {
+  sortRenew = !sortRenew;
+  const btn = document.getElementById('btn-sort');
+  btn.classList.toggle('active', sortRenew);
+  btn.setAttribute('aria-pressed', sortRenew);
+  btn.textContent = sortRenew ? 'Sorted: renewable' : 'Sort by renewable';
+  draw();
+}
+
+function toggleAudio() {
+  const audio = document.getElementById('page-audio');
+  const btn   = document.getElementById('audio-toggle');
+  if (!audio) return;
+  if (audio.paused) {
+    audio.play().then(() => { btn.innerHTML = '&#9646;&#9646; narration'; }).catch(() => {});
+  } else {
+    audio.pause();
+    btn.innerHTML = '&#9654; narration';
+  }
+}
+
+function scrollToSlide(idx) {
+  document.querySelectorAll('.slide')[idx]?.scrollIntoView({ behavior:'smooth' });
+}
+
+let rTimer;
+const ro = new ResizeObserver(() => { clearTimeout(rTimer); rTimer = setTimeout(draw, 150); });
+ro.observe(document.getElementById('chart'));
+
+draw();
+</script>
+</body>
+</html>

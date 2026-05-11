@@ -1,0 +1,142 @@
+{
+  "_schema": {
+    "description": "Hierarchical taxonomy for a collapsible tree diagram. Root node has 'children'; leaf nodes omit 'children'. Depth 2+ nodes are collapsed on load — click to expand. Maximum recommended depth is 4 for legibility.",
+    "fields": {
+      "name":        "string — label shown on the node",
+      "desc":        "string — description shown in the tooltip",
+      "children":    "array — child nodes. Omit on leaf nodes.",
+      "note":        "string (optional) — secondary annotation in tooltip",
+      "flag":        "string (optional) — 'warn' colours node blood-red regardless of depth, for highlighting ethically sensitive capabilities"
+    },
+    "replace": "Swap names, descriptions, and tree structure to match your hierarchy. Add 'flag': 'warn' to any node you want visually flagged. Keep depth ≤ 4 — beyond that, a treemap or circle packing chart handles scale better."
+  },
+  "name": "Humanitarian AI",
+  "desc": "Root taxonomy of AI capabilities deployed across the humanitarian sector.",
+  "children": [
+    {
+      "name": "Data Collection",
+      "desc": "Technologies for gathering field intelligence in crisis contexts — often the highest-risk stage for privacy and consent.",
+      "children": [
+        {
+          "name": "Remote Sensing",
+          "desc": "Observation from a distance using satellite, aerial, and ground sensor systems.",
+          "children": [
+            { "name": "Satellite Analysis",    "desc": "Optical and SAR imagery for damage mapping, crop monitoring, and displacement assessment at national scale." },
+            { "name": "Drone Surveys",         "desc": "UAV deployment into inaccessible or hazardous terrain for post-disaster rapid assessment." },
+            { "name": "Environmental Sensors", "desc": "IoT devices measuring flood levels, soil moisture, and air quality in real time." }
+          ]
+        },
+        {
+          "name": "Crowdsourcing",
+          "desc": "Aggregating data contributed by field staff, partners, and affected communities themselves.",
+          "children": [
+            { "name": "Social Media Mining",  "desc": "Extracting crisis signals from Twitter, Facebook, WhatsApp, and Telegram during acute events.", "note": "Requires careful bias correction — digital access is unequally distributed." },
+            { "name": "Field Reporting Apps", "desc": "Structured mobile tools enabling aid workers to submit standardised observational data from the field." }
+          ]
+        },
+        {
+          "name": "Biometric Collection",
+          "desc": "Identity data gathering for beneficiary registration and deduplication.",
+          "children": [
+            { "name": "Fingerprint ID",       "desc": "Biometric matching used widely for beneficiary registration. Less culturally fraught than facial recognition." },
+            { "name": "Iris Recognition",     "desc": "Higher-accuracy biometric matching. Used by UNHCR in refugee registration contexts." },
+            { "name": "Facial Recognition",   "desc": "Image-based identity verification. High accuracy; high ethical risk — consent and misuse concerns are severe.", "flag": "warn" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Analysis & Prediction",
+      "desc": "AI methods that interpret collected data, detect patterns, and forecast future conditions.",
+      "children": [
+        {
+          "name": "Machine Learning",
+          "desc": "Statistical learning models trained on labelled or unlabelled data to produce predictions and classifications.",
+          "children": [
+            { "name": "Classification",  "desc": "Assigning crisis severity levels, vulnerability tiers, or damage categories to geographic areas or households." },
+            { "name": "Regression",      "desc": "Predicting continuous outcomes: food prices, displacement volume, disease incidence, or programme costs." },
+            { "name": "Clustering",      "desc": "Grouping beneficiaries or events into natural segments without predefined categories — used for needs profiling." }
+          ]
+        },
+        {
+          "name": "Natural Language Processing",
+          "desc": "Extracting structured meaning from unstructured text across multiple languages and low-resource dialects.",
+          "children": [
+            { "name": "Machine Translation",      "desc": "Enabling communication across language barriers between aid workers and affected communities." },
+            { "name": "Named Entity Recognition", "desc": "Extracting locations, organisations, and people from field reports and situation reports at scale." },
+            { "name": "Sentiment Analysis",       "desc": "Gauging community trust, need urgency, and programme satisfaction from feedback text." }
+          ]
+        },
+        {
+          "name": "Computer Vision",
+          "desc": "Automated interpretation of images and video to extract structured information at scale.",
+          "children": [
+            { "name": "Damage Assessment",     "desc": "Classifying building and infrastructure damage levels from aerial imagery post-disaster." },
+            { "name": "Population Estimation", "desc": "Counting displaced persons and shelter structures from satellite and drone imagery." },
+            { "name": "Medical Imaging AI",    "desc": "Diagnosis assistance for malnutrition, injury, and disease from clinical photographs in low-resource settings." }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Decision Support",
+      "desc": "Tools that assist coordinators in making resource, logistics, and response decisions under uncertainty.",
+      "children": [
+        {
+          "name": "Resource Allocation",
+          "desc": "Optimising the distribution of finite aid resources across competing priorities.",
+          "children": [
+            { "name": "Logistics Optimisation", "desc": "Routing algorithms for convoy planning, hub placement, and last-mile delivery scheduling." },
+            { "name": "Supply Forecasting",     "desc": "Predictive models to pre-position supplies before crisis peaks — reducing emergency procurement costs." }
+          ]
+        },
+        {
+          "name": "Risk Assessment",
+          "desc": "Identifying where and when crises are most likely to escalate before they occur.",
+          "children": [
+            { "name": "Vulnerability Mapping",  "desc": "Composite scoring of population exposure, adaptive capacity, and structural fragility across regions." },
+            { "name": "Early Warning Systems",  "desc": "Threshold-triggered alerts for famine, flood, conflict escalation, and epidemic onset." }
+          ]
+        },
+        {
+          "name": "Coordination Platforms",
+          "desc": "Shared information systems enabling data exchange and operational collaboration across agencies.",
+          "children": [
+            { "name": "Information Management", "desc": "Centralised data repositories and standardised inter-agency data sharing protocols (4W, Who Does What Where When)." },
+            { "name": "Situation Dashboards",   "desc": "Real-time operational overviews surfacing key metrics for field and headquarters decision-makers." }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Delivery & Accountability",
+      "desc": "AI supporting the actual distribution of aid and evidence that it reached the right people.",
+      "children": [
+        {
+          "name": "Beneficiary Services",
+          "desc": "Tools that directly support the registration, targeting, and assistance of affected populations.",
+          "children": [
+            { "name": "Needs Assessment AI",    "desc": "Automated survey analysis to identify and rank individual household needs at scale." },
+            { "name": "Cash Transfer Systems",  "desc": "Digital disbursement platforms integrating biometrics or mobile wallets for direct assistance." }
+          ]
+        },
+        {
+          "name": "Outcome Monitoring",
+          "desc": "Tracking whether aid reaches intended recipients and achieves its stated objectives.",
+          "children": [
+            { "name": "Distribution Tracking",  "desc": "Confirming aid delivery with beneficiary signatures, GPS logs, and digital receipts." },
+            { "name": "Impact Measurement",     "desc": "Longitudinal data collection and causal inference models assessing sustained programme outcomes." }
+          ]
+        },
+        {
+          "name": "Feedback Loops",
+          "desc": "Channels for affected communities to report on aid quality, gaps, and grievances.",
+          "children": [
+            { "name": "Community Hotlines",   "desc": "SMS, voice, and AI chatbot channels for beneficiary queries, complaints, and suggestions." },
+            { "name": "Perception Surveys",   "desc": "Regular sampling of community satisfaction, trust, and accountability using structured questionnaires." }
+          ]
+        }
+      ]
+    }
+  ]
+}

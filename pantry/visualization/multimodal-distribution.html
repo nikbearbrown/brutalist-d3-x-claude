@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multimodal Distribution — KDE &amp; Mixture Visualisation</title>
+  <meta name="description" content="Interactive D3 visualisation of multimodal distributions. Gaussian mixture sampler, KDE curve, histogram, individual component curves, Ashman D and bimodality coefficient. hai palette.">
+  <meta name="keywords" content="multimodal distribution, bimodal, KDE, kernel density estimation, gaussian mixture, histogram, statistics, d3, data visualisation, brutalist, hai palette">
+  <meta name="author" content="Nik Bear Brown">
+  <meta name="category" content="Statistics / Distribution Analysis">
+
+  <style>
+    :root {
+      --p1: #1B1B1B;
+      --p2: #5C3317;
+      --p3: #B52C2C;
+      --p4: #F7FAFD;
+      --p5: #4A4D4F;
+      --p6: #797C7F;
+      --p7: #EDEDED;
+      --p8: #FFFFFF;
+      --font: 'JetBrains Mono', monospace;
+      /* Component colours */
+      --ca: #5C3317;
+      --cb: #2A4A2E;
+      --cc: #7A3B3B;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--p8); color: var(--p1);
+      font-family: var(--font); min-height: 100vh; overflow-x: hidden;
+    }
+
+    .slide {
+      min-height: 100vh; display: flex; flex-direction: column;
+      padding: 28px 36px 14px;
+    }
+    .slide + .slide { border-top: 2px solid var(--p7); }
+    .slide-meta { margin-bottom: 4px; }
+    .label {
+      font-size: 10px; color: var(--p6);
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .slide-title {
+      font-size: clamp(15px, 2.6vw, 28px); font-weight: 800;
+      text-transform: uppercase; color: var(--p1);
+      letter-spacing: 0.04em; line-height: 1.1; margin-bottom: 4px;
+    }
+    .slide-sub { font-size: 11px; color: var(--p6); margin-bottom: 8px; }
+
+    /* stat bar */
+    #stat-bar {
+      display: flex; gap: 20px; flex-wrap: wrap;
+      font-size: 10px; color: var(--p5);
+      margin-bottom: 8px; align-items: baseline;
+    }
+    .stat { display: flex; align-items: baseline; gap: 4px; }
+    .stat-val { font-weight: 700; font-size: 13px; color: var(--p1); }
+    .stat-lbl { color: var(--p6); }
+    #bimodal-verdict {
+      font-size: 10px; padding: 2px 8px;
+      border-radius: 2px; font-weight: 700;
+    }
+    #bimodal-verdict.yes  { color: var(--p3); border: 1px solid var(--p3); background: #FCECEA; }
+    #bimodal-verdict.no   { color: var(--cb); border: 1px solid var(--cb); background: #EAF4EA; }
+    #bimodal-verdict.maybe{ color: var(--p2); border: 1px solid var(--p2); background: #F5EBE0; }
+
+    /* presets */
+    .preset-row {
+      display: flex; gap: 3px; flex-wrap: wrap; margin-bottom: 8px;
+    }
+    .preset-btn {
+      font-family: var(--font); font-size: 9px; letter-spacing: 0.06em;
+      text-transform: uppercase; padding: 3px 9px;
+      border: 1px solid var(--p7); background: none; color: var(--p6);
+      cursor: pointer; transition: all 0.12s;
+    }
+    .preset-btn.active { background: var(--p2); color: var(--p8); border-color: var(--p2); }
+    .preset-btn:hover:not(.active) { border-color: var(--p2); color: var(--p2); }
+
+    /* viz */
+    .viz-container { flex: 1; position: relative; min-height: 380px; }
+    #chart { width: 100%; height: 100%; min-height: 380px; display: block; }
+
+    /* sliders panel */
+    #sliders-panel {
+      display: flex; flex-wrap: wrap; gap: 10px 28px;
+      padding: 10px 0 8px; border-top: 1px solid var(--p7);
+      margin-top: 4px; font-size: 10px; color: var(--p5);
+    }
+    .comp-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .comp-dot {
+      width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0;
+    }
+    .comp-label { font-weight: 700; min-width: 90px; }
+    .slider-group { display: flex; align-items: center; gap: 4px; }
+    .slider-group span { color: var(--p6); min-width: 30px; text-align: right; font-size: 9px; }
+    input[type=range] { accent-color: var(--p2); width: 70px; }
+
+    /* controls */
+    .controls {
+      display: flex; align-items: center; gap: 14px;
+      padding: 8px 0 0; border-top: 1px solid var(--p7);
+      margin-top: 4px; flex-wrap: wrap;
+    }
+    .toggle-wrap {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 10px; color: var(--p6); cursor: pointer; user-select: none;
+    }
+    .toggle-track {
+      position: relative; width: 28px; height: 16px;
+      background: var(--p7); border-radius: 8px;
+      transition: background 0.15s; flex-shrink: 0;
+    }
+    .toggle-track.on { background: var(--p2); }
+    .toggle-knob {
+      position: absolute; top: 2px; left: 2px;
+      width: 12px; height: 12px; background: var(--p8);
+      border-radius: 50%; transition: transform 0.15s; pointer-events: none;
+    }
+    .toggle-track.on .toggle-knob { transform: translateX(12px); }
+    button.ctrl-btn {
+      font-family: var(--font); font-size: 10px;
+      color: var(--p5); background: none;
+      border: 1px solid var(--p7); padding: 4px 10px;
+      cursor: pointer; letter-spacing: 0.06em;
+      transition: border-color 0.12s, color 0.12s;
+    }
+    button.ctrl-btn:hover { border-color: var(--p2); color: var(--p2); }
+    #audio-toggle { margin-left: auto; }
+
+    /* tooltip */
+    #tooltip {
+      position: fixed; background: var(--p1); color: var(--p8);
+      font-family: var(--font); font-size: 11px; font-weight: 600;
+      border: 1px solid var(--p2); padding: 7px 12px;
+      pointer-events: none; opacity: 0; transition: opacity 0.1s;
+      z-index: 200; line-height: 1.65; max-width: 220px;
+    }
+    #tooltip .tt-row { font-weight: 400; color: #C49A72; }
+
+    /* learn */
+    .slide-learn { background: var(--p8); }
+    .learn-block { max-width: 720px; padding-top: 8px; }
+    .learn-block h2 {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--p2);
+      margin: 20px 0 6px; border-bottom: 1px solid var(--p7); padding-bottom: 4px;
+    }
+    .learn-block h2:first-child { margin-top: 0; }
+    .learn-block p { font-size: 12px; color: var(--p5); line-height: 1.75; margin-bottom: 6px; }
+    .learn-block strong { color: var(--p1); font-weight: 700; }
+    .learn-block code {
+      font-family: var(--font); font-size: 11px;
+      background: var(--p7); padding: 1px 5px; border-radius: 2px;
+    }
+    .framework-ref {
+      margin-top: 20px; padding: 10px 14px;
+      border-left: 3px solid var(--p2); background: var(--p7);
+    }
+    .framework-ref p { margin: 0; color: var(--p5); font-size: 11px; }
+
+    /* nav */
+    #slide-nav {
+      position: fixed; right: 18px; top: 50%;
+      transform: translateY(-50%);
+      display: flex; flex-direction: column; gap: 8px; z-index: 100;
+    }
+    .nav-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--p7); border: 1px solid var(--p6);
+      cursor: pointer; transition: background 0.15s;
+    }
+    .nav-dot.active { background: var(--p2); border-color: var(--p2); }
+
+    footer {
+      font-family: var(--font); font-size: 10px;
+      color: var(--p6); border-top: 2px solid var(--p7);
+      padding: 10px 36px; line-height: 1.7;
+    }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- SLIDE 1 -->
+<section class="slide" id="slide-01" aria-label="Multimodal distribution chart">
+  <div class="slide-meta"><span class="label">// DISTRIBUTION · STATISTICS · MIXTURE MODELS</span></div>
+  <h1 class="slide-title" id="chart-main-title">Multimodal Distribution</h1>
+  <p class="slide-sub">Adjust component sliders · Switch presets · KDE curve + histogram + individual components</p>
+
+  <!-- Stat bar -->
+  <div id="stat-bar" aria-live="polite">
+    <span class="stat"><span class="stat-val" id="stat-n">—</span><span class="stat-lbl">samples</span></span>
+    <span class="stat"><span class="stat-lbl">mean =</span><span class="stat-val" id="stat-mean">—</span></span>
+    <span class="stat"><span class="stat-lbl">std dev =</span><span class="stat-val" id="stat-sd">—</span></span>
+    <span class="stat"><span class="stat-lbl">Ashman D =</span><span class="stat-val" id="stat-d">—</span></span>
+    <span class="stat"><span class="stat-lbl">bimod coeff =</span><span class="stat-val" id="stat-b">—</span></span>
+    <span id="bimodal-verdict" class="maybe"></span>
+  </div>
+
+  <!-- Presets -->
+  <div class="preset-row" role="group" aria-label="Distribution presets">
+    <button class="preset-btn active" data-preset="bimodal_separated">Bimodal separated</button>
+    <button class="preset-btn"        data-preset="bimodal_overlapping">Bimodal overlapping</button>
+    <button class="preset-btn"        data-preset="trimodal">Trimodal</button>
+    <button class="preset-btn"        data-preset="unimodal">Unimodal</button>
+  </div>
+
+  <div class="viz-container">
+    <svg id="chart" role="img" aria-labelledby="chart-svg-title">
+      <title id="chart-svg-title">Multimodal distribution chart showing KDE curve, histogram bars, and individual Gaussian component curves.</title>
+      <desc>Interactive D3 chart of a mixture distribution. KDE curve shows the overall density. Dashed curves show individual components. Histogram shows sampled data. Hover for density values.</desc>
+    </svg>
+  </div>
+
+  <!-- Sliders -->
+  <div id="sliders-panel" aria-label="Component parameters"></div>
+
+  <div class="controls">
+    <label class="toggle-wrap">
+      <div class="toggle-track on" id="hist-track"><div class="toggle-knob"></div></div>
+      <span>Histogram</span>
+    </label>
+    <label class="toggle-wrap">
+      <div class="toggle-track on" id="kde-track"><div class="toggle-knob"></div></div>
+      <span>KDE curve</span>
+    </label>
+    <label class="toggle-wrap">
+      <div class="toggle-track on" id="comp-track"><div class="toggle-knob"></div></div>
+      <span>Components</span>
+    </label>
+    <label class="toggle-wrap">
+      <div class="toggle-track on" id="mean-track"><div class="toggle-knob"></div></div>
+      <span>Mean / antimode</span>
+    </label>
+    <button class="ctrl-btn" id="resample-btn">↺ resample</button>
+    <button class="ctrl-btn" id="audio-toggle" aria-label="Play narration">▶ narration</button>
+  </div>
+</section>
+
+<!-- SLIDE 2: LEARN -->
+<section class="slide slide-learn" id="slide-02" aria-label="Learn panel — Multimodal Distribution">
+  <div class="slide-meta"><span class="label">// LEARN — MULTIMODAL DISTRIBUTION</span></div>
+  <h1 class="slide-title">What a multimodal distribution is</h1>
+
+  <div class="learn-block">
+    <h2>The concept</h2>
+    <p>A <strong>multimodal distribution</strong> is a probability distribution with more than one local maximum (mode) in its probability density function. The most common case — <strong>bimodal</strong> — has exactly two peaks. The peaks appear because the data is a mixture of two or more distinct sub-populations, each with its own central tendency. The valley between peaks is called the <strong>antimode</strong>; the larger peak is the <strong>major mode</strong>; the smaller is the <strong>minor mode</strong>.</p>
+    <p>Common real-world examples: traffic volume (AM peak + PM peak), geyser eruption intervals, the size of weaver ant workers (two distinct castes), sediment grain sizes in geology, and galaxy colour distributions in astronomy.</p>
+
+    <h2>Why summary statistics mislead</h2>
+    <p>This is the critical insight the Wikipedia article emphasises, and the reason this visualisation is built the way it is. For a strongly bimodal distribution, the <strong>mean and median both fall in the antimode</strong> — the least-populated valley between the two peaks. A single reported mean of 0 for a distribution with peaks at −2.5 and +2.0 is not just imprecise; it actively misrepresents the data. The standard deviation compounds the problem by spanning both peaks, appearing large without revealing the two-peak structure. The standard statistical summary (mean ± SD) is categorically wrong for multimodal data.</p>
+
+    <h2>How to detect bimodality — the three statistics shown</h2>
+    <p><strong>Ashman's D</strong> measures the separation between two Gaussian components relative to their spread: <code>D = |μ₁ − μ₂| / √(½(σ₁² + σ₂²))</code>. A value of <strong>D &gt; 2</strong> indicates clean separation between the modes — the two sub-populations are distinct enough to be treated separately. Values below 2 suggest overlap that may or may not produce visible bimodality depending on the mixing weights.</p>
+    <p><strong>Sarle's bimodality coefficient β</strong> uses the skewness (γ) and kurtosis (κ) of the combined distribution: <code>β = (γ² + 1) / κ</code>. The key threshold is <strong>β &gt; 5/9 ≈ 0.555</strong>. Values above this suggest bimodal or multimodal structure; below it suggests unimodal. The logic: a bimodal distribution has low kurtosis (flat top, light tails between peaks) and/or high skewness — both increase β.</p>
+    <p><strong>KDE (kernel density estimation)</strong> is the visual detection method: the smoothed density curve directly shows the number and position of modes as local maxima. The bandwidth is critical — too narrow and noise creates false modes; too wide and real modes merge into apparent unimodality. This chart uses Silverman's rule of thumb: <code>h = 0.9 × min(σ, IQR/1.34) × n^(−1/5)</code>.</p>
+
+    <h2>The chart design</h2>
+    <p>Three layers are drawn simultaneously: (1) a <strong>histogram</strong> of sampled data (walnut fill, low opacity) showing the empirical distribution; (2) a <strong>KDE curve</strong> (solid walnut line) showing the smoothed density estimate; (3) <strong>individual component curves</strong> (dashed, colour-coded) showing each Gaussian component's contribution to the mixture. Seeing all three simultaneously reveals how the KDE's peaks emerge from the component overlap — a pedagogically essential view that is lost when only the aggregate is shown.</p>
+    <p>Vertical lines mark the <strong>overall mean</strong> (obsidian, solid) and the <strong>antimode</strong> (muted, dashed) — the exact location that a naive summary statistic would report as the "centre" of a distribution that has no observations near it.</p>
+
+    <h2>What the alternative would break</h2>
+    <p>A <strong>box plot</strong> of bimodal data shows a wide IQR centred on the antimode, with the median in the gap between peaks — it is structurally incapable of revealing multimodality. A <strong>bar chart of means ± SD</strong> is even worse: it conveys false precision about a central value that is meaningless. The KDE curve is the correct primary representation for any dataset where the shape of the distribution is the message.</p>
+
+    <div class="framework-ref">
+      <span class="label">// Framework — FT Visual Vocabulary</span>
+      <p>FT Visual Vocabulary category: <strong>Distribution</strong> — "How values in a dataset are distributed across a range." Abela quadrant: <strong>Distribution</strong>. Tufte principle applied: the three-layer chart (histogram + KDE + components) adds ink only when each layer reveals structure the others cannot — the histogram shows empirical frequency, the KDE shows continuous shape, and the component curves show the generative mechanism. Each layer earns its place.</p>
+    </div>
+  </div>
+</section>
+
+<!-- NAV -->
+<nav id="slide-nav" aria-label="Slide navigation">
+  <div class="nav-dot active" data-slide="slide-01" role="button" tabindex="0" aria-label="Slide 1: Chart"></div>
+  <div class="nav-dot"        data-slide="slide-02" role="button" tabindex="0" aria-label="Slide 2: Learn"></div>
+</nav>
+
+<footer>
+  <p>Nik Bear Brown, Irreducibly Human, What AI Can and Can't Do</p>
+  <p>boondoggling.ai · irreducibly.xyz · brutalist.art · bearbrown.co · frictional.xyz</p>
+</footer>
+
+<div id="tooltip"></div>
+<audio id="page-audio" src="./multimodal-distribution/audio.mp3"></audio>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script>
+// ── COMPONENT COLOURS ─────────────────────────────────────────
+const COMP_COLOURS = ['#5C3317','#2A4A2E','#7A3B3B'];
+
+// ── STATE ─────────────────────────────────────────────────────
+let payload, components, samples;
+let showHist  = true;
+let showKDE   = true;
+let showComps = true;
+let showMean  = true;
+
+// ── TOOLTIP ───────────────────────────────────────────────────
+const tip = document.getElementById('tooltip');
+function showTip(e, html) { tip.innerHTML = html; tip.style.opacity = 1; moveTip(e); }
+function moveTip(e) {
+  tip.style.left = Math.min(e.clientX + 14, window.innerWidth  - 240) + 'px';
+  tip.style.top  = Math.min(e.clientY - 10, window.innerHeight - 120) + 'px';
+}
+function hideTip() { tip.style.opacity = 0; }
+
+// ── RNG — Box-Muller ──────────────────────────────────────────
+function randNorm(mean, sd) {
+  let u, v;
+  do { u = Math.random(); } while (u === 0);
+  do { v = Math.random(); } while (v === 0);
+  return mean + sd * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+
+function generateSamples(comps, n) {
+  const pts = [];
+  const totalW = d3.sum(comps, c => c.weight);
+  for (let i = 0; i < n; i++) {
+    let r = Math.random() * totalW;
+    let chosen = comps[comps.length - 1];
+    for (const c of comps) { r -= c.weight; if (r <= 0) { chosen = c; break; } }
+    pts.push(randNorm(chosen.mean, chosen.sd));
+  }
+  return pts;
+}
+
+// ── KDE ───────────────────────────────────────────────────────
+function kde(kernel, thresholds, data) {
+  return thresholds.map(x => [x, d3.mean(data, d => kernel(x - d))]);
+}
+function epanechnikovKernel(bandwidth) {
+  return v => Math.abs(v /= bandwidth) <= 1 ? 0.75 * (1 - v * v) / bandwidth : 0;
+}
+function silvermanBandwidth(data) {
+  const n = data.length;
+  const sd = d3.deviation(data);
+  const sorted = [...data].sort(d3.ascending);
+  const q1 = d3.quantile(sorted, 0.25);
+  const q3 = d3.quantile(sorted, 0.75);
+  const iqr = q3 - q1;
+  const s = Math.min(sd, iqr / 1.34);
+  return 0.9 * s * Math.pow(n, -0.2);
+}
+
+// ── GAUSSIAN PDF ──────────────────────────────────────────────
+function gaussPDF(x, mean, sd) {
+  return Math.exp(-0.5 * ((x - mean) / sd) ** 2) / (sd * Math.sqrt(2 * Math.PI));
+}
+
+// ── STATISTICS ────────────────────────────────────────────────
+function ashmanD(comps) {
+  if (comps.length < 2) return null;
+  const [a, b] = comps;
+  return Math.abs(a.mean - b.mean) / Math.sqrt(0.5 * (a.sd ** 2 + b.sd ** 2));
+}
+
+function sarleBeta(data) {
+  const n = data.length;
+  if (n < 4) return null;
+  const mu   = d3.mean(data);
+  const s    = d3.deviation(data);
+  if (!s) return null;
+  const skew = d3.mean(data, d => ((d - mu) / s) ** 3);
+  const kurt = d3.mean(data, d => ((d - mu) / s) ** 4);
+  return (skew ** 2 + 1) / kurt;
+}
+
+function findAntimode(kdePoints) {
+  // Find the valley between peaks (minimum between two maxima)
+  let peaks = [];
+  for (let i = 1; i < kdePoints.length - 1; i++) {
+    if (kdePoints[i][1] > kdePoints[i-1][1] && kdePoints[i][1] > kdePoints[i+1][1]) {
+      peaks.push(i);
+    }
+  }
+  if (peaks.length < 2) return null;
+  // Find minimum between first two peaks
+  let minVal = Infinity, minX = null;
+  for (let i = peaks[0]; i <= peaks[1]; i++) {
+    if (kdePoints[i][1] < minVal) { minVal = kdePoints[i][1]; minX = kdePoints[i][0]; }
+  }
+  return minX;
+}
+
+// ── DRAW ──────────────────────────────────────────────────────
+function draw(animate) {
+  const el = document.getElementById('chart');
+  const W  = el.clientWidth  || 860;
+  const H  = el.clientHeight || 390;
+  const margin = { top: 16, right: 24, bottom: 44, left: 52 };
+  const iW = W - margin.left - margin.right;
+  const iH = H - margin.top  - margin.bottom;
+
+  const xExt = d3.extent(samples);
+  const xPad = (xExt[1] - xExt[0]) * 0.08;
+  const xMin = xExt[0] - xPad, xMax = xExt[1] + xPad;
+
+  const xScale = d3.scaleLinear().domain([xMin, xMax]).range([0, iW]);
+
+  // Histogram
+  const numBins = Math.max(20, Math.min(60, Math.floor(Math.sqrt(samples.length))));
+  const binner  = d3.bin().domain(xScale.domain()).thresholds(xScale.ticks(numBins));
+  const bins    = binner(samples);
+  const n       = samples.length;
+
+  // KDE
+  const bw = silvermanBandwidth(samples);
+  const thresholds = d3.range(xMin, xMax, (xMax - xMin) / 300);
+  const kdePoints  = kde(epanechnikovKernel(bw), thresholds, samples);
+
+  const maxDensity = Math.max(
+    d3.max(kdePoints, d => d[1]),
+    d3.max(bins, b => (b.length / n) / (b.x1 - b.x0))
+  ) * 1.18;
+
+  const yScale = d3.scaleLinear().domain([0, maxDensity]).range([iH, 0]);
+
+  const svg = d3.select('#chart');
+  svg.selectAll('*').remove();
+
+  const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+
+  // gridlines
+  g.append('g').call(d3.axisLeft(yScale).tickSize(-iW).tickFormat(''))
+    .call(gg => gg.select('.domain').remove())
+    .call(gg => gg.selectAll('line').attr('stroke','var(--p7)').attr('stroke-width',0.4));
+
+  // axes
+  g.append('g').attr('transform',`translate(0,${iH})`)
+    .call(d3.axisBottom(xScale).ticks(8).tickSize(0))
+    .call(ax => ax.select('.domain').attr('stroke','var(--p7)'))
+    .call(ax => ax.selectAll('text').attr('font-family','var(--font)').attr('font-size','10px').attr('fill','var(--p6)'));
+  g.append('g')
+    .call(d3.axisLeft(yScale).ticks(5).tickFormat(d3.format('.3f')).tickSize(0))
+    .call(ax => ax.select('.domain').attr('stroke','var(--p7)'))
+    .call(ax => ax.selectAll('text').attr('font-family','var(--font)').attr('font-size','9px').attr('fill','var(--p6)'));
+
+  // y label
+  g.append('text').attr('transform','rotate(-90)').attr('x',-iH/2).attr('y',-42)
+    .attr('text-anchor','middle').attr('font-family','var(--font)').attr('font-size','9px')
+    .attr('fill','var(--p6)').text('Density');
+
+  // ── HISTOGRAM ──────────────────────────────────────────────
+  if (showHist) {
+    const barG = g.append('g').attr('class','hist-bars');
+    const bars = barG.selectAll('rect')
+      .data(bins).join('rect')
+      .attr('x', b => xScale(b.x0) + 0.5)
+      .attr('width', b => Math.max(0, xScale(b.x1) - xScale(b.x0) - 1))
+      .attr('fill', 'var(--p2)')
+      .attr('fill-opacity', 0.15)
+      .attr('stroke', 'var(--p2)').attr('stroke-width', 0.5)
+      .attr('y', iH).attr('height', 0)
+      .on('mouseover', (e, b) => showTip(e,
+        `<span class="tt-row">range &nbsp;</span>[${b.x0.toFixed(2)}, ${b.x1.toFixed(2)}]<br>` +
+        `<span class="tt-row">count &nbsp;</span>${b.length}<br>` +
+        `<span class="tt-row">density </span>${((b.length/n)/(b.x1-b.x0)).toFixed(4)}`))
+      .on('mousemove', moveTip).on('mouseout', hideTip);
+
+    if (animate) {
+      bars.transition().duration(700).ease(d3.easeCubicOut)
+        .attr('y', b => yScale((b.length / n) / (b.x1 - b.x0)))
+        .attr('height', b => iH - yScale((b.length / n) / (b.x1 - b.x0)));
+    } else {
+      bars.attr('y', b => yScale((b.length/n)/(b.x1-b.x0)))
+          .attr('height', b => iH - yScale((b.length/n)/(b.x1-b.x0)));
+    }
+  }
+
+  // ── COMPONENT CURVES ──────────────────────────────────────
+  if (showComps) {
+    components.forEach((c, i) => {
+      const compPts = thresholds.map(x => [x, c.weight * gaussPDF(x, c.mean, c.sd)]);
+      const lineGen = d3.line().x(d => xScale(d[0])).y(d => yScale(d[1])).curve(d3.curveBasis);
+      g.append('path')
+        .datum(compPts)
+        .attr('fill','none')
+        .attr('stroke', COMP_COLOURS[i % COMP_COLOURS.length])
+        .attr('stroke-width', 1.5)
+        .attr('stroke-dasharray','5 3')
+        .attr('opacity', 0.7)
+        .attr('d', lineGen);
+
+      // Component label near peak
+      const peakX = c.mean;
+      const peakY = c.weight * gaussPDF(peakX, c.mean, c.sd);
+      g.append('text')
+        .attr('x', xScale(peakX)).attr('y', yScale(peakY) - 6)
+        .attr('text-anchor','middle').attr('font-family','var(--font)')
+        .attr('font-size','9px').attr('fill', COMP_COLOURS[i % COMP_COLOURS.length])
+        .attr('font-weight','700').text(c.label || `Comp ${i+1}`);
+    });
+  }
+
+  // ── KDE CURVE ──────────────────────────────────────────────
+  if (showKDE) {
+    const lineGen = d3.line().x(d => xScale(d[0])).y(d => yScale(d[1])).curve(d3.curveBasis);
+    const kdePath = g.append('path')
+      .datum(kdePoints)
+      .attr('fill','none')
+      .attr('stroke','var(--p1)')
+      .attr('stroke-width', 2.2)
+      .attr('opacity', 0.85);
+
+    if (animate) {
+      const totalLen = kdePath.node().getTotalLength?.() || 1000;
+      kdePath.attr('d', lineGen)
+        .attr('stroke-dasharray', totalLen + ' ' + totalLen)
+        .attr('stroke-dashoffset', totalLen)
+        .transition().duration(900).ease(d3.easeCubicOut)
+        .attr('stroke-dashoffset', 0);
+    } else {
+      kdePath.attr('d', lineGen);
+    }
+
+    // Hover overlay for KDE
+    g.append('rect')
+      .attr('width', iW).attr('height', iH)
+      .attr('fill','none').attr('pointer-events','all')
+      .on('mousemove', (e) => {
+        const mx  = d3.pointer(e)[0];
+        const xv  = xScale.invert(mx);
+        const closest = kdePoints.reduce((a, b) => Math.abs(b[0]-xv) < Math.abs(a[0]-xv) ? b : a);
+        showTip(e,
+          `<span class="tt-row">x &nbsp;&nbsp;&nbsp;&nbsp;</span>${closest[0].toFixed(3)}<br>` +
+          `<span class="tt-row">density </span>${closest[1].toFixed(4)}`);
+      })
+      .on('mouseout', hideTip);
+  }
+
+  // ── MEAN + ANTIMODE LINES ──────────────────────────────────
+  if (showMean) {
+    const mu = d3.mean(samples);
+    g.append('line')
+      .attr('x1', xScale(mu)).attr('x2', xScale(mu))
+      .attr('y1', 0).attr('y2', iH)
+      .attr('stroke','var(--p1)').attr('stroke-width',1.2)
+      .attr('stroke-dasharray','3 3').attr('opacity',0.5);
+    g.append('text')
+      .attr('x', xScale(mu) + 4).attr('y', 12)
+      .attr('font-family','var(--font)').attr('font-size','9px')
+      .attr('fill','var(--p5)').text(`mean=${mu.toFixed(2)}`);
+
+    const antimode = findAntimode(kdePoints);
+    if (antimode !== null) {
+      g.append('line')
+        .attr('x1', xScale(antimode)).attr('x2', xScale(antimode))
+        .attr('y1', 0).attr('y2', iH)
+        .attr('stroke','var(--p3)').attr('stroke-width',1)
+        .attr('stroke-dasharray','2 4').attr('opacity',0.5);
+      g.append('text')
+        .attr('x', xScale(antimode) + 4).attr('y', 24)
+        .attr('font-family','var(--font)').attr('font-size','9px')
+        .attr('fill','var(--p3)').text(`antimode=${antimode.toFixed(2)}`);
+    }
+  }
+
+  // ── STATS ─────────────────────────────────────────────────
+  const mu  = d3.mean(samples);
+  const sd  = d3.deviation(samples);
+  const D   = ashmanD(components);
+  const B   = sarleBeta(samples);
+
+  document.getElementById('stat-n').textContent    = samples.length.toLocaleString();
+  document.getElementById('stat-mean').textContent = mu.toFixed(3);
+  document.getElementById('stat-sd').textContent   = sd.toFixed(3);
+  document.getElementById('stat-d').textContent    = D !== null ? D.toFixed(2) : 'n/a';
+  document.getElementById('stat-b').textContent    = B !== null ? B.toFixed(3) : 'n/a';
+
+  // Verdict
+  const verdict = document.getElementById('bimodal-verdict');
+  let vText = '', vClass = 'maybe';
+  if (components.length === 1) { vText = 'Unimodal'; vClass = 'no'; }
+  else if (D !== null && D > 2 && B !== null && B > 0.555) {
+    vText = 'Bimodal (D>2, β>0.555)'; vClass = 'yes';
+  } else if (D !== null && D > 2) {
+    vText = 'Separated (D>2)'; vClass = 'yes';
+  } else if (B !== null && B > 0.555) {
+    vText = 'Bimodal (β>0.555)'; vClass = 'yes';
+  } else {
+    vText = 'Overlapping / unclear'; vClass = 'maybe';
+  }
+  verdict.textContent = vText; verdict.className = vClass;
+}
+
+// ── SLIDERS ───────────────────────────────────────────────────
+function buildSliders() {
+  const panel = document.getElementById('sliders-panel');
+  panel.innerHTML = '';
+  components.forEach((c, i) => {
+    const row = document.createElement('div');
+    row.className = 'comp-row';
+
+    const dot = document.createElement('span');
+    dot.className = 'comp-dot';
+    dot.style.background = COMP_COLOURS[i % COMP_COLOURS.length];
+
+    const lbl = document.createElement('span');
+    lbl.className = 'comp-label';
+    lbl.style.color = COMP_COLOURS[i % COMP_COLOURS.length];
+    lbl.textContent = c.label || `Component ${i+1}`;
+
+    function mkSlider(attr, min, max, step, fmt) {
+      const grp = document.createElement('div');
+      grp.className = 'slider-group';
+      const lbEl = document.createElement('span');
+      lbEl.textContent = attr;
+      const sl = document.createElement('input');
+      sl.type = 'range'; sl.min = min; sl.max = max; sl.step = step;
+      sl.value = c[attr];
+      const valEl = document.createElement('span');
+      valEl.textContent = fmt(c[attr]);
+      sl.addEventListener('input', () => {
+        c[attr] = parseFloat(sl.value);
+        valEl.textContent = fmt(c[attr]);
+        resampleAndDraw();
+      });
+      grp.append(lbEl, sl, valEl);
+      return grp;
+    }
+
+    row.append(dot, lbl,
+      mkSlider('mean',   -6,  6,   0.1, v => v.toFixed(1)),
+      mkSlider('sd',     0.2, 3,   0.1, v => v.toFixed(1)),
+      mkSlider('weight', 0.1, 1,   0.05,v => v.toFixed(2))
+    );
+    panel.appendChild(row);
+  });
+}
+
+function resampleAndDraw() {
+  samples = generateSamples(components, payload.n || 2000);
+  draw(false);
+}
+
+// ── PRESETS ───────────────────────────────────────────────────
+document.querySelectorAll('.preset-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const presetKey = btn.dataset.preset;
+    components = JSON.parse(JSON.stringify(payload.presets[presetKey]));
+    buildSliders();
+    resampleAndDraw();
+  });
+});
+
+// ── CONTROLS ──────────────────────────────────────────────────
+function mkToggle(trackId, stateRef, setter) {
+  document.getElementById(trackId).closest('label').addEventListener('click', () => {
+    setter(!stateRef());
+    document.getElementById(trackId).classList.toggle('on', stateRef());
+    draw(false);
+  });
+}
+mkToggle('hist-track',  () => showHist,  v => showHist  = v);
+mkToggle('kde-track',   () => showKDE,   v => showKDE   = v);
+mkToggle('comp-track',  () => showComps, v => showComps = v);
+mkToggle('mean-track',  () => showMean,  v => showMean  = v);
+document.getElementById('resample-btn').addEventListener('click', () => {
+  samples = generateSamples(components, payload.n || 2000);
+  draw(true);
+});
+
+// ── AUDIO ──────────────────────────────────────────────────────
+const audio    = document.getElementById('page-audio');
+const audioBtn = document.getElementById('audio-toggle');
+audioBtn.addEventListener('click', () => {
+  if (audio.paused) { audio.play().catch(() => {}); audioBtn.textContent = '⏸ narration'; }
+  else              { audio.pause(); audioBtn.textContent = '▶ narration'; }
+});
+
+// ── INIT ──────────────────────────────────────────────────────
+async function init() {
+  payload    = await d3.json('./multimodal-distribution/data.json');
+  components = JSON.parse(JSON.stringify(payload.components));
+  document.getElementById('chart-main-title').textContent = payload.title || 'Multimodal Distribution';
+  samples    = generateSamples(components, payload.n || 2000);
+  buildSliders();
+  draw(true);
+}
+
+// ── RESPONSIVE ────────────────────────────────────────────────
+let rt;
+const ro = new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(() => draw(false), 160); });
+ro.observe(document.getElementById('chart'));
+
+// ── NAV DOTS ──────────────────────────────────────────────────
+document.querySelectorAll('.nav-dot').forEach(dot => {
+  dot.addEventListener('click', () => document.getElementById(dot.dataset.slide).scrollIntoView({behavior:'smooth'}));
+  dot.addEventListener('keydown', e => { if (e.key === 'Enter') dot.click(); });
+});
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(en => {
+    if (en.isIntersecting) {
+      document.querySelectorAll('.nav-dot').forEach(d => d.classList.remove('active'));
+      document.querySelector(`.nav-dot[data-slide="${en.target.id}"]`)?.classList.add('active');
+    }
+  });
+}, {threshold: 0.5});
+document.querySelectorAll('.slide').forEach(s => obs.observe(s));
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowDown') document.getElementById('slide-02').scrollIntoView({behavior:'smooth'});
+  if (e.key === 'ArrowUp')   document.getElementById('slide-01').scrollIntoView({behavior:'smooth'});
+});
+
+init();
+</script>
+</body>
+</html>

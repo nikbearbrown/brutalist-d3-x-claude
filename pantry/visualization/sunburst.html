@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sunburst Diagram — Hierarchical Composition</title>
+  <meta name="description" content="Interactive D3 sunburst diagram. Click any arc to zoom into that branch. Breadcrumb trail tracks your position. Arc angles proportional to value. hai palette.">
+  <meta name="keywords" content="sunburst diagram, ring chart, radial treemap, hierarchy, part-to-whole, d3, data visualisation, interactive, zoom, breadcrumb, brutalist, hai palette">
+  <meta name="author" content="Nik Bear Brown">
+  <meta name="category" content="Hierarchy / Part-to-Whole">
+
+  <style>
+    :root {
+      --p1: #1B1B1B;
+      --p2: #5C3317;
+      --p3: #B52C2C;
+      --p4: #F7FAFD;
+      --p5: #4A4D4F;
+      --p6: #797C7F;
+      --p7: #EDEDED;
+      --p8: #FFFFFF;
+      --font: 'JetBrains Mono', monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--p8); color: var(--p1);
+      font-family: var(--font); min-height: 100vh; overflow-x: hidden;
+    }
+
+    .slide {
+      min-height: 100vh; display: flex; flex-direction: column;
+      padding: 28px 36px 14px;
+    }
+    .slide + .slide { border-top: 2px solid var(--p7); }
+    .slide-meta { margin-bottom: 4px; }
+    .label {
+      font-size: 10px; color: var(--p6);
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .slide-title {
+      font-size: clamp(15px, 2.6vw, 28px); font-weight: 800;
+      text-transform: uppercase; color: var(--p1);
+      letter-spacing: 0.04em; line-height: 1.1; margin-bottom: 4px;
+    }
+    .slide-sub { font-size: 11px; color: var(--p6); margin-bottom: 8px; }
+
+    /* breadcrumb */
+    #breadcrumb {
+      display: flex; align-items: center; gap: 0;
+      flex-wrap: wrap; margin-bottom: 8px; min-height: 22px;
+    }
+    .crumb {
+      font-size: 10px; color: var(--p6); cursor: pointer;
+      padding: 2px 4px; border-radius: 2px;
+      transition: color 0.12s;
+    }
+    .crumb:hover { color: var(--p2); }
+    .crumb.active { color: var(--p1); font-weight: 700; cursor: default; }
+    .crumb-sep { font-size: 10px; color: var(--p7); padding: 0 2px; }
+
+    /* viz */
+    .viz-container {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      min-height: 460px; position: relative;
+    }
+    #chart { display: block; max-width: 540px; width: 100%; }
+
+    /* arcs */
+    path.arc {
+      cursor: pointer;
+      transition: opacity 0.12s;
+    }
+    path.arc:hover { opacity: 0.78; }
+    path.arc:focus { outline: 2px solid var(--p2); outline-offset: 1px; }
+
+    /* centre */
+    #centre-group { pointer-events: none; }
+    #centre-label {
+      font-family: var(--font); font-size: 13px; font-weight: 800;
+      fill: var(--p1); text-anchor: middle;
+    }
+    #centre-value {
+      font-family: var(--font); font-size: 10px;
+      fill: var(--p6); text-anchor: middle;
+    }
+    #centre-pct {
+      font-family: var(--font); font-size: 10px;
+      fill: var(--p6); text-anchor: middle;
+    }
+
+    /* controls */
+    .controls {
+      display: flex; align-items: center; gap: 14px;
+      padding: 10px 0 0; border-top: 1px solid var(--p7);
+      margin-top: 8px; flex-wrap: wrap;
+    }
+    .toggle-wrap {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 10px; color: var(--p6); cursor: pointer; user-select: none;
+    }
+    .toggle-track {
+      position: relative; width: 28px; height: 16px;
+      background: var(--p7); border-radius: 8px;
+      transition: background 0.15s; flex-shrink: 0;
+    }
+    .toggle-track.on { background: var(--p2); }
+    .toggle-knob {
+      position: absolute; top: 2px; left: 2px;
+      width: 12px; height: 12px; background: var(--p8);
+      border-radius: 50%; transition: transform 0.15s; pointer-events: none;
+    }
+    .toggle-track.on .toggle-knob { transform: translateX(12px); }
+
+    button.ctrl-btn {
+      font-family: var(--font); font-size: 10px;
+      color: var(--p5); background: none;
+      border: 1px solid var(--p7); padding: 4px 10px;
+      cursor: pointer; letter-spacing: 0.06em;
+      transition: border-color 0.12s, color 0.12s;
+    }
+    button.ctrl-btn:hover { border-color: var(--p2); color: var(--p2); }
+    #audio-toggle { margin-left: auto; }
+
+    /* tooltip */
+    #tooltip {
+      position: fixed; background: var(--p1); color: var(--p8);
+      font-family: var(--font); font-size: 11px; font-weight: 600;
+      border: 1px solid var(--p2); padding: 7px 12px;
+      pointer-events: none; opacity: 0; transition: opacity 0.1s;
+      z-index: 200; line-height: 1.65; max-width: 230px;
+    }
+    #tooltip .tt-row { font-weight: 400; color: #C49A72; }
+
+    /* learn */
+    .slide-learn { background: var(--p8); }
+    .learn-block { max-width: 720px; padding-top: 8px; }
+    .learn-block h2 {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--p2);
+      margin: 20px 0 6px; border-bottom: 1px solid var(--p7); padding-bottom: 4px;
+    }
+    .learn-block h2:first-child { margin-top: 0; }
+    .learn-block p { font-size: 12px; color: var(--p5); line-height: 1.75; margin-bottom: 6px; }
+    .learn-block strong { color: var(--p1); font-weight: 700; }
+    .framework-ref {
+      margin-top: 20px; padding: 10px 14px;
+      border-left: 3px solid var(--p2); background: var(--p7);
+    }
+    .framework-ref p { margin: 0; color: var(--p5); font-size: 11px; }
+
+    /* nav */
+    #slide-nav {
+      position: fixed; right: 18px; top: 50%;
+      transform: translateY(-50%);
+      display: flex; flex-direction: column; gap: 8px; z-index: 100;
+    }
+    .nav-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--p7); border: 1px solid var(--p6);
+      cursor: pointer; transition: background 0.15s;
+    }
+    .nav-dot.active { background: var(--p2); border-color: var(--p2); }
+
+    footer {
+      font-family: var(--font); font-size: 10px;
+      color: var(--p6); border-top: 2px solid var(--p7);
+      padding: 10px 36px; line-height: 1.7;
+    }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- SLIDE 1 -->
+<section class="slide" id="slide-01" aria-label="Sunburst diagram">
+  <div class="slide-meta"><span class="label">// HIERARCHY · PART-TO-WHOLE · COMPOSITION</span></div>
+  <h1 class="slide-title" id="chart-main-title">Sunburst Diagram</h1>
+  <p class="slide-sub">Click any arc to zoom in · Click centre to zoom out · Arc angle ∝ value</p>
+
+  <nav id="breadcrumb" aria-label="Hierarchy path"></nav>
+
+  <div class="viz-container">
+    <svg id="chart" viewBox="0 0 540 540" role="img" aria-labelledby="chart-svg-title">
+      <title id="chart-svg-title">Sunburst diagram. Centre circle is the root. Each outer ring is a deeper level of the hierarchy. Arc angles are proportional to value.</title>
+      <desc>Interactive D3 sunburst diagram. Click arcs to zoom into a branch. Click centre to zoom out. Breadcrumb trail tracks position in hierarchy.</desc>
+    </svg>
+  </div>
+
+  <div class="controls">
+    <label class="toggle-wrap">
+      <div class="toggle-track on" id="labels-track"><div class="toggle-knob"></div></div>
+      <span>Arc labels</span>
+    </label>
+    <label class="toggle-wrap">
+      <div class="toggle-track on" id="values-track"><div class="toggle-knob"></div></div>
+      <span>Show values</span>
+    </label>
+    <button class="ctrl-btn" id="home-btn">⌂ root</button>
+    <button class="ctrl-btn" id="audio-toggle" aria-label="Play narration">▶ narration</button>
+  </div>
+</section>
+
+<!-- SLIDE 2: LEARN -->
+<section class="slide slide-learn" id="slide-02" aria-label="Learn panel — Sunburst Diagram">
+  <div class="slide-meta"><span class="label">// LEARN — SUNBURST DIAGRAM</span></div>
+  <h1 class="slide-title">What a sunburst diagram is</h1>
+
+  <div class="learn-block">
+    <h2>The perceptual mechanism</h2>
+    <p>A sunburst diagram encodes a <strong>hierarchy as a series of concentric rings</strong>. The centre circle is the root node. Each ring outward represents one level deeper in the hierarchy. Within each ring, arcs are sliced proportionally to a numeric value — arc angle and arc length encode magnitude. The viewer's visual system simultaneously reads <strong>containment</strong> (which node belongs to which parent, conveyed by angular alignment) and <strong>proportion</strong> (how much each node contributes to its parent, conveyed by arc angle).</p>
+    <p>This dual encoding — hierarchy structure plus proportional composition — is the sunburst's unique capability. No other chart type conveys both in a single view without requiring the reader to cross-reference between two separate charts.</p>
+
+    <h2>Two modes: equal and proportional</h2>
+    <p>When arcs are divided <strong>equally</strong> under a parent, the chart emphasises hierarchy structure — every child node gets equal visual weight regardless of its value. This is useful when the branching pattern itself is the message. When arcs are <strong>proportional to a value</strong> (as implemented here), the chart emphasises composition — each node's arc angle represents its share of the parent's total. The choice between these modes is a design decision that depends on whether structural equality or magnitude comparison is the message.</p>
+
+    <h2>Why it was chosen for this data</h2>
+    <p>The data structure is a <strong>three-level hierarchy with numeric leaf values</strong>: industry → company → product line → revenue. The message is compositional at every level simultaneously: which industry dominates, which company dominates within each industry, and which product line drives each company. A treemap would answer the same question but loses the explicit parent–child ring structure that makes the hierarchy legible. A pie chart can only show one level. The sunburst shows all levels at once with a single glance.</p>
+
+    <h2>What the alternative would break</h2>
+    <p>A <strong>treemap</strong> — the nearest alternative — packs all leaf nodes into rectangular area without showing the intermediate branch levels as visible elements. It is better for precise area comparison of leaf nodes; worse for communicating the hierarchical grouping structure. A <strong>nested pie chart</strong> (multiple concentric pies) is perceptually equivalent but harder to implement cleanly because it requires manual ring sizing. The sunburst's continuous angle encoding makes parent–child proportional relationships clearer than separate concentric pies.</p>
+    <p>The sunburst performs poorly when the hierarchy is very deep (more than four rings), when many nodes at one level have very small values (thin slivers become unreadable), or when the message is precise comparison rather than structural overview. In those cases, a hierarchical bar chart or treemap is more appropriate.</p>
+
+    <h2>The one design decision worth knowing</h2>
+    <p>The <strong>click-to-zoom</strong> interaction is not a navigation convenience — it is an analytical necessity. A sunburst with four or more levels and many nodes becomes visually dense at full scale. Zooming into a branch re-partitions the full angular space to show only that subtree's children, making small arcs readable. The <strong>breadcrumb trail</strong> above the chart preserves the viewer's positional context within the hierarchy — without it, zoom interactions disorient the reader. These two elements are inseparable.</p>
+
+    <div class="framework-ref">
+      <span class="label">// Framework — FT Visual Vocabulary</span>
+      <p>FT Visual Vocabulary category: <strong>Part-to-whole</strong> — "How a single entity is made up of its components." Abela quadrant: <strong>Composition</strong> (hierarchical, accumulating over levels). Tufte principle: the rings are data (hierarchy levels); the arcs are data (proportional values); the angular alignment of parent and children arcs is data (containment relationship). The only non-data ink is the thin white stroke separating arcs — necessary for figure–ground separation between adjacent slices.</p>
+    </div>
+  </div>
+</section>
+
+<!-- NAV -->
+<nav id="slide-nav" aria-label="Slide navigation">
+  <div class="nav-dot active" data-slide="slide-01" role="button" tabindex="0" aria-label="Slide 1: Chart"></div>
+  <div class="nav-dot"        data-slide="slide-02" role="button" tabindex="0" aria-label="Slide 2: Learn"></div>
+</nav>
+
+<footer>
+  <p>Nik Bear Brown, Irreducibly Human, What AI Can and Can't Do</p>
+  <p>boondoggling.ai · irreducibly.xyz · brutalist.art · bearbrown.co · frictional.xyz</p>
+</footer>
+
+<div id="tooltip"></div>
+<audio id="page-audio" src="./sunburst/audio.mp3"></audio>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script>
+// ── CONFIG ─────────────────────────────────────────────────────
+const VW = 540, VH = 540;
+const CX = VW / 2, CY = VH / 2;
+const RADIUS = Math.min(VW, VH) / 2 - 10;
+
+// Earthy hai-family colour scale for depth levels
+// Level 0 = root (hidden), level 1 = innermost ring, etc.
+const LEVEL_PALETTES = [
+  [],  // root — no arcs drawn
+  ['#5C3317','#2A4A2E','#7A3B3B','#3A4A6A'],                        // level 1
+  ['#7A4A28','#3A6040','#9A4A4A','#4A5A7A','#8B5E3C','#2A5A4A'],   // level 2
+  ['#A07050','#5A7860','#B07070','#6A78A0','#C2A882','#4A8070',     // level 3
+   '#9A7060','#506890','#C08868','#609070'],
+  ['#C09878','#7A9880','#C89898','#8A98C0','#D4BCA0','#6AA090',     // level 4
+   '#B89080','#708AB0','#D0A888','#80A8A8']
+];
+
+// ── STATE ──────────────────────────────────────────────────────
+let rootNode, focusNode, unitText, titleText;
+let showLabels = true;
+let showValues = true;
+
+// ── TOOLTIP ────────────────────────────────────────────────────
+const tip = document.getElementById('tooltip');
+function showTip(e, d, totalRoot) {
+  const pctOfParent = d.parent
+    ? (d.value / d.parent.value * 100).toFixed(1)
+    : '100';
+  const pctOfRoot = (d.value / totalRoot * 100).toFixed(1);
+  tip.innerHTML =
+    `<strong>${d.data.name}</strong>` +
+    (d.depth > 0 ? `<br><span class="tt-row">value &nbsp;&nbsp;</span>${d.value.toLocaleString()} ${unitText}` : '') +
+    (d.depth > 0 ? `<br><span class="tt-row">% parent </span>${pctOfParent}%` : '') +
+    (d.depth > 1 ? `<br><span class="tt-row">% total &nbsp;</span>${pctOfRoot}%` : '') +
+    (d.depth > 0 ? `<br><span class="tt-row">depth &nbsp;&nbsp;</span>level ${d.depth}` : '');
+  tip.style.opacity = 1; moveTip(e);
+}
+function moveTip(e) {
+  tip.style.left = Math.min(e.clientX + 14, window.innerWidth  - 250) + 'px';
+  tip.style.top  = Math.min(e.clientY - 10, window.innerHeight - 150) + 'px';
+}
+function hideTip() { tip.style.opacity = 0; }
+
+// ── COLOUR ─────────────────────────────────────────────────────
+function colourFor(d) {
+  // Walk up to find the level-1 ancestor for hue coherence within a branch
+  let node = d;
+  while (node.depth > 1) node = node.parent;
+  const lvl1Idx = node.parent ? node.parent.children.indexOf(node) : 0;
+
+  const palette = LEVEL_PALETTES[Math.min(d.depth, LEVEL_PALETTES.length - 1)];
+  if (!palette.length) return 'none';
+
+  // Within a branch, shift hue index by local sibling position
+  let sibIdx = 0;
+  if (d.parent && d.parent.children) sibIdx = d.parent.children.indexOf(d);
+  const baseIdx = (lvl1Idx * 2 + sibIdx) % palette.length;
+  return palette[baseIdx];
+}
+
+// ── BREADCRUMB ─────────────────────────────────────────────────
+function buildBreadcrumb(node) {
+  const path = [];
+  let n = node;
+  while (n) { path.unshift(n); n = n.parent; }
+
+  const bc = document.getElementById('breadcrumb');
+  bc.innerHTML = '';
+  path.forEach((n, i) => {
+    const crumb = document.createElement('span');
+    crumb.className = `crumb${i === path.length - 1 ? ' active' : ''}`;
+    crumb.textContent = n.data.name;
+    crumb.addEventListener('click', () => { if (i < path.length - 1) { focusNode = n; render(false); } });
+    bc.appendChild(crumb);
+    if (i < path.length - 1) {
+      const sep = document.createElement('span');
+      sep.className = 'crumb-sep'; sep.textContent = ' › ';
+      bc.appendChild(sep);
+    }
+  });
+}
+
+// ── RENDER ─────────────────────────────────────────────────────
+function render(animate) {
+  const focus  = focusNode;
+  const totalRoot = rootNode.value;
+
+  // Partition layout focused on current node
+  const partition = d3.partition().size([2 * Math.PI, RADIUS]);
+  // Re-layout from root, then zoom to focus
+  const root = d3.hierarchy(rootNode.data)
+    .sum(d => d.value || 0)
+    .sort((a, b) => b.value - a.value);
+  partition(root);
+
+  // Find the focused node in the new layout by matching data.name path
+  function findByPath(node, targetNode) {
+    const path = [];
+    let n = targetNode;
+    while (n.parent) { path.unshift(n.data.name); n = n.parent; }
+    let cur = node;
+    for (const name of path) {
+      const child = cur.children?.find(c => c.data.name === name);
+      if (!child) return node; // fallback to root
+      cur = child;
+    }
+    return cur;
+  }
+
+  const focusInNew = findByPath(root, focus);
+
+  // Angular extent of focus node
+  const focusA0  = focusInNew.x0;
+  const focusA1  = focusInNew.x1;
+  const focusSpan = focusA1 - focusA0;
+  const focusD   = focusInNew.depth;
+
+  // Remap: focus node fills full circle; descendants fill outer rings
+  function xMap(x) { return (x - focusA0) / focusSpan * 2 * Math.PI; }
+  function yMap(y) { return Math.max(0, y - focusD * (RADIUS / (root.height + 1))); }
+
+  const maxDepth = root.height;
+  const ringH    = RADIUS / (maxDepth + 1);
+
+  const arcGen = d3.arc()
+    .startAngle(d => xMap(d.x0))
+    .endAngle(d  => xMap(d.x1))
+    .padAngle(d  => Math.min((xMap(d.x1) - xMap(d.x0)) / 2, 0.006))
+    .padRadius(RADIUS / 2)
+    .innerRadius(d => Math.max(0, (d.depth - focusD) * ringH))
+    .outerRadius(d => Math.max(0, (d.depth - focusD + 1) * ringH - 1));
+
+  const svg = d3.select('#chart');
+  svg.selectAll('.arc-layer').remove();
+  svg.selectAll('.label-layer').remove();
+  svg.selectAll('.centre-layer').remove();
+
+  const g = svg.selectAll('.arc-layer').data([null]).join('g')
+    .attr('class','arc-layer')
+    .attr('transform',`translate(${CX},${CY})`);
+
+  // Determine which nodes to render: focus + all descendants
+  const nodes = root.descendants().filter(d => {
+    if (d.depth === 0) return true; // always render root (invisible — used for centre click)
+    if (d.depth <= focusD) return false; // ancestors of focus — skip
+    if ((xMap(d.x1) - xMap(d.x0)) < 0.001) return false; // too thin
+    return true;
+  });
+
+  // ── ARCS ──────────────────────────────────────────────────────
+  const arcs = g.selectAll('path.arc')
+    .data(nodes, d => d.ancestors().map(a => a.data.name).join('/'))
+    .join('path')
+    .attr('class', 'arc')
+    .attr('fill', d => d.depth === 0 ? 'none' : colourFor(d))
+    .attr('fill-opacity', d => d.depth === 0 ? 0 : 0.88)
+    .attr('stroke', 'var(--p8)')
+    .attr('stroke-width', 0.8)
+    .attr('tabindex', d => d.depth > 0 ? 0 : -1)
+    .attr('role', 'img')
+    .attr('aria-label', d => `${d.data.name}: ${d.value?.toLocaleString()} ${unitText}`)
+    .on('mouseover', (e, d) => { if (d.depth > 0) showTip(e, d, totalRoot); })
+    .on('mousemove', moveTip)
+    .on('mouseout', hideTip)
+    .on('click', (e, d) => {
+      e.stopPropagation();
+      // find matching node in focusNode's descendants
+      function findInOrig(orig, names) {
+        if (!names.length) return orig;
+        const child = orig.children?.find(c => c.data.name === names[0]);
+        return child ? findInOrig(child, names.slice(1)) : orig;
+      }
+      const pathNames = d.ancestors().map(a => a.data.name).reverse().slice(1);
+      const origNode  = findInOrig(rootNode, pathNames);
+      if (d.depth === 0 || origNode === focusNode) {
+        // click root ring or current focus → zoom out
+        focusNode = focusNode.parent || rootNode;
+      } else {
+        focusNode = origNode;
+      }
+      render(false);
+    })
+    .on('keydown', function(e, d) { if (e.key === 'Enter') this.click(); });
+
+  if (animate) {
+    arcs.attr('d', d => arcGen({ ...d, x0: focusA0, x1: focusA1 }))
+      .transition().duration(750).ease(d3.easeCubicOut)
+      .attr('d', arcGen);
+  } else {
+    arcs.attr('d', arcGen);
+  }
+
+  // ── ARC LABELS ────────────────────────────────────────────────
+  if (showLabels) {
+    const labelG = svg.selectAll('.label-layer').data([null]).join('g')
+      .attr('class','label-layer')
+      .attr('pointer-events','none')
+      .attr('transform',`translate(${CX},${CY})`);
+
+    nodes.filter(d => d.depth > 0).forEach(d => {
+      const angle = (xMap(d.x0) + xMap(d.x1)) / 2;
+      const innerR = (d.depth - focusD) * ringH;
+      const outerR = (d.depth - focusD + 1) * ringH - 1;
+      const midR   = (innerR + outerR) / 2;
+      const arcSpan = xMap(d.x1) - xMap(d.x0);
+      const arcLen  = arcSpan * midR;
+
+      // Only label if arc is wide enough
+      if (arcLen < 18) return;
+
+      const x = Math.sin(angle) * midR;
+      const y = -Math.cos(angle) * midR;
+      const rotate = (angle * 180 / Math.PI);
+      const flip   = rotate > 90 && rotate < 270;
+      const finalR = flip ? rotate + 180 : rotate;
+
+      const maxChars = Math.max(3, Math.floor(arcLen / 7));
+      const name = d.data.name.length > maxChars
+        ? d.data.name.slice(0, maxChars - 1) + '…'
+        : d.data.name;
+
+      const fs = Math.max(7, Math.min(11, ringH * 0.3));
+
+      labelG.append('text')
+        .attr('transform', `translate(${x},${y}) rotate(${finalR})`)
+        .attr('text-anchor','middle')
+        .attr('dominant-baseline','central')
+        .attr('font-family','var(--font)')
+        .attr('font-size', fs + 'px')
+        .attr('font-weight', d.depth <= focusD + 1 ? '700' : '400')
+        .attr('fill', 'var(--p8)')
+        .text(name);
+
+      if (showValues && arcLen > 36 && ringH > 22) {
+        labelG.append('text')
+          .attr('transform', `translate(${x},${y + fs + 1}) rotate(${finalR})`)
+          .attr('text-anchor','middle')
+          .attr('dominant-baseline','central')
+          .attr('font-family','var(--font)')
+          .attr('font-size', Math.max(6, fs - 2) + 'px')
+          .attr('fill','rgba(255,255,255,0.65)')
+          .text(d.value?.toLocaleString());
+      }
+    });
+  }
+
+  // ── CENTRE CIRCLE (zoom-out target) ───────────────────────────
+  const centG = svg.selectAll('.centre-layer').data([null]).join('g')
+    .attr('class','centre-layer')
+    .attr('transform',`translate(${CX},${CY})`);
+
+  // Invisible click target for root
+  centG.append('circle')
+    .attr('r', ringH - 2)
+    .attr('fill', focus === rootNode ? 'var(--p7)' : 'var(--p7)')
+    .attr('fill-opacity', 0.35)
+    .attr('stroke', 'var(--p7)').attr('stroke-width', 0.8)
+    .attr('cursor', focus === rootNode ? 'default' : 'pointer')
+    .on('click', () => {
+      if (focusNode.parent) { focusNode = focusNode.parent; render(false); }
+    });
+
+  centG.append('text')
+    .attr('id','centre-label')
+    .attr('y', focus.depth > 0 ? -8 : 0)
+    .attr('font-family','var(--font)').attr('font-size','12px')
+    .attr('font-weight','800').attr('fill','var(--p1)')
+    .attr('text-anchor','middle').attr('dominant-baseline','central')
+    .text(focus.data.name.length > 10 ? focus.data.name.slice(0,9)+'…' : focus.data.name);
+
+  if (focus.depth > 0) {
+    centG.append('text')
+      .attr('id','centre-value')
+      .attr('y', 8)
+      .attr('font-family','var(--font)').attr('font-size','9px')
+      .attr('fill','var(--p6)').attr('text-anchor','middle')
+      .text(`${focus.value?.toLocaleString()} ${unitText}`);
+    centG.append('text')
+      .attr('id','centre-pct')
+      .attr('y', 20)
+      .attr('font-family','var(--font)').attr('font-size','9px')
+      .attr('fill','var(--p6)').attr('text-anchor','middle')
+      .text(focus.parent
+        ? `${(focus.value / focus.parent.value * 100).toFixed(1)}% of parent`
+        : '');
+  }
+
+  // ── BREADCRUMB ────────────────────────────────────────────────
+  buildBreadcrumb(focus);
+
+  // ── CENTRE UPDATE on hover ────────────────────────────────────
+  arcs.on('mouseover.centre', (e, d) => {
+    if (d.depth === 0) return;
+    centG.select('#centre-label').text(d.data.name.length > 10 ? d.data.name.slice(0,9)+'…' : d.data.name);
+    if (showValues) {
+      centG.select('#centre-value').text(`${d.value?.toLocaleString()} ${unitText}`);
+      centG.select('#centre-pct').text(d.parent
+        ? `${(d.value / d.parent.value * 100).toFixed(1)}% of parent` : '');
+    }
+  }).on('mouseout.centre', () => {
+    centG.select('#centre-label').text(focus.data.name.length > 10 ? focus.data.name.slice(0,9)+'…' : focus.data.name);
+    centG.select('#centre-value').text(focus.depth > 0 ? `${focus.value?.toLocaleString()} ${unitText}` : '');
+    centG.select('#centre-pct').text(focus.parent && focus.depth > 0
+      ? `${(focus.value / focus.parent.value * 100).toFixed(1)}% of parent` : '');
+  });
+}
+
+// ── CONTROLS ──────────────────────────────────────────────────
+document.getElementById('labels-track').closest('label').addEventListener('click', () => {
+  showLabels = !showLabels;
+  document.getElementById('labels-track').classList.toggle('on', showLabels);
+  render(false);
+});
+document.getElementById('values-track').closest('label').addEventListener('click', () => {
+  showValues = !showValues;
+  document.getElementById('values-track').classList.toggle('on', showValues);
+  render(false);
+});
+document.getElementById('home-btn').addEventListener('click', () => {
+  focusNode = rootNode; render(false);
+});
+
+// ── AUDIO ──────────────────────────────────────────────────────
+const audio    = document.getElementById('page-audio');
+const audioBtn = document.getElementById('audio-toggle');
+audioBtn.addEventListener('click', () => {
+  if (audio.paused) { audio.play().catch(() => {}); audioBtn.textContent = '⏸ narration'; }
+  else              { audio.pause(); audioBtn.textContent = '▶ narration'; }
+});
+
+// ── INIT ──────────────────────────────────────────────────────
+async function init() {
+  const payload = await d3.json('./sunburst/data.json');
+  titleText = payload.title || 'Hierarchy';
+  unitText  = payload.unit  || '';
+
+  document.getElementById('chart-main-title').textContent =
+    payload.year ? `${titleText}  ·  ${payload.year}` : titleText;
+
+  // Build D3 hierarchy and store as rootNode (with values)
+  rootNode = d3.hierarchy(payload.tree)
+    .sum(d => d.value || 0)
+    .sort((a, b) => b.value - a.value);
+  focusNode = rootNode;
+
+  render(true);
+}
+
+// ── NAV DOTS ──────────────────────────────────────────────────
+document.querySelectorAll('.nav-dot').forEach(dot => {
+  dot.addEventListener('click', () => document.getElementById(dot.dataset.slide).scrollIntoView({behavior:'smooth'}));
+  dot.addEventListener('keydown', e => { if (e.key === 'Enter') dot.click(); });
+});
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(en => {
+    if (en.isIntersecting) {
+      document.querySelectorAll('.nav-dot').forEach(d => d.classList.remove('active'));
+      document.querySelector(`.nav-dot[data-slide="${en.target.id}"]`)?.classList.add('active');
+    }
+  });
+}, {threshold: 0.5});
+document.querySelectorAll('.slide').forEach(s => obs.observe(s));
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowDown') document.getElementById('slide-02').scrollIntoView({behavior:'smooth'});
+  if (e.key === 'ArrowUp')   document.getElementById('slide-01').scrollIntoView({behavior:'smooth'});
+});
+
+init();
+</script>
+</body>
+</html>

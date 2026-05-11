@@ -1,0 +1,33 @@
+{
+  "_schema": {
+    "description": "Range dataset. Each item has a min and max — the span chart draws a floating bar between them. Zero is not the baseline. Items are sorted by midpoint descending by default.",
+    "fields": {
+      "title":                    "string — chart headline",
+      "unit":                     "string — x-axis label",
+      "xDomain":                  "[number, number] — explicit x-axis extent (do not truncate; choose a range that gives context to the floating bars)",
+      "referenceLines[].value":   "number — x-axis position of a vertical reference marker",
+      "referenceLines[].label":   "string — annotation text for the reference line",
+      "items[].id":               "string — unique identifier",
+      "items[].label":            "string — category label (displayed on y-axis)",
+      "items[].min":              "number — lower bound of the range",
+      "items[].max":              "number — upper bound of the range"
+    },
+    "replace": "Swap items[] with your categories. Provide min and max for each. Adjust xDomain to fit your scale. Add referenceLines[] entries for meaningful thresholds."
+  },
+  "title": "AI Benchmark Score Range by Humanitarian Task Domain",
+  "unit": "Benchmark score across 12 leading AI models (0 – 100)",
+  "xDomain": [0, 100],
+  "referenceLines": [
+    { "value": 70, "label": "Acceptable deployment threshold" }
+  ],
+  "items": [
+    { "id": "lt",  "label": "Language Translation",    "min": 71, "max": 96 },
+    { "id": "ea",  "label": "Educational Assessment",  "min": 67, "max": 94 },
+    { "id": "cm",  "label": "Climate Modeling",        "min": 61, "max": 88 },
+    { "id": "md",  "label": "Medical Diagnosis",       "min": 54, "max": 91 },
+    { "id": "ra",  "label": "Resource Allocation",     "min": 49, "max": 85 },
+    { "id": "ap",  "label": "Agricultural Prediction", "min": 44, "max": 82 },
+    { "id": "cd",  "label": "Crisis Detection",        "min": 38, "max": 79 },
+    { "id": "cr",  "label": "Conflict Risk Analysis",  "min": 33, "max": 74 }
+  ]
+}

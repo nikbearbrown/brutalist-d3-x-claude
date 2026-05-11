@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kagi Chart — Supply &amp; Demand Pattern</title>
+  <meta name="description" content="Interactive Kagi chart. Time-independent price action chart showing Yang (thick/demand) and Yin (thin/supply) lines with shoulder and waist reversal markers. hai palette, D3-powered.">
+  <meta name="keywords" content="kagi chart, financial chart, price action, yang, yin, shoulder, waist, supply demand, technical analysis, d3, brutalist, time-independent">
+  <meta name="author" content="Nik Bear Brown">
+  <meta name="category" content="Finance / Technical Analysis">
+
+  <style>
+    :root {
+      --p1: #1B1B1B;
+      --p2: #5C3317;
+      --p3: #B52C2C;
+      --p4: #F7FAFD;
+      --p5: #4A4D4F;
+      --p6: #797C7F;
+      --p7: #EDEDED;
+      --p8: #FFFFFF;
+      --yang: #2A6B3A;   /* forest green — bullish yang line */
+      --yin:  #B52C2C;   /* blood red    — bearish yin line  */
+      --font: 'JetBrains Mono', monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--p8);
+      color: var(--p1);
+      font-family: var(--font);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .slide {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 28px 36px 14px;
+    }
+    .slide + .slide { border-top: 2px solid var(--p7); }
+
+    .slide-meta { margin-bottom: 4px; }
+    .label {
+      font-size: 10px; color: var(--p6);
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .slide-title {
+      font-size: clamp(15px, 2.6vw, 28px);
+      font-weight: 800; text-transform: uppercase;
+      color: var(--p1); letter-spacing: 0.04em;
+      line-height: 1.1; margin-bottom: 4px;
+    }
+    .slide-sub { font-size: 11px; color: var(--p6); margin-bottom: 10px; }
+
+    .viz-container { flex: 1; position: relative; min-height: 440px; }
+    #chart { width: 100%; height: 100%; min-height: 440px; display: block; }
+
+    /* signal badge */
+    #signal-badge {
+      position: absolute; top: 8px; right: 8px;
+      font-family: var(--font); font-size: 11px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 4px 12px; border-radius: 2px;
+      opacity: 0; transition: opacity 0.3s;
+      pointer-events: none;
+    }
+    #signal-badge.buy  { background: #E6F4EA; color: var(--yang); border: 1px solid var(--yang); opacity: 1; }
+    #signal-badge.sell { background: #FCECEA; color: var(--yin);  border: 1px solid var(--yin);  opacity: 1; }
+    #signal-badge.none { opacity: 0; }
+
+    /* controls */
+    .controls {
+      display: flex; align-items: center; gap: 14px;
+      padding: 10px 0 0; border-top: 1px solid var(--p7);
+      margin-top: 8px; flex-wrap: wrap;
+    }
+    .ctrl-label { font-size: 10px; color: var(--p6); letter-spacing: 0.07em; white-space: nowrap; }
+    input[type=range] { accent-color: var(--p2); width: 90px; }
+    #reversal-val { font-size: 10px; color: var(--p5); min-width: 32px; }
+
+    .toggle-wrap {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 10px; color: var(--p6);
+      cursor: pointer; user-select: none;
+    }
+    .toggle-track {
+      position: relative; width: 28px; height: 16px;
+      background: var(--p7); border-radius: 8px;
+      transition: background 0.15s; flex-shrink: 0;
+    }
+    .toggle-track.on { background: var(--p2); }
+    .toggle-knob {
+      position: absolute; top: 2px; left: 2px;
+      width: 12px; height: 12px;
+      background: var(--p8); border-radius: 50%;
+      transition: transform 0.15s; pointer-events: none;
+    }
+    .toggle-track.on .toggle-knob { transform: translateX(12px); }
+
+    button.ctrl-btn {
+      font-family: var(--font); font-size: 10px;
+      color: var(--p5); background: none;
+      border: 1px solid var(--p7); padding: 4px 10px;
+      cursor: pointer; letter-spacing: 0.06em;
+      transition: border-color 0.12s, color 0.12s;
+    }
+    button.ctrl-btn:hover { border-color: var(--p2); color: var(--p2); }
+    #audio-toggle { margin-left: auto; }
+
+    /* tooltip */
+    #tooltip {
+      position: fixed; background: var(--p1); color: var(--p8);
+      font-family: var(--font); font-size: 11px; font-weight: 600;
+      border: 1px solid var(--p2); padding: 7px 12px;
+      pointer-events: none; opacity: 0; transition: opacity 0.1s;
+      z-index: 200; line-height: 1.6; max-width: 220px;
+    }
+    #tooltip .tt-row { font-weight: 400; color: #C49A72; }
+    #tooltip .tt-yang { color: var(--yang); }
+    #tooltip .tt-yin  { color: var(--yin); }
+
+    /* legend chips */
+    .legend-row {
+      display: flex; align-items: center; gap: 16px;
+      font-size: 10px; color: var(--p5); margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .chip {
+      display: flex; align-items: center; gap: 5px;
+    }
+    .chip-line {
+      width: 24px; height: 3px; display: inline-block;
+    }
+    .chip-line.yang { background: var(--yang); height: 4px; }
+    .chip-line.yin  { background: var(--yin);  height: 1.5px; }
+    .chip-dot {
+      width: 7px; height: 7px; border-radius: 50%; display: inline-block;
+    }
+
+    /* learn slide */
+    .slide-learn { background: var(--p8); }
+    .learn-block { max-width: 720px; padding-top: 8px; }
+    .learn-block h2 {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--p2);
+      margin: 20px 0 6px; border-bottom: 1px solid var(--p7); padding-bottom: 4px;
+    }
+    .learn-block h2:first-child { margin-top: 0; }
+    .learn-block p { font-size: 12px; color: var(--p5); line-height: 1.75; margin-bottom: 6px; }
+    .learn-block strong { color: var(--p1); font-weight: 700; }
+    .framework-ref {
+      margin-top: 20px; padding: 10px 14px;
+      border-left: 3px solid var(--p2); background: var(--p7);
+    }
+    .framework-ref p { margin: 0; color: var(--p5); font-size: 11px; }
+
+    /* nav */
+    #slide-nav {
+      position: fixed; right: 18px; top: 50%;
+      transform: translateY(-50%);
+      display: flex; flex-direction: column; gap: 8px; z-index: 100;
+    }
+    .nav-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--p7); border: 1px solid var(--p6);
+      cursor: pointer; transition: background 0.15s;
+    }
+    .nav-dot.active { background: var(--p2); border-color: var(--p2); }
+
+    footer {
+      font-family: var(--font); font-size: 10px;
+      color: var(--p6); border-top: 2px solid var(--p7);
+      padding: 10px 36px; line-height: 1.7;
+    }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- SLIDE 1 -->
+<section class="slide" id="slide-01" aria-label="Kagi chart">
+  <div class="slide-meta"><span class="label">// PATTERNS · RANGES · FINANCIAL</span></div>
+  <h1 class="slide-title">Kagi Chart — Supply &amp; Demand</h1>
+  <p class="slide-sub">Time-independent · Thick = Yang (demand) · Thin = Yin (supply) · Adjust reversal % to filter noise</p>
+
+  <div class="legend-row">
+    <span class="chip"><span class="chip-line yang"></span>Yang line — bullish, demand &gt; supply</span>
+    <span class="chip"><span class="chip-line yin"></span>Yin line — bearish, supply &gt; demand</span>
+    <span class="chip"><span class="chip-dot" style="background:var(--yang)"></span>Shoulder — peak reversal</span>
+    <span class="chip"><span class="chip-dot" style="background:var(--yin)"></span>Waist — trough reversal</span>
+  </div>
+
+  <div class="viz-container">
+    <svg id="chart" role="img" aria-labelledby="chart-title">
+      <title id="chart-title">Kagi chart showing time-independent price action. Thick green Yang lines indicate bullish demand; thin red Yin lines indicate bearish supply. Horizontal connectors mark shoulder and waist reversals.</title>
+      <desc>Interactive D3 Kagi chart. Reversal threshold adjustable via slider. Hover segments for price details. Buy/sell signals shown as the line shifts between Yang and Yin.</desc>
+    </svg>
+    <div id="signal-badge" class="none" aria-live="polite"></div>
+  </div>
+
+  <div class="controls">
+    <span class="ctrl-label">Reversal %</span>
+    <input type="range" id="reversal-slider" min="0.5" max="8" step="0.5" value="3">
+    <span id="reversal-val">3.0%</span>
+
+    <label class="toggle-wrap">
+      <div class="toggle-track on" id="markers-track"><div class="toggle-knob"></div></div>
+      <span>Shoulder / waist</span>
+    </label>
+    <label class="toggle-wrap">
+      <div class="toggle-track on" id="dates-track"><div class="toggle-knob"></div></div>
+      <span>Date markers</span>
+    </label>
+    <button class="ctrl-btn" id="audio-toggle" aria-label="Play narration">▶ narration</button>
+  </div>
+</section>
+
+<!-- SLIDE 2: LEARN -->
+<section class="slide slide-learn" id="slide-02" aria-label="Learn panel — Kagi Chart">
+  <div class="slide-meta"><span class="label">// LEARN — KAGI CHART</span></div>
+  <h1 class="slide-title">What a Kagi chart is</h1>
+
+  <div class="learn-block">
+    <h2>The perceptual mechanism</h2>
+    <p>A Kagi chart strips time entirely from the visual encoding and instead plots <strong>price direction and magnitude</strong> as the only two channels. The horizontal axis is not a time scale — it advances only when the price reverses by at least the pre-determined threshold. This makes the chart exploit <strong>position on a common scale</strong> (Y-axis price) and <strong>line weight</strong> (thick vs thin) as its two primary encodings, eliminating the visual noise of minor day-to-day fluctuations that obscure trend structure on time-series charts.</p>
+    <p>The line weight encoding is pre-attentive: the eye immediately distinguishes thick Yang sections from thin Yin sections across the full chart without reading any axis. The result is a visual grammar of trend structure — long unbroken Yang sections read as sustained demand; a series of short alternating lines reads as a choppy, undecided market.</p>
+
+    <h2>How the algorithm works</h2>
+    <p>Starting from the first closing price, the line moves vertically in the current direction of price movement, extending as long as price continues in that direction by any amount. Once price reverses by at least the <strong>reversal amount</strong> (typically a percentage of the current price), the line draws a horizontal connector and begins extending in the new direction. Each horizontal connector is either a <strong>shoulder</strong> (peak reversal — price was rising, now falling) or a <strong>waist</strong> (trough reversal — price was falling, now rising).</p>
+    <p>The Yang/Yin state changes only when price breaks through a previous reversal level: if the rising line exceeds a prior shoulder, the line becomes <strong>thick Yang</strong> (demand overtook supply). If the falling line breaks below a prior waist, the line becomes <strong>thin Yin</strong> (supply overtook demand). These state changes — not the reversals themselves — are the buy and sell signals.</p>
+
+    <h2>Why it was chosen for this data and message</h2>
+    <p>The message is <strong>supply/demand balance over a sequence of price observations</strong>. A candlestick chart would show every session as a separate mark, burying the trend under daily noise. A line chart would show time-indexed prices but make it hard to identify reversal structure. The Kagi chart was built specifically to answer the question: "is the dominant force currently demand (Yang) or supply (Yin), and when did that change?" No other chart type answers that question as directly.</p>
+
+    <h2>What the alternative would break</h2>
+    <p>A <strong>Candlestick Chart</strong> — the nearest alternative — shows OHLC data for every session. It is far more data-rich but far more noisy. A trader reading a Kagi chart for trend signals would be overwhelmed by individual session volatility on a candlestick chart for the same period. The Kagi's deliberate suppression of minor moves is not a limitation — it is the feature. The reversal threshold is the tuning dial: lower it for more sensitivity, raise it for stronger noise filtering.</p>
+
+    <h2>The one design decision worth knowing</h2>
+    <p>The reversal threshold is implemented as a <strong>percentage of the current price</strong>, not a fixed absolute value. A fixed-point reversal on an asset that moves from $50 to $200 would produce dramatically different chart density at different price levels. A percentage-based threshold maintains consistent visual density across the full price range of the data, which is why it is the standard implementation for modern Kagi charting.</p>
+
+    <div class="framework-ref">
+      <span class="label">// Framework — FT Visual Vocabulary</span>
+      <p>FT Visual Vocabulary category: <strong>Change over time / Patterns</strong> — revealing directional structure in sequential data by filtering noise. Abela quadrant: <strong>Comparison</strong> (comparing demand vs supply state across a price history). Tufte principle: every mark carries information — the horizontal connectors are data (reversal events), the line weight is data (Yang/Yin state); there is no decorative ink.</p>
+    </div>
+  </div>
+</section>
+
+<!-- NAV -->
+<nav id="slide-nav" aria-label="Slide navigation">
+  <div class="nav-dot active" data-slide="slide-01" role="button" tabindex="0" aria-label="Slide 1: Chart"></div>
+  <div class="nav-dot"        data-slide="slide-02" role="button" tabindex="0" aria-label="Slide 2: Learn"></div>
+</nav>
+
+<footer>
+  <p>Nik Bear Brown, Irreducibly Human, What AI Can and Can't Do</p>
+  <p>boondoggling.ai · irreducibly.xyz · brutalist.art · bearbrown.co · frictional.xyz</p>
+</footer>
+
+<div id="tooltip"></div>
+<audio id="page-audio" src="./kagi-chart/audio.mp3"></audio>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script>
+// ── COLOUR CONSTANTS ──────────────────────────────────────────
+const YANG_CLR = '#2A6B3A';
+const YIN_CLR  = '#B52C2C';
+const YANG_W   = 3.5;
+const YIN_W    = 1.0;
+
+// ── STATE ─────────────────────────────────────────────────────
+let rawPrices  = [];
+let assetName  = '';
+let reversalPct = 3.0;
+let showMarkers = true;
+let showDates   = true;
+
+// ── TOOLTIP ───────────────────────────────────────────────────
+const tip = document.getElementById('tooltip');
+function showTip(e, html) { tip.innerHTML = html; tip.style.opacity = 1; moveTip(e); }
+function moveTip(e) {
+  tip.style.left = Math.min(e.clientX + 14, window.innerWidth  - 240) + 'px';
+  tip.style.top  = Math.min(e.clientY - 10, window.innerHeight - 130) + 'px';
+}
+function hideTip() { tip.style.opacity = 0; }
+
+// ── KAGI ALGORITHM ────────────────────────────────────────────
+// Returns array of segments: { x1,y1,x2,y2, isYang, isHorizontal,
+//   type:'vertical'|'shoulder'|'waist', date, price, prevShoulderWaist }
+function buildKagi(prices, revPct) {
+  if (prices.length < 2) return [];
+
+  const segments = [];
+  let direction  = prices[1].close > prices[0].close ? 1 : -1;
+  let currentPrice = prices[0].close;
+  let currentDate  = prices[0].date;
+  let columnIndex  = 0;
+  let isYang = false;
+
+  // Track reversal levels to determine Yang/Yin transitions
+  const reversalLevels = [];   // { price, type:'shoulder'|'waist', colIdx }
+  let lastShoulder = null;
+  let lastWaist    = null;
+
+  function pushSeg(x1, y1, x2, y2, yang, isH, type, date, price) {
+    segments.push({ x1, y1, x2, y2, isYang: yang, isHorizontal: isH, type, date, price });
+  }
+
+  // Initialise Yang/Yin from the first move
+  // Start neutral — will be set on first reversal break
+  let prevExtreme = currentPrice;
+  let prevExtremeDate = currentDate;
+
+  // Walk through prices
+  for (let i = 1; i < prices.length; i++) {
+    const p = prices[i].close;
+    const d = prices[i].date;
+    const revAmount = currentPrice * (revPct / 100);
+
+    if (direction === 1) {
+      if (p >= currentPrice) {
+        // Continue up — extend current vertical
+        currentPrice = p;
+        currentDate  = d;
+      } else if (currentPrice - p >= revAmount) {
+        // Reversal down — record shoulder at currentPrice
+        const shoulderPrice = currentPrice;
+
+        // Check Yang/Yin transition: was this shoulder previously exceeded?
+        // On a new shoulder, we'll be in Yin after the reversal unless
+        // we later break above it (handled in the downward walk)
+        if (lastWaist !== null && p < lastWaist) {
+          isYang = false;
+        }
+
+        // Push vertical up to shoulder
+        pushSeg(columnIndex, prevExtreme, columnIndex, shoulderPrice, isYang, false, 'vertical', prevExtremeDate, shoulderPrice);
+        // Push shoulder horizontal
+        columnIndex++;
+        pushSeg(columnIndex - 1, shoulderPrice, columnIndex, shoulderPrice, isYang, true, 'shoulder', currentDate, shoulderPrice);
+
+        // Record shoulder level
+        lastShoulder = shoulderPrice;
+        reversalLevels.push({ price: shoulderPrice, type: 'shoulder', colIdx: columnIndex });
+
+        prevExtreme     = shoulderPrice;
+        prevExtremeDate = currentDate;
+        currentPrice    = p;
+        currentDate     = d;
+        direction       = -1;
+      }
+    } else {
+      if (p <= currentPrice) {
+        // Continue down — extend current vertical
+        currentPrice = p;
+        currentDate  = d;
+      } else if (p - currentPrice >= revAmount) {
+        // Reversal up — record waist at currentPrice
+        const waistPrice = currentPrice;
+
+        // Check Yang/Yin transition
+        if (lastShoulder !== null && p > lastShoulder) {
+          isYang = true;
+        }
+
+        // Push vertical down to waist
+        pushSeg(columnIndex, prevExtreme, columnIndex, waistPrice, isYang, false, 'vertical', prevExtremeDate, waistPrice);
+        // Push waist horizontal
+        columnIndex++;
+        pushSeg(columnIndex - 1, waistPrice, columnIndex, waistPrice, isYang, true, 'waist', currentDate, waistPrice);
+
+        lastWaist = waistPrice;
+        reversalLevels.push({ price: waistPrice, type: 'waist', colIdx: columnIndex });
+
+        prevExtreme     = waistPrice;
+        prevExtremeDate = currentDate;
+        currentPrice    = p;
+        currentDate     = d;
+        direction       = 1;
+      }
+    }
+  }
+
+  // Final segment to last price
+  pushSeg(columnIndex, prevExtreme, columnIndex, currentPrice, isYang, false, 'vertical', currentDate, currentPrice);
+
+  // ── SECOND PASS: correct Yang/Yin by scanning reversal levels ──
+  // Re-run the standard Kagi Yang/Yin logic:
+  // Starts as neither until first shoulder/waist is established.
+  // Yang = price just broke above a previous shoulder.
+  // Yin  = price just broke below a previous waist.
+  let yang = null;  // null = indeterminate initially
+  const shoulders = [];
+  const waists    = [];
+
+  // Build column map from segments
+  const colMap = {};
+  segments.forEach(s => {
+    const key = s.x1;
+    if (!colMap[key]) colMap[key] = [];
+    colMap[key].push(s);
+  });
+
+  // Determine initial state from first direction
+  const firstVertical = segments.find(s => !s.isHorizontal);
+  if (firstVertical) {
+    yang = firstVertical.y2 > firstVertical.y1; // true if first move is up
+  }
+
+  let currentYang = yang ?? true;
+  let prevShoulder = null, prevWaist = null;
+
+  segments.forEach((s, idx) => {
+    if (s.isHorizontal) {
+      if (s.type === 'shoulder') {
+        // After crossing above prevShoulder → Yang
+        if (prevShoulder !== null && s.price > prevShoulder) currentYang = true;
+        prevShoulder = s.price;
+      } else if (s.type === 'waist') {
+        // After crossing below prevWaist → Yin
+        if (prevWaist !== null && s.price < prevWaist) currentYang = false;
+        prevWaist = s.price;
+      }
+    }
+    s.isYang = currentYang;
+  });
+
+  return segments;
+}
+
+// ── DRAW ──────────────────────────────────────────────────────
+function draw(animate) {
+  const el = document.getElementById('chart');
+  const W  = el.clientWidth  || 860;
+  const H  = el.clientHeight || 460;
+  const margin = { top: 20, right: 60, bottom: 56, left: 16 };
+  const iW = W - margin.left - margin.right;
+  const iH = H - margin.top  - margin.bottom;
+
+  const segments = buildKagi(rawPrices, reversalPct);
+  if (!segments.length) return;
+
+  const svg = d3.select('#chart');
+  svg.selectAll('*').remove();
+
+  // ── Y SCALE ──
+  const allY = segments.flatMap(s => [s.y1, s.y2]);
+  const yMin = d3.min(allY), yMax = d3.max(allY);
+  const yPad = (yMax - yMin) * 0.08;
+  const yScale = d3.scaleLinear()
+    .domain([yMin - yPad, yMax + yPad])
+    .range([iH, 0]);
+
+  // ── X SCALE ──
+  const maxCol = d3.max(segments, s => Math.max(s.x1, s.x2)) + 1;
+  const xScale = d3.scaleLinear().domain([0, maxCol]).range([0, iW]);
+  const colW   = iW / maxCol;
+
+  const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+
+  // gridlines
+  g.append('g').call(d3.axisLeft(yScale).tickSize(-iW).tickFormat(''))
+    .call(gg => gg.select('.domain').remove())
+    .call(gg => gg.selectAll('line').attr('stroke','var(--p7)').attr('stroke-width',0.4));
+
+  // Y axis (right side — standard for Kagi)
+  svg.append('g')
+    .attr('transform', `translate(${margin.left + iW},${margin.top})`)
+    .call(d3.axisRight(yScale).ticks(6).tickSize(0))
+    .call(ax => ax.select('.domain').attr('stroke','var(--p7)'))
+    .call(ax => ax.selectAll('text')
+      .attr('font-family','var(--font)').attr('font-size','10px')
+      .attr('fill','var(--p5)').attr('dx','6'));
+
+  // ── SEGMENTS ──
+  const lineG = g.append('g').attr('class','kagi-lines');
+
+  segments.forEach((s, idx) => {
+    const x1 = xScale(s.x1), y1 = yScale(s.y1);
+    const x2 = xScale(s.x2), y2 = yScale(s.y2);
+    const clr = s.isYang ? YANG_CLR : YIN_CLR;
+    const sw  = s.isYang ? YANG_W   : YIN_W;
+
+    const line = lineG.append('line')
+      .attr('x1', x1).attr('y1', y1)
+      .attr('x2', x2).attr('y2', s.isHorizontal ? y1 : y1)  // start collapsed for anim
+      .attr('stroke', clr)
+      .attr('stroke-width', sw)
+      .attr('stroke-linecap', 'round')
+      .style('cursor', 'pointer')
+      .on('mouseover', e => {
+        const typeStr = s.isHorizontal
+          ? (s.type === 'shoulder' ? '<span class="tt-yin">▾ shoulder reversal</span>' : '<span class="tt-yang">▴ waist reversal</span>')
+          : (s.isYang ? '<span class="tt-yang">▲ Yang — demand &gt; supply</span>' : '<span class="tt-yin">▼ Yin — supply &gt; demand</span>');
+        showTip(e,
+          `${typeStr}<br>` +
+          `<span class="tt-row">price </span>${s.price.toFixed(2)}<br>` +
+          `<span class="tt-row">date &nbsp;</span>${s.date}`
+        );
+      })
+      .on('mousemove', moveTip)
+      .on('mouseout', hideTip);
+
+    if (animate) {
+      line.transition().duration(600).delay(idx * 8).ease(d3.easeCubicOut)
+        .attr('x2', x2).attr('y2', y2);
+    } else {
+      line.attr('x2', x2).attr('y2', y2);
+    }
+  });
+
+  // ── SHOULDER / WAIST DOTS ──
+  if (showMarkers) {
+    const horizontals = segments.filter(s => s.isHorizontal);
+    const dotG = g.append('g').attr('class','kagi-dots');
+
+    horizontals.forEach(s => {
+      const cx = xScale(s.x2);
+      const cy = yScale(s.y1);
+      const clr = s.type === 'shoulder' ? YANG_CLR : YIN_CLR;
+
+      dotG.append('circle')
+        .attr('cx', cx).attr('cy', cy).attr('r', 4)
+        .attr('fill', clr).attr('stroke', 'var(--p8)').attr('stroke-width', 1.2)
+        .attr('fill-opacity', animate ? 0 : 1)
+        .on('mouseover', e => {
+          showTip(e,
+            `<span class="${s.type === 'shoulder' ? 'tt-yang' : 'tt-yin'}">${s.type === 'shoulder' ? '▾ Shoulder' : '▴ Waist'}</span><br>` +
+            `<span class="tt-row">price </span>${s.price.toFixed(2)}<br>` +
+            `<span class="tt-row">date &nbsp;</span>${s.date}`
+          );
+        })
+        .on('mousemove', moveTip)
+        .on('mouseout', hideTip);
+
+      if (animate) {
+        dotG.selectAll('circle').transition().duration(300).delay(400)
+          .attr('fill-opacity', 1);
+      }
+    });
+  }
+
+  // ── DATE LABELS on X axis ──
+  if (showDates && rawPrices.length) {
+    // Map price date to nearest column index for labelling key reversals
+    const horizontals = segments.filter(s => s.isHorizontal);
+    // Sample ~6 evenly-spaced reversal dates
+    const step = Math.max(1, Math.floor(horizontals.length / 6));
+    const labelled = horizontals.filter((_, i) => i % step === 0).slice(0, 8);
+
+    const dateG = g.append('g').attr('class','date-labels');
+    labelled.forEach(s => {
+      const cx = xScale(s.x2);
+      const shortDate = s.date ? s.date.slice(5) : ''; // MM-DD
+      dateG.append('text')
+        .attr('x', cx).attr('y', iH + 18)
+        .attr('text-anchor', 'middle')
+        .attr('font-family', 'var(--font)').attr('font-size', '9px')
+        .attr('fill', 'var(--p6)')
+        .text(shortDate);
+    });
+    // Always show last date
+    const lastSeg = segments[segments.length - 1];
+    if (lastSeg) {
+      dateG.append('text')
+        .attr('x', xScale(lastSeg.x2)).attr('y', iH + 18)
+        .attr('text-anchor', 'middle')
+        .attr('font-family','var(--font)').attr('font-size','9px')
+        .attr('fill','var(--p5)').attr('font-weight','600')
+        .text(lastSeg.date ? lastSeg.date.slice(5) : '');
+    }
+  }
+
+  // ── ASSET LABEL ──
+  svg.append('text')
+    .attr('x', margin.left + 4).attr('y', margin.top + 14)
+    .attr('font-family','var(--font)').attr('font-size','11px')
+    .attr('font-weight','700').attr('fill','var(--p5)')
+    .text(assetName);
+
+  // ── REVERSAL LABEL ──
+  svg.append('text')
+    .attr('x', margin.left + iW).attr('y', margin.top + 14)
+    .attr('text-anchor','end')
+    .attr('font-family','var(--font)').attr('font-size','10px')
+    .attr('fill','var(--p6)')
+    .text(`Rev: ${reversalPct.toFixed(1)}%`);
+
+  // ── SIGNAL BADGE ──
+  const lastSeg = segments[segments.length - 1];
+  const badge = document.getElementById('signal-badge');
+  badge.className = 'none';
+  if (lastSeg) {
+    badge.className = lastSeg.isYang ? 'buy' : 'sell';
+    badge.textContent = lastSeg.isYang ? '▲ Yang — Buy signal' : '▼ Yin — Sell signal';
+  }
+}
+
+// ── CONTROLS ──────────────────────────────────────────────────
+document.getElementById('reversal-slider').addEventListener('input', function() {
+  reversalPct = parseFloat(this.value);
+  document.getElementById('reversal-val').textContent = reversalPct.toFixed(1) + '%';
+  draw(false);
+});
+
+// markers toggle
+document.getElementById('markers-track').closest('label').addEventListener('click', () => {
+  showMarkers = !showMarkers;
+  document.getElementById('markers-track').classList.toggle('on', showMarkers);
+  draw(false);
+});
+// dates toggle
+document.getElementById('dates-track').closest('label').addEventListener('click', () => {
+  showDates = !showDates;
+  document.getElementById('dates-track').classList.toggle('on', showDates);
+  draw(false);
+});
+
+// ── AUDIO ──────────────────────────────────────────────────────
+const audio    = document.getElementById('page-audio');
+const audioBtn = document.getElementById('audio-toggle');
+audioBtn.addEventListener('click', () => {
+  if (audio.paused) { audio.play().catch(() => {}); audioBtn.textContent = '⏸ narration'; }
+  else              { audio.pause(); audioBtn.textContent = '▶ narration'; }
+});
+
+// ── INIT ──────────────────────────────────────────────────────
+async function init() {
+  const payload  = await d3.json('./kagi-chart/data.json');
+  rawPrices      = payload.data;
+  assetName      = payload.asset || 'Asset';
+  reversalPct    = payload.reversal_pct || 3.0;
+  document.getElementById('reversal-slider').value = reversalPct;
+  document.getElementById('reversal-val').textContent = reversalPct.toFixed(1) + '%';
+  draw(true);
+}
+
+// ── RESPONSIVE ────────────────────────────────────────────────
+let rt;
+const ro = new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(() => draw(false), 160); });
+ro.observe(document.getElementById('chart'));
+
+// ── NAV DOTS ──────────────────────────────────────────────────
+document.querySelectorAll('.nav-dot').forEach(dot => {
+  dot.addEventListener('click', () => document.getElementById(dot.dataset.slide).scrollIntoView({behavior:'smooth'}));
+  dot.addEventListener('keydown', e => { if (e.key === 'Enter') dot.click(); });
+});
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(en => {
+    if (en.isIntersecting) {
+      document.querySelectorAll('.nav-dot').forEach(d => d.classList.remove('active'));
+      document.querySelector(`.nav-dot[data-slide="${en.target.id}"]`)?.classList.add('active');
+    }
+  });
+}, {threshold: 0.5});
+document.querySelectorAll('.slide').forEach(s => obs.observe(s));
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowDown') document.getElementById('slide-02').scrollIntoView({behavior:'smooth'});
+  if (e.key === 'ArrowUp')   document.getElementById('slide-01').scrollIntoView({behavior:'smooth'});
+});
+
+init();
+</script>
+</body>
+</html>

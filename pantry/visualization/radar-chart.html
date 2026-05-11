@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<!--
+  INFERENCES:
+  filename    = radar-chart (slugified from chart type — no filename provided)
+  chart       = Radar Chart / Spider Chart (stated explicitly)
+  message     = Each region has a distinct capability profile — South Asia leads on
+                access and capacity, MENA on funding and coordination, SSA lags on
+                access but is the most balanced across all dimensions
+  palette     = hai (Humanitarians AI — walnut on white, earthy gravitas)
+  data-topic  = Humanitarian response capability assessment: 3 regions, 6 dimensions
+  slides      = 2 (learn modifier active)
+-->
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Humanitarian Capability Assessment — Radar Chart</title>
+  <meta name="description" content="Radar chart comparing humanitarian response capability across six dimensions for three regions: Sub-Saharan Africa, MENA, and South Asia.">
+  <meta name="keywords" content="radar chart, spider chart, web chart, polar chart, multi-variable comparison, capability assessment, D3.js, data visualization, humanitarian">
+  <meta name="author" content="Nik Bear Brown">
+  <meta name="category" content="Humanitarian Data / Performance Analysis">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+
+  <style>
+    /* ============================================================
+       HAI PALETTE
+       WCAG: --p4 (#F7FAFD) and --p7 (#EDEDED) fail on white.
+       --p4 = background fills only. --p7 = borders only.
+       Text: --p1 18.2:1 AAA, --p2 10.7:1 AAA, --p5 9.4:1 AAA, --p6 4.6:1 AA
+    ============================================================ */
+    :root {
+      --p1: #1B1B1B;
+      --p2: #5C3317;
+      --p3: #B52C2C;
+      --p4: #F7FAFD;
+      --p5: #4A4D4F;
+      --p6: #797C7F;
+      --p7: #EDEDED;
+      --p8: #FFFFFF;
+      --font: 'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      font-family: var(--font);
+      background: var(--p8);
+      color: var(--p1);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── SLIDES ── */
+    .slides-wrapper {
+      display: flex; flex-direction: column;
+      width: 100%; height: 100vh;
+    }
+    .slide {
+      display: none; flex-direction: column;
+      flex: 1; min-height: 0;
+      padding: 18px 28px 6px;
+      overflow: hidden;
+    }
+    .slide.active { display: flex; }
+    .slide-learn  { overflow-y: auto; padding-bottom: 24px; }
+
+    /* ── TYPOGRAPHY ── */
+    .label {
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 0.13em; text-transform: uppercase; color: var(--p6);
+    }
+    .slide-title {
+      font-size: clamp(11px, 1.6vw, 18px);
+      font-weight: 800; letter-spacing: -0.01em;
+      text-transform: uppercase; color: var(--p1);
+      line-height: 1.2; margin-bottom: 9px;
+    }
+    .slide-meta {
+      display: flex; align-items: center;
+      justify-content: space-between; margin-bottom: 5px;
+    }
+
+    /* ── LEGEND ── */
+    .legend {
+      display: flex; flex-wrap: wrap;
+      gap: 5px 18px; margin-bottom: 8px;
+    }
+    .legend-item {
+      display: flex; align-items: center; gap: 7px;
+      cursor: pointer; padding: 3px 7px;
+      border: 1.5px solid transparent;
+      transition: border-color 0.18s, opacity 0.22s;
+      user-select: none;
+    }
+    .legend-item:hover         { border-color: var(--p7); }
+    .legend-item:focus-visible { outline: 2px solid var(--p2); outline-offset: 2px; }
+    .legend-item.series-off    { opacity: 0.28; }
+
+    .legend-swatch {
+      width: 28px; height: 3px; flex-shrink: 0; border-radius: 2px;
+    }
+    .legend-label {
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase; color: var(--p5);
+    }
+
+    /* ── CONTROLS ── */
+    .controls-bar {
+      display: flex; align-items: center; gap: 9px; margin-bottom: 8px;
+    }
+    .btn {
+      font-family: var(--font); font-size: 10px; font-weight: 600;
+      letter-spacing: 0.09em; text-transform: uppercase;
+      padding: 3px 9px; background: transparent;
+      border: 1.5px solid var(--p7); color: var(--p6);
+      cursor: pointer; transition: border-color 0.18s, color 0.18s;
+    }
+    .btn:hover         { border-color: var(--p2); color: var(--p2); }
+    .btn:focus-visible { outline: 2px solid var(--p2); outline-offset: 2px; }
+
+    /* ── VIZ CONTAINER ── */
+    .viz-container {
+      flex: 1; min-height: 0; position: relative; overflow: hidden;
+    }
+    #chart-svg { display: block; width: 100%; height: 100%; }
+
+    /* ── TOOLTIP ── */
+    .tooltip {
+      position: fixed; pointer-events: none;
+      background: var(--p1); color: var(--p8);
+      padding: 10px 14px; font-family: var(--font);
+      font-size: 11px; line-height: 1.85;
+      border: 1px solid var(--p2); max-width: 220px;
+      opacity: 0; transition: opacity 0.1s; z-index: 200;
+    }
+    .tooltip.visible { opacity: 1; }
+    .tt-head {
+      font-weight: 800; font-size: 12px;
+      color: var(--p4);  /* #F7FAFD on #1B1B1B — 16.3:1 AAA ✓ */
+      margin-bottom: 4px; padding-bottom: 4px;
+      border-bottom: 1px solid #333;
+    }
+    .tt-row  { display: flex; justify-content: space-between; color: var(--p6); gap: 12px; }
+    .tt-key  { color: var(--p6); }
+    .tt-val  { font-weight: 700; color: var(--p8); }
+    .tt-avg  { margin-top: 4px; padding-top: 4px; border-top: 1px solid #333;
+               font-size: 10px; color: #A0A0A0; }
+    .tt-avg strong { color: var(--p4); }
+
+    /* ── NAV DOTS ── */
+    .slide-nav {
+      position: fixed; bottom: 47px; left: 50%;
+      transform: translateX(-50%); display: flex; gap: 8px; z-index: 100;
+    }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      border: 1.5px solid var(--p6); background: transparent;
+      cursor: pointer; padding: 0; transition: background 0.2s, border-color 0.2s;
+    }
+    .dot.active        { background: var(--p2); border-color: var(--p2); }
+    .dot:focus-visible { outline: 2px solid var(--p2); outline-offset: 3px; }
+
+    /* ── FOOTER ── */
+    footer {
+      height: 38px; border-top: 2px solid var(--p7);
+      display: flex; align-items: center;
+      justify-content: space-between; padding: 0 28px; flex-shrink: 0;
+    }
+    footer p  { font-size: 10px; color: var(--p6); letter-spacing: 0.04em; }
+    .nav-hint { font-size: 10px; color: var(--p6); letter-spacing: 0.08em; }
+
+    /* ── LEARN SLIDE ── */
+    .learn-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 18px 36px; padding-bottom: 28px;
+    }
+    .learn-block { border-left: 3px solid var(--p2); padding-left: 13px; }
+    .learn-block h2 {
+      font-size: 10px; font-weight: 800;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--p2); margin-bottom: 6px;
+    }
+    .learn-block p  { font-size: 11.5px; line-height: 1.8; color: var(--p5); }
+    .learn-block p strong { color: var(--p1); font-weight: 700; }
+    .learn-block code {
+      font-family: var(--font); font-size: 10px;
+      color: var(--p2); background: var(--p4); padding: 1px 4px;
+    }
+    .framework-ref {
+      grid-column: 1 / -1; background: var(--p4);
+      border: 1.5px solid var(--p7); padding: 13px 17px;
+    }
+    .framework-ref .label { display: block; color: var(--p2); margin-bottom: 6px; }
+    .framework-ref p      { font-size: 11.5px; line-height: 1.75; color: var(--p1); }
+    .framework-ref p strong { color: var(--p2); }
+    .design-decision {
+      grid-column: 1 / -1; border-top: 2px solid var(--p7); padding-top: 13px;
+    }
+    .design-decision h2 {
+      font-size: 10px; font-weight: 800;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--p6); margin-bottom: 6px;
+    }
+    .design-decision p { font-size: 11.5px; line-height: 1.8; color: var(--p5); }
+    .design-decision p strong { color: var(--p1); font-weight: 700; }
+    .design-decision code {
+      font-family: var(--font); font-size: 10px;
+      color: var(--p2); background: var(--p4); padding: 1px 4px;
+    }
+
+    @media (max-width: 700px) {
+      .learn-grid  { grid-template-columns: 1fr; }
+      .slide       { padding: 12px 14px 5px; }
+      footer       { padding: 0 14px; }
+      .slide-title { font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="tooltip" id="tooltip" role="tooltip" aria-live="polite" aria-atomic="true"></div>
+
+<div class="slides-wrapper">
+
+  <!-- ── SLIDE 1: RADAR VISUALIZATION ── -->
+  <section class="slide active" id="slide-01"
+           aria-label="Radar chart: Humanitarian capability assessment by region">
+
+    <div class="slide-meta">
+      <span class="label">// HAI — CAPABILITY ASSESSMENT · 3 REGIONS · 6 DIMENSIONS</span>
+      <span class="label" id="data-summary"></span>
+    </div>
+
+    <h1 class="slide-title">
+      Each Region Has a Distinct Capability Profile —<br>
+      South Asia Leads on Access &amp; Capacity, MENA on Funding &amp; Coordination
+    </h1>
+
+    <div class="legend" id="legend" role="list"
+         aria-label="Series legend — click to show or hide a region"></div>
+
+    <div class="controls-bar">
+      <button class="btn" id="reset-btn"    aria-label="Show all series">↺ show all</button>
+      <button class="btn" id="audio-toggle" aria-label="Play narration">▶ narration</button>
+    </div>
+
+    <div class="viz-container" id="chart-container">
+      <svg id="chart-svg" role="img" aria-labelledby="radar-title radar-desc">
+        <title id="radar-title">Radar Chart — Humanitarian Response Capability</title>
+        <desc id="radar-desc">
+          Six-axis radar chart comparing three regions. Sub-Saharan Africa (walnut polygon):
+          weakest on access (42) and coverage (48), most balanced overall.
+          MENA (blood-red polygon): highest on funding (80) and coordination (74),
+          weakest on access (35). South Asia (dim-gray polygon): highest on access (75)
+          and capacity (82), weakest on funding (52). Scale 0–100 on all axes.
+        </desc>
+      </svg>
+    </div>
+
+    <audio id="page-audio" src="./radar-chart/audio.mp3" preload="none"></audio>
+
+  </section>
+
+  <!-- ── SLIDE 2: LEARN PANEL ── -->
+  <section class="slide slide-learn" id="slide-02"
+           aria-label="Learn panel: Radar chart theory and design decisions">
+
+    <div class="slide-meta">
+      <span class="label">// LEARN — RADAR CHART · FT VISUAL VOCABULARY: PATTERNS / RELATIONSHIPS</span>
+      <span class="label">ABELA QUADRANT: COMPARISON (multidimensional)</span>
+    </div>
+
+    <h1 class="slide-title">What Makes a Radar Chart Work — And the Three Limitations Worth Knowing</h1>
+
+    <div class="learn-grid">
+
+      <div class="learn-block">
+        <h2>What this chart is</h2>
+        <p>
+          A radar chart (also spider, web, polar, or star chart) maps multiple quantitative
+          variables onto equally-spaced radial axes, all sharing a single origin and scale.
+          A data series is drawn as a polygon connecting its value on each axis.
+          The perceptual mechanism is <strong>polygon shape comparison</strong>: the viewer
+          compares overall outlines holistically, noticing which polygon is larger
+          (higher average performance), where one extends further than another on a specific
+          axis (strength in that dimension), and whether shapes are pointy (uneven profile)
+          or rounded (balanced across dimensions). This holistic shape recognition is the
+          chart's primary strength — and it requires no arithmetic from the viewer.
+        </p>
+      </div>
+
+      <div class="learn-block">
+        <h2>Why it was chosen</h2>
+        <p>
+          The data contains three series across six dimensions where the
+          <strong>overall performance profile</strong> — not any single variable — is the
+          message. South Asia has the most area in the upper-right quadrant (access, capacity);
+          MENA is skewed toward the upper-left (funding, coordination). These
+          <em>profile shapes</em> are immediately visible in the polygon outlines and would
+          require six separate charts to convey with bar charts. The radar chart is appropriate
+          here because: (a) all axes share the same 0–100 scale, making cross-axis comparison
+          valid; (b) there are exactly 6 variables (within the 4–8 recommended range);
+          and (c) there are only 3 series (within the 2–4 overlap-legibility limit).
+        </p>
+      </div>
+
+      <div class="learn-block">
+        <h2>Limitation 1: axis order is arbitrary</h2>
+        <p>
+          The area of a radar polygon changes depending on the order of axes — placing two
+          high-scoring variables adjacent produces a larger polygon area than placing them
+          opposite each other, even with identical values. There is
+          <strong>no canonical correct axis order</strong>. This implementation places axes
+          starting at 12 o'clock and proceeds clockwise, but any rotation produces a
+          legitimately different-looking polygon from the same data. Viewers who focus on
+          area as the primary signal are vulnerable to this distortion. Always accompany
+          a radar chart with the explicit values — this implementation provides them via
+          the tooltip on hover.
+        </p>
+      </div>
+
+      <div class="learn-block">
+        <h2>Limitation 2: imprecise cross-axis comparison</h2>
+        <p>
+          Comparing values <em>across different axes</em> — "is MENA's funding (80) better
+          than South Asia's access (75)?" — requires the viewer to mentally locate two points
+          on two non-parallel scales and compare their radial distances from center. This is
+          significantly harder than comparing two bars on a common baseline. The Catalogue
+          states this clearly: "comparing values all on a single straight axis is much easier."
+          Radar charts are for <strong>within-series profile reading</strong> and
+          <strong>between-series shape comparison</strong>, not for precise cross-axis
+          value comparisons. For the latter, use a parallel coordinates plot or
+          small-multiple bar charts.
+        </p>
+      </div>
+
+      <div class="framework-ref">
+        <span class="label">// FRAMEWORK REFERENCE</span>
+        <p>
+          The FT Visual Vocabulary classifies radar charts under <strong>Patterns</strong>
+          and <strong>Relationships</strong>: showing how multiple variables relate to each
+          other within a single entity, or how multiple entities compare holistically.
+          Abela's framework routes here when the question is "what is the overall profile of
+          each series across multiple comparable dimensions?" Tufte's data-ink principle
+          is partially in tension: the grid web, axis lines, and polygon fills all carry
+          structural weight that isn't data — but they are necessary scaffolding for the
+          radial reading. The fill at <strong>14% opacity</strong> is the minimum
+          necessary to visually anchor each polygon without obscuring the ones beneath.
+          The <strong>stroke at full opacity</strong> carries the actual data boundary.
+        </p>
+      </div>
+
+      <div class="design-decision">
+        <h2>// The one design decision worth knowing</h2>
+        <p>
+          <strong>Series are rendered in reverse order</strong>: the first series in the
+          data file is drawn last, placing it on top of the SVG z-stack. This means the
+          series you care most about (typically the first-listed) is visually dominant —
+          its stroke is never covered by a subsequent polygon. The fill opacity of 14%
+          is set precisely so that <strong>three overlapping fills produce approximately
+          35–40% visible saturation</strong> in the overlap region, preserving the color
+          identity of each polygon without creating a false impression of a fourth
+          "combined" entity. Setting opacity to <code>0.30</code> or higher on three
+          overlapping fills would create near-opaque overlaps that the viewer would read
+          as distinct data — which they are not. The transparency is not an aesthetic
+          choice; it is a data-integrity choice.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    <p>Nik Bear Brown, Irreducibly Human, What AI Can and Can't Do
+       &nbsp;·&nbsp; boondoggling.ai &nbsp;·&nbsp; irreducibly.xyz &nbsp;·&nbsp;
+       brutalist.art &nbsp;·&nbsp; bearbrown.co &nbsp;·&nbsp; frictional.xyz</p>
+    <span class="nav-hint">← → slides &nbsp;|&nbsp; esc reset</span>
+  </footer>
+
+</div>
+
+<nav class="slide-nav" role="navigation" aria-label="Slide navigation">
+  <button class="dot active" data-slide="0"
+          aria-label="Go to slide 1: Radar visualization" tabindex="0"></button>
+  <button class="dot"        data-slide="1"
+          aria-label="Go to slide 2: Learn panel"         tabindex="0"></button>
+</nav>
+
+
+<script>
+'use strict';
+
+// ============================================================
+//  SLIDE NAVIGATION
+// ============================================================
+const slides  = document.querySelectorAll('.slide');
+const dots    = document.querySelectorAll('.dot');
+let   current = 0;
+
+function goToSlide(n) {
+  slides[current].classList.remove('active');
+  dots[current].classList.remove('active');
+  current = Math.max(0, Math.min(n, slides.length - 1));
+  slides[current].classList.add('active');
+  dots[current].classList.add('active');
+}
+
+dots.forEach(d => d.addEventListener('click', () => goToSlide(+d.dataset.slide)));
+
+document.addEventListener('keydown', e => {
+  if (['ArrowRight', 'ArrowDown'].includes(e.key)) goToSlide(current + 1);
+  if (['ArrowLeft',  'ArrowUp'  ].includes(e.key)) goToSlide(current - 1);
+  if (e.key === 'Escape') showAll();
+});
+
+// ============================================================
+//  AUDIO
+// ============================================================
+const audio    = document.getElementById('page-audio');
+const audioBtn = document.getElementById('audio-toggle');
+audioBtn.addEventListener('click', () => {
+  if (audio.paused) {
+    audio.play().catch(() => {});
+    audioBtn.textContent = '⏸ narration';
+    audioBtn.setAttribute('aria-label', 'Pause narration');
+  } else {
+    audio.pause();
+    audioBtn.textContent = '▶ narration';
+    audioBtn.setAttribute('aria-label', 'Play narration');
+  }
+});
+audio.addEventListener('ended', () => {
+  audioBtn.textContent = '▶ narration';
+  audioBtn.setAttribute('aria-label', 'Play narration');
+});
+
+// ============================================================
+//  TOOLTIP
+// ============================================================
+const tooltipEl = document.getElementById('tooltip');
+
+function showSeriesTooltip(event, series, variables) {
+  const avg = (Object.values(series.values).reduce((s, v) => s + v, 0) / variables.length).toFixed(1);
+  const rows = variables.map(v =>
+    `<div class="tt-row">
+       <span class="tt-key">${v.label}</span>
+       <span class="tt-val">${series.values[v.key]}</span>
+     </div>`
+  ).join('');
+  tooltipEl.innerHTML = `
+    <div class="tt-head">${series.label}</div>
+    ${rows}
+    <div class="tt-avg">Average: <strong>${avg}</strong> / 100</div>
+  `;
+  moveTooltip(event);
+  tooltipEl.classList.add('visible');
+}
+
+function moveTooltip(event) {
+  const tw = tooltipEl.offsetWidth;
+  const th = tooltipEl.offsetHeight;
+  let x = event.clientX + 14;
+  let y = event.clientY - th / 2;
+  if (x + tw > window.innerWidth  - 8) x = event.clientX - tw - 14;
+  if (y < 6)                            y = 6;
+  if (y + th > window.innerHeight - 6) y = window.innerHeight - th - 6;
+  tooltipEl.style.left = x + 'px';
+  tooltipEl.style.top  = y + 'px';
+}
+
+function hideTooltip() { tooltipEl.classList.remove('visible'); }
+
+// ============================================================
+//  SERIES VISIBILITY
+// ============================================================
+const hiddenSeries = new Set();
+
+function toggleSeries(seriesId) {
+  if (hiddenSeries.has(seriesId)) {
+    hiddenSeries.delete(seriesId);
+    d3.selectAll(`.s-${seriesId}`)
+      .transition().duration(250).attr('opacity', 1);
+    document.querySelector(`.legend-item[data-series="${seriesId}"]`)
+      ?.classList.remove('series-off');
+  } else {
+    hiddenSeries.add(seriesId);
+    d3.selectAll(`.s-${seriesId}`)
+      .transition().duration(250).attr('opacity', 0);
+    document.querySelector(`.legend-item[data-series="${seriesId}"]`)
+      ?.classList.add('series-off');
+  }
+}
+
+function showAll() {
+  hiddenSeries.clear();
+  d3.selectAll('.radar-area, .radar-stroke, .radar-dot')
+    .transition().duration(250).attr('opacity', 1);
+  document.querySelectorAll('.legend-item').forEach(el => el.classList.remove('series-off'));
+}
+
+document.getElementById('reset-btn').addEventListener('click', showAll);
+
+// ============================================================
+//  HIGHLIGHT ON HOVER
+// ============================================================
+let hoveredSeries = null;
+
+function highlightSeries(seriesId, allSeries, fill = 0.14) {
+  hoveredSeries = seriesId;
+  allSeries.forEach(s => {
+    if (hiddenSeries.has(s.id)) return;
+    const active = s.id === seriesId;
+    d3.selectAll(`.radar-area.s-${s.id}`)
+      .transition().duration(160)
+      .attr('fill-opacity', active ? 0.30 : 0.04);
+    d3.selectAll(`.radar-stroke.s-${s.id}`)
+      .transition().duration(160)
+      .attr('stroke-width', active ? 2.5 : 1)
+      .attr('opacity', active ? 1 : 0.18);
+    d3.selectAll(`.radar-dot.s-${s.id}`)
+      .transition().duration(160)
+      .attr('r', active ? 6 : 4)
+      .attr('opacity', active ? 1 : 0.15);
+  });
+}
+
+function clearHighlight(allSeries) {
+  hoveredSeries = null;
+  allSeries.forEach(s => {
+    if (hiddenSeries.has(s.id)) return;
+    d3.selectAll(`.radar-area.s-${s.id}`)
+      .transition().duration(250).attr('fill-opacity', 0.14);
+    d3.selectAll(`.radar-stroke.s-${s.id}`)
+      .transition().duration(250).attr('stroke-width', 2).attr('opacity', 1);
+    d3.selectAll(`.radar-dot.s-${s.id}`)
+      .transition().duration(250).attr('r', 4.5).attr('opacity', 1);
+  });
+}
+
+// ============================================================
+//  BUILD LEGEND
+// ============================================================
+function buildLegend(series) {
+  const legend = document.getElementById('legend');
+  series.forEach(s => {
+    const item = document.createElement('div');
+    item.className    = 'legend-item';
+    item.dataset.series = s.id;
+    item.setAttribute('role', 'listitem');
+    item.setAttribute('tabindex', '0');
+    item.setAttribute('aria-label', `Toggle ${s.label}`);
+
+    const sw = document.createElement('div');
+    sw.className = 'legend-swatch';
+    sw.style.background = s.color;
+
+    const lbl = document.createElement('span');
+    lbl.className   = 'legend-label';
+    lbl.textContent = s.label;
+
+    item.appendChild(sw);
+    item.appendChild(lbl);
+
+    const act = () => toggleSeries(s.id);
+    item.addEventListener('click', act);
+    item.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); act(); }
+    });
+    legend.appendChild(item);
+  });
+}
+
+// ============================================================
+//  RENDER CHART
+// ============================================================
+const container = document.getElementById('chart-container');
+const chartSVG  = d3.select('#chart-svg');
+let   rawData   = null;
+
+function renderChart(data) {
+  chartSVG.selectAll('*').remove();
+
+  const rect  = container.getBoundingClientRect();
+  const W     = Math.max(rect.width, 360);
+  const H     = Math.max(rect.height, 280);
+  const dim   = Math.min(W, H);
+  const R     = dim / 2 - 84;   // radius, leaving space for labels + breathing room
+  const LVLS  = [20, 40, 60, 80, 100];
+  const vars  = data.variables;
+  const n     = vars.length;
+  const aStep = (2 * Math.PI) / n;
+  const scMax = data.scale?.max || 100;
+
+  chartSVG.attr('width', W).attr('height', H).attr('viewBox', `0 0 ${W} ${H}`);
+
+  const g = chartSVG.append('g').attr('transform', `translate(${W / 2},${H / 2})`);
+
+  const rScale = d3.scaleLinear().domain([0, scMax]).range([0, R]);
+
+  // ── HELPERS ──
+  const pt = (varIdx, value) => {
+    const a = varIdx * aStep - Math.PI / 2;
+    const r = rScale(value);
+    return [r * Math.cos(a), r * Math.sin(a)];
+  };
+
+  const polygonD = (values) => {
+    const pts = vars.map((v, i) => pt(i, values[v.key] || 0));
+    return 'M' + pts.map(p => p.join(',')).join('L') + 'Z';
+  };
+
+  const zeroD = polygonD(Object.fromEntries(vars.map(v => [v.key, 0])));
+
+  // ── CONCENTRIC GRID POLYGONS ──
+  LVLS.forEach(level => {
+    const pts = vars.map((_, i) => pt(i, level));
+    g.append('path')
+      .attr('d', 'M' + pts.map(p => p.join(',')).join('L') + 'Z')
+      .attr('fill', level % 40 === 0 ? '#F7FAFD' : 'none')  // alternate subtle bg
+      .attr('fill-opacity', 0.5)
+      .attr('stroke', '#EDEDED')
+      .attr('stroke-width', level === 100 ? 1.5 : 1)
+      .attr('pointer-events', 'none');
+  });
+
+  // ── RADIAL AXIS LINES ──
+  vars.forEach((_, i) => {
+    const [ax, ay] = pt(i, scMax);
+    g.append('line')
+      .attr('x1', 0).attr('y1', 0)
+      .attr('x2', ax).attr('y2', ay)
+      .attr('stroke', '#EDEDED').attr('stroke-width', 1)
+      .attr('pointer-events', 'none');
+  });
+
+  // ── LEVEL LABELS (at 12 o'clock axis) ──
+  LVLS.slice(0, 4).forEach(level => {
+    const [lx, ly] = pt(0, level);
+    g.append('text')
+      .attr('x', lx + 4).attr('y', ly + 1)
+      .attr('dy', '0.35em')
+      .style('font-family', 'JetBrains Mono, monospace')
+      .style('font-size', '8px').style('fill', '#C8C8C8')
+      .attr('pointer-events', 'none')
+      .text(level);
+  });
+
+  // ── AXIS LABELS ──
+  const labelR = R + 22;
+  vars.forEach((v, i) => {
+    const angle = i * aStep - Math.PI / 2;
+    const cosA  = Math.cos(angle);
+    const sinA  = Math.sin(angle);
+    const lx    = labelR * cosA;
+    const ly    = labelR * sinA;
+
+    const anchor = cosA > 0.12 ? 'start' : cosA < -0.12 ? 'end' : 'middle';
+    const dy     = sinA < -0.5 ? '-0.5em' : sinA > 0.5 ? '1.1em' : '0.35em';
+
+    g.append('text')
+      .attr('x', lx).attr('y', ly)
+      .attr('text-anchor', anchor).attr('dy', dy)
+      .style('font-family', 'JetBrains Mono, monospace')
+      .style('font-size', dim < 400 ? '9px' : '10px')
+      .style('font-weight', '800')
+      .style('letter-spacing', '0.06em').style('text-transform', 'uppercase')
+      .style('fill', '#4A4D4F')
+      .attr('pointer-events', 'none')
+      .text(v.label);
+  });
+
+  // ── RADAR POLYGONS — render in reverse so series[0] is on top ──
+  const seriesRev = [...data.series].reverse();
+
+  seriesRev.forEach(s => {
+    const isHidden = hiddenSeries.has(s.id);
+    const origOpacity = isHidden ? 0 : 1;
+
+    // Filled area
+    g.append('path')
+      .attr('class', `radar-area s-${s.id}`)
+      .attr('fill', s.color)
+      .attr('fill-opacity', isHidden ? 0 : 0.14)
+      .attr('stroke', 'none')
+      .attr('opacity', origOpacity)
+      .attr('pointer-events', 'none')
+      .attr('d', zeroD)
+      .transition().duration(750).ease(d3.easeCubicOut)
+      .delay(data.series.indexOf(s) * 120)
+      .attr('d', polygonD(s.values));
+
+    // Stroke outline
+    g.append('path')
+      .attr('class', `radar-stroke s-${s.id}`)
+      .attr('fill', 'none')
+      .attr('stroke', s.color)
+      .attr('stroke-width', 2)
+      .attr('stroke-linejoin', 'round')
+      .attr('opacity', origOpacity)
+      .attr('pointer-events', 'none')
+      .attr('d', zeroD)
+      .transition().duration(750).ease(d3.easeCubicOut)
+      .delay(data.series.indexOf(s) * 120)
+      .attr('d', polygonD(s.values));
+
+    // Vertex dots
+    vars.forEach((v, vi) => {
+      const [dx, dy] = pt(vi, s.values[v.key] || 0);
+      g.append('circle')
+        .attr('class', `radar-dot s-${s.id}`)
+        .attr('cx', dx).attr('cy', dy)
+        .attr('r', 0)
+        .attr('fill', s.color)
+        .attr('stroke', '#FFFFFF').attr('stroke-width', 1.5)
+        .attr('opacity', origOpacity)
+        .attr('tabindex', '0')
+        .attr('role', 'img')
+        .attr('aria-label', `${s.label}: ${v.label} = ${s.values[v.key]}`)
+        .transition()
+        .delay(data.series.indexOf(s) * 120 + 640)
+        .duration(200)
+        .attr('r', 4.5);
+    });
+
+    // Wide transparent polygon overlay for hover
+    g.append('path')
+      .attr('class', `radar-overlay s-${s.id}`)
+      .attr('d', polygonD(s.values))
+      .attr('fill', 'transparent')
+      .attr('stroke', s.color)
+      .attr('stroke-width', 16)
+      .attr('stroke-opacity', 0)
+      .style('cursor', 'pointer')
+      .on('mouseover', function(event) {
+        if (hiddenSeries.has(s.id)) return;
+        highlightSeries(s.id, data.series);
+        showSeriesTooltip(event, s, vars);
+      })
+      .on('mousemove', event => moveTooltip(event))
+      .on('mouseout', function() {
+        hideTooltip();
+        clearHighlight(data.series);
+      })
+      .on('click', function() {
+        if (!hiddenSeries.has(s.id)) toggleSeries(s.id);
+      });
+  });
+
+  // ── SCALE ANNOTATION ──
+  const [sx, sy] = pt(0, scMax);
+  g.append('text')
+    .attr('x', sx + 4).attr('y', sy + 1)
+    .attr('dy', '0.35em')
+    .style('font-family', 'JetBrains Mono, monospace')
+    .style('font-size', '8px').style('font-weight', '600')
+    .style('fill', '#BDBDBD')
+    .attr('pointer-events', 'none')
+    .text(`${scMax}`);
+}
+
+// ============================================================
+//  DATA LOAD
+// ============================================================
+d3.json('./radar-chart/data.json').then(data => {
+  rawData = data;
+  document.getElementById('data-summary').textContent =
+    `${data.series.length} series · ${data.variables.length} axes · scale 0–${data.scale?.max || 100}`;
+
+  buildLegend(data.series);
+  renderChart(data);
+
+  const ro = new ResizeObserver(debounce(() => {
+    if (current === 0 && rawData) renderChart(rawData);
+  }, 160));
+  ro.observe(container);
+
+}).catch(() => {
+  document.getElementById('chart-container').innerHTML =
+    '<p style="color:var(--p3);padding:40px;font-size:12px;font-family:var(--font)">' +
+    '// data.json not found — add <strong>radar-chart/data.json</strong> to run this visualization.</p>';
+});
+
+// ============================================================
+//  UTILS
+// ============================================================
+function debounce(fn, ms) {
+  let t;
+  return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<!--
+  INFERENCES:
+  filename    = marimekko-chart (slugified from chart type — no filename provided)
+  chart       = Marimekko Chart / Mosaic Plot (stated explicitly)
+  message     = Sub-Saharan Africa and MENA dominate the total aid budget, but their
+                sector mix differs sharply — MENA's shelter burden is twice SSA's,
+                while SSA is overwhelmingly food-security driven
+  palette     = hai (Humanitarians AI — walnut on white, Le Monde structure)
+  data-topic  = Humanitarian aid allocation by region × sector, 2024 estimate
+  slides      = 2 (learn modifier active)
+-->
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Humanitarian Aid by Region and Sector — Marimekko Chart</title>
+  <meta name="description" content="Marimekko chart showing global humanitarian aid allocation: column width encodes each region's share of total aid; segment height encodes sector composition within each region.">
+  <meta name="keywords" content="marimekko chart, mosaic plot, two-variable chart, proportional area, humanitarian aid, sector composition, D3.js, data visualization, part-to-whole">
+  <meta name="author" content="Nik Bear Brown">
+  <meta name="category" content="Humanitarian Data / Proportional Analysis">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+
+  <style>
+    /* ============================================================
+       HAI PALETTE
+       WCAG: --p4 (#F7FAFD) and --p7 (#EDEDED) fail on white.
+       --p4 = background fills only. --p7 = borders/grid only.
+       Text contrast: --p1 18.2:1 AAA, --p2 10.7:1 AAA,
+                      --p5 9.4:1 AAA,  --p6 4.6:1 AA
+    ============================================================ */
+    :root {
+      --p1: #1B1B1B;
+      --p2: #5C3317;
+      --p3: #B52C2C;
+      --p4: #F7FAFD;
+      --p5: #4A4D4F;
+      --p6: #797C7F;
+      --p7: #EDEDED;
+      --p8: #FFFFFF;
+      --font: 'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      font-family: var(--font);
+      background: var(--p8);
+      color: var(--p1);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── SLIDES ── */
+    .slides-wrapper {
+      display: flex; flex-direction: column;
+      width: 100%; height: 100vh;
+    }
+    .slide {
+      display: none; flex-direction: column;
+      flex: 1; min-height: 0;
+      padding: 18px 28px 6px;
+      overflow: hidden;
+    }
+    .slide.active { display: flex; }
+    .slide-learn  { overflow-y: auto; padding-bottom: 24px; }
+
+    /* ── TYPOGRAPHY ── */
+    .label {
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 0.13em; text-transform: uppercase; color: var(--p6);
+    }
+    .slide-title {
+      font-size: clamp(11px, 1.65vw, 18px);
+      font-weight: 800; letter-spacing: -0.01em;
+      text-transform: uppercase; color: var(--p1);
+      line-height: 1.2; margin-bottom: 9px;
+    }
+    .slide-meta {
+      display: flex; align-items: center;
+      justify-content: space-between; margin-bottom: 5px;
+    }
+
+    /* ── LEGEND ── */
+    .legend {
+      display: flex; flex-wrap: wrap;
+      gap: 5px 16px; margin-bottom: 8px;
+    }
+    .legend-item {
+      display: flex; align-items: center; gap: 7px;
+      cursor: pointer; padding: 3px 6px;
+      border: 1.5px solid transparent;
+      transition: border-color 0.18s, opacity 0.22s;
+    }
+    .legend-item:hover         { border-color: var(--p7); }
+    .legend-item:focus-visible { outline: 2px solid var(--p2); outline-offset: 2px; }
+    .legend-item.dimmed        { opacity: 0.22; }
+    .legend-swatch {
+      width: 14px; height: 10px; border-radius: 1px; flex-shrink: 0;
+    }
+    .legend-label {
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase; color: var(--p5);
+    }
+
+    /* ── CONTROLS ── */
+    .controls-bar {
+      display: flex; align-items: center; gap: 9px; margin-bottom: 8px;
+    }
+    .btn {
+      font-family: var(--font); font-size: 10px; font-weight: 600;
+      letter-spacing: 0.09em; text-transform: uppercase;
+      padding: 3px 9px; background: transparent;
+      border: 1.5px solid var(--p7); color: var(--p6);
+      cursor: pointer; transition: border-color 0.18s, color 0.18s;
+    }
+    .btn:hover         { border-color: var(--p2); color: var(--p2); }
+    .btn:focus-visible { outline: 2px solid var(--p2); outline-offset: 2px; }
+
+    /* ── VIZ CONTAINER ── */
+    .viz-container {
+      flex: 1; min-height: 0; position: relative; overflow: hidden;
+    }
+    #chart-svg { display: block; width: 100%; height: 100%; }
+
+    /* ── TOOLTIP ── */
+    .tooltip {
+      position: fixed; pointer-events: none;
+      background: var(--p1); color: var(--p8);
+      padding: 10px 14px; font-family: var(--font);
+      font-size: 11px; line-height: 1.8;
+      border: 1px solid var(--p2); max-width: 230px;
+      opacity: 0; transition: opacity 0.1s; z-index: 200;
+    }
+    .tooltip.visible { opacity: 1; }
+    .tt-head {
+      font-weight: 800; font-size: 12px;
+      color: var(--p4); /* #F7FAFD on #1B1B1B — 16.3:1 AAA ✓ */
+      margin-bottom: 3px; padding-bottom: 4px;
+      border-bottom: 1px solid #333;
+    }
+    .tt-sub  { font-size: 9px; font-weight: 600; letter-spacing: 0.1em;
+               text-transform: uppercase; color: #C9A878; margin-bottom: 5px; }
+    .tt-row  { color: var(--p6); }
+    .tt-val  { font-weight: 700; color: var(--p8); }
+    .tt-area {
+      margin-top: 5px; padding-top: 5px; border-top: 1px solid #333;
+      font-size: 10px; color: #A0A0A0;
+    }
+    .tt-area strong { color: var(--p4); font-size: 11px; }
+
+    /* ── NAV DOTS ── */
+    .slide-nav {
+      position: fixed; bottom: 47px; left: 50%;
+      transform: translateX(-50%); display: flex; gap: 8px; z-index: 100;
+    }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      border: 1.5px solid var(--p6); background: transparent;
+      cursor: pointer; padding: 0; transition: background 0.2s, border-color 0.2s;
+    }
+    .dot.active        { background: var(--p2); border-color: var(--p2); }
+    .dot:focus-visible { outline: 2px solid var(--p2); outline-offset: 3px; }
+
+    /* ── FOOTER ── */
+    footer {
+      height: 38px; border-top: 2px solid var(--p7);
+      display: flex; align-items: center;
+      justify-content: space-between; padding: 0 28px; flex-shrink: 0;
+    }
+    footer p  { font-size: 10px; color: var(--p6); letter-spacing: 0.04em; }
+    .nav-hint { font-size: 10px; color: var(--p6); letter-spacing: 0.08em; }
+
+    /* ── LEARN SLIDE ── */
+    .learn-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 18px 36px; padding-bottom: 28px;
+    }
+    .learn-block { border-left: 3px solid var(--p2); padding-left: 13px; }
+    .learn-block h2 {
+      font-size: 10px; font-weight: 800;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--p2); margin-bottom: 6px;
+    }
+    .learn-block p  { font-size: 11.5px; line-height: 1.8; color: var(--p5); }
+    .learn-block p strong { color: var(--p1); font-weight: 700; }
+    .learn-block code {
+      font-family: var(--font); font-size: 10px;
+      color: var(--p2); background: var(--p4); padding: 1px 4px;
+    }
+    .framework-ref {
+      grid-column: 1 / -1; background: var(--p4);
+      border: 1.5px solid var(--p7); padding: 13px 17px;
+    }
+    .framework-ref .label { display: block; color: var(--p2); margin-bottom: 6px; }
+    .framework-ref p      { font-size: 11.5px; line-height: 1.75; color: var(--p1); }
+    .framework-ref p strong { color: var(--p2); }
+    .design-decision {
+      grid-column: 1 / -1; border-top: 2px solid var(--p7); padding-top: 13px;
+    }
+    .design-decision h2 {
+      font-size: 10px; font-weight: 800;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--p6); margin-bottom: 6px;
+    }
+    .design-decision p { font-size: 11.5px; line-height: 1.8; color: var(--p5); }
+    .design-decision p strong { color: var(--p1); font-weight: 700; }
+    .design-decision code {
+      font-family: var(--font); font-size: 10px;
+      color: var(--p2); background: var(--p4); padding: 1px 4px;
+    }
+
+    @media (max-width: 700px) {
+      .learn-grid  { grid-template-columns: 1fr; }
+      .slide       { padding: 12px 14px 5px; }
+      footer       { padding: 0 14px; }
+      .slide-title { font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="tooltip" id="tooltip" role="tooltip" aria-live="polite" aria-atomic="true"></div>
+
+<div class="slides-wrapper">
+
+  <!-- ── SLIDE 1: MARIMEKKO VISUALIZATION ── -->
+  <section class="slide active" id="slide-01"
+           aria-label="Marimekko chart: Humanitarian aid by region and sector">
+
+    <div class="slide-meta">
+      <span class="label">// HAI — AID ALLOCATION · REGION × SECTOR · 2024 ESTIMATE</span>
+      <span class="label" id="data-summary"></span>
+    </div>
+
+    <h1 class="slide-title">
+      MENA's Shelter Burden Is Double SSA's —<br>
+      Column Width Encodes Total Aid Share, Height Encodes Sector Mix
+    </h1>
+
+    <div class="legend" id="legend" role="list"
+         aria-label="Sector legend — click to highlight that sector across all regions"></div>
+
+    <div class="controls-bar">
+      <button class="btn" id="reset-btn"    aria-label="Reset sector filter">↺ reset</button>
+      <button class="btn" id="audio-toggle" aria-label="Play narration">▶ narration</button>
+    </div>
+
+    <div class="viz-container" id="chart-container">
+      <svg id="chart-svg" role="img" aria-labelledby="mekko-title mekko-desc">
+        <title id="mekko-title">Marimekko Chart — Humanitarian Aid by Region and Sector</title>
+        <desc id="mekko-desc">
+          Five-column Marimekko chart. Column width encodes each region's share of total
+          humanitarian aid: Sub-Saharan Africa 35%, MENA 28%, South Asia 18%, Latin America
+          12%, Other Regions 7%. Within each column, segment height encodes sector composition:
+          Food Security (walnut, top), Health (blood-red), Shelter (dim-gray),
+          Education (mist), Protection (obsidian, bottom). Cell area represents each
+          sector-region combination's share of the global total.
+        </desc>
+      </svg>
+    </div>
+
+    <audio id="page-audio" src="./marimekko-chart/audio.mp3" preload="none"></audio>
+
+  </section>
+
+  <!-- ── SLIDE 2: LEARN PANEL ── -->
+  <section class="slide slide-learn" id="slide-02"
+           aria-label="Learn panel: Marimekko Chart theory and design decisions">
+
+    <div class="slide-meta">
+      <span class="label">// LEARN — MARIMEKKO / MOSAIC PLOT · FT VISUAL VOCABULARY: PART-TO-WHOLE</span>
+      <span class="label">ABELA QUADRANT: COMPARISON + COMPOSITION</span>
+    </div>
+
+    <h1 class="slide-title">What Makes a Marimekko Work — And Why Cell Area Is the Real Message</h1>
+
+    <div class="learn-grid">
+
+      <div class="learn-block">
+        <h2>What this chart is</h2>
+        <p>
+          A Marimekko chart (also called a Mosaic Plot) is a
+          <strong>two-variable 100% chart</strong>: both axes run from 0% to 100%, and
+          every segment in the chart simultaneously encodes its value on both axes.
+          The x-axis encodes each group's share of the total (column width).
+          The y-axis encodes the sub-category composition within each group (segment height).
+          The result is a rectangle partitioned into cells where
+          <strong>cell area</strong> directly encodes each category-group combination's
+          share of the grand total. A cell whose column is 35% wide and whose segment is 42%
+          tall occupies exactly <strong>14.7% of the total chart area</strong> — which
+          equals 14.7% of the total data. This area-as-proportion property is the chart's
+          defining characteristic and its primary cognitive demand.
+        </p>
+      </div>
+
+      <div class="learn-block">
+        <h2>Two encodings, one rectangle</h2>
+        <p>
+          Every cell in a Marimekko simultaneously encodes four pieces of information:
+          <strong>group identity</strong> (x-position), <strong>group share of total</strong>
+          (column width), <strong>sub-category identity</strong> (fill color with redundant
+          text label where space permits), and <strong>sub-category share within the group</strong>
+          (segment height). The cell area synthesizes these into a fifth: the
+          <strong>share of the grand total</strong>. No other single chart type encodes all
+          five simultaneously without adding a fifth visual dimension (size, position, or
+          annotation). This compression is Marimekko's strength — and the source of its
+          notorious legibility ceiling at high cell counts.
+        </p>
+      </div>
+
+      <div class="learn-block">
+        <h2>What the alternatives would break</h2>
+        <p>
+          A <strong>100% stacked bar chart</strong> shows the y-axis composition correctly
+          but assigns equal column width to all groups — the viewer cannot see that
+          Sub-Saharan Africa receives 35% of total aid while Other Regions receives 7%.
+          The column-width variable disappears. A <strong>treemap</strong> encodes area as
+          proportion-of-total and handles arbitrary nesting, but loses the aligned y-axis
+          that makes within-column composition comparison possible — the viewer cannot
+          scan horizontally to compare "how much of each region's aid goes to Health."
+          Marimekko is the only chart that preserves <em>both</em> comparisons simultaneously.
+        </p>
+      </div>
+
+      <div class="learn-block">
+        <h2>Reading order and cognitive load</h2>
+        <p>
+          Marimekko charts require a specific reading contract: the viewer must first
+          understand that <strong>column width ≠ data value</strong>, but rather encodes a
+          separate variable. This is counterintuitive — in a standard bar chart, width is
+          decoration. Here it is data. The chart therefore requires more viewer calibration
+          than a simple bar chart. The FT Visual Vocabulary lists Marimekko under
+          <strong>Part-to-whole</strong> with a note: "suitable for a general overview rather
+          than precise comparison." For precise segment comparison, a small-multiple of
+          standard 100% bar charts is preferable. For revealing the relationship between
+          the two variables simultaneously, Marimekko has no close substitute.
+        </p>
+      </div>
+
+      <div class="framework-ref">
+        <span class="label">// FRAMEWORK REFERENCE</span>
+        <p>
+          The FT Visual Vocabulary classifies Marimekko under <strong>Part-to-whole</strong>:
+          "Show how a single entity can be broken down into its component elements."
+          It simultaneously touches <strong>Comparison</strong>: "Compare multiple items."
+          Abela's framework routes here when the question is "how do the sub-category shares
+          compare across groups, and how do the groups compare in total size?" — a bivariate
+          composition question that requires both axes to carry distinct information.
+          Tufte's data-ink principle is applied: the <strong>cell area itself is data</strong>
+          (share of grand total), so every pixel of the filled rectangle carries information.
+          The 2px column gap is the sole non-data element — it costs two pixels per boundary
+          to purchase legible column separation, which passes the data-ink test.
+        </p>
+      </div>
+
+      <div class="design-decision">
+        <h2>// The one design decision worth knowing</h2>
+        <p>
+          <strong>Cell percentage labels are shown only when the cell is large enough to hold
+          them without overlap</strong> — minimum 35px wide and 18px tall. Smaller cells carry
+          no label; the tooltip delivers the value on demand. This is a deliberate
+          <strong>progressive disclosure</strong> strategy: forcing labels into small cells
+          would require font sizes below 8px (illegible) or rotated text (disorienting in a
+          chart that already demands careful reading). The tooltip for any cell shows four
+          values: region, sector, within-region share, and
+          <code>share of grand total = xShare × segValue ÷ 100</code>.
+          The grand-total area calculation is surfaced explicitly in the tooltip because it
+          is the chart's least-intuitive output — the number the viewer most needs and
+          is least likely to compute mentally.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    <p>Nik Bear Brown, Irreducibly Human, What AI Can and Can't Do
+       &nbsp;·&nbsp; boondoggling.ai &nbsp;·&nbsp; irreducibly.xyz &nbsp;·&nbsp;
+       brutalist.art &nbsp;·&nbsp; bearbrown.co &nbsp;·&nbsp; frictional.xyz</p>
+    <span class="nav-hint">← → slides &nbsp;|&nbsp; esc reset</span>
+  </footer>
+
+</div>
+
+<nav class="slide-nav" role="navigation" aria-label="Slide navigation">
+  <button class="dot active" data-slide="0"
+          aria-label="Go to slide 1: Marimekko visualization" tabindex="0"></button>
+  <button class="dot"        data-slide="1"
+          aria-label="Go to slide 2: Learn panel"             tabindex="0"></button>
+</nav>
+
+
+<script>
+'use strict';
+
+// ============================================================
+//  SLIDE NAVIGATION
+// ============================================================
+const slides  = document.querySelectorAll('.slide');
+const dots    = document.querySelectorAll('.dot');
+let   current = 0;
+
+function goToSlide(n) {
+  slides[current].classList.remove('active');
+  dots[current].classList.remove('active');
+  current = Math.max(0, Math.min(n, slides.length - 1));
+  slides[current].classList.add('active');
+  dots[current].classList.add('active');
+}
+
+dots.forEach(d => d.addEventListener('click', () => goToSlide(+d.dataset.slide)));
+
+document.addEventListener('keydown', e => {
+  if (['ArrowRight', 'ArrowDown'].includes(e.key)) goToSlide(current + 1);
+  if (['ArrowLeft',  'ArrowUp'  ].includes(e.key)) goToSlide(current - 1);
+  if (e.key === 'Escape') resetFilter();
+});
+
+// ============================================================
+//  AUDIO
+// ============================================================
+const audio    = document.getElementById('page-audio');
+const audioBtn = document.getElementById('audio-toggle');
+audioBtn.addEventListener('click', () => {
+  if (audio.paused) {
+    audio.play().catch(() => {});
+    audioBtn.textContent = '⏸ narration';
+    audioBtn.setAttribute('aria-label', 'Pause narration');
+  } else {
+    audio.pause();
+    audioBtn.textContent = '▶ narration';
+    audioBtn.setAttribute('aria-label', 'Play narration');
+  }
+});
+audio.addEventListener('ended', () => {
+  audioBtn.textContent = '▶ narration';
+  audioBtn.setAttribute('aria-label', 'Play narration');
+});
+
+// ============================================================
+//  TOOLTIP
+// ============================================================
+const tooltipEl = document.getElementById('tooltip');
+
+function showTooltip(event, col, seg, catMap) {
+  const cat     = catMap.get(seg.category);
+  const areaPct = ((col.xShare * seg.value) / 100).toFixed(1);
+  tooltipEl.innerHTML = `
+    <div class="tt-head">${col.label}</div>
+    <div class="tt-sub">${cat?.label || seg.category}</div>
+    <div class="tt-row">Region share &nbsp;&nbsp;<span class="tt-val">${col.xShare}% of total</span></div>
+    <div class="tt-row">Sector share &nbsp;&nbsp;<span class="tt-val">${seg.value}% of region</span></div>
+    <div class="tt-area">Area = share of grand total<br>
+      <strong>${col.xShare}% × ${seg.value}% = ${areaPct}%</strong>
+    </div>
+  `;
+  moveTooltip(event);
+  tooltipEl.classList.add('visible');
+}
+
+function moveTooltip(event) {
+  const tw = tooltipEl.offsetWidth;
+  const th = tooltipEl.offsetHeight;
+  let x = event.clientX + 14;
+  let y = event.clientY - th / 2;
+  if (x + tw > window.innerWidth  - 8) x = event.clientX - tw - 14;
+  if (y < 6)                            y = 6;
+  if (y + th > window.innerHeight - 6) y = window.innerHeight - th - 6;
+  tooltipEl.style.left = x + 'px';
+  tooltipEl.style.top  = y + 'px';
+}
+
+function hideTooltip() { tooltipEl.classList.remove('visible'); }
+
+// ============================================================
+//  FILTER STATE
+// ============================================================
+let activeCat = null;
+
+function toggleCategory(catId) {
+  activeCat = (activeCat === catId) ? null : catId;
+  applyFilter();
+}
+
+function resetFilter() {
+  activeCat = null;
+  applyFilter();
+}
+
+function applyFilter() {
+  document.querySelectorAll('.legend-item').forEach(item => {
+    item.classList.toggle('dimmed', activeCat !== null && item.dataset.cat !== activeCat);
+  });
+  d3.selectAll('.mekko-cell').each(function(d) {
+    const dim = activeCat !== null && d.seg.category !== activeCat;
+    d3.select(this).transition().duration(250)
+      .attr('fill-opacity', dim ? 0.07 : 1);
+  });
+  // Dim cell labels too
+  d3.selectAll('.cell-label').each(function(d) {
+    const dim = activeCat !== null && d.seg.category !== activeCat;
+    d3.select(this).transition().duration(250).style('opacity', dim ? 0 : 1);
+  });
+}
+
+document.getElementById('reset-btn').addEventListener('click', resetFilter);
+
+// ============================================================
+//  BUILD LEGEND
+// ============================================================
+function buildLegend(categories) {
+  const legend = document.getElementById('legend');
+  categories.slice().reverse().forEach(cat => {  // reversed = top-of-chart first
+    const item = document.createElement('div');
+    item.className  = 'legend-item';
+    item.dataset.cat = cat.id;
+    item.setAttribute('role', 'listitem');
+    item.setAttribute('tabindex', '0');
+    item.setAttribute('aria-label', `Highlight ${cat.label}`);
+
+    const swatch = document.createElement('div');
+    swatch.className = 'legend-swatch';
+    swatch.style.background = cat.fill;
+
+    const lbl = document.createElement('span');
+    lbl.className   = 'legend-label';
+    lbl.textContent = cat.label;
+
+    item.appendChild(swatch);
+    item.appendChild(lbl);
+    const act = () => toggleCategory(cat.id);
+    item.addEventListener('click', act);
+    item.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); act(); }
+    });
+    legend.appendChild(item);
+  });
+}
+
+// ============================================================
+//  RENDER CHART
+// ============================================================
+const container = document.getElementById('chart-container');
+const chartSVG  = d3.select('#chart-svg');
+let   rawData   = null;
+
+function renderChart(data) {
+  chartSVG.selectAll('*').remove();
+
+  const rect   = container.getBoundingClientRect();
+  const W      = Math.max(rect.width, 400);
+  const H      = Math.max(rect.height, 280);
+  const margin = { top: 34, right: 18, bottom: 74, left: 50 };
+  const iW     = W - margin.left - margin.right;
+  const iH     = H - margin.top  - margin.bottom;
+
+  chartSVG.attr('width', W).attr('height', H).attr('viewBox', `0 0 ${W} ${H}`);
+
+  const g = chartSVG.append('g')
+    .attr('transform', `translate(${margin.left},${margin.top})`);
+
+  const catMap = new Map(data.categories.map(c => [c.id, c]));
+
+  // ── COMPUTE PIXEL POSITIONS ──
+  const COL_GAP   = 3;
+  const totalGap  = (data.columns.length - 1) * COL_GAP;
+  const usableW   = iW - totalGap;
+
+  let xPxCursor = 0;
+  data.columns.forEach((col, colIdx) => {
+    col._colIdx  = colIdx;
+    col._pxStart = xPxCursor;
+    col._pxWidth = (col.xShare / 100) * usableW;
+    xPxCursor   += col._pxWidth + COL_GAP;
+
+    // Cumulative y positions (bottom-to-top stacking)
+    let yCum = 0;
+    col.segments.forEach((seg, segIdx) => {
+      seg._segIdx   = segIdx;
+      seg._yCumBot  = yCum;
+      yCum         += seg.value;
+      seg._yCumTop  = yCum;
+    });
+  });
+
+  // ── Y SCALE: 0% bottom → 100% top ──
+  const yScale = d3.scaleLinear().domain([0, 100]).range([iH, 0]);
+
+  // ── Y AXIS ──
+  const yAxisG = g.append('g')
+    .call(d3.axisLeft(yScale).ticks(5).tickFormat(d => `${d}%`).tickSize(4).tickPadding(5));
+  yAxisG.select('.domain').attr('stroke', '#EDEDED');
+  yAxisG.selectAll('.tick line').attr('stroke', '#EDEDED');
+  yAxisG.selectAll('.tick text')
+    .style('font-family', 'JetBrains Mono, monospace')
+    .style('font-size', '10px').style('fill', '#797C7F');
+
+  // Y-axis label
+  g.append('text')
+    .attr('transform', 'rotate(-90)')
+    .attr('x', -iH / 2).attr('y', -40)
+    .attr('text-anchor', 'middle')
+    .style('font-family', 'JetBrains Mono, monospace')
+    .style('font-size', '9px').style('font-weight', '600')
+    .style('letter-spacing', '0.1em').style('text-transform', 'uppercase')
+    .style('fill', '#4A4D4F')
+    .text(data.yAxisLabel || 'Sector Composition (%)');
+
+  // ── HORIZONTAL GRID ──
+  g.append('g').selectAll('.hg').data(yScale.ticks(5)).join('line')
+    .attr('x1', 0).attr('x2', iW)
+    .attr('y1', d => yScale(d)).attr('y2', d => yScale(d))
+    .attr('stroke', '#EDEDED').attr('stroke-opacity', 0.9)
+    .attr('pointer-events', 'none');
+
+  // ── CLIP PATH (bars stay inside chart area) ──
+  chartSVG.append('defs').append('clipPath').attr('id', 'mekko-clip')
+    .append('rect').attr('x', 0).attr('y', 0).attr('width', iW).attr('height', iH);
+
+  const clipG = g.append('g').attr('clip-path', 'url(#mekko-clip)');
+
+  // ── FLATTEN CELLS ──
+  const cellData = [];
+  data.columns.forEach(col => {
+    col.segments.forEach(seg => cellData.push({ col, seg }));
+  });
+
+  // ── DRAW CELLS ──
+  clipG.selectAll('.mekko-cell')
+    .data(cellData, d => `${d.col.id}-${d.seg.category}`)
+    .join('rect')
+    .attr('class', 'mekko-cell')
+    .attr('x',     d => d.col._pxStart)
+    .attr('y',     d => yScale(d.seg._yCumTop))
+    .attr('width', d => Math.max(0, d.col._pxWidth))
+    .attr('fill',  d => catMap.get(d.seg.category)?.fill || '#888')
+    .attr('stroke', '#FFFFFF').attr('stroke-width', 1)
+    .attr('tabindex', '0')
+    .attr('role', 'img')
+    .attr('aria-label', d => {
+      const cat   = catMap.get(d.seg.category);
+      const area  = ((d.col.xShare * d.seg.value) / 100).toFixed(1);
+      return `${d.col.label}, ${cat?.label}: ${d.seg.value}% of region, ${area}% of total`;
+    })
+    // Animate: height from 0 (left-to-right columns, bottom-to-top segments)
+    .attr('height', 0)
+    .transition().duration(600).ease(d3.easeCubicOut)
+    .delay(d => d.col._colIdx * 100 + d.seg._segIdx * 35 + 80)
+    .attr('height', d => Math.max(0, yScale(d.seg._yCumBot) - yScale(d.seg._yCumTop)));
+
+  // ── CELL VALUE LABELS ──
+  const LABEL_MIN_W = 36;
+  const LABEL_MIN_H = 17;
+
+  const labelData = cellData.filter(d => {
+    const cellH = yScale(d.seg._yCumBot) - yScale(d.seg._yCumTop);
+    return d.col._pxWidth > LABEL_MIN_W && cellH > LABEL_MIN_H;
+  });
+
+  clipG.selectAll('.cell-label')
+    .data(labelData, d => `${d.col.id}-${d.seg.category}-lbl`)
+    .join('text')
+    .attr('class', 'cell-label')
+    .attr('x', d => d.col._pxStart + d.col._pxWidth / 2)
+    .attr('y', d => {
+      const cellH = yScale(d.seg._yCumBot) - yScale(d.seg._yCumTop);
+      return yScale(d.seg._yCumTop) + cellH / 2;
+    })
+    .attr('dy', '0.35em')
+    .attr('text-anchor', 'middle')
+    .style('font-family', 'JetBrains Mono, monospace')
+    .style('font-size', d => d.col._pxWidth > 55 ? '10px' : '8px')
+    .style('font-weight', '700')
+    .style('fill', '#FFFFFF')
+    .style('pointer-events', 'none')
+    .style('opacity', 0)
+    .text(d => `${d.seg.value}%`)
+    .transition().delay(d => d.col._colIdx * 100 + d.seg._segIdx * 35 + 500)
+    .duration(280)
+    .style('opacity', 1);
+
+  // ── CELL INTERACTION OVERLAY ──
+  clipG.selectAll('.cell-overlay')
+    .data(cellData)
+    .join('rect')
+    .attr('class', 'cell-overlay')
+    .attr('x',     d => d.col._pxStart)
+    .attr('y',     d => yScale(d.seg._yCumTop))
+    .attr('width', d => Math.max(0, d.col._pxWidth))
+    .attr('height', d => Math.max(0, yScale(d.seg._yCumBot) - yScale(d.seg._yCumTop)))
+    .attr('fill', 'transparent')
+    .style('cursor', 'pointer')
+    .on('mouseover', function(event, d) {
+      showTooltip(event, d.col, d.seg, catMap);
+      d3.select(this.parentNode).selectAll('.mekko-cell')
+        .filter(c => c.col.id === d.col.id && c.seg.category === d.seg.category)
+        .attr('stroke', '#FFFFFF').attr('stroke-width', 2.5);
+    })
+    .on('mousemove', event => moveTooltip(event))
+    .on('mouseout', function() {
+      hideTooltip();
+      d3.selectAll('.mekko-cell').attr('stroke-width', 1);
+    })
+    .on('click', (_, d) => toggleCategory(d.seg.category))
+    .on('focus', function(event, d) {
+      showTooltip({ clientX: 200, clientY: 200 }, d.col, d.seg, catMap);
+    })
+    .on('blur', () => hideTooltip())
+    .on('keydown', function(event, d) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        toggleCategory(d.seg.category);
+      }
+    });
+
+  // ── CHART BORDER (top + bottom) ──
+  g.append('line').attr('x1', 0).attr('x2', iW)
+    .attr('y1', 0).attr('y2', 0)
+    .attr('stroke', '#EDEDED').attr('stroke-width', 1.5);
+  g.append('line').attr('x1', 0).attr('x2', iW)
+    .attr('y1', iH).attr('y2', iH)
+    .attr('stroke', '#EDEDED').attr('stroke-width', 1.5);
+
+  // ── COLUMN SHARE % LABELS (above chart) ──
+  data.columns.forEach(col => {
+    g.append('text')
+      .attr('x', col._pxStart + col._pxWidth / 2)
+      .attr('y', -10)
+      .attr('text-anchor', 'middle')
+      .style('font-family', 'JetBrains Mono, monospace')
+      .style('font-size', '10px').style('font-weight', '700')
+      .style('fill', '#4A4D4F')
+      .text(`${col.xShare}%`);
+
+    // Tick at each column's left boundary
+    if (col._colIdx === 0) {
+      g.append('line')
+        .attr('x1', 0).attr('x2', 0)
+        .attr('y1', iH).attr('y2', iH + 6)
+        .attr('stroke', '#EDEDED');
+    }
+    // Right boundary
+    g.append('line')
+      .attr('x1', col._pxStart + col._pxWidth + (col._colIdx < data.columns.length - 1 ? COL_GAP / 2 : 0))
+      .attr('x2', col._pxStart + col._pxWidth + (col._colIdx < data.columns.length - 1 ? COL_GAP / 2 : 0))
+      .attr('y1', iH).attr('y2', iH + 6)
+      .attr('stroke', '#EDEDED');
+  });
+
+  // ── COLUMN NAME LABELS (below x-axis, angled) ──
+  data.columns.forEach(col => {
+    const cx = col._pxStart + col._pxWidth / 2;
+    g.append('text')
+      .attr('transform', `translate(${cx},${iH + 14}) rotate(-28)`)
+      .attr('text-anchor', 'end')
+      .style('font-family', 'JetBrains Mono, monospace')
+      .style('font-size', '10px').style('font-weight', '600')
+      .style('letter-spacing', '0.06em').style('text-transform', 'uppercase')
+      .style('fill', '#4A4D4F')
+      .text(col.shortLabel || col.label);
+  });
+
+  // ── X-AXIS ANNOTATION ──
+  g.append('text')
+    .attr('x', iW / 2).attr('y', iH + 64)
+    .attr('text-anchor', 'middle')
+    .style('font-family', 'JetBrains Mono, monospace')
+    .style('font-size', '9px').style('font-weight', '600')
+    .style('letter-spacing', '0.1em').style('text-transform', 'uppercase')
+    .style('fill', '#797C7F')
+    .text('← Column width = share of total aid budget →');
+
+  // ── AREA ANNOTATION (grand total explanation) ──
+  g.append('text')
+    .attr('x', iW - 2).attr('y', iH - 6)
+    .attr('text-anchor', 'end')
+    .style('font-family', 'JetBrains Mono, monospace')
+    .style('font-size', '8px').style('fill', '#BDBDBD')
+    .text('cell area = share of grand total');
+}
+
+// ============================================================
+//  DATA LOAD
+// ============================================================
+d3.json('./marimekko-chart/data.json').then(data => {
+  rawData = data;
+  const totalCells = data.columns.reduce((sum, c) => sum + c.segments.length, 0);
+  document.getElementById('data-summary').textContent =
+    `${data.columns.length} regions · ${data.categories.length} sectors · ${totalCells} cells`;
+
+  buildLegend(data.categories);
+  renderChart(data);
+
+  const ro = new ResizeObserver(debounce(() => {
+    if (current === 0 && rawData) renderChart(rawData);
+  }, 150));
+  ro.observe(container);
+
+}).catch(() => {
+  document.getElementById('chart-container').innerHTML =
+    '<p style="color:var(--p3);padding:40px;font-size:12px;font-family:var(--font)">' +
+    '// data.json not found — add <strong>marimekko-chart/data.json</strong> to run this visualization.</p>';
+});
+
+// ============================================================
+//  UTILS
+// ============================================================
+function debounce(fn, ms) {
+  let t;
+  return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
+}
+</script>
+</body>
+</html>

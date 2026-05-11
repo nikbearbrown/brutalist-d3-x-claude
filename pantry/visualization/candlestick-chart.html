@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Price Action Reveals Market Psychology</title>
+  <meta name="description" content="Japanese Candlestick Chart: OHLC price data visualised as candlestick symbols, revealing bullish and bearish market psychology through body size, colour, and wick length.">
+  <meta name="keywords" content="candlestick chart, OHLC, market psychology, price action, D3.js, trading, brutalist design, data visualisation, Japanese candlestick, bullish, bearish">
+  <meta name="author" content="Nik Bear Brown">
+  <meta name="category" content="Finance / Market Analysis">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <style>
+    /* ── HAI PALETTE ─────────────────────────────────────────── */
+    :root {
+      --p1: #1B1B1B;
+      --p2: #5C3317;
+      --p3: #7A0000;
+      --p4: #F7FAFD;
+      --p5: #4A4D4F;
+      --p6: #797C7F;
+      --p7: #EDEDED;
+      --p8: #FFFFFF;
+      --font: 'JetBrains Mono', monospace;
+      --bull: #5C3317;
+      --bear: #7A0000;
+      --bull-light: rgba(92,51,23,0.18);
+      --bear-light: rgba(181,44,44,0.18);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      font-family: var(--font);
+      background: var(--p8);
+      color: var(--p1);
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+
+    /* ── SLIDES ──────────────────────────────────────────────── */
+    .slide {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: clamp(2rem, 4vw, 4.5rem) clamp(1.5rem, 6vw, 6.5rem);
+      border-bottom: 2px solid var(--p7);
+    }
+
+    .slide-meta { margin-bottom: 1.1rem; }
+
+    .label {
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.13em;
+      color: var(--p6);
+      text-transform: uppercase;
+    }
+
+    .slide-title {
+      font-size: clamp(16px, 2.6vw, 30px);
+      font-weight: 800;
+      text-transform: uppercase;
+      line-height: 1.15;
+      max-width: 70ch;
+      margin-bottom: 1.6rem;
+      border-left: 4px solid var(--p2);
+      padding-left: 1rem;
+      animation: fadeUp 0.5s ease-out both;
+      animation-delay: 0.1s;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── STATS BAR ───────────────────────────────────────────── */
+    .stats-bar {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 1.2rem;
+      flex-wrap: wrap;
+      animation: fadeUp 0.5s ease-out both;
+      animation-delay: 0.2s;
+    }
+
+    .stat-item { line-height: 1.3; }
+
+    .stat-label {
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      color: var(--p6);
+      text-transform: uppercase;
+      display: block;
+    }
+
+    .stat-value {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--p1);
+    }
+
+    .stat-value.bull { color: var(--bull); }
+    .stat-value.bear { color: var(--bear); }
+
+    /* ── CHART AREA ──────────────────────────────────────────── */
+    .viz-container {
+      flex: 1;
+      min-height: 420px;
+      position: relative;
+      border: 1px solid var(--p7);
+      overflow: hidden;
+    }
+
+    #chart { display: block; width: 100%; height: 100%; cursor: crosshair; }
+
+    /* ── TOOLTIP ─────────────────────────────────────────────── */
+    .tooltip {
+      position: fixed;
+      pointer-events: none;
+      background: var(--p1);
+      color: var(--p8);
+      font-family: var(--font);
+      font-size: 11px;
+      font-weight: 400;
+      padding: 9px 13px;
+      border: 1px solid var(--p2);
+      opacity: 0;
+      transition: opacity 0.1s;
+      z-index: 200;
+      line-height: 1.8;
+      min-width: 160px;
+    }
+
+    .tooltip strong { color: var(--p2); display: block; margin-bottom: 2px; font-size: 12px; }
+    .tooltip .t-bull { color: #7a9e6b; }
+    .tooltip .t-bear { color: #e07070; }
+
+    /* ── CONTROLS ────────────────────────────────────────────── */
+    .controls {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      margin-top: 1.2rem;
+      flex-wrap: wrap;
+      animation: fadeUp 0.5s ease-out both;
+      animation-delay: 0.3s;
+    }
+
+    .ctl-label { font-size: 10px; color: var(--p6); letter-spacing: 0.1em; text-transform: uppercase; }
+
+    .btn {
+      font-family: var(--font);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: transparent;
+      color: var(--p1);
+      border: 1px solid var(--p5);
+      padding: 5px 12px;
+      cursor: pointer;
+      transition: background 0.14s, color 0.14s;
+    }
+
+    .btn:hover, .btn.active { background: var(--p1); color: var(--p8); }
+    .btn:focus { outline: 2px solid var(--p2); outline-offset: 2px; }
+
+    .btn.bull-btn.active { background: var(--bull); border-color: var(--bull); color: var(--p8); }
+    .btn.bear-btn.active { background: var(--bear); border-color: var(--bear); color: var(--p8); }
+
+    .sep { width: 1px; height: 20px; background: var(--p7); margin: 0 0.25rem; }
+
+    /* ── ZOOM HINT ───────────────────────────────────────────── */
+    .zoom-hint {
+      font-size: 9px;
+      color: var(--p6);
+      letter-spacing: 0.08em;
+      margin-top: 0.5rem;
+    }
+
+    /* ── CHART EXPLAINER ─────────────────────────────────────── */
+    .chart-explainer {
+      margin-top: 2rem;
+      border-top: 1px solid var(--p7);
+      padding-top: 1.5rem;
+      animation: fadeUp 0.5s ease-out both;
+      animation-delay: 0.4s;
+    }
+
+    .explainer-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem 3rem;
+      max-width: 110ch;
+    }
+
+    @media (max-width: 760px) {
+      .explainer-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+    }
+
+    .explainer-block h3 {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--p2);
+      margin-bottom: 0.65rem;
+      padding-bottom: 0.35rem;
+      border-bottom: 1px solid var(--p7);
+    }
+
+    .explainer-block p {
+      font-size: clamp(11px, 1.05vw, 13px);
+      font-weight: 400;
+      line-height: 1.85;
+      color: var(--p5);
+    }
+
+    .explainer-block p strong {
+      color: var(--p1);
+      font-weight: 800;
+    }
+
+    /* ── NAV DOTS ────────────────────────────────────────────── */
+    .nav-dots {
+      position: fixed;
+      right: clamp(0.75rem, 2.5vw, 2rem);
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      z-index: 100;
+    }
+
+    .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--p7);
+      border: 1px solid var(--p6);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .dot.active { background: var(--p2); border-color: var(--p2); }
+
+    /* ── LEARN SLIDE ─────────────────────────────────────────── */
+    .slide-learn { background: var(--p4); }
+
+    .learn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem 3rem;
+      max-width: 110ch;
+    }
+
+    @media (max-width: 760px) {
+      .learn-grid { grid-template-columns: 1fr; }
+    }
+
+    .learn-block h2 {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--p2);
+      letter-spacing: 0.1em;
+      margin: 0 0 0.6rem;
+      padding-bottom: 0.35rem;
+      border-bottom: 1px solid var(--p7);
+    }
+
+    .learn-block p {
+      font-size: clamp(11px, 1.1vw, 13px);
+      font-weight: 400;
+      line-height: 1.9;
+      color: var(--p1);
+      margin-bottom: 0.6rem;
+    }
+
+    .anatomy-svg { width: 100%; max-width: 340px; margin: 1rem 0; display: block; }
+
+    .framework-ref {
+      grid-column: 1 / -1;
+      padding: 1rem 1.25rem;
+      border-left: 4px solid var(--p2);
+      background: var(--p8);
+      margin-top: 0.5rem;
+    }
+
+    .framework-ref p {
+      font-size: 12px;
+      color: var(--p5);
+      line-height: 1.75;
+    }
+
+    /* ── PATTERN BADGE ───────────────────────────────────────── */
+    .pattern-badge {
+      position: absolute;
+      font-family: var(--font);
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: var(--p1);
+      color: var(--p8);
+      padding: 2px 6px;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    /* ── FOOTER ──────────────────────────────────────────────── */
+    footer {
+      padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1.5rem, 6vw, 6.5rem);
+      border-top: 2px solid var(--p7);
+    }
+
+    footer p { font-size: 11px; color: var(--p6); line-height: 1.9; }
+
+    footer a {
+      color: var(--p6);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    footer a:hover { color: var(--p2); }
+  </style>
+</head>
+<body>
+
+<div class="tooltip" id="tooltip" role="tooltip"></div>
+
+<nav class="nav-dots" aria-label="Slide navigation">
+  <div class="dot active" data-slide="0" tabindex="0" role="button" aria-label="Chart slide"></div>
+  <div class="dot"        data-slide="1" tabindex="0" role="button" aria-label="Learn panel"></div>
+</nav>
+
+<!-- ── SLIDE 1 — CHART ──────────────────────────────────────── -->
+<section class="slide" id="slide-01" aria-label="Candlestick chart: price action over time">
+
+  <div class="slide-meta">
+    <span class="label">// OHLC — JAPANESE CANDLESTICK</span>
+  </div>
+  <h1 class="slide-title">Price action reveals market psychology across trading sessions</h1>
+
+  <div class="stats-bar" id="stats-bar">
+    <div class="stat-item">
+      <span class="stat-label">Period</span>
+      <span class="stat-value" id="stat-period">—</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Open</span>
+      <span class="stat-value" id="stat-open">—</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">High</span>
+      <span class="stat-value" id="stat-high">—</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Low</span>
+      <span class="stat-value" id="stat-low">—</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Close</span>
+      <span class="stat-value" id="stat-close">—</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Session</span>
+      <span class="stat-value" id="stat-session">—</span>
+    </div>
+  </div>
+
+  <div class="viz-container" id="chart-container">
+    <svg id="chart"
+      role="img"
+      aria-labelledby="chart-title-text"
+      aria-describedby="chart-desc-text">
+      <title id="chart-title-text">Japanese Candlestick Chart — daily OHLC price data</title>
+      <desc id="chart-desc-text">
+        Each candlestick represents one trading day. Walnut-coloured bodies show bullish sessions
+        (close above open); red bodies show bearish sessions (close below open).
+        Wicks extend to the day's high and low. Scroll or pinch to zoom.
+      </desc>
+    </svg>
+  </div>
+
+  <div class="controls">
+    <span class="ctl-label">View —</span>
+    <button class="btn active" id="btn-all"   tabindex="0">All</button>
+    <button class="btn"        id="btn-1m"    tabindex="0">1 Month</button>
+    <button class="btn"        id="btn-reset" tabindex="0">Reset zoom</button>
+    <div class="sep" aria-hidden="true"></div>
+    <span class="ctl-label">Patterns —</span>
+    <button class="btn bull-btn" id="btn-patterns" tabindex="0" aria-pressed="false">Show annotations</button>
+    <div class="sep" aria-hidden="true"></div>
+    <button class="btn" id="audio-toggle" tabindex="0" aria-label="Play narration">▶ narration</button>
+  </div>
+  <p class="zoom-hint">Scroll to zoom · Drag to pan · Hover for OHLC details · Tab to navigate candles</p>
+
+  <!-- ── EXPLANATORY TEXT ─────────────────────────────────── -->
+  <div class="chart-explainer">
+    <div class="explainer-grid">
+      <div class="explainer-block">
+        <h3>// About Candlestick Charts</h3>
+        <p>A <strong>Candlestick Chart</strong> (Japanese Candlestick Chart) encodes four price dimensions per time period — open, high, low, and close (OHLC) — into a single visual glyph called a "candle." The rectangular <strong>real body</strong> spans from open to close price; its height encodes the strength of the session's price movement and its colour encodes direction. In this chart, <strong>walnut (dark)</strong> bodies indicate bullish sessions where price closed above the open; <strong>red</strong> bodies indicate bearish sessions where the close fell below the open. The thin vertical lines extending above and below the body are called <strong>wicks</strong> or shadows — they record the full price range explored during the session, including any moves that were subsequently reversed. No other single chart type can convey all four OHLC values simultaneously with this economy of ink.</p>
+      </div>
+      <div class="explainer-block">
+        <h3>// About This Example</h3>
+        <p>This chart displays daily OHLC price data across a simulated multi-month trading period, structured to demonstrate the full vocabulary of candlestick reading. Watch for <strong>marubozu candles</strong> — bodies with minimal or no wicks, indicating sessions of exceptional directional conviction where price moved cleanly in one direction from open to close. <strong>Doji candles</strong> show sessions where open and close prices were nearly identical, creating a cross-shaped mark that signals market indecision or equilibrium between buyers and sellers. Enable the <strong>pattern annotations toggle</strong> to label hammer formations and engulfing sequences in the data. Use <strong>scroll-to-zoom</strong> and <strong>drag-to-pan</strong> to examine individual sessions in detail; the stats bar at the top updates live with exact OHLC values as you hover each candle.</p>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ── SLIDE 2 — LEARN ──────────────────────────────────────── -->
+<section class="slide slide-learn" id="slide-02" aria-label="Learn: Candlestick Chart">
+
+  <div class="slide-meta">
+    <span class="label">// LEARN — JAPANESE CANDLESTICK CHART</span>
+  </div>
+  <h1 class="slide-title">What the candle is actually encoding</h1>
+
+  <div class="learn-grid">
+
+    <div class="learn-block">
+      <h2>What this chart is</h2>
+      <p>A Candlestick Chart encodes four price dimensions per time period — open, high, low, close (OHLC) — into a single glyph. The <em>real body</em> spans the open-to-close range and is the primary signal: its height encodes price conviction, its colour encodes direction. The <em>wicks</em> (upper and lower shadows) extend to the session's extremes, encoding the full range of price exploration.</p>
+      <p>This is a glyph chart — a composite mark that packs four quantitative values into one symbol. It exploits position-along-axis (the most accurate perceptual channel) for the body, and length-from-reference for the wicks. The colour encoding is redundant with the body position: walnut means close > open, red means close &lt; open.</p>
+    </div>
+
+    <div class="learn-block">
+      <h2>Anatomy of a candle</h2>
+      <svg class="anatomy-svg" viewBox="0 0 220 280" xmlns="http://www.w3.org/2000/svg" aria-label="Candlestick anatomy diagram">
+        <!-- Bullish candle -->
+        <line x1="55" y1="20"  x2="55" y2="60"  stroke="#5C3317" stroke-width="2"/>
+        <rect x="35" y="60" width="40" height="80" fill="#5C3317"/>
+        <line x1="55" y1="140" x2="55" y2="185" stroke="#5C3317" stroke-width="2"/>
+        <!-- Labels -->
+        <text x="105" y="24"  font-family="JetBrains Mono,monospace" font-size="10" fill="#797C7F">Upper shadow (high)</text>
+        <text x="105" y="65"  font-family="JetBrains Mono,monospace" font-size="10" fill="#797C7F">Close price</text>
+        <text x="105" y="105" font-family="JetBrains Mono,monospace" font-size="10" fill="#5C3317" font-weight="bold">Real body</text>
+        <text x="105" y="118" font-family="JetBrains Mono,monospace" font-size="9"  fill="#5C3317">(bullish — walnut)</text>
+        <text x="105" y="145" font-family="JetBrains Mono,monospace" font-size="10" fill="#797C7F">Open price</text>
+        <text x="105" y="188" font-family="JetBrains Mono,monospace" font-size="10" fill="#797C7F">Lower shadow (low)</text>
+        <line x1="100" y1="22"  x2="60"  y2="22"  stroke="#EDEDED" stroke-width="1"/>
+        <line x1="100" y1="63"  x2="76"  y2="63"  stroke="#EDEDED" stroke-width="1"/>
+        <line x1="100" y1="140" x2="76"  y2="140" stroke="#EDEDED" stroke-width="1"/>
+        <line x1="100" y1="186" x2="60"  y2="186" stroke="#EDEDED" stroke-width="1"/>
+        <!-- Bearish candle -->
+        <line x1="55" y1="205" x2="55" y2="220" stroke="#7A0000" stroke-width="2"/>
+        <rect x="35" y="220" width="40" height="30" fill="#7A0000"/>
+        <line x1="55" y1="250" x2="55" y2="270" stroke="#7A0000" stroke-width="2"/>
+        <text x="105" y="228" font-family="JetBrains Mono,monospace" font-size="10" fill="#7A0000" font-weight="bold">Real body</text>
+        <text x="105" y="241" font-family="JetBrains Mono,monospace" font-size="9"  fill="#7A0000">(bearish — red)</text>
+        <line x1="100" y1="235" x2="76"  y2="235" stroke="#EDEDED" stroke-width="1"/>
+      </svg>
+    </div>
+
+    <div class="learn-block">
+      <h2>Why it was chosen here</h2>
+      <p>The message is about market psychology across sessions — not a single price level, not a trend line, not a distribution. The viewer needs to see conviction (body height), direction (colour), and range exploration (wick length) simultaneously. No single-dimension chart can deliver all four OHLC values. A line chart collapses to close price only, discarding 75% of the available information. A simple OHLC bar chart encodes the same data but is perceptually harder to parse at density.</p>
+      <p>The candlestick's cultural familiarity in financial contexts is also an asset: experienced traders read candle patterns instantly. The chart meets the audience where they are.</p>
+    </div>
+
+    <div class="learn-block">
+      <h2>What the rejected alternative breaks</h2>
+      <p>A <strong>line chart on closing price</strong> — the most common alternative — discards open, high, and low entirely. The viewer loses all information about intra-session volatility, gap openings, and the relationship between opening conviction and closing outcome. A session that opened high, sold off dramatically, but recovered to close flat appears identical to a calm session that never moved.</p>
+      <p>A <strong>Box Plot</strong> — visually similar — encodes statistical distribution (quartiles, median) across <em>many observations</em>. A candlestick encodes four <em>specific price events</em> within one time period. Confusing them is a category error: the box plot answers "how is this value distributed?", the candlestick answers "what happened during this session?".</p>
+    </div>
+
+    <div class="framework-ref">
+      <span class="label">// FRAMEWORK REFERENCE</span>
+      <p><strong>FT Visual Vocabulary — Change Over Time (specialist glyph variant).</strong> The candlestick is a composite glyph in the Change Over Time category: it plots four time-indexed values as a single symbol rather than four separate series. Abela quadrant: Relationship (within-period OHLC relationships) nested inside Change Over Time. Tufte principle applied: maximum data density per unit of ink — four quantitative values encoded in one glyph, with colour as redundant encoding for the primary directional signal. The one design decision worth knowing: body colour uses palette roles (walnut for bullish, blood-red for bearish) rather than conventional green/red, preserving the Humanitarians AI brand identity while maintaining the categorical signal through both colour and body-position direction.</p>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <p>Nik Bear Brown, Irreducibly Human, What AI Can and Can't Do</p>
+  <p>
+    <a href="https://humanitarians.ai" target="_blank" rel="noopener">humanitarians.ai</a>
+    &nbsp;·&nbsp;
+    <a href="https://frictional.xyz" target="_blank" rel="noopener">frictional.xyz</a>
+    &nbsp;·&nbsp;
+    <a href="https://musinique.com" target="_blank" rel="noopener">musinique.com</a>
+  </p>
+</footer>
+
+<audio id="page-audio" src="./candlestick-chart/slide_1.mp3"></audio>
+
+<script>
+(function () {
+
+  // ── NAV DOTS ────────────────────────────────────────────────
+  const slides = document.querySelectorAll('.slide');
+  const dots   = document.querySelectorAll('.dot');
+
+  function scrollToSlide(i) { slides[i].scrollIntoView({ behavior: 'smooth' }); }
+
+  dots.forEach((dot, i) => {
+    dot.addEventListener('click', () => scrollToSlide(i));
+    dot.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); scrollToSlide(i); }
+    });
+  });
+
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const idx = Array.from(slides).indexOf(entry.target);
+        dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+      }
+    });
+  }, { threshold: 0.45 });
+  slides.forEach(s => io.observe(s));
+
+  document.addEventListener('keydown', e => {
+    const cur = Array.from(dots).findIndex(d => d.classList.contains('active'));
+    if (e.key === 'ArrowDown' && cur < slides.length - 1) scrollToSlide(cur + 1);
+    if (e.key === 'ArrowUp'   && cur > 0)                 scrollToSlide(cur - 1);
+  });
+
+  // ── AUDIO ───────────────────────────────────────────────────
+  const audio    = document.getElementById('page-audio');
+  const audioBtn = document.getElementById('audio-toggle');
+  let playing = false;
+  audioBtn.addEventListener('click', () => {
+    if (playing) { audio.pause(); audioBtn.textContent = '▶ narration'; }
+    else { audio.play().catch(() => {}); audioBtn.textContent = '⏸ narration'; }
+    playing = !playing;
+  });
+  audio.addEventListener('ended', () => { playing = false; audioBtn.textContent = '▶ narration'; });
+
+  // ── TOOLTIP ─────────────────────────────────────────────────
+  const tip = document.getElementById('tooltip');
+
+  function showTip(html, cx, cy) {
+    tip.innerHTML = html;
+    tip.style.opacity = 1;
+    const tw = tip.offsetWidth || 170;
+    const th = tip.offsetHeight || 90;
+    let left = cx + 16, top = cy - th / 2;
+    if (left + tw > window.innerWidth  - 10) left = cx - tw - 16;
+    if (top < 8)                             top  = 8;
+    if (top + th > window.innerHeight - 8)  top  = window.innerHeight - th - 8;
+    tip.style.left = left + 'px';
+    tip.style.top  = top  + 'px';
+  }
+
+  function hideTip() { tip.style.opacity = 0; }
+
+  // ── STATS BAR ───────────────────────────────────────────────
+  function setStats(d) {
+    if (!d) {
+      ['stat-period','stat-open','stat-high','stat-low','stat-close','stat-session']
+        .forEach(id => { document.getElementById(id).textContent = '—'; });
+      return;
+    }
+    const fmt = v => '$' + v.toFixed(2);
+    const bull = d.close >= d.open;
+    document.getElementById('stat-period').textContent = d3.timeFormat('%b %d, %Y')(d.date);
+    document.getElementById('stat-open').textContent   = fmt(d.open);
+    document.getElementById('stat-high').textContent   = fmt(d.high);
+    document.getElementById('stat-low').textContent    = fmt(d.low);
+    document.getElementById('stat-close').textContent  = fmt(d.close);
+    const sess = document.getElementById('stat-session');
+    sess.textContent = bull ? '▲ Bullish' : '▼ Bearish';
+    sess.className   = 'stat-value ' + (bull ? 'bull' : 'bear');
+  }
+
+  // ── CHART ───────────────────────────────────────────────────
+  let allData      = [];
+  let showPatterns = false;
+  let currentView  = 'all';
+
+  const patterns = {
+    'doji':       { label: 'Doji',       desc: 'Indecision — open ≈ close' },
+    'hammer':     { label: 'Hammer',     desc: 'Bullish reversal signal' },
+    'engulf':     { label: 'Engulfing',  desc: 'Strong directional shift' },
+    'marubozu':   { label: 'Marubozu',   desc: 'Strong conviction, no wicks' },
+  };
+
+  function buildChart(data) {
+    const container = document.getElementById('chart-container');
+    const svg = d3.select('#chart');
+    svg.selectAll('*').remove();
+
+    const W = container.clientWidth  || 900;
+    const H = container.clientHeight || 480;
+    const margin = { top: 24, right: 56, bottom: 40, left: 64 };
+    const width  = W - margin.left - margin.right;
+    const height = H - margin.top  - margin.bottom;
+
+    svg.attr('viewBox', `0 0 ${W} ${H}`)
+       .attr('width', W)
+       .attr('height', H);
+
+    const defs = svg.append('defs');
+    defs.append('clipPath').attr('id', 'chart-clip')
+      .append('rect').attr('width', width).attr('height', height);
+
+    const root = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+
+    const xExtent = d3.extent(data, d => d.date);
+    const xPad    = (xExtent[1] - xExtent[0]) * 0.02;
+
+    const x = d3.scaleTime()
+      .domain([new Date(xExtent[0] - xPad), new Date(+xExtent[1] + xPad)])
+      .range([0, width]);
+
+    const yLow  = d3.min(data, d => d.low);
+    const yHigh = d3.max(data, d => d.high);
+    const yPad  = (yHigh - yLow) * 0.06;
+
+    const y = d3.scaleLinear()
+      .domain([yLow - yPad, yHigh + yPad])
+      .range([height, 0])
+      .nice();
+
+    const xAxis = d3.axisBottom(x)
+      .ticks(Math.floor(width / 90))
+      .tickFormat(d3.timeFormat('%b %d'))
+      .tickSize(5);
+
+    const yAxis = d3.axisLeft(y)
+      .ticks(6)
+      .tickFormat(d => '$' + d.toFixed(0))
+      .tickSize(-width);
+
+    const gX = root.append('g')
+      .attr('transform', `translate(0,${height})`)
+      .call(xAxis);
+
+    gX.select('.domain').attr('stroke', '#EDEDED');
+    gX.selectAll('text')
+      .style('font-family', "'JetBrains Mono',monospace")
+      .style('font-size', '10px')
+      .style('fill', '#797C7F');
+    gX.selectAll('.tick line').attr('stroke', '#EDEDED');
+
+    const gY = root.append('g').call(yAxis);
+    gY.select('.domain').remove();
+    gY.selectAll('text')
+      .style('font-family', "'JetBrains Mono',monospace")
+      .style('font-size', '10px')
+      .style('fill', '#797C7F');
+    gY.selectAll('.tick line')
+      .attr('stroke', '#EDEDED')
+      .attr('stroke-dasharray', '3,3');
+
+    const candleGroup = root.append('g')
+      .attr('clip-path', 'url(#chart-clip)')
+      .attr('class', 'candles');
+
+    function candleWidth(xScale) {
+      if (data.length < 2) return 8;
+      const sorted = [...data].sort((a, b) => a.date - b.date);
+      const gap    = xScale(sorted[1].date) - xScale(sorted[0].date);
+      return Math.max(2, Math.min(20, gap * 0.72));
+    }
+
+    function drawCandles(xScale, yScale) {
+      candleGroup.selectAll('*').remove();
+      const cw = candleWidth(xScale);
+      const half = cw / 2;
+
+      candleGroup.selectAll('.wick')
+        .data(data)
+        .join('line')
+          .attr('class', 'wick')
+          .attr('x1', d => xScale(d.date))
+          .attr('x2', d => xScale(d.date))
+          .attr('y1', d => yScale(d.high))
+          .attr('y2', d => yScale(d.low))
+          .attr('stroke', d => d.close >= d.open ? '#5C3317' : '#7A0000')
+          .attr('stroke-width', 1.5)
+          .attr('opacity', 0)
+          .transition().duration(500).delay((d, i) => i * 12)
+          .attr('opacity', 1);
+
+      const bodyHeight = d => Math.max(2, Math.abs(yScale(d.open) - yScale(d.close)));
+      const bodyY      = d => yScale(Math.max(d.open, d.close));
+
+      const bodies = candleGroup.selectAll('.body')
+        .data(data)
+        .join('rect')
+          .attr('class', 'body')
+          .attr('x',      d => xScale(d.date) - half)
+          .attr('width',  cw)
+          .attr('y',      d => bodyY(d))
+          .attr('height', 0)
+          .attr('fill',   d => d.close >= d.open ? '#5C3317' : '#7A0000')
+          .attr('stroke', d => d.close >= d.open ? '#3D2210' : '#8B1C1C')
+          .attr('stroke-width', 0.5)
+          .attr('tabindex', 0)
+          .attr('role', 'img')
+          .attr('aria-label', d => {
+            const dir = d.close >= d.open ? 'Bullish' : 'Bearish';
+            return `${d3.timeFormat('%b %d')(d.date)}: ${dir}. Open $${d.open.toFixed(2)}, High $${d.high.toFixed(2)}, Low $${d.low.toFixed(2)}, Close $${d.close.toFixed(2)}`;
+          });
+
+      bodies.transition().duration(500).delay((d, i) => i * 12)
+        .attr('height', d => bodyHeight(d));
+
+      bodies.on('mousemove', function (event, d) {
+          const bull = d.close >= d.open;
+          const dir  = bull ? '<span class="t-bull">▲ Bullish</span>' : '<span class="t-bear">▼ Bearish</span>';
+          const chg  = ((d.close - d.open) / d.open * 100).toFixed(2);
+          showTip(
+            `<strong>${d3.timeFormat('%b %d, %Y')(d.date)}</strong>` +
+            `O: $${d.open.toFixed(2)} &nbsp; H: $${d.high.toFixed(2)}<br>` +
+            `L: $${d.low.toFixed(2)} &nbsp; C: $${d.close.toFixed(2)}<br>` +
+            `${dir} &nbsp; ${chg > 0 ? '+' : ''}${chg}%`,
+            event.clientX, event.clientY
+          );
+          setStats(d);
+          d3.select(this).attr('opacity', 0.75);
+        })
+        .on('mouseleave', function () {
+          hideTip();
+          d3.select(this).attr('opacity', 1);
+        })
+        .on('keydown', function (event, d) {
+          if (event.key === 'Enter' || event.key === ' ') setStats(d);
+        });
+
+      if (showPatterns) {
+        const annotated = data.filter(d => d.pattern);
+        const annGroup  = candleGroup.append('g').attr('class', 'annotations');
+
+        annGroup.selectAll('.ann-line')
+          .data(annotated)
+          .join('line')
+            .attr('x1', d => xScale(d.date))
+            .attr('x2', d => xScale(d.date))
+            .attr('y1', d => yScale(d.high) - 6)
+            .attr('y2', d => yScale(d.high) - 22)
+            .attr('stroke', '#1B1B1B')
+            .attr('stroke-width', 1);
+
+        annGroup.selectAll('.ann-label')
+          .data(annotated)
+          .join('text')
+            .attr('x', d => xScale(d.date))
+            .attr('y', d => yScale(d.high) - 25)
+            .attr('text-anchor', 'middle')
+            .style('font-family', "'JetBrains Mono',monospace")
+            .style('font-size', '9px')
+            .style('font-weight', '600')
+            .style('fill', '#1B1B1B')
+            .style('letter-spacing', '0.05em')
+            .text(d => patterns[d.pattern] ? patterns[d.pattern].label.toUpperCase() : '');
+      }
+    }
+
+    drawCandles(x, y);
+
+    let currentTransform = d3.zoomIdentity;
+
+    const zoom = d3.zoom()
+      .scaleExtent([0.8, 12])
+      .translateExtent([[-width * 0.5, -Infinity], [width * 1.5, Infinity]])
+      .on('zoom', (event) => {
+        currentTransform = event.transform;
+        const newX = event.transform.rescaleX(x);
+        gX.call(xAxis.scale(newX));
+        gX.selectAll('text').style('font-family', "'JetBrains Mono',monospace").style('font-size', '10px').style('fill', '#797C7F');
+        gX.select('.domain').attr('stroke', '#EDEDED');
+        gX.selectAll('.tick line').attr('stroke', '#EDEDED');
+        drawCandles(newX, y);
+      });
+
+    svg.call(zoom);
+
+    const crossG = root.append('g').attr('class', 'crosshair').attr('pointer-events', 'none');
+    const crossV = crossG.append('line').attr('stroke', '#EDEDED').attr('stroke-dasharray', '4,3').attr('y1', 0).attr('y2', height).attr('opacity', 0);
+    const crossH = crossG.append('line').attr('stroke', '#EDEDED').attr('stroke-dasharray', '4,3').attr('x1', 0).attr('x2', width).attr('opacity', 0);
+
+    const overlay = root.append('rect')
+      .attr('width', width).attr('height', height)
+      .attr('fill', 'transparent')
+      .attr('cursor', 'crosshair');
+
+    overlay.on('mousemove', function (event) {
+        const [mx, my] = d3.pointer(event);
+        crossV.attr('x1', mx).attr('x2', mx).attr('opacity', 1);
+        crossH.attr('y1', my).attr('y2', my).attr('opacity', 1);
+      })
+      .on('mouseleave', () => {
+        crossV.attr('opacity', 0);
+        crossH.attr('opacity', 0);
+      });
+
+    document.getElementById('btn-reset').onclick = () => {
+      svg.transition().duration(400).call(zoom.transform, d3.zoomIdentity);
+    };
+
+    document.getElementById('btn-all').onclick = () => {
+      ['btn-all','btn-1m'].forEach(id => document.getElementById(id).classList.remove('active'));
+      document.getElementById('btn-all').classList.add('active');
+      svg.transition().duration(400).call(zoom.transform, d3.zoomIdentity);
+    };
+
+    document.getElementById('btn-1m').onclick = () => {
+      ['btn-all','btn-1m'].forEach(id => document.getElementById(id).classList.remove('active'));
+      document.getElementById('btn-1m').classList.add('active');
+      const last = data[data.length - 1].date;
+      const monthAgo = new Date(last); monthAgo.setDate(monthAgo.getDate() - 30);
+      const x1 = x(monthAgo), x2 = x(last);
+      const scale = width / (x2 - x1) * 0.9;
+      const tx = -x1 * scale + (width - (x2 - x1) * scale) / 2;
+      svg.transition().duration(500).call(zoom.transform, d3.zoomIdentity.translate(tx, 0).scale(scale));
+    };
+
+    document.getElementById('btn-patterns').onclick = function () {
+      showPatterns = !showPatterns;
+      this.classList.toggle('active', showPatterns);
+      this.setAttribute('aria-pressed', showPatterns);
+      const tx = currentTransform;
+      const newX = tx.rescaleX(x);
+      drawCandles(newX, y);
+    };
+
+    let rt;
+    const ro = new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(() => buildChart(allData), 150); });
+    ro.observe(container);
+  }
+
+  // ── DATA LOAD ────────────────────────────────────────────────
+  d3.json('./candlestick-chart/data.json').then(json => {
+    const parseDate = d3.timeParse('%Y-%m-%d');
+    allData = json.data.map(d => ({
+      date:    parseDate(d.date),
+      open:    +d.open,
+      high:    +d.high,
+      low:     +d.low,
+      close:   +d.close,
+      volume:  +d.volume,
+      pattern: d.pattern || null
+    }));
+    buildChart(allData);
+  }).catch(err => {
+    document.getElementById('chart-container').innerHTML =
+      `<p style="padding:2rem;font-family:'JetBrains Mono',monospace;font-size:13px;color:#7A0000;">
+        Data file not found. Place data.json in ./candlestick-chart/data.json
+      </p>`;
+    console.error('D3 load error:', err);
+  });
+
+})();
+</script>
+</body>
+</html>

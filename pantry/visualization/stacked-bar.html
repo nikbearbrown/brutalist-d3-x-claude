@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Humanitarian AI Funding — Stacked Bar Chart</title>
+  <meta name="description" content="Stacked bar chart showing humanitarian AI program funding by source from 2020 to 2024. Toggle between absolute and 100% stacked views.">
+  <meta name="keywords" content="stacked bar chart, 100% stacked, d3.js, humanitarian, AI funding, composition, data visualization, time series">
+  <meta name="author" content="Nik Bear Brown">
+  <meta name="category" content="Humanitarians AI / Funding Analysis">
+
+  <!--
+  ═══════════════════════════════════════════════════
+  PALETTE: hai — Humanitarians AI
+  ═══════════════════════════════════════════════════
+  WCAG (segment labels on segment fills):
+    p8 #FFFFFF on p2 #5C3317:  10.7:1  AAA ✓
+    p8 #FFFFFF on p3 #B52C2C:   5.8:1  AA  ✓
+    p8 #FFFFFF on p5 #4A4D4F:   9.4:1  AAA ✓
+    p8 #FFFFFF on p6 #797C7F:   3.95:1 AA large only — FAIL small text
+    NOTE: p6 segments use p1 labels. Flagged in code.
+
+  WCAG (axis text on bg #FFFFFF):
+    p1 18.2:1 AAA ✓  p5 9.4:1 AAA ✓  p6 4.6:1 AA ✓
+  ═══════════════════════════════════════════════════
+  -->
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --p1: #1B1B1B;
+      --p2: #5C3317;
+      --p3: #B52C2C;
+      --p4: #F7FAFD;
+      --p5: #4A4D4F;
+      --p6: #797C7F;
+      --p7: #EDEDED;
+      --p8: #FFFFFF;
+      --font: 'JetBrains Mono', monospace;
+      --pad:  clamp(20px, 3.5vw, 56px);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; scroll-snap-type: y mandatory; }
+
+    body {
+      font-family: var(--font);
+      background: var(--p8);
+      color: var(--p1);
+      overflow-x: hidden;
+    }
+
+    /* ═══ SLIDES ═══ */
+    .slide {
+      min-height: 100vh;
+      padding: var(--pad);
+      display: flex;
+      flex-direction: column;
+      scroll-snap-align: start;
+      border-bottom: 2px solid var(--p1);
+    }
+
+    .slide-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--p6);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .slide-num { font-size: 11px; color: var(--p6); }
+
+    .slide-title {
+      font-size: clamp(13px, 2.4vw, 26px);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: -0.015em;
+      line-height: 1.1;
+      margin-bottom: 16px;
+      border-left: 5px solid var(--p2);
+      padding-left: 16px;
+    }
+
+    /* ═══ TOOLBAR ═══ */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .mode-btn {
+      font-family: var(--font);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border: 1.5px solid var(--p1);
+      padding: 5px 12px;
+      cursor: pointer;
+      background: transparent;
+      color: var(--p1);
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .mode-btn.active  { background: var(--p1); color: var(--p8); }
+    .mode-btn:focus-visible { outline: 2px solid var(--p2); outline-offset: 2px; }
+
+    .toolbar-sep { width: 1px; height: 20px; background: var(--p7); }
+
+    .leg-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 11px;
+      color: var(--p5);
+      cursor: pointer;
+      padding: 3px 8px 3px 4px;
+      border: 1px solid transparent;
+      transition: border-color 0.15s, opacity 0.15s;
+      user-select: none;
+    }
+
+    .leg-item:hover  { border-color: var(--p5); }
+    .leg-item.dimmed { opacity: 0.3; }
+    .leg-item.active { border-color: var(--p1); }
+
+    .leg-swatch {
+      width: 12px; height: 12px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    /* ═══ MODE INDICATOR ═══ */
+    .mode-indicator {
+      margin-left: auto;
+      font-size: 11px;
+      color: var(--p6);
+      letter-spacing: 0.04em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #mode-label { font-weight: 700; color: var(--p2); }
+
+    /* ═══ VIZ ═══ */
+    .viz-container {
+      flex: 1;
+      min-height: 0;
+      position: relative;
+    }
+
+    #chart {
+      width: 100%;
+      height: 100%;
+      min-height: 320px;
+      display: block;
+    }
+
+    /* ═══ TOOLTIP ═══ */
+    #tooltip {
+      position: fixed;
+      background: var(--p1);
+      color: var(--p8);
+      font-family: var(--font);
+      font-size: 12px;
+      line-height: 1.65;
+      padding: 10px 14px;
+      border-left: 3px solid var(--p2);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.1s;
+      z-index: 9999;
+      max-width: 260px;
+    }
+
+    #tooltip .tt-cat {
+      font-weight: 800;
+      font-size: 11px;
+      display: block;
+      margin-bottom: 5px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* ═══ CONTROLS ═══ */
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--p7);
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      font-family: var(--font);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--p1);
+      background: transparent;
+      border: 1px solid var(--p5);
+      padding: 6px 12px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .btn:hover        { background: var(--p1); color: var(--p8); }
+    .btn:focus-visible { outline: 2px solid var(--p2); outline-offset: 2px; }
+    .controls .hint { margin-left: auto; font-size: 11px; color: var(--p6); }
+
+    /* ═══ NAV DOTS ═══ */
+    .nav-dots {
+      position: fixed;
+      right: 14px; top: 50%;
+      transform: translateY(-50%);
+      display: flex; flex-direction: column; gap: 8px; z-index: 100;
+    }
+
+    .nav-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      border: 1px solid var(--p5); background: transparent;
+      cursor: pointer; padding: 0; transition: background 0.2s;
+    }
+
+    .nav-dot.active        { background: var(--p2); border-color: var(--p2); }
+    .nav-dot:focus-visible { outline: 2px solid var(--p2); outline-offset: 2px; }
+
+    /* ═══ LEARN SLIDE ═══ */
+    .learn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 26px 48px;
+      max-width: 980px;
+    }
+
+    @media (max-width: 680px) { .learn-grid { grid-template-columns: 1fr; } }
+
+    .learn-block h2 {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--p2);
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--p7);
+    }
+
+    .learn-block p {
+      font-size: 12px;
+      line-height: 1.75;
+      color: var(--p5);
+      margin-bottom: 6px;
+    }
+
+    .learn-full { grid-column: 1 / -1; }
+
+    .framework-ref {
+      grid-column: 1 / -1;
+      border-left: 4px solid var(--p2);
+      background: var(--p4);
+      padding: 14px 18px;
+    }
+
+    .framework-ref .label { margin-bottom: 8px; display: block; }
+    .framework-ref p { color: var(--p1); font-size: 12px; line-height: 1.7; }
+
+    /* ═══ D3 ELEMENTS ═══ */
+    .bar-rect   { transition: opacity 0.18s; cursor: pointer; }
+    .axis text  { font-family: 'JetBrains Mono', monospace; fill: var(--p6); font-size: 11px; }
+    .axis .domain { stroke: var(--p5); }
+    .axis .tick line { stroke: var(--p7); }
+    .grid line  { stroke: var(--p7); stroke-dasharray: 3 5; }
+
+    /* ═══ FOOTER ═══ */
+    footer {
+      border-top: 2px solid var(--p7);
+      padding: 14px var(--pad);
+      font-size: 11px;
+      color: var(--p6);
+      line-height: 1.8;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav-dots" aria-label="Slide navigation">
+  <button class="nav-dot active" data-slide="0" aria-label="Slide 1: Chart"></button>
+  <button class="nav-dot"        data-slide="1" aria-label="Slide 2: Learn panel"></button>
+</nav>
+
+<div id="tooltip" role="status" aria-live="polite" aria-atomic="true"></div>
+
+<!-- ════════════════════════════════════
+     SLIDE 01 — CHART
+     ════════════════════════════════════ -->
+<section class="slide" id="slide-01" aria-labelledby="chart-heading">
+  <div class="slide-meta">
+    <span class="label">// Humanitarians AI — Investment Landscape</span>
+    <span class="slide-num">01 / 02</span>
+  </div>
+
+  <h1 class="slide-title" id="chart-heading">
+    Private funding tripled in two years —<br>
+    but government still anchors the base
+  </h1>
+
+  <div class="toolbar" id="toolbar" aria-label="Chart mode and category controls">
+    <button class="mode-btn active" id="btn-abs" aria-pressed="true">Absolute ($M)</button>
+    <button class="mode-btn"        id="btn-pct" aria-pressed="false">100% Share</button>
+    <div class="toolbar-sep"></div>
+    <!-- Legend items populated by D3 -->
+    <div class="mode-indicator">
+      <span class="label">view:</span>
+      <span id="mode-label">Absolute</span>
+    </div>
+  </div>
+
+  <div class="viz-container">
+    <svg id="chart" role="img" aria-labelledby="svg-title svg-desc">
+      <title id="svg-title">Humanitarian AI Funding by Source, 2020–2024 — Stacked Bar Chart</title>
+      <desc id="svg-desc">Five vertical stacked bars, one per year from 2020 to 2024. Each bar is divided into four segments: Government (walnut), Private Foundation (blood-red), NGO/Multilateral (dim-gray), and Research/Academic (mist). Total investment grew from $93M in 2020 to $286M in 2024. The Private segment grew fastest.</desc>
+    </svg>
+  </div>
+
+  <div class="controls">
+    <button class="btn" id="reset-btn">↩ Reset</button>
+    <button class="btn" id="audio-btn" aria-label="Play narration">▶ narration</button>
+    <span class="hint">click legend to highlight · hover segment for detail</span>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════
+     SLIDE 02 — LEARN
+     ════════════════════════════════════ -->
+<section class="slide" id="slide-02" aria-labelledby="learn-heading">
+  <div class="slide-meta">
+    <span class="label">// Learn — Stacked Bar Chart</span>
+    <span class="slide-num">02 / 02</span>
+  </div>
+
+  <h1 class="slide-title" id="learn-heading">
+    Two chart types, one encoding system — choosing between them
+  </h1>
+
+  <div class="learn-grid">
+
+    <div class="learn-block">
+      <h2>What this chart is</h2>
+      <p>A stacked bar chart divides each bar into sequential segments representing subcategories of a total. Each bar's full height encodes the total value; each segment's height encodes its contribution. Unlike a grouped bar chart — which places subcategory bars side-by-side — stacking preserves the total while showing composition.</p>
+      <p>The two variants serve different analytical goals. The <strong>absolute stacked chart</strong> (default) answers "how much, and how is it made up?" The <strong>100% stacked chart</strong> (toggle above) answers "what is the proportional composition, independent of size?" They use identical data but answer different questions.</p>
+    </div>
+
+    <div class="learn-block">
+      <h2>The baseline problem</h2>
+      <p>The stacked chart's structural flaw is that only the bottom segment sits on a common zero baseline. Every other segment has a different starting point in every bar, making direct comparison of non-bottom segments perceptually unreliable. The eye cannot accurately judge if the "Private Foundation" segment in 2022 is larger or smaller than in 2023 without reading the tooltip.</p>
+      <p>This is why segment order matters: put the category most important to compare at the bottom. Here, Government anchors the base — it's the largest and most stable, so its trend is easy to read. Private Foundation is second because its dramatic growth is the key story.</p>
+    </div>
+
+    <div class="learn-block">
+      <h2>When to use absolute vs 100%</h2>
+      <p>Use the <strong>absolute view</strong> when the total matters — when the viewer needs to know that overall investment tripled, not just that composition shifted. The total bar height carries real information that the 100% view discards.</p>
+      <p>Use the <strong>100% view</strong> when you want to isolate compositional change from volume change. In the 100% view, Government's declining share is visible even though its absolute dollar value grew every year. Both facts are true; the chart choice determines which fact is foregrounded.</p>
+    </div>
+
+    <div class="learn-block">
+      <h2>When to use alternatives</h2>
+      <p>If comparing subcategory values across bars is the primary task, a stacked bar chart will always underperform. The correct alternatives: a <strong>grouped bar chart</strong> (each subcategory gets its own bar, enabling direct comparison), a <strong>small multiples line chart</strong> (one panel per category showing its trend), or a <strong>slope chart</strong> (comparing start and end points without intermediate clutter).</p>
+      <p>The stacked bar earns its place specifically when <em>both</em> the total and the composition matter simultaneously — which is exactly the case here, where the tripling of total investment and the structural shift in who provides it are both the story.</p>
+    </div>
+
+    <div class="framework-ref">
+      <span class="label">// Framework Reference</span>
+      <p>FT Visual Vocabulary: <strong>Part-to-whole</strong> (for 100% mode) and <strong>Change over time — Magnitude</strong> (for absolute mode). Abela quadrant: Composition (how a whole breaks into parts, tracked over time). The one design decision worth knowing: segments are ordered bottom-to-top as Government → Private → NGO → Research, matching descending average value. This ordering is data-driven, not alphabetical — it ensures the largest segment anchors the baseline where perceptual accuracy is highest, and the smallest segment floats at the top where comparison is least critical.</p>
+    </div>
+
+  </div>
+</section>
+
+<audio id="page-audio" src="./stacked-bar/audio.mp3" preload="none"></audio>
+
+<footer>
+  <p>Nik Bear Brown, Irreducibly Human, What AI Can and Can't Do</p>
+  <p>boondoggling.ai · irreducibly.xyz · brutalist.art · bearbrown.co · frictional.xyz</p>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script>
+'use strict';
+
+// ════════════════════════════════════════════
+// NAV DOTS
+// ════════════════════════════════════════════
+const slides = document.querySelectorAll('.slide');
+const dots   = document.querySelectorAll('.nav-dot');
+dots.forEach(d => d.addEventListener('click', () =>
+  slides[+d.dataset.slide].scrollIntoView({ behavior:'smooth' })
+));
+slides.forEach(s => new IntersectionObserver(entries =>
+  entries.forEach(e => { if (e.isIntersecting) {
+    const i = [...slides].indexOf(e.target);
+    dots.forEach((d,j) => d.classList.toggle('active', i===j));
+  }}), { threshold:0.5 }
+).observe(s));
+
+// ════════════════════════════════════════════
+// AUDIO
+// ════════════════════════════════════════════
+const audio = document.getElementById('page-audio');
+document.getElementById('audio-btn').addEventListener('click', () => {
+  if (audio.paused) {
+    audio.play().then(() => { document.getElementById('audio-btn').textContent = '⏸ narration'; }).catch(() => {});
+  } else {
+    audio.pause();
+    document.getElementById('audio-btn').textContent = '▶ narration';
+  }
+});
+
+// ════════════════════════════════════════════
+// TOOLTIP
+// ════════════════════════════════════════════
+const ttEl = document.getElementById('tooltip');
+
+function showTip(event, d, cat, json, mode) {
+  const segVal  = d.data[cat.id];
+  const total   = json.categories.reduce((s, c) => s + d.data[c.id], 0);
+  const pct     = Math.round(segVal / total * 100);
+  const note    = d.data.note || '';
+
+  ttEl.innerHTML = `
+    <span class="tt-cat" style="color:${cat.color}">${cat.label}</span>
+    <strong>${json.unit}${segVal}M</strong> in ${d.data.year}<br>
+    ${pct}% of ${json.unit}${total}M total<br>
+    ${cat.desc}<br>
+    ${note ? `<span style="color:var(--p6);font-size:10px;font-style:italic;margin-top:4px;display:block">${note}</span>` : ''}
+  `;
+  ttEl.style.opacity = '1';
+  moveTip(event);
+}
+
+function moveTip(event) {
+  const x  = event.clientX + 18;
+  const y  = event.clientY - 50;
+  const tw = ttEl.offsetWidth;
+  ttEl.style.left = (x + tw > window.innerWidth - 8 ? event.clientX - tw - 10 : x) + 'px';
+  ttEl.style.top  = Math.max(8, Math.min(y, window.innerHeight - ttEl.offsetHeight - 8)) + 'px';
+}
+
+function hideTip() { ttEl.style.opacity = '0'; }
+
+// ════════════════════════════════════════════
+// CHART STATE
+// ════════════════════════════════════════════
+let mode       = 'abs';   // 'abs' | 'pct'
+let activeKey  = null;    // highlighted category id
+let masterData = null;
+
+// ════════════════════════════════════════════
+// CHART BUILD
+// ════════════════════════════════════════════
+function buildChart(json) {
+  const cats   = json.categories;
+  const data   = json.data;
+  const catIds = cats.map(c => c.id);
+  const colorOf = new Map(cats.map(c => [c.id, c.color]));
+  const catOf   = new Map(cats.map(c => [c.id, c]));
+
+  // ── LAYOUT ──
+  const container = document.getElementById('chart');
+  const W  = container.parentElement.clientWidth  || 700;
+  const H  = container.parentElement.clientHeight || 420;
+  const M  = { top: 28, right: 24, bottom: 44, left: 72 };
+  const iW = W - M.left - M.right;
+  const iH = H - M.top  - M.bottom;
+
+  // ── SVG ──
+  const svgEl = d3.select('#chart');
+  svgEl.selectAll('*').remove();
+  svgEl.attr('width', W).attr('height', H).attr('viewBox', `0 0 ${W} ${H}`);
+
+  const root = svgEl.append('g').attr('transform', `translate(${M.left},${M.top})`);
+
+  // ── SCALES ──
+  const xScale = d3.scaleBand()
+    .domain(data.map(d => d.year))
+    .range([0, iW])
+    .paddingInner(0.28)
+    .paddingOuter(0.15);
+
+  const maxTotal = d3.max(data, row => d3.sum(catIds, k => row[k]));
+
+  const yScale = d3.scaleLinear()
+    .domain([0, mode === 'pct' ? 1 : maxTotal])
+    .range([iH, 0])
+    .nice();
+
+  // ── STACKER ──
+  function makeStack(m) {
+    return d3.stack()
+      .keys(catIds)
+      .offset(m === 'pct' ? d3.stackOffsetExpand : d3.stackOffsetNone)
+      .order(d3.stackOrderNone)(data);
+  }
+
+  let series = makeStack(mode);
+
+  // ── GRID LINES ──
+  const gridG = root.append('g').attr('class', 'grid');
+  const gridVals = mode === 'pct'
+    ? [0.25, 0.5, 0.75, 1.0]
+    : yScale.ticks(5);
+
+  gridVals.forEach(v => {
+    gridG.append('line')
+      .attr('x1', 0).attr('x2', iW)
+      .attr('y1', yScale(v)).attr('y2', yScale(v))
+      .attr('stroke', '#EDEDED')
+      .attr('stroke-dasharray', '3 5')
+      .attr('stroke-width', 1);
+  });
+
+  // ── Y AXIS ──
+  const yFmt = mode === 'pct'
+    ? v => Math.round(v * 100) + '%'
+    : v => '$' + v + 'M';
+
+  const yAxisG = root.append('g').attr('class', 'axis y-axis');
+  yAxisG.call(
+    d3.axisLeft(yScale)
+      .ticks(5)
+      .tickFormat(yFmt)
+      .tickSize(-iW)
+  );
+  yAxisG.select('.domain').remove();
+  yAxisG.selectAll('.tick line').attr('stroke', 'none');
+
+  // ── X AXIS ──
+  const xAxisG = root.append('g').attr('class', 'axis x-axis')
+    .attr('transform', `translate(0,${iH})`);
+  xAxisG.call(d3.axisBottom(xScale).tickSize(0).tickPadding(10));
+  xAxisG.select('.domain').attr('stroke', '#4A4D4F');
+  xAxisG.selectAll('text').attr('font-weight', 700).attr('fill', '#1B1B1B');
+
+  // ── BARS ──
+  const barsG = root.append('g').attr('class', 'bars');
+
+  series.forEach((ser, si) => {
+    const cat  = catOf.get(ser.key);
+    const segG = barsG.append('g')
+      .attr('class', `seg-group seg-${ser.key}`)
+      .attr('aria-label', cat.label);
+
+    segG.selectAll('rect.bar-rect')
+      .data(ser.map(d => ({ ...d, _key: ser.key })))
+      .join('rect')
+      .attr('class', 'bar-rect')
+      .attr('x',      d => xScale(d.data.year))
+      .attr('width',  xScale.bandwidth())
+      .attr('y',      iH)          // animate from bottom
+      .attr('height', 0)
+      .attr('fill',   cat.color)
+      .attr('tabindex', 0)
+      .attr('role', 'img')
+      .attr('aria-label', d => {
+        const segVal = d.data[ser.key];
+        const total  = d3.sum(catIds, k => d.data[k]);
+        return `${cat.label}, ${d.data.year}: $${segVal}M (${Math.round(segVal/total*100)}%)`;
+      })
+      .on('mouseover', (event, d) => {
+        showTip(event, d, cat, json, mode);
+        pulseBar(d.data.year, ser.key);
+      })
+      .on('mousemove', moveTip)
+      .on('mouseout',  (_, d) => { hideTip(); unpulseBar(); })
+      .on('focus',     (event, d) => showTip(event, d, cat, json, mode))
+      .on('blur',      hideTip)
+      .on('click',     () => toggleCat(ser.key));
+
+    // ── ENTRANCE ANIMATION ──
+    segG.selectAll('rect')
+      .transition()
+      .duration(600)
+      .delay((_,i) => si * 80 + i * 40)
+      .ease(d3.easeCubicOut)
+      .attr('y',      d => yScale(d[1]))
+      .attr('height', d => Math.max(0, yScale(d[0]) - yScale(d[1])));
+
+    // ── SEGMENT LABELS (inside bar if tall enough) ──
+    segG.selectAll('text.seg-label')
+      .data(ser.filter(d => yScale(d[0]) - yScale(d[1]) > 18))
+      .join('text')
+      .attr('class', 'seg-label')
+      .attr('x', d => xScale(d.data.year) + xScale.bandwidth() / 2)
+      .attr('y', d => yScale(d[1]) + (yScale(d[0]) - yScale(d[1])) / 2)
+      .attr('text-anchor', 'middle')
+      .attr('dominant-baseline', 'middle')
+      .attr('font-family', "'JetBrains Mono', monospace")
+      .attr('font-size', 10)
+      .attr('font-weight', 700)
+      .attr('pointer-events', 'none')
+      .attr('opacity', 0)
+      // WCAG: p6 fill (#797C7F) gives only 3.95:1 with white — use dark text
+      .attr('fill', cat.color === '#797C7F' ? '#1B1B1B' : '#FFFFFF')
+      .text(d => mode === 'pct'
+        ? Math.round((d[1] - d[0]) * 100) + '%'
+        : '$' + d.data[ser.key] + 'M')
+      .transition().delay(si * 80 + data.length * 40 + 200).duration(250)
+      .attr('opacity', 1);
+  });
+
+  // ── TOTAL LABELS (absolute mode, above each bar) ──
+  if (mode === 'abs') {
+    root.selectAll('text.total-label')
+      .data(data)
+      .join('text')
+      .attr('class', 'total-label')
+      .attr('x', d => xScale(d.year) + xScale.bandwidth() / 2)
+      .attr('y', d => yScale(d3.sum(catIds, k => d[k])) - 6)
+      .attr('text-anchor', 'middle')
+      .attr('font-family', "'JetBrains Mono', monospace")
+      .attr('font-size', 11)
+      .attr('font-weight', 800)
+      .attr('fill', '#1B1B1B')
+      .attr('opacity', 0)
+      .text(d => '$' + d3.sum(catIds, k => d[k]) + 'M')
+      .transition().delay(cats.length * 80 + 300).duration(300)
+      .attr('opacity', 1);
+  }
+
+  // ── HOVER PULSE ──
+  function pulseBar(year, key) {
+    root.selectAll('rect.bar-rect')
+      .attr('opacity', d =>
+        (d.data.year === year || d._key === key) ? 1 : 0.25
+      );
+  }
+
+  function unpulseBar() {
+    if (activeKey) {
+      root.selectAll('rect.bar-rect')
+        .attr('opacity', d => d._key === activeKey ? 1 : 0.15);
+    } else {
+      root.selectAll('rect.bar-rect').attr('opacity', 1);
+    }
+  }
+
+  // ── CATEGORY HIGHLIGHT ──
+  function toggleCat(key) {
+    if (activeKey === key) {
+      activeKey = null;
+      root.selectAll('rect.bar-rect').attr('opacity', 1);
+      document.querySelectorAll('.leg-item').forEach(el =>
+        el.classList.remove('active', 'dimmed')
+      );
+    } else {
+      activeKey = key;
+      root.selectAll('rect.bar-rect')
+        .attr('opacity', d => d._key === key ? 1 : 0.1);
+      document.querySelectorAll('.leg-item').forEach(el => {
+        const ek = el.dataset.key;
+        el.classList.toggle('active',  ek === key);
+        el.classList.toggle('dimmed',  ek !== key);
+      });
+    }
+  }
+
+  // ── MODE SWITCH (animated) ──
+  function switchMode(newMode) {
+    if (newMode === mode) return;
+    mode = newMode;
+
+    document.getElementById('mode-label').textContent =
+      mode === 'abs' ? 'Absolute' : '100% Stacked';
+    document.getElementById('btn-abs').classList.toggle('active', mode === 'abs');
+    document.getElementById('btn-pct').classList.toggle('active', mode === 'pct');
+    document.getElementById('btn-abs').setAttribute('aria-pressed', String(mode === 'abs'));
+    document.getElementById('btn-pct').setAttribute('aria-pressed', String(mode === 'pct'));
+
+    // Recalculate
+    const newSeries  = makeStack(mode);
+    const newYDomain = mode === 'pct' ? [0, 1] : [0, maxTotal];
+    yScale.domain(newYDomain).nice();
+
+    const t = d3.transition().duration(700).ease(d3.easeCubicInOut);
+
+    // Update grid
+    gridG.selectAll('line').remove();
+    const newGrid = mode === 'pct' ? [0.25,0.5,0.75,1.0] : yScale.ticks(5);
+    newGrid.forEach(v => {
+      gridG.append('line')
+        .attr('x1',0).attr('x2',iW)
+        .attr('y1',yScale(v)).attr('y2',yScale(v))
+        .attr('stroke','#EDEDED').attr('stroke-dasharray','3 5').attr('stroke-width',1);
+    });
+
+    // Update y-axis
+    yAxisG.transition(t).call(
+      d3.axisLeft(yScale).ticks(5).tickFormat(
+        mode === 'pct' ? v => Math.round(v*100)+'%' : v => '$'+v+'M'
+      ).tickSize(-iW)
+    );
+    yAxisG.select('.domain').remove();
+
+    // Update bars
+    newSeries.forEach((ser, si) => {
+      barsG.select(`.seg-${ser.key}`)
+        .selectAll('rect')
+        .data(ser.map(d => ({...d, _key: ser.key})))
+        .transition(t)
+        .attr('y',      d => yScale(d[1]))
+        .attr('height', d => Math.max(0, yScale(d[0]) - yScale(d[1])));
+
+      // Update segment labels
+      barsG.select(`.seg-${ser.key}`)
+        .selectAll('text.seg-label')
+        .data(ser.filter(d => yScale(d[0]) - yScale(d[1]) > 18))
+        .text(d => mode === 'pct'
+          ? Math.round((d[1] - d[0]) * 100) + '%'
+          : '$' + d.data[ser.key] + 'M')
+        .transition(t)
+        .attr('y', d => yScale(d[1]) + (yScale(d[0]) - yScale(d[1])) / 2)
+        .attr('opacity', 1);
+    });
+
+    // Total labels
+    root.selectAll('text.total-label')
+      .transition(t)
+      .attr('opacity', mode === 'abs' ? 1 : 0);
+  }
+
+  // ── RESET ──
+  function resetAll() {
+    activeKey = null;
+    root.selectAll('rect.bar-rect').attr('opacity', 1);
+    document.querySelectorAll('.leg-item').forEach(el =>
+      el.classList.remove('active', 'dimmed')
+    );
+  }
+
+  // ── WIRE BUTTONS ──
+  document.getElementById('btn-abs').onclick = () => switchMode('abs');
+  document.getElementById('btn-pct').onclick = () => switchMode('pct');
+  document.getElementById('reset-btn').onclick = resetAll;
+
+  // ── LEGEND ──
+  const toolbar  = document.getElementById('toolbar');
+  const sep      = toolbar.querySelector('.toolbar-sep');
+  toolbar.querySelectorAll('.leg-item').forEach(el => el.remove());
+
+  cats.forEach(cat => {
+    const item = document.createElement('div');
+    item.className = 'leg-item';
+    item.dataset.key = cat.id;
+    item.setAttribute('role', 'button');
+    item.setAttribute('tabindex', '0');
+    item.setAttribute('aria-label', `Toggle ${cat.label}`);
+    item.innerHTML = `<div class="leg-swatch" style="background:${cat.color}"></div>${cat.label}`;
+    item.addEventListener('click', () => toggleCat(cat.id));
+    item.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { toggleCat(cat.id); e.preventDefault(); }
+    });
+    toolbar.insertBefore(item, sep.nextSibling);
+  });
+
+  // Keyboard nav for bar rects
+  const barRects = document.querySelectorAll('rect.bar-rect');
+  barRects.forEach((el, i) => {
+    el.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight' && barRects[i+1]) { barRects[i+1].focus(); e.preventDefault(); }
+      if (e.key === 'ArrowLeft'  && barRects[i-1]) { barRects[i-1].focus(); e.preventDefault(); }
+    });
+  });
+}
+
+// ════════════════════════════════════════════
+// RESPONSIVE
+// ════════════════════════════════════════════
+let resizeTimer;
+new ResizeObserver(() => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => { if (masterData) buildChart(masterData); }, 180);
+}).observe(document.getElementById('slide-01'));
+
+// ════════════════════════════════════════════
+// DATA LOAD
+// ════════════════════════════════════════════
+d3.json('./stacked-bar/data.json')
+  .then(data => { masterData = data; buildChart(data); })
+  .catch(err => {
+    console.warn('[stacked-bar] data.json not found:', err);
+    d3.select('#chart')
+      .attr('viewBox','0 0 600 80')
+      .append('text')
+        .attr('x',300).attr('y',40)
+        .attr('text-anchor','middle')
+        .attr('font-family','JetBrains Mono, monospace')
+        .attr('font-size',12).attr('fill','#797C7F')
+        .text('// data not found — add ./stacked-bar/data.json');
+  });
+</script>
+</body>
+</html>

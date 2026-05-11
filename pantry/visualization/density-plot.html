@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<!--
+  INFERENCES:
+  filename     = density-plot
+  chart        = Density Plot / Kernel Density Estimate
+  message      = Crisis type determines response time distribution shape
+  palette      = hai (Humanitarians AI)
+  slides       = 2 (learn modifier active)
+-->
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aid Response Time Distributions — Kernel Density Plot</title>
+  <meta name="description" content="Kernel density plot comparing humanitarian aid response time distributions across three crisis types: natural disaster, conflict, and displacement.">
+  <meta name="keywords" content="density plot, kernel density estimation, KDE, Epanechnikov kernel, humanitarian aid, response time, distribution, D3.js, data visualization, crisis type">
+  <meta name="author" content="Nik Bear Brown">
+  <meta name="category" content="Humanitarian Data / Distribution Analysis">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+
+  <style>
+    :root {
+      --p1: #1B1B1B;
+      --p2: #5C3317;
+      --p3: #7A0000;
+      --p4: #F7FAFD;
+      --p5: #4A4D4F;
+      --p6: #797C7F;
+      --p7: #EDEDED;
+      --p8: #FFFFFF;
+      --font: 'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%;
+      font-family: var(--font);
+      background: var(--p8);
+      color: var(--p1);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── SLIDES — scrollable ── */
+    .slides-wrapper { width: 100%; }
+
+    .slide {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 20px 32px 32px;
+      border-bottom: 2px solid var(--p7);
+    }
+
+    .slide-learn { background: var(--p8); }
+
+    /* ── TYPOGRAPHY ── */
+    .label {
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 0.13em; text-transform: uppercase;
+      color: var(--p6);
+    }
+
+    .slide-title {
+      font-size: clamp(12px, 1.8vw, 20px);
+      font-weight: 800; letter-spacing: -0.01em;
+      text-transform: uppercase; color: var(--p1);
+      line-height: 1.2; margin-bottom: 10px; max-width: 72ch;
+    }
+
+    .slide-meta {
+      display: flex; align-items: center;
+      justify-content: space-between; margin-bottom: 6px;
+    }
+
+    /* ── LEGEND ── */
+    .legend {
+      display: flex; flex-wrap: wrap;
+      gap: 6px 20px; margin-bottom: 8px;
+    }
+
+    .legend-item {
+      display: flex; align-items: center; gap: 8px;
+      cursor: pointer; padding: 3px 6px;
+      border: 1.5px solid transparent;
+      transition: border-color 0.2s, opacity 0.25s;
+      user-select: none;
+    }
+    .legend-item:hover         { border-color: var(--p7); }
+    .legend-item:focus-visible { outline: 2px solid var(--p2); outline-offset: 2px; }
+    .legend-item.dimmed        { opacity: 0.22; }
+
+    .legend-label { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--p5); }
+    .legend-n     { font-size: 9px; font-weight: 400; color: var(--p6); margin-left: 2px; }
+
+    /* ── CONTROLS ── */
+    .controls-bar {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
+    }
+
+    .btn {
+      font-family: var(--font); font-size: 10px; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 4px 10px; background: transparent;
+      border: 1.5px solid var(--p7); color: var(--p6);
+      cursor: pointer; transition: border-color 0.2s, color 0.2s;
+    }
+    .btn:hover         { border-color: var(--p2); color: var(--p2); }
+    .btn:focus-visible { outline: 2px solid var(--p2); outline-offset: 2px; }
+
+    /* ── VIZ CONTAINER ── */
+    .viz-container {
+      width: 100%; height: 440px;
+      position: relative; overflow: hidden;
+    }
+
+    #chart-svg { display: block; width: 100%; height: 100%; }
+
+    /* ── EXPLANATION BLOCK ── */
+    .chart-explanation {
+      margin-top: 1.75rem;
+      padding: 1.25rem 1.5rem;
+      border-left: 4px solid var(--p2);
+      background: var(--p4);
+      max-width: 82ch;
+    }
+
+    .chart-explanation h3 {
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--p2); margin-bottom: 0.75rem;
+    }
+
+    .chart-explanation p {
+      font-size: 12px; font-weight: 400;
+      line-height: 1.85; color: var(--p5);
+      margin-bottom: 0.6rem;
+    }
+
+    .chart-explanation p:last-child { margin-bottom: 0; }
+    .chart-explanation strong { color: var(--p1); font-weight: 700; }
+    .chart-explanation code   { font-family: var(--font); font-size: 11px; color: var(--p2); background: #EDE8E3; padding: 1px 4px; }
+
+    /* ── TOOLTIP ── */
+    .tooltip {
+      position: fixed; pointer-events: none;
+      background: var(--p1); color: var(--p8);
+      padding: 10px 14px; font-family: var(--font);
+      font-size: 11px; line-height: 1.75;
+      border: 1px solid var(--p2); max-width: 230px;
+      opacity: 0; transition: opacity 0.1s; z-index: 200;
+    }
+    .tooltip.visible { opacity: 1; }
+
+    .tt-x   { font-weight: 800; font-size: 12px; color: var(--p4); margin-bottom: 6px; border-bottom: 1px solid #333; padding-bottom: 4px; }
+    .tt-row { display: flex; align-items: center; gap: 6px; margin-bottom: 2px; }
+    .tt-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .tt-lbl { color: var(--p6); flex: 1; }
+    .tt-val { font-weight: 700; color: var(--p8); }
+
+    /* ── SLIDE NAV DOTS ── */
+    .slide-nav {
+      position: fixed; bottom: 48px; left: 50%;
+      transform: translateX(-50%); display: flex; gap: 8px; z-index: 100;
+    }
+
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      border: 1.5px solid var(--p6); background: transparent;
+      cursor: pointer; padding: 0; transition: background 0.2s, border-color 0.2s;
+    }
+    .dot.active        { background: var(--p2); border-color: var(--p2); }
+    .dot:focus-visible { outline: 2px solid var(--p2); outline-offset: 3px; }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: clamp(1rem, 3vw, 2rem) 32px;
+      border-top: 2px solid var(--p7);
+      font-size: 10px; color: var(--p6); line-height: 1.9;
+    }
+
+    footer a { color: var(--p2); text-decoration: none; transition: color 0.12s; }
+    footer a:hover { color: var(--p1); text-decoration: underline; }
+
+    /* ── LEARN SLIDE ── */
+    .learn-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 20px 40px; padding-bottom: 32px;
+    }
+
+    .learn-block { border-left: 3px solid var(--p2); padding-left: 14px; }
+
+    .learn-block h2 {
+      font-size: 10px; font-weight: 800;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--p2); margin-bottom: 7px;
+    }
+    .learn-block p       { font-size: 11.5px; line-height: 1.8; color: var(--p5); }
+    .learn-block p strong { color: var(--p1); font-weight: 700; }
+    .learn-block code    { font-family: var(--font); font-size: 10px; color: var(--p2); background: var(--p4); padding: 1px 4px; }
+
+    .framework-ref {
+      grid-column: 1 / -1; background: var(--p4);
+      border: 1.5px solid var(--p7); padding: 14px 18px;
+    }
+    .framework-ref .label { display: block; color: var(--p2); margin-bottom: 7px; }
+    .framework-ref p      { font-size: 11.5px; line-height: 1.75; color: var(--p1); }
+    .framework-ref p strong { color: var(--p2); }
+
+    .design-decision {
+      grid-column: 1 / -1; border-top: 2px solid var(--p7); padding-top: 14px;
+    }
+    .design-decision h2 {
+      font-size: 10px; font-weight: 800; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--p6); margin-bottom: 7px;
+    }
+    .design-decision p       { font-size: 11.5px; line-height: 1.8; color: var(--p5); }
+    .design-decision p strong { color: var(--p1); font-weight: 700; }
+    .design-decision code    { font-family: var(--font); font-size: 10px; color: var(--p2); background: var(--p4); padding: 1px 4px; }
+
+    @media (max-width: 700px) {
+      .learn-grid  { grid-template-columns: 1fr; }
+      .slide       { padding: 14px 16px 24px; }
+      footer       { padding: 1rem 16px; }
+      .slide-title { font-size: 12px; }
+      .viz-container { height: 320px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="tooltip" id="tooltip" role="tooltip" aria-live="polite" aria-atomic="true"></div>
+
+<div class="slides-wrapper">
+
+  <!-- ── SLIDE 1: VISUALIZATION ── -->
+  <section class="slide" id="slide-01"
+           aria-label="Kernel density plot: Humanitarian aid response time distributions by crisis type">
+
+    <div class="slide-meta">
+      <span class="label">// HAI — HUMANITARIAN RESPONSE TIME DISTRIBUTIONS · KERNEL DENSITY</span>
+      <span class="label" id="data-summary"></span>
+    </div>
+
+    <h1 class="slide-title">
+      Crisis Type Determines Response Delay —<br>
+      Conflict Shows Bimodal Pattern, Displacement Skews Right
+    </h1>
+
+    <div class="legend" id="legend" role="list" aria-label="Crisis type filter — click to isolate"></div>
+
+    <div class="controls-bar">
+      <button class="btn" id="reset-btn"    aria-label="Reset filter">↺ reset</button>
+      <button class="btn" id="bw-down-btn"  aria-label="Decrease bandwidth">bw −</button>
+      <button class="btn" id="bw-up-btn"    aria-label="Increase bandwidth">bw +</button>
+      <button class="btn" id="audio-toggle" aria-label="Play narration">▶ narration</button>
+    </div>
+
+    <div class="viz-container" id="chart-container">
+      <svg id="chart-svg" role="img" aria-labelledby="chart-title chart-desc">
+        <title id="chart-title">Kernel Density Plot — Aid Response Times</title>
+        <desc id="chart-desc">
+          Three kernel density curves comparing humanitarian aid response time distributions
+          in days. Natural Disaster peaks early. Conflict is bimodal.
+          Displacement is right-skewed. A vertical reference line marks the 72-hour target.
+        </desc>
+      </svg>
+    </div>
+
+    <audio id="page-audio" src="./density-plot/slide_1.mp3" preload="none"></audio>
+
+    <!-- ── EXPLANATION BLOCK ──────────────────────────────────── -->
+    <div class="chart-explanation" aria-label="Chart explanation">
+      <h3>// About this chart type — Density Plot (Kernel Density Estimate)</h3>
+      <p>A <strong>density plot</strong> — formally a Kernel Density Estimate (KDE) — visualises the distribution of a continuous variable as a smooth curve rather than as discrete histogram bars. At each point along the x-axis, the curve height encodes the probability density: where values are concentrated, the curve peaks; where they are absent, the curve falls to zero. The <strong>Epanechnikov kernel</strong> used here is the theoretically optimal kernel for minimising mean integrated squared error. It computes a weighted average of observations within a sliding window, whose width is controlled by the <strong>bandwidth</strong> parameter (adjustable with the <code>bw −</code> / <code>bw +</code> buttons above).</p>
+      <p>The key advantage over a histogram is that density plots have no bin boundary problem. A histogram's apparent shape changes with bin width and bin origin — two arbitrary parameters. The same data can look unimodal at 5 bins and bimodal at 15. The KDE eliminates this by using a continuous kernel, producing a shape that is stable across a sensible bandwidth range. Bandwidth affects smoothness, not topology: under-smoothed curves show noise as false peaks; over-smoothed curves blur real structure together.</p>
+      <p><strong>About this example:</strong> Three crisis types are compared — Natural Disaster, Conflict, and Displacement — each as a separate density curve. Natural Disaster (solid walnut line) clusters fast, peaking around 4–5 days: response pipelines for sudden-onset events are well-rehearsed. Conflict (dashed blood-red) is the analytically interesting case — it is <strong>bimodal</strong>, with one cluster at 1–3 days (rapid tactical responses) and a second at 12–16 days (protracted access-negotiation responses). This bimodal structure would be invisible or fragile in a histogram. Displacement (dotted gray) skews right: slow-building population movements delay response triggers. The dashed vertical line marks the 72-hour humanitarian response target. Hover anywhere on the chart to read crosshair density values for all three distributions simultaneously.</p>
+    </div>
+  </section>
+
+  <!-- ── SLIDE 2: LEARN PANEL ── -->
+  <section class="slide slide-learn" id="slide-02"
+           aria-label="Learn panel: Density Plot theory and design decisions">
+
+    <div class="slide-meta">
+      <span class="label">// LEARN — DENSITY PLOT · FT VISUAL VOCABULARY: DISTRIBUTION</span>
+      <span class="label">ABELA QUADRANT: DISTRIBUTION</span>
+    </div>
+
+    <h1 class="slide-title">What Makes a Density Plot Work — And Why It Beats the Histogram</h1>
+
+    <div class="learn-grid">
+
+      <div class="learn-block">
+        <h2>What this chart is</h2>
+        <p>A density plot (formally a <strong>Kernel Density Estimate</strong>, or KDE) visualises the distribution of a continuous variable by placing a smooth kernel function over each data point and summing the result across the range. The perceptual mechanism exploited is <strong>position along a common scale</strong> — the curve's height at any x-value encodes the probability density there. Peaks reveal where values concentrate. Troughs reveal gaps. Shape — symmetric, skewed, bimodal — is the primary message. This implementation uses the <strong>Epanechnikov kernel</strong>, the theoretically optimal kernel for minimising mean integrated squared error.</p>
+      </div>
+
+      <div class="learn-block">
+        <h2>Why it was chosen</h2>
+        <p>The data is three sets of continuous observations — response times in days — where the <em>shape</em> of each distribution is the message, not individual values. The conflict distribution is bimodal: fast-strike responses and protracted negotiations produce two distinct clusters. A histogram would either smooth that bimodality away (too few bins) or introduce false peaks from bin boundary placement (too many bins). A density plot eliminates the bin count decision entirely by using a <strong>continuous kernel</strong>, producing a shape that is stable under reasonable bandwidth choices.</p>
+      </div>
+
+      <div class="learn-block">
+        <h2>What the histogram would break</h2>
+        <p>A histogram's shape changes with bin width and bin origin — two parameters with no principled optimal value. The same data can appear unimodal at 5 bins and bimodal at 15. For the conflict distribution here, the bimodal structure at days 2–3 and days 12–15 would be visible with narrow bins but destroyed with wide ones. The density plot makes the bimodal pattern <strong>structurally stable</strong>: the two peaks survive across a wide range of bandwidths, so the viewer can trust that shape reflects data rather than a parameter choice they weren't told about.</p>
+      </div>
+
+      <div class="learn-block">
+        <h2>Bandwidth — the one real parameter</h2>
+        <p>The density plot trades the histogram's bin-width problem for a <strong>bandwidth</strong> (smoothing window) problem — but the tradeoff is better. Bandwidth affects smoothness, not shape topology. The <strong>bw − / bw +</strong> buttons on slide 1 let you tune bandwidth in real time. The optimal bandwidth for this dataset is 2.5 (set in <code>data.json</code>). Increasing it to 5.0 would merge the conflict bimodal peaks. Decreasing to 1.0 would fragment the natural disaster distribution into false peaks.</p>
+      </div>
+
+      <div class="framework-ref">
+        <span class="label">// FRAMEWORK REFERENCE</span>
+        <p>The FT Visual Vocabulary places density plots under <strong>Distribution</strong>: "Show values in a dataset and how often they occur — the shape of the distribution can be a powerful message in itself." The Abela framework routes here when the question is "how is this variable distributed?" rather than "how do these categories compare?" Tufte's principle of graphical integrity is honored: the y-axis starts at zero, and every visual element — curve height, fill area, reference line — encodes data. The three <strong>stroke dash patterns</strong> (solid, dashed, dotted) are redundant encodings alongside color, satisfying WCAG 2.1 and remaining legible in monochrome output.</p>
+      </div>
+
+      <div class="design-decision">
+        <h2>// The one design decision worth knowing</h2>
+        <p>The <strong>crosshair tooltip</strong> — a vertical line that reads density values for all three series at once — replaces the per-point tooltip used in scatter or bar charts. Density plots have no discrete data points to hover over; the meaningful query is "at this x-value, how do the three distributions compare?" The crosshair reads all three curves simultaneously. Each series gets a <strong>tracking dot</strong> on the curve at the crosshair x-position, using the same color and dash pattern as the legend swatch. Bandwidth is exposed as a live control because it is the one parameter that materially changes the viewer's interpretation — hiding it would be a form of graphical deception.</p>
+      </div>
+
+    </div>
+  </section>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>Nik Bear Brown, Irreducibly Human, What AI Can and Can't Do</p>
+  <p>
+    <a href="https://boondoggling.ai"  target="_blank" rel="noopener">boondoggling.ai</a> ·
+    <a href="https://bearbrown.co"     target="_blank" rel="noopener">bearbrown.co</a> ·
+    <a href="https://musinique.com"    target="_blank" rel="noopener">musinique.com</a>
+  </p>
+</footer>
+
+<!-- NAV DOTS -->
+<nav class="slide-nav" role="navigation" aria-label="Slide navigation">
+  <button class="dot active" data-slide="0" aria-label="Go to slide 1: Visualization" tabindex="0"></button>
+  <button class="dot"        data-slide="1" aria-label="Go to slide 2: Learn panel"   tabindex="0"></button>
+</nav>
+
+<script>
+'use strict';
+
+// ── SLIDE NAVIGATION — scroll-based ──────────────────────────
+const slides = document.querySelectorAll('.slide');
+const dots   = document.querySelectorAll('.dot');
+
+function scrollToSlide(n) {
+  const idx = Math.max(0, Math.min(n, slides.length - 1));
+  slides[idx].scrollIntoView({ behavior: 'smooth' });
+}
+
+dots.forEach(d => d.addEventListener('click', () => scrollToSlide(+d.dataset.slide)));
+
+document.addEventListener('keydown', e => {
+  const current = Array.from(dots).findIndex(d => d.classList.contains('active'));
+  if (['ArrowRight','ArrowDown'].includes(e.key)) scrollToSlide(current + 1);
+  if (['ArrowLeft', 'ArrowUp'  ].includes(e.key)) scrollToSlide(current - 1);
+  if (e.key === 'Escape') resetFilter();
+});
+
+slides.forEach(s => {
+  new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const i = [...slides].indexOf(e.target);
+        dots.forEach((d, j) => d.classList.toggle('active', i === j));
+      }
+    });
+  }, { threshold: 0.5 }).observe(s);
+});
+
+// ── AUDIO ─────────────────────────────────────────────────────
+const audio    = document.getElementById('page-audio');
+const audioBtn = document.getElementById('audio-toggle');
+
+audioBtn.addEventListener('click', () => {
+  if (audio.paused) {
+    audio.play().catch(() => {});
+    audioBtn.textContent = '⏸ narration';
+    audioBtn.setAttribute('aria-label', 'Pause narration');
+  } else {
+    audio.pause();
+    audioBtn.textContent = '▶ narration';
+    audioBtn.setAttribute('aria-label', 'Play narration');
+  }
+});
+audio.addEventListener('ended', () => {
+  audioBtn.textContent = '▶ narration';
+  audioBtn.setAttribute('aria-label', 'Play narration');
+});
+
+// ── TOOLTIP ───────────────────────────────────────────────────
+const tooltipEl = document.getElementById('tooltip');
+
+function showTooltip(xVal, seriesData, allKDE) {
+  const rows = seriesData.map((s, i) => {
+    const pts = allKDE[i];
+    const d   = pts.reduce((a, b) => Math.abs(b[0] - xVal) < Math.abs(a[0] - xVal) ? b : a);
+    const val = (d[1] * 1000).toFixed(2);
+    return `<div class="tt-row">
+      <span class="tt-dot" style="background:${s.fill}"></span>
+      <span class="tt-lbl">${s.label}</span>
+      <span class="tt-val">${val}</span>
+    </div>`;
+  }).join('');
+
+  tooltipEl.innerHTML = `
+    <div class="tt-x">${xVal.toFixed(1)} days</div>
+    <div style="font-size:9px;color:var(--p6);margin-bottom:4px">density × 10³</div>
+    ${rows}
+  `;
+  tooltipEl.classList.add('visible');
+}
+
+function moveTooltip(event) {
+  const tw = tooltipEl.offsetWidth;
+  const th = tooltipEl.offsetHeight;
+  let x = event.clientX + 16;
+  let y = event.clientY - th / 2;
+  if (x + tw > window.innerWidth  - 10) x = event.clientX - tw - 16;
+  if (y < 6)                             y = 6;
+  if (y + th > window.innerHeight -  6) y = window.innerHeight - th - 6;
+  tooltipEl.style.left = x + 'px';
+  tooltipEl.style.top  = y + 'px';
+}
+
+function hideTooltip() { tooltipEl.classList.remove('visible'); }
+
+// ── FILTER STATE ──────────────────────────────────────────────
+let activeLabel = null;
+
+function toggleLabel(label) {
+  activeLabel = (activeLabel === label) ? null : label;
+  applyFilter();
+}
+
+function resetFilter() {
+  activeLabel = null;
+  applyFilter();
+}
+
+function applyFilter() {
+  document.querySelectorAll('.legend-item').forEach(item => {
+    item.classList.toggle('dimmed', activeLabel !== null && item.dataset.label !== activeLabel);
+  });
+  if (!currentRenderedSeries) return;
+  currentRenderedSeries.forEach(({ label, areaPath, linePath, trackDot }) => {
+    const dimmed = activeLabel !== null && label !== activeLabel;
+    [areaPath, linePath].forEach(p => {
+      if (!p) return;
+      p.transition().duration(280).attr('opacity', dimmed ? 0.05 : 1);
+    });
+    if (trackDot) trackDot.attr('opacity', dimmed ? 0.05 : 1);
+  });
+}
+
+document.getElementById('reset-btn').addEventListener('click', resetFilter);
+
+// ── KDE FUNCTIONS ─────────────────────────────────────────────
+function epanechnikov(bw) {
+  return v => Math.abs(v /= bw) <= 1 ? (0.75 * (1 - v * v)) / bw : 0;
+}
+
+function kde(kernel, xs, values) {
+  return xs.map(x => [x, d3.mean(values, v => kernel(x - v))]);
+}
+
+// ── CHART STATE ───────────────────────────────────────────────
+const container = document.getElementById('chart-container');
+const chartSVG  = d3.select('#chart-svg');
+let   rawData   = null;
+let   bandwidth = 2.5;
+let   currentRenderedSeries = null;
+
+// ── LEGEND ────────────────────────────────────────────────────
+function buildLegend(series) {
+  const legend = document.getElementById('legend');
+  legend.innerHTML = '';
+  series.forEach(s => {
+    const item = document.createElement('div');
+    item.className = 'legend-item';
+    item.dataset.label = s.label;
+    item.setAttribute('role', 'listitem');
+    item.setAttribute('tabindex', '0');
+    item.setAttribute('aria-label', `Filter to ${s.label}`);
+
+    const ns    = 'http://www.w3.org/2000/svg';
+    const svgEl = document.createElementNS(ns, 'svg');
+    svgEl.setAttribute('width', '28'); svgEl.setAttribute('height', '12');
+    svgEl.setAttribute('aria-hidden', 'true');
+    const lineEl = document.createElementNS(ns, 'line');
+    lineEl.setAttribute('x1','1'); lineEl.setAttribute('y1','6');
+    lineEl.setAttribute('x2','27'); lineEl.setAttribute('y2','6');
+    lineEl.setAttribute('stroke', s.fill); lineEl.setAttribute('stroke-width','2.5');
+    if (s.strokeDash && s.strokeDash !== 'none') lineEl.setAttribute('stroke-dasharray', s.strokeDash);
+    svgEl.appendChild(lineEl);
+
+    const lbl = document.createElement('span');
+    lbl.className = 'legend-label'; lbl.textContent = s.label;
+
+    const n = document.createElement('span');
+    n.className = 'legend-n'; n.textContent = `n=${s.values.length}`;
+
+    item.appendChild(svgEl); item.appendChild(lbl); item.appendChild(n);
+
+    const act = () => toggleLabel(s.label);
+    item.addEventListener('click', act);
+    item.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); act(); } });
+    legend.appendChild(item);
+  });
+}
+
+// ── RENDER CHART ──────────────────────────────────────────────
+function renderChart(series, bw) {
+  chartSVG.selectAll('*').remove();
+  currentRenderedSeries = null;
+
+  const rect   = container.getBoundingClientRect();
+  const W      = Math.max(rect.width,  300);
+  const H      = Math.max(rect.height, 200);
+  const margin = { top: 20, right: 30, bottom: 54, left: 62 };
+  const iW     = W - margin.left - margin.right;
+  const iH     = H - margin.top  - margin.bottom;
+
+  chartSVG.attr('width', W).attr('height', H).attr('viewBox', `0 0 ${W} ${H}`);
+
+  const g = chartSVG.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+
+  const allVals = series.flatMap(s => s.values);
+  const xMax    = d3.max(allVals) * 1.05;
+  const xScale  = d3.scaleLinear().domain([0, xMax]).range([0, iW]).nice();
+
+  const xs   = d3.range(xScale.domain()[0], xScale.domain()[1], xScale.domain()[1] / 300);
+  const kern = epanechnikov(bw);
+  const kdes = series.map(s => kde(kern, xs, s.values));
+  const yMax = d3.max(kdes.flatMap(pts => pts.map(p => p[1])));
+
+  const yScale = d3.scaleLinear().domain([0, yMax * 1.15]).range([iH, 0]);
+
+  // Grid
+  g.append('g').selectAll('.vl').data(xScale.ticks(7)).join('line')
+    .attr('x1', d => xScale(d)).attr('x2', d => xScale(d))
+    .attr('y1', 0).attr('y2', iH).attr('stroke','#EDEDED').attr('stroke-opacity', 0.9);
+  g.append('g').selectAll('.hl').data(yScale.ticks(5)).join('line')
+    .attr('x1', 0).attr('x2', iW)
+    .attr('y1', d => yScale(d)).attr('y2', d => yScale(d)).attr('stroke','#EDEDED').attr('stroke-opacity', 0.9);
+
+  // X axis
+  const xAxisG = g.append('g').attr('transform',`translate(0,${iH})`)
+    .call(d3.axisBottom(xScale).ticks(7).tickSize(4).tickPadding(6));
+  xAxisG.select('.domain').attr('stroke','#EDEDED');
+  xAxisG.selectAll('.tick line').attr('stroke','#EDEDED');
+  xAxisG.selectAll('.tick text').style('font-family','JetBrains Mono, monospace').style('font-size','10px').style('fill','#797C7F');
+
+  g.append('text').attr('x', iW/2).attr('y', iH+44).attr('text-anchor','middle')
+    .style('font-family','JetBrains Mono, monospace').style('font-size','10px')
+    .style('font-weight','600').style('letter-spacing','0.1em').style('text-transform','uppercase').style('fill','#4A4D4F')
+    .text(rawData.xLabel || 'Response Time (days)');
+
+  // Y axis
+  const yAxisG = g.append('g')
+    .call(d3.axisLeft(yScale).ticks(5).tickFormat(d3.format('.3f')).tickSize(4).tickPadding(6));
+  yAxisG.select('.domain').attr('stroke','#EDEDED');
+  yAxisG.selectAll('.tick line').attr('stroke','#EDEDED');
+  yAxisG.selectAll('.tick text').style('font-family','JetBrains Mono, monospace').style('font-size','10px').style('fill','#797C7F');
+
+  g.append('text').attr('transform','rotate(-90)').attr('x',-iH/2).attr('y',-50)
+    .attr('text-anchor','middle').style('font-family','JetBrains Mono, monospace').style('font-size','10px')
+    .style('font-weight','600').style('letter-spacing','0.1em').style('text-transform','uppercase').style('fill','#4A4D4F')
+    .text(rawData.yLabel || 'Density');
+
+  // Reference line
+  const refDay = rawData.referenceDay;
+  if (refDay !== undefined && xScale(refDay) >= 0 && xScale(refDay) <= iW) {
+    g.append('line')
+      .attr('x1', xScale(refDay)).attr('x2', xScale(refDay))
+      .attr('y1', 0).attr('y2', iH)
+      .attr('stroke','#1B1B1B').attr('stroke-width',1.5).attr('stroke-dasharray','4,3').attr('stroke-opacity',0.45);
+    g.append('text').attr('x', xScale(refDay)+5).attr('y',12)
+      .style('font-family','JetBrains Mono, monospace').style('font-size','9px').style('font-weight','600')
+      .style('letter-spacing','0.08em').style('text-transform','uppercase').style('fill','#4A4D4F')
+      .text(rawData.referenceLabel || `day ${refDay}`);
+  }
+
+  // Curve generators
+  const areaGen = d3.area().x(d => xScale(d[0])).y0(iH).y1(d => yScale(d[1])).curve(d3.curveBasis);
+  const lineGen = d3.line().x(d => xScale(d[0])).y(d => yScale(d[1])).curve(d3.curveBasis);
+
+  const rendered = [];
+
+  series.forEach((s, i) => {
+    const pts    = kdes[i];
+    const clipId = `clip-${i}-${Date.now()}`;
+
+    const clipRect = chartSVG.append('defs').append('clipPath')
+      .attr('id', clipId).append('rect')
+      .attr('x', margin.left).attr('y', margin.top)
+      .attr('width', 0).attr('height', iH + 4);
+
+    clipRect.transition().duration(900).delay(i * 220).ease(d3.easeCubicInOut).attr('width', iW + 4);
+
+    const areaPath = g.append('path').datum(pts)
+      .attr('fill', s.fill).attr('fill-opacity', 0.10)
+      .attr('d', areaGen).attr('clip-path', `url(#${clipId})`).attr('pointer-events','none');
+
+    const linePath = g.append('path').datum(pts)
+      .attr('fill','none').attr('stroke', s.fill).attr('stroke-width', 2)
+      .attr('stroke-dasharray', s.strokeDash === 'none' ? null : s.strokeDash)
+      .attr('d', lineGen).attr('clip-path', `url(#${clipId})`).attr('pointer-events','none');
+
+    const trackDot = g.append('circle').attr('r',4.5)
+      .attr('fill', s.fill).attr('stroke','#FFFFFF').attr('stroke-width',1.5)
+      .attr('cx',-99).attr('cy',-99).attr('pointer-events','none').attr('aria-hidden','true');
+
+    rendered.push({ label: s.label, fill: s.fill, areaPath, linePath, trackDot, pts });
+  });
+
+  currentRenderedSeries = rendered;
+  applyFilter();
+
+  // Crosshair overlay
+  const crosshairLine = g.append('line')
+    .attr('y1',0).attr('y2',iH)
+    .attr('stroke','#4A4D4F').attr('stroke-width',1).attr('stroke-dasharray','3,3')
+    .attr('pointer-events','none').style('display','none');
+
+  g.append('rect').attr('width',iW).attr('height',iH)
+    .attr('fill','none').attr('pointer-events','all').style('cursor','crosshair')
+    .attr('tabindex','0').attr('role','application')
+    .attr('aria-label','Interactive density chart area — hover to read values')
+    .on('mousemove', function(event) {
+      const [mx] = d3.pointer(event);
+      if (mx < 0 || mx > iW) return;
+      const xVal = xScale.invert(mx);
+      crosshairLine.style('display',null).attr('x1',mx).attr('x2',mx);
+      rendered.forEach(({ pts, trackDot }) => {
+        const near = pts.reduce((a,b) => Math.abs(b[0]-xVal) < Math.abs(a[0]-xVal) ? b : a);
+        trackDot.attr('cx', xScale(near[0])).attr('cy', yScale(near[1]));
+      });
+      showTooltip(xVal, series, kdes);
+      moveTooltip(event);
+    })
+    .on('mouseout', function() {
+      crosshairLine.style('display','none');
+      rendered.forEach(({ trackDot }) => trackDot.attr('cx',-99).attr('cy',-99));
+      hideTooltip();
+    })
+    .on('keydown', function(event) { if (event.key === 'Escape') resetFilter(); });
+
+  // BW annotation
+  g.append('text').attr('x',iW).attr('y',iH-6).attr('text-anchor','end')
+    .style('font-family','JetBrains Mono, monospace').style('font-size','9px').style('fill','#797C7F')
+    .text(`bandwidth = ${bw.toFixed(1)} · Epanechnikov kernel`);
+}
+
+// ── BANDWIDTH CONTROLS ────────────────────────────────────────
+document.getElementById('bw-down-btn').addEventListener('click', () => {
+  bandwidth = Math.max(0.5, +(bandwidth - 0.5).toFixed(1));
+  if (rawData) renderChart(rawData.data, bandwidth);
+});
+document.getElementById('bw-up-btn').addEventListener('click', () => {
+  bandwidth = Math.min(8.0, +(bandwidth + 0.5).toFixed(1));
+  if (rawData) renderChart(rawData.data, bandwidth);
+});
+
+// ── DATA LOAD ─────────────────────────────────────────────────
+d3.json('./density-plot/data.json').then(data => {
+  rawData   = data;
+  bandwidth = data.bandwidth || 2.5;
+
+  const allN = data.data.reduce((sum, s) => sum + s.values.length, 0);
+  document.getElementById('data-summary').textContent = `${data.data.length} series · n=${allN} total observations`;
+
+  buildLegend(data.data);
+  renderChart(data.data, bandwidth);
+
+  let resizeTimer;
+  const ro = new ResizeObserver(() => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => { if (rawData) renderChart(rawData.data, bandwidth); }, 150);
+  });
+  ro.observe(container);
+
+}).catch(() => {
+  container.innerHTML =
+    '<p style="color:var(--p3);padding:40px;font-size:12px;font-family:var(--font)">' +
+    '// data.json not found — add <strong>density-plot/data.json</strong> to run this visualization.</p>';
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+{
+  "_schema": {
+    "description": "Annotation data for an illustration diagram. Each entry defines a callout dot position, its label, and explanatory body text. Positions are expressed as fractions (0–1) of the SVG viewBox dimensions.",
+    "fields": {
+      "id":    "string — unique identifier, used to link dot to info panel",
+      "label": "string — short structure name shown as the callout label",
+      "cx":    "number (0–1) — horizontal position of callout dot as fraction of viewBox width",
+      "cy":    "number (0–1) — vertical position of callout dot as fraction of viewBox height",
+      "lx":    "number (0–1) — horizontal anchor of the leader-line label",
+      "ly":    "number (0–1) — vertical anchor of the leader-line label",
+      "side":  "string — 'left' or 'right': which side of lx the label text extends toward",
+      "color": "string — hex color for this callout (use palette role colors)",
+      "body":  "string — 1–3 sentence explanation shown in the info panel on click"
+    },
+    "replace": "Replace each annotation entry with your subject's structures. Keep cx/cy as fractions matching where each structure appears in your illustration. Swap 'color' values using the hai palette: p1=#1B1B1B p2=#5C3317 p3=#B52C2C p5=#4A4D4F p6=#797C7F."
+  },
+  "annotations": [
+    { "id":"ra",  "label":"Right Atrium",            "cx":0.415,"cy":0.295,"lx":0.08,"ly":0.18,"side":"left",  "color":"#4A4D4F", "body":"Receives deoxygenated blood returning from the body via the superior and inferior vena cava. Thin-walled, low pressure." },
+    { "id":"rv",  "label":"Right Ventricle",          "cx":0.40, "cy":0.52, "lx":0.06,"ly":0.58,"side":"left",  "color":"#4A4D4F", "body":"Pumps deoxygenated blood to the lungs via the pulmonary artery. Thinner walls than the left ventricle — pulmonary circuit is low resistance." },
+    { "id":"la",  "label":"Left Atrium",              "cx":0.60, "cy":0.275,"lx":0.78,"ly":0.18,"side":"right", "color":"#B52C2C", "body":"Receives oxygenated blood from the four pulmonary veins. Thicker walls than the right atrium due to slightly higher pressure." },
+    { "id":"lv",  "label":"Left Ventricle",           "cx":0.625,"cy":0.535,"lx":0.80,"ly":0.58,"side":"right", "color":"#B52C2C", "body":"The primary pump of the body. Walls are 3x thicker than the right ventricle — systemic circulation requires high pressure to reach the extremities." },
+    { "id":"sep", "label":"Interventricular Septum",  "cx":0.515,"cy":0.475,"lx":0.48,"ly":0.74,"side":"right", "color":"#5C3317", "body":"Muscular wall separating the two ventricles. Defects here are the most common congenital heart abnormality." },
+    { "id":"aov", "label":"Aortic Valve",             "cx":0.585,"cy":0.36, "lx":0.80,"ly":0.35,"side":"right", "color":"#5C3317", "body":"Guards the exit from the left ventricle into the aorta. Opens on systole, snaps shut on diastole to prevent backflow." },
+    { "id":"pv",  "label":"Pulmonary Valve",          "cx":0.425,"cy":0.35, "lx":0.08,"ly":0.36,"side":"left",  "color":"#5C3317", "body":"Guards the exit from the right ventricle into the pulmonary artery. Failure causes pulmonary regurgitation." },
+    { "id":"mv",  "label":"Mitral Valve",             "cx":0.595,"cy":0.435,"lx":0.80,"ly":0.45,"side":"right", "color":"#5C3317", "body":"Two-leaflet valve between left atrium and left ventricle. The most commonly diseased heart valve — affects 2% of the global population." },
+    { "id":"tv",  "label":"Tricuspid Valve",          "cx":0.432,"cy":0.415,"lx":0.07,"ly":0.44,"side":"left",  "color":"#5C3317", "body":"Three-leaflet valve between right atrium and right ventricle. Chordae tendineae prevent leaflet prolapse." },
+    { "id":"ao",  "label":"Aorta",                   "cx":0.565,"cy":0.155,"lx":0.79,"ly":0.07,"side":"right", "color":"#B52C2C", "body":"Largest artery in the body. Carries oxygenated blood from the left ventricle to systemic circulation. Diameter ~2.5 cm at the root." },
+    { "id":"pa",  "label":"Pulmonary Artery",         "cx":0.455,"cy":0.145,"lx":0.07,"ly":0.07,"side":"left",  "color":"#4A4D4F", "body":"Carries deoxygenated blood from right ventricle to lungs. Uniquely, an artery carrying venous blood — named for direction of travel, not oxygen content." },
+    { "id":"svc", "label":"Superior Vena Cava",       "cx":0.565,"cy":0.22, "lx":0.79,"ly":0.26,"side":"right", "color":"#4A4D4F", "body":"Returns deoxygenated blood from the upper body to the right atrium. Completes the systemic venous return along with the inferior vena cava." }
+  ]
+}

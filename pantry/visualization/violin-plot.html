@@ -1,0 +1,73 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Violin Plot | Irreducibly Human</title>
+<meta name="description" content="Combines a box plot with a kernel density estimate. The shape shows the full distribution — wider sections indicate higher density of values.">
+<meta name="keywords" content="violin plot, KDE, distribution, density, D3, statistics">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}html,body{width:100%;height:100%;overflow:hidden}
+body{font-family:Inter,-apple-system,sans-serif;background:#E8E0D0;color:#0D0D0D}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;height:44px;background:rgba(232,224,208,.94);
+backdrop-filter:blur(8px);border-bottom:1px solid rgba(0,0,0,.09);
+display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+nav a{font-size:13px;color:#4A4A4A;text-decoration:none;font-weight:500}
+nav a:hover{color:#0D0D0D}.nt{font-size:13px;color:#6B6B5E}.nc{font-size:12px;color:#9C9680}
+.nc a{color:#9C9680;text-decoration:none}.nc a:hover{color:#4A4A4A}
+#viz{position:fixed;top:44px;left:0;right:0;bottom:0;overflow:hidden}
+
+@media(prefers-color-scheme:dark){
+body{background:#0D0D0D;color:#E8E0D0}
+nav{background:rgba(13,13,13,.94);border-color:rgba(255,255,255,.07)}
+nav a{color:#9C9680}nav a:hover{color:#E8E0D0}}
+</style></head><body>
+<nav><a href="/">&#8592; Irreducibly Human</a><span class="nt">Violin Plot</span>
+<span class="nc">Built with <a href="https://d3js.org" target="_blank" rel="noopener">D3.js</a></span></nav>
+<div id="viz"></div><script>
+const dark=window.matchMedia("(prefers-color-scheme:dark)").matches;
+const fg=dark?"#E8E0D0":"#0D0D0D",mu="#9C9680",gridC=dark?"rgba(255,255,255,.06)":"rgba(0,0,0,.07)";
+function rnd(m,s){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return m+s*Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+function kde(kernel,thresholds,data){return thresholds.map(x=>[x,d3.mean(data,d=>kernel(x-d))]);}
+function epanechnikov(bw){return v=>Math.abs(v/=bw)<1?0.75*(1-v*v)/bw:0;}
+const groups=[
+  {k:"AI-Primary",data:Array.from({length:120},()=>rnd(86,7)),col:"#8B7536"},
+  {k:"Collaborative",data:Array.from({length:120},()=>rnd(64,14)),col:"#6B6B5E"},
+  {k:"Human-Primary",data:Array.from({length:120},()=>rnd(48,12)),col:"#8B0000"}
+];
+function draw(){
+  d3.select("#viz svg").remove();
+  const el=document.getElementById("viz"),W=el.clientWidth,H=el.clientHeight;
+  const m={t:60,r:40,b:60,l:60};
+  const iW=W-m.l-m.r,iH=H-m.t-m.b;
+  const svg=d3.select("#viz").append("svg").attr("width",W).attr("height",H);
+  const g=svg.append("g").attr("transform","translate("+m.l+","+m.t+")");
+  const x=d3.scaleBand().domain(groups.map(d=>d.k)).range([0,iW]).padding(.25);
+  const y=d3.scaleLinear().domain([20,110]).range([iH,0]);
+  const thresholds=d3.range(20,110,.5);
+  y.ticks(5).forEach(t=>{g.append("line").attr("x1",0).attr("x2",iW).attr("y1",y(t)).attr("y2",y(t)).attr("stroke",gridC).attr("stroke-width",1);});
+  groups.forEach(grp=>{
+    const density=kde(epanechnikov(8),thresholds,grp.data);
+    const maxD=d3.max(density,d=>d[1]);
+    const vScale=d3.scaleLinear().domain([0,maxD]).range([0,x.bandwidth()/2*.9]);
+    const cx=x(grp.k)+x.bandwidth()/2;
+    const vLine=d3.line().x(d=>cx+vScale(d[1])).y(d=>y(d[0])).curve(d3.curveCatmullRom.alpha(.5));
+    const vArea=d3.area().x0(d=>cx-vScale(d[1])).x1(d=>cx+vScale(d[1])).y(d=>y(d[0])).curve(d3.curveCatmullRom.alpha(.5));
+    g.append("path").datum(density).attr("d",vArea).attr("fill",grp.col).attr("opacity",.4);
+    g.append("path").datum(density).attr("d",vLine).attr("fill","none").attr("stroke",grp.col).attr("stroke-width",1.5);
+    g.append("path").datum(density).attr("d",d3.line().x(d=>cx-vScale(d[1])).y(d=>y(d[0])).curve(d3.curveCatmullRom.alpha(.5)))
+      .attr("fill","none").attr("stroke",grp.col).attr("stroke-width",1.5);
+    // Box overlay
+    const q=p=>grp.data.slice().sort((a,b)=>a-b)[Math.floor(p*grp.data.length)];
+    const [q1,med,q3]=[q(.25),q(.5),q(.75)];
+    const bw=x.bandwidth()*.18;
+    g.append("rect").attr("x",cx-bw).attr("y",y(q3)).attr("width",bw*2).attr("height",y(q1)-y(q3))
+      .attr("fill",dark?"#0D0D0D":"#E8E0D0").attr("stroke",grp.col).attr("stroke-width",1.5).attr("rx",2);
+    g.append("line").attr("x1",cx-bw).attr("x2",cx+bw).attr("y1",y(med)).attr("y2",y(med)).attr("stroke",grp.col).attr("stroke-width",2.5);
+  });
+  g.append("g").attr("transform","translate(0,"+iH+")").call(d3.axisBottom(x)).call(a=>{a.select(".domain").attr("stroke",mu);a.selectAll("text").attr("fill",fg).attr("font-size",12);a.selectAll(".tick line").attr("stroke",mu);});
+  g.append("g").call(d3.axisLeft(y).ticks(5)).call(a=>{a.select(".domain").attr("stroke",mu);a.selectAll("text").attr("fill",fg).attr("font-size",11);a.selectAll(".tick line").attr("stroke",mu);});
+  svg.append("text").attr("x",W/2).attr("y",32).attr("text-anchor","middle")
+    .attr("font-size",12).attr("fill",mu).text("Performance score distributions by task type — shape shows density, box shows quartiles");
+}
+draw();window.addEventListener("resize",draw);
+</script></body></html>

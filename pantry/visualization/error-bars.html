@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Error Bars — Uncertainty Visualisation</title>
+  <meta name="description" content="Interactive error bar chart overlaid on a bar chart. Switch between SD, SE, 95% CI and min–max modes. hai palette. D3-powered.">
+  <meta name="keywords" content="error bars, uncertainty, standard deviation, confidence interval, standard error, bar chart, d3, data visualisation, scientific, brutalist">
+  <meta name="author" content="Nik Bear Brown">
+  <meta name="category" content="Statistics / Scientific Visualisation">
+
+  <!-- hai palette -->
+  <style>
+    :root {
+      --p1: #1B1B1B;
+      --p2: #5C3317;
+      --p3: #B52C2C;
+      --p4: #F7FAFD;
+      --p5: #4A4D4F;
+      --p6: #797C7F;
+      --p7: #EDEDED;
+      --p8: #FFFFFF;
+      --font: 'JetBrains Mono', monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--p8);
+      color: var(--p1);
+      font-family: var(--font);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .slide {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 28px 36px 14px;
+    }
+    .slide + .slide { border-top: 2px solid var(--p7); }
+
+    .slide-meta { margin-bottom: 4px; }
+    .label {
+      font-size: 10px;
+      color: var(--p6);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .slide-title {
+      font-size: clamp(15px, 2.6vw, 28px);
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--p1);
+      letter-spacing: 0.04em;
+      line-height: 1.1;
+      margin-bottom: 4px;
+    }
+    .slide-sub {
+      font-size: 11px;
+      color: var(--p6);
+      margin-bottom: 10px;
+    }
+
+    .viz-container {
+      flex: 1;
+      position: relative;
+      min-height: 420px;
+    }
+    #chart {
+      width: 100%;
+      height: 100%;
+      min-height: 420px;
+      display: block;
+    }
+
+    /* ── MODE TABS ──────────────────────────────────────── */
+    .mode-tabs {
+      display: flex;
+      gap: 2px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .mode-tab {
+      font-family: var(--font);
+      font-size: 10px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border: 1px solid var(--p7);
+      background: none;
+      color: var(--p6);
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+    .mode-tab:hover  { border-color: var(--p2); color: var(--p2); }
+    .mode-tab.active {
+      background: var(--p2);
+      color: var(--p8);
+      border-color: var(--p2);
+    }
+    .mode-tab:focus { outline: 1px solid var(--p2); }
+
+    /* ── CONTROLS ───────────────────────────────────────── */
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 0 0;
+      border-top: 1px solid var(--p7);
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+    .ctrl-label { font-size: 10px; color: var(--p6); letter-spacing: 0.07em; }
+
+    button.ctrl-btn {
+      font-family: var(--font);
+      font-size: 10px;
+      color: var(--p5);
+      background: none;
+      border: 1px solid var(--p7);
+      padding: 4px 10px;
+      cursor: pointer;
+      letter-spacing: 0.06em;
+      transition: border-color 0.12s, color 0.12s;
+    }
+    button.ctrl-btn:hover  { border-color: var(--p2); color: var(--p2); }
+    button.ctrl-btn:focus  { outline: 1px solid var(--p2); }
+    #audio-toggle { margin-left: auto; }
+
+    /* toggle switch */
+    .toggle-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      color: var(--p6);
+      cursor: pointer;
+      user-select: none;
+    }
+    .toggle-track {
+      position: relative;
+      width: 28px; height: 16px;
+      background: var(--p7);
+      border-radius: 8px;
+      transition: background 0.15s;
+      flex-shrink: 0;
+    }
+    .toggle-track.on { background: var(--p2); }
+    .toggle-knob {
+      position: absolute;
+      top: 2px; left: 2px;
+      width: 12px; height: 12px;
+      background: var(--p8);
+      border-radius: 50%;
+      transition: transform 0.15s;
+      pointer-events: none;
+    }
+    .toggle-track.on .toggle-knob { transform: translateX(12px); }
+
+    /* ── TOOLTIP ────────────────────────────────────────── */
+    #tooltip {
+      position: fixed;
+      background: var(--p1);
+      color: var(--p8);
+      font-family: var(--font);
+      font-size: 11px;
+      font-weight: 600;
+      border: 1px solid var(--p2);
+      padding: 8px 12px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.1s;
+      z-index: 200;
+      line-height: 1.65;
+      max-width: 230px;
+    }
+    #tooltip .tt-row { font-weight: 400; color: #C49A72; }
+    #tooltip .tt-hi  { color: var(--p8); font-weight: 700; }
+
+    /* ── LEGEND ─────────────────────────────────────────── */
+    .legend-svg { font-family: var(--font); font-size: 10px; fill: var(--p5); }
+
+    /* ── EXPLANATION SECTION ────────────────────────────── */
+    .chart-explanation {
+      margin-top: 28px;
+      border-top: 1.5px solid var(--p7);
+      padding-top: 22px;
+      padding-bottom: 32px;
+    }
+
+    .explain-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px 44px;
+      margin-bottom: 20px;
+    }
+
+    .explain-col h3 {
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--p2);
+      margin-bottom: 8px; padding-bottom: 5px;
+      border-bottom: 1px solid var(--p7);
+    }
+
+    .explain-col p {
+      font-size: 12px; color: var(--p5);
+      line-height: 1.78; margin-bottom: 9px;
+    }
+    .explain-col p:last-child { margin-bottom: 0; }
+    .explain-col p strong { color: var(--p1); font-weight: 700; }
+
+    .explain-modes {
+      margin-top: 4px;
+    }
+    .explain-modes dl {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 5px 12px;
+      font-size: 11.5px;
+    }
+    .explain-modes dt {
+      color: var(--p2); font-weight: 700;
+      letter-spacing: 0.04em; white-space: nowrap;
+      padding-top: 1px;
+    }
+    .explain-modes dd { color: var(--p5); line-height: 1.65; }
+
+    .expl-reading {
+      border-top: 1.5px solid var(--p7);
+      padding-top: 14px;
+    }
+    .expl-reading h3 {
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--p6); margin-bottom: 9px;
+    }
+    .expl-reading ul {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px 40px;
+      list-style: none;
+    }
+    .expl-reading li {
+      font-size: 11.5px; line-height: 1.65;
+      color: var(--p5); padding-left: 16px;
+      position: relative;
+    }
+    .expl-reading li::before {
+      content: "//"; position: absolute; left: 0; top: 1px;
+      font-size: 9px; font-weight: 600; color: var(--p6);
+    }
+
+    /* ── LEARN SLIDE ────────────────────────────────────── */
+    .slide-learn { background: var(--p8); }
+    .learn-block { max-width: 720px; padding-top: 8px; }
+    .learn-block h2 {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--p2);
+      margin: 20px 0 6px;
+      border-bottom: 1px solid var(--p7); padding-bottom: 4px;
+    }
+    .learn-block h2:first-child { margin-top: 0; }
+    .learn-block p { font-size: 12px; color: var(--p5); line-height: 1.75; margin-bottom: 6px; }
+    .learn-block strong { color: var(--p1); font-weight: 700; }
+    .framework-ref {
+      margin-top: 20px; padding: 10px 14px;
+      border-left: 3px solid var(--p2); background: var(--p7);
+    }
+    .framework-ref p { margin: 0; color: var(--p5); font-size: 11px; }
+
+    /* ── NAV ─────────────────────────────────────────────── */
+    #slide-nav {
+      position: fixed; right: 18px; top: 50%;
+      transform: translateY(-50%);
+      display: flex; flex-direction: column; gap: 8px; z-index: 100;
+    }
+    .nav-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--p7); border: 1px solid var(--p6);
+      cursor: pointer; transition: background 0.15s;
+    }
+    .nav-dot.active { background: var(--p2); border-color: var(--p2); }
+
+    /* ── FOOTER ─────────────────────────────────────────── */
+    footer {
+      font-family: var(--font); font-size: 10px;
+      color: var(--p6); border-top: 2px solid var(--p7);
+      padding: 10px 36px; line-height: 1.7;
+    }
+    footer a {
+      color: var(--p6); text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    footer a:hover { color: var(--p1); border-bottom-color: var(--p6); }
+
+    @media (max-width: 620px) {
+      .slide        { padding: 18px 18px 12px; }
+      .explain-cols { grid-template-columns: 1fr; }
+      .expl-reading ul { grid-template-columns: 1fr; }
+      .explain-modes dl { grid-template-columns: 1fr; }
+      .explain-modes dt { padding-top: 8px; }
+      footer        { padding: 10px 18px; }
+    }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- ── SLIDE 1: CHART ─────────────────────────────────────── -->
+<section class="slide" id="slide-01" aria-label="Error bar chart">
+  <div class="slide-meta">
+    <span class="label">// RANGES · UNCERTAINTY · COMPARISON</span>
+  </div>
+  <h1 class="slide-title">Error Bars — Uncertainty Overlay</h1>
+  <p class="slide-sub">Switch error mode · Hover for full statistics · Bars show mean · Error bars encode spread</p>
+
+  <!-- Mode selector -->
+  <div class="mode-tabs" role="tablist" aria-label="Error bar mode">
+    <button class="mode-tab active" data-mode="sd"     role="tab" aria-selected="true"  tabindex="0">± SD</button>
+    <button class="mode-tab"        data-mode="se"     role="tab" aria-selected="false" tabindex="0">± SE</button>
+    <button class="mode-tab"        data-mode="ci95"   role="tab" aria-selected="false" tabindex="0">95% CI</button>
+    <button class="mode-tab"        data-mode="minmax" role="tab" aria-selected="false" tabindex="0">Min – Max</button>
+  </div>
+
+  <div class="viz-container">
+    <svg id="chart" role="img" aria-labelledby="chart-title">
+      <title id="chart-title">Bar chart with error bars showing mean values per group. Error bar length encodes the selected uncertainty measure.</title>
+      <desc>Interactive D3 bar chart with error bars. Switch between standard deviation, standard error, 95% confidence interval, and min–max range modes. Hover any bar or error bar for full statistics.</desc>
+    </svg>
+  </div>
+
+  <div class="controls">
+    <label class="toggle-wrap" id="bars-toggle-wrap" aria-label="Toggle bars on or off">
+      <div class="toggle-track on" id="bars-track"><div class="toggle-knob"></div></div>
+      <span>Show bars</span>
+    </label>
+    <label class="toggle-wrap" id="points-toggle-wrap" aria-label="Toggle mean points">
+      <div class="toggle-track on" id="points-track"><div class="toggle-knob"></div></div>
+      <span>Show mean points</span>
+    </label>
+    <button class="ctrl-btn" id="sort-btn" aria-label="Sort groups by mean">↕ sort by mean</button>
+    <button class="ctrl-btn" id="reset-btn" aria-label="Reset sort order">↺ reset order</button>
+    <button class="ctrl-btn" id="audio-toggle" aria-label="Play narration">▶ narration</button>
+  </div>
+
+  <!-- ── EXPLANATION TEXT ── -->
+  <div class="chart-explanation" aria-label="Chart type and example explanation">
+
+    <div class="explain-cols">
+
+      <div class="explain-col">
+        <h3>// About Error Bars</h3>
+        <p>
+          Error bars are a <strong>graphical enhancement</strong> layered onto a Cartesian
+          chart to add a second data dimension: the spread or uncertainty around each
+          plotted central value. The bar height encodes the group mean; the error bar's
+          length encodes how reliable or variable that mean is. Short bars signal
+          concentrated measurements with high confidence. Long bars signal dispersed values
+          where the mean is less precise. This length-as-uncertainty mapping is
+          pre-attentive — viewers read reliability differences before consciously analyzing
+          individual values.
+        </p>
+        <p>
+          The critical rule: <strong>error bars must always identify which measure they
+          encode.</strong> SD, SE, and 95% CI bars on identical data produce very different
+          lengths — an unlabelled error bar is statistically meaningless. Use the mode tabs
+          above to compare how the same data looks across all four conventions.
+        </p>
+      </div>
+
+      <div class="explain-col">
+        <h3>// The Four Error Modes</h3>
+        <div class="explain-modes">
+          <dl>
+            <dt>± SD</dt>
+            <dd>Standard Deviation — the spread of individual observations around the
+            mean. Use when the message is about population variability. SD stays
+            constant as sample size grows.</dd>
+
+            <dt>± SE</dt>
+            <dd>Standard Error (= SD ÷ √n) — how precisely the mean was estimated.
+            SE shrinks as n increases. SE bars are always shorter than SD bars — sometimes
+            misused to make results appear more precise than they are.</dd>
+
+            <dt>95% CI</dt>
+            <dd>Confidence Interval — the most honest choice for scientific communication.
+            The range in which the true population mean would fall 95% of the time if the
+            experiment were repeated. Can be asymmetric for skewed data.</dd>
+
+            <dt>Min–Max</dt>
+            <dd>The full observed span of raw data. Most conservative; most sensitive to
+            outliers. Use when you must show actual extremes, not statistical estimates.</dd>
+          </dl>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="expl-reading">
+      <h3>// Reading Guide</h3>
+      <ul>
+        <li>Bar height = group mean; error bar length = uncertainty in that mean</li>
+        <li>Shorter error bar = higher confidence in the mean / less variable data</li>
+        <li>Overlapping 95% CI bars suggest difference may not be statistically significant</li>
+        <li>Non-overlapping SD bars do NOT necessarily imply statistical significance</li>
+        <li>The cap marks the boundary of the range — no cap implies open-ended or unknown</li>
+        <li>Hover any bar or error mark for full stats: mean, SD, SE, CI, range, and n</li>
+      </ul>
+    </div>
+
+  </div>
+
+</section>
+
+<!-- ── SLIDE 2: LEARN ─────────────────────────────────────── -->
+<section class="slide slide-learn" id="slide-02" aria-label="Learn panel — Error Bars">
+  <div class="slide-meta">
+    <span class="label">// LEARN — ERROR BARS</span>
+  </div>
+  <h1 class="slide-title">What error bars are</h1>
+
+  <div class="learn-block">
+    <h2>The perceptual mechanism</h2>
+    <p>Error bars are not a chart type — they are a <strong>graphical enhancement</strong> layered onto a Cartesian graph. They exploit the same channel as the primary encoding (position along a quantitative axis) to add a second layer of information: the <strong>spread or uncertainty</strong> around each plotted value. The cap-tipped line extending from a central point forces the eye to read a range rather than a single value, making it immediately visible whether groups have tight, reliable measurements or wide, unreliable ones.</p>
+    <p>The perceptual key: <strong>length encodes uncertainty</strong>. Short bar = concentrated values, high confidence in the mean. Long bar = dispersed values, lower confidence. This mapping is pre-attentive — viewers grasp it before conscious analysis.</p>
+
+    <h2>The four error modes and when to use each</h2>
+    <p><strong>Standard deviation (SD)</strong> describes the spread of the raw data around the mean. Use it when your message is about the distribution of individual observations — how variable the thing being measured actually is in the population.</p>
+    <p><strong>Standard error (SE)</strong> describes the precision of the mean estimate itself (SE = SD ÷ √n). Use it when your message is about how reliably you estimated the mean — SE shrinks as sample size grows, SD does not. SE bars are always shorter than SD bars for the same data, which is why they are sometimes misused to make data look more precise than it is.</p>
+    <p><strong>95% confidence interval (CI)</strong> is the most honest choice for most scientific communication. It conveys the range in which the true population mean would fall 95% of the time if the experiment were repeated. Unlike SD and SE, CI can be asymmetric for skewed data — this implementation supports distinct upper and lower bounds.</p>
+    <p><strong>Min–max range</strong> shows the full observed span of the data. It is the most conservative encoding and the most sensitive to outliers. Use it when you need to show the reader the actual observed extremes, not a statistical estimate.</p>
+
+    <h2>Why error bars on a bar chart here</h2>
+    <p>The data structure is <strong>grouped categorical measurements with pre-computed statistics</strong>. The message is comparison across groups with explicit uncertainty — not just "which group has the higher mean" but "how reliable is each group's mean, and do the uncertainty ranges overlap?" Overlapping confidence intervals are a rapid visual test for whether differences between groups are likely to be statistically significant. The bar chart provides the primary comparison channel (bar height = mean); the error bars provide the uncertainty channel as an additive overlay rather than a separate chart.</p>
+
+    <h2>What the alternative would break</h2>
+    <p>A plain bar chart without error bars would answer "which group is highest" but not "is that difference real?" A box plot would show the full distribution more honestly (quartiles, median, outliers) but loses the direct mean-comparison that error bars preserve. Box plots are the better choice when the distribution shape matters; error bars are the better choice when the message is specifically about <strong>mean reliability and group difference significance</strong>.</p>
+    <p>A <strong>critical error</strong> flagged by the Data Visualisation Catalogue: never display error bars without labelling which measure they represent. SD, SE, and 95% CI bars on the same data have very different lengths — an unlabelled error bar is statistically meaningless.</p>
+
+    <h2>The one design decision worth knowing</h2>
+    <p>The cap width is set to <strong>60% of the bar width</strong> — wide enough to be clearly readable as a range boundary, narrow enough not to be mistaken for an additional data series. The cap is the visual full stop that tells the eye "the range ends here." Without it, an error whisker reads as an arrow or an indefinite extension rather than a bounded interval.</p>
+
+    <div class="framework-ref">
+      <span class="label">// Framework — FT Visual Vocabulary</span>
+      <p>FT Visual Vocabulary category: <strong>Distribution / Ranges</strong> — showing the spread of values within a group alongside the central tendency. Abela quadrant: <strong>Comparison</strong> (comparing means across categories with uncertainty context). Tufte principle applied: every mark on the chart earns its place — the error bar adds a full second data dimension (uncertainty) to each existing mark without adding ink that duplicates information already present.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── NAV ────────────────────────────────────────────────── -->
+<nav id="slide-nav" aria-label="Slide navigation">
+  <div class="nav-dot active" data-slide="slide-01" role="button" tabindex="0" aria-label="Slide 1: Chart"></div>
+  <div class="nav-dot"        data-slide="slide-02" role="button" tabindex="0" aria-label="Slide 2: Learn panel"></div>
+</nav>
+
+<footer>
+  <p>Nik Bear Brown, Irreducibly Human, What AI Can and Can't Do</p>
+  <p>
+    <a href="https://frictional.xyz"    target="_blank" rel="noopener">frictional.xyz</a>
+    &nbsp;·&nbsp;
+    <a href="https://bearbrown.co"      target="_blank" rel="noopener">bearbrown.co</a>
+    &nbsp;·&nbsp;
+    <a href="https://humanitarians.ai"  target="_blank" rel="noopener">humanitarians.ai</a>
+  </p>
+</footer>
+
+<div id="tooltip"></div>
+<audio id="page-audio" src="./error-bars/slide_1.mp3"></audio>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script>
+// ── STATE ─────────────────────────────────────────────────────
+let rawData, sortedData, displayData;
+let mode       = 'sd';
+let showBars   = true;
+let showPoints = true;
+let sorted     = false;
+let unitLabel  = '';
+let yLabel     = '';
+
+// ── TOOLTIP ───────────────────────────────────────────────────
+const tip = document.getElementById('tooltip');
+function showTip(e, d) {
+  const loField = mode === 'sd'  ? (d.mean - d.sd).toFixed(1)
+                : mode === 'se'  ? (d.mean - d.se).toFixed(1)
+                : mode === 'ci95'? d.ci95_lo.toFixed(1)
+                :                  d.min.toFixed(1);
+  const hiField = mode === 'sd'  ? (d.mean + d.sd).toFixed(1)
+                : mode === 'se'  ? (d.mean + d.se).toFixed(1)
+                : mode === 'ci95'? d.ci95_hi.toFixed(1)
+                :                  d.max.toFixed(1);
+  const modeLabel = {sd:'± SD', se:'± SE', ci95:'95% CI', minmax:'Min–Max'}[mode];
+  tip.innerHTML =
+    `<span class="tt-hi">${d.group}</span><br>` +
+    `<span class="tt-row">mean &nbsp; </span>${d.mean.toFixed(1)} ${unitLabel}<br>` +
+    `<span class="tt-row">n &nbsp;&nbsp;&nbsp;&nbsp; </span>${d.n}<br>` +
+    `<span class="tt-row">SD &nbsp;&nbsp;&nbsp; </span>${d.sd.toFixed(1)}<br>` +
+    `<span class="tt-row">SE &nbsp;&nbsp;&nbsp; </span>${d.se.toFixed(1)}<br>` +
+    `<span class="tt-row">95% CI </span>[${d.ci95_lo.toFixed(1)}, ${d.ci95_hi.toFixed(1)}]<br>` +
+    `<span class="tt-row">range  </span>${d.min.toFixed(1)} – ${d.max.toFixed(1)}<br>` +
+    `<span class="tt-row">mode &nbsp; </span>${modeLabel}`;
+  tip.style.opacity = 1;
+  moveTip(e);
+}
+function moveTip(e) {
+  const x = Math.min(e.clientX + 14, window.innerWidth  - 250);
+  const y = Math.min(e.clientY - 10, window.innerHeight - 160);
+  tip.style.left = x + 'px';
+  tip.style.top  = y + 'px';
+}
+function hideTip() { tip.style.opacity = 0; }
+
+// ── DRAW ──────────────────────────────────────────────────────
+function draw(animate) {
+  const el = document.getElementById('chart');
+  const W  = el.clientWidth  || 760;
+  const H  = el.clientHeight || 440;
+  const margin = { top: 24, right: 24, bottom: 52, left: 64 };
+  const iW = W - margin.left - margin.right;
+  const iH = H - margin.top  - margin.bottom;
+
+  const svg = d3.select('#chart');
+  svg.selectAll('*').remove();
+
+  const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+
+  // ── SCALES ──────────────────────────────────────────────────
+  const groups = displayData.map(d => d.group);
+
+  // Y domain: cover all error extents across all modes + 10% padding
+  const allLo = displayData.map(d => Math.min(d.mean - d.sd, d.mean - d.se, d.ci95_lo, d.min));
+  const allHi = displayData.map(d => Math.max(d.mean + d.sd, d.mean + d.se, d.ci95_hi, d.max));
+  const yMin  = Math.max(0, d3.min(allLo) * 0.85);
+  const yMax  = d3.max(allHi) * 1.12;
+
+  const xScale = d3.scaleBand().domain(groups).range([0, iW]).padding(0.35);
+  const yScale = d3.scaleLinear().domain([yMin, yMax]).nice().range([iH, 0]);
+  const bW     = xScale.bandwidth();
+  const capW   = bW * 0.6;
+
+  // ── GRIDLINES ───────────────────────────────────────────────
+  g.append('g').attr('class', 'grid')
+    .call(d3.axisLeft(yScale).tickSize(-iW).tickFormat(''))
+    .call(gg => gg.select('.domain').remove())
+    .call(gg => gg.selectAll('line')
+      .attr('stroke', 'var(--p7)').attr('stroke-width', 0.5));
+
+  // ── AXES ────────────────────────────────────────────────────
+  g.append('g').attr('transform', `translate(0,${iH})`)
+    .call(d3.axisBottom(xScale).tickSize(0))
+    .call(ax => ax.select('.domain').attr('stroke', 'var(--p7)'))
+    .call(ax => ax.selectAll('text')
+      .attr('font-family', 'var(--font)').attr('font-size', '11px')
+      .attr('fill', 'var(--p5)').attr('dy', '1.2em'));
+
+  g.append('g')
+    .call(d3.axisLeft(yScale).ticks(6).tickSize(0))
+    .call(ax => ax.select('.domain').attr('stroke', 'var(--p7)'))
+    .call(ax => ax.selectAll('text')
+      .attr('font-family', 'var(--font)').attr('font-size', '10px')
+      .attr('fill', 'var(--p6)'));
+
+  // Y-axis label
+  g.append('text')
+    .attr('transform', `rotate(-90)`)
+    .attr('x', -iH / 2).attr('y', -50)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', 'var(--font)').attr('font-size', '10px')
+    .attr('fill', 'var(--p6)')
+    .text(yLabel);
+
+  // ── BARS ────────────────────────────────────────────────────
+  if (showBars) {
+    const bars = g.selectAll('rect.bar')
+      .data(displayData)
+      .join('rect')
+      .attr('class', 'bar')
+      .attr('x', d => xScale(d.group))
+      .attr('width', bW)
+      .attr('fill', 'var(--p2)')
+      .attr('fill-opacity', 0.18)
+      .attr('stroke', 'var(--p2)')
+      .attr('stroke-width', 1)
+      .attr('rx', 2)
+      .attr('y', iH)
+      .attr('height', 0)
+      .attr('tabindex', 0)
+      .attr('role', 'img')
+      .attr('aria-label', d => `${d.group}: mean ${d.mean.toFixed(1)} ${unitLabel}`)
+      .on('mouseover', (e, d) => showTip(e, d))
+      .on('mousemove', moveTip)
+      .on('mouseout',  hideTip)
+      .on('keydown', function(e, d) {
+        if (e.key === 'Enter') showTip({clientX: 400, clientY: 200}, d);
+      });
+
+    if (animate) {
+      bars.transition().duration(700).ease(d3.easeCubicOut)
+        .attr('y', d => yScale(d.mean))
+        .attr('height', d => iH - yScale(d.mean));
+    } else {
+      bars.attr('y', d => yScale(d.mean)).attr('height', d => iH - yScale(d.mean));
+    }
+  }
+
+  // ── ERROR BARS ───────────────────────────────────────────────
+  const errData = displayData.map(d => {
+    const cx = xScale(d.group) + bW / 2;
+    let lo, hi;
+    if (mode === 'sd')     { lo = d.mean - d.sd;    hi = d.mean + d.sd;    }
+    else if (mode === 'se'){ lo = d.mean - d.se;    hi = d.mean + d.se;    }
+    else if (mode === 'ci95'){ lo = d.ci95_lo;      hi = d.ci95_hi;        }
+    else                   { lo = d.min;             hi = d.max;            }
+    return { ...d, cx, lo, hi };
+  });
+
+  const errG = g.append('g').attr('class', 'error-bars');
+
+  // Stem (vertical line)
+  errG.selectAll('line.stem')
+    .data(errData)
+    .join('line')
+    .attr('class', 'stem')
+    .attr('x1', d => d.cx).attr('x2', d => d.cx)
+    .attr('stroke', 'var(--p1)')
+    .attr('stroke-width', 1.5)
+    .attr('stroke-linecap', 'round')
+    .attr('y1', d => animate ? yScale(d.mean) : yScale(d.hi))
+    .attr('y2', d => animate ? yScale(d.mean) : yScale(d.lo))
+    .on('mouseover', (e, d) => showTip(e, d))
+    .on('mousemove', moveTip)
+    .on('mouseout',  hideTip);
+
+  if (animate) {
+    errG.selectAll('line.stem')
+      .transition().duration(700).delay(300).ease(d3.easeCubicOut)
+      .attr('y1', d => yScale(d.hi))
+      .attr('y2', d => yScale(d.lo));
+  }
+
+  // Upper cap
+  errG.selectAll('line.cap-hi')
+    .data(errData)
+    .join('line')
+    .attr('class', 'cap-hi')
+    .attr('x1', d => d.cx - capW / 2).attr('x2', d => d.cx + capW / 2)
+    .attr('stroke', 'var(--p1)')
+    .attr('stroke-width', 1.5)
+    .attr('stroke-linecap', 'round')
+    .attr('y1', d => animate ? yScale(d.mean) : yScale(d.hi))
+    .attr('y2', d => animate ? yScale(d.mean) : yScale(d.hi));
+
+  if (animate) {
+    errG.selectAll('line.cap-hi')
+      .transition().duration(700).delay(300).ease(d3.easeCubicOut)
+      .attr('y1', d => yScale(d.hi))
+      .attr('y2', d => yScale(d.hi));
+  }
+
+  // Lower cap
+  errG.selectAll('line.cap-lo')
+    .data(errData)
+    .join('line')
+    .attr('class', 'cap-lo')
+    .attr('x1', d => d.cx - capW / 2).attr('x2', d => d.cx + capW / 2)
+    .attr('stroke', 'var(--p1)')
+    .attr('stroke-width', 1.5)
+    .attr('stroke-linecap', 'round')
+    .attr('y1', d => animate ? yScale(d.mean) : yScale(d.lo))
+    .attr('y2', d => animate ? yScale(d.mean) : yScale(d.lo));
+
+  if (animate) {
+    errG.selectAll('line.cap-lo')
+      .transition().duration(700).delay(300).ease(d3.easeCubicOut)
+      .attr('y1', d => yScale(d.lo))
+      .attr('y2', d => yScale(d.lo));
+  }
+
+  // ── MEAN POINTS ─────────────────────────────────────────────
+  if (showPoints) {
+    const pts = g.selectAll('circle.mean-pt')
+      .data(errData)
+      .join('circle')
+      .attr('class', 'mean-pt')
+      .attr('cx', d => d.cx)
+      .attr('r', 4)
+      .attr('fill', 'var(--p2)')
+      .attr('stroke', 'var(--p8)')
+      .attr('stroke-width', 1.5)
+      .attr('cy', d => animate ? iH : yScale(d.mean))
+      .on('mouseover', (e, d) => showTip(e, d))
+      .on('mousemove', moveTip)
+      .on('mouseout',  hideTip);
+
+    if (animate) {
+      pts.transition().duration(700).ease(d3.easeCubicOut)
+        .attr('cy', d => yScale(d.mean));
+    }
+  }
+
+  // ── LEGEND ──────────────────────────────────────────────────
+  const modeLabel = {sd:'Error bars: ± SD', se:'Error bars: ± SE', ci95:'Error bars: 95% CI', minmax:'Error bars: Min–Max'}[mode];
+  svg.append('text')
+    .attr('x', margin.left + iW)
+    .attr('y', margin.top - 6)
+    .attr('text-anchor', 'end')
+    .attr('font-family', 'var(--font)')
+    .attr('font-size', '10px')
+    .attr('fill', 'var(--p6)')
+    .text(modeLabel);
+}
+
+// ── CONTROLS ──────────────────────────────────────────────────
+// Mode tabs
+document.querySelectorAll('.mode-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.mode-tab').forEach(b => {
+      b.classList.remove('active'); b.setAttribute('aria-selected', 'false');
+    });
+    btn.classList.add('active'); btn.setAttribute('aria-selected', 'true');
+    mode = btn.dataset.mode;
+    draw(false);
+  });
+});
+
+// Bars toggle
+document.getElementById('bars-toggle-wrap').addEventListener('click', () => {
+  showBars = !showBars;
+  const track = document.getElementById('bars-track');
+  track.classList.toggle('on', showBars);
+  draw(false);
+});
+
+// Points toggle
+document.getElementById('points-toggle-wrap').addEventListener('click', () => {
+  showPoints = !showPoints;
+  const track = document.getElementById('points-track');
+  track.classList.toggle('on', showPoints);
+  draw(false);
+});
+
+// Sort by mean
+document.getElementById('sort-btn').addEventListener('click', () => {
+  sorted = true;
+  displayData = [...rawData].sort((a, b) => a.mean - b.mean);
+  draw(false);
+});
+document.getElementById('reset-btn').addEventListener('click', () => {
+  sorted = false;
+  displayData = [...rawData];
+  draw(true);
+});
+
+// ── LOAD DATA ─────────────────────────────────────────────────
+async function init() {
+  const payload = await d3.json('./error-bars/data.json');
+  rawData     = payload.data;
+  displayData = [...rawData];
+  unitLabel   = payload.unit   || '';
+  yLabel      = payload.yLabel || 'Mean value';
+  draw(true);
+}
+
+// ── RESPONSIVE ────────────────────────────────────────────────
+let resizeTimer;
+const ro = new ResizeObserver(() => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => draw(false), 160);
+});
+ro.observe(document.getElementById('chart'));
+
+// ── AUDIO ─────────────────────────────────────────────────────
+const audio    = document.getElementById('page-audio');
+const audioBtn = document.getElementById('audio-toggle');
+audioBtn.addEventListener('click', () => {
+  if (audio.paused) { audio.play().catch(() => {}); audioBtn.textContent = '⏸ narration'; }
+  else              { audio.pause(); audioBtn.textContent = '▶ narration'; }
+});
+
+// ── NAV DOTS ──────────────────────────────────────────────────
+document.querySelectorAll('.nav-dot').forEach(dot => {
+  dot.addEventListener('click', () => document.getElementById(dot.dataset.slide).scrollIntoView({behavior:'smooth'}));
+  dot.addEventListener('keydown', e => { if (e.key === 'Enter') dot.click(); });
+});
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(en => {
+    if (en.isIntersecting) {
+      document.querySelectorAll('.nav-dot').forEach(d => d.classList.remove('active'));
+      document.querySelector(`.nav-dot[data-slide="${en.target.id}"]`)?.classList.add('active');
+    }
+  });
+}, {threshold: 0.5});
+document.querySelectorAll('.slide').forEach(s => obs.observe(s));
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowDown') document.getElementById('slide-02').scrollIntoView({behavior:'smooth'});
+  if (e.key === 'ArrowUp')   document.getElementById('slide-01').scrollIntoView({behavior:'smooth'});
+});
+
+init();
+</script>
+</body>
+</html>

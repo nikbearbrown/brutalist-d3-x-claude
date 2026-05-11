@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<!--
+  INFERENCES:
+  filename    = timeline (slugified from chart type — no filename provided)
+  chart       = Timeline / Multi-track scaled timeline (stated explicitly)
+  message     = Humanitarian response has undergone three simultaneous revolutions
+                since 1991 — legal frameworks, digital infrastructure, and funding
+                architecture — with operations accelerating in both frequency and scale
+  palette     = hai (Humanitarians AI — walnut on white, earthy gravitas)
+  data-topic  = Humanitarian history 1991–2024: 4 tracks, 26 events (point + span)
+  slides      = 2 (learn modifier active)
+-->
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Humanitarian History 1991–2024 — Multi-Track Timeline</title>
+  <meta name="description" content="Multi-track scaled timeline showing key events in humanitarian response history across legal frameworks, data and technology, major operations, and humanitarian financing — 1991 to 2024.">
+  <meta name="keywords" content="timeline, scaled timeline, multi-track, chronological, humanitarian history, D3.js, data visualization, zoom, temporal data, span events, point events">
+  <meta name="author" content="Nik Bear Brown">
+  <meta name="category" content="Humanitarian Data / Historical Timeline">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+
+  <style>
+    /* ============================================================
+       HAI PALETTE
+       WCAG: --p4 (#F7FAFD) and --p7 (#EDEDED) fail on white.
+       --p4 = bg fills only. --p7 = borders/grid only.
+       Text: --p1 18.2:1 AAA, --p2 10.7:1 AAA, --p5 9.4:1, --p6 4.6:1
+    ============================================================ */
+    :root {
+      --p1: #1B1B1B;
+      --p2: #5C3317;
+      --p3: #B52C2C;
+      --p4: #F7FAFD;
+      --p5: #4A4D4F;
+      --p6: #797C7F;
+      --p7: #EDEDED;
+      --p8: #FFFFFF;
+      --font: 'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      font-family: var(--font);
+      background: var(--p8);
+      color: var(--p1);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .slides-wrapper {
+      display: flex; flex-direction: column;
+      width: 100%; height: 100vh;
+    }
+    .slide {
+      display: none; flex-direction: column;
+      flex: 1; min-height: 0;
+      padding: 16px 26px 5px;
+      overflow: hidden;
+    }
+    .slide.active { display: flex; }
+    .slide-learn  { overflow-y: auto; padding-bottom: 24px; }
+
+    .label {
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 0.13em; text-transform: uppercase; color: var(--p6);
+    }
+    .slide-title {
+      font-size: clamp(11px, 1.55vw, 17px);
+      font-weight: 800; letter-spacing: -0.01em;
+      text-transform: uppercase; color: var(--p1);
+      line-height: 1.2; margin-bottom: 8px;
+    }
+    .slide-meta {
+      display: flex; align-items: center;
+      justify-content: space-between; margin-bottom: 5px;
+    }
+
+    /* ── CONTROLS ── */
+    .controls-bar {
+      display: flex; align-items: center; gap: 9px; margin-bottom: 8px;
+    }
+    .btn {
+      font-family: var(--font); font-size: 10px; font-weight: 600;
+      letter-spacing: 0.09em; text-transform: uppercase;
+      padding: 3px 9px; background: transparent;
+      border: 1.5px solid var(--p7); color: var(--p6);
+      cursor: pointer; transition: border-color 0.18s, color 0.18s;
+    }
+    .btn:hover         { border-color: var(--p2); color: var(--p2); }
+    .btn:focus-visible { outline: 2px solid var(--p2); outline-offset: 2px; }
+
+    /* ── LEGEND ROW ── */
+    .track-legend {
+      display: flex; gap: 16px; margin-bottom: 8px; flex-wrap: wrap;
+    }
+    .track-legend-item {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 9px; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .tl-swatch-point {
+      width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+      border: 2px solid #FFF; box-shadow: 0 0 0 1.5px currentColor;
+    }
+    .tl-swatch-span {
+      width: 20px; height: 8px; border-radius: 2px; flex-shrink: 0;
+      opacity: 0.82;
+    }
+
+    /* ── VIZ ── */
+    .viz-container {
+      flex: 1; min-height: 0; position: relative; overflow: hidden;
+    }
+    #chart-svg {
+      display: block; width: 100%; height: 100%;
+      cursor: grab;
+    }
+    #chart-svg:active { cursor: grabbing; }
+
+    /* ── TOOLTIP ── */
+    .tooltip {
+      position: fixed; pointer-events: none;
+      background: var(--p1); color: var(--p8);
+      padding: 10px 14px; font-family: var(--font);
+      font-size: 11px; line-height: 1.8;
+      border: 1px solid var(--p2); max-width: 250px;
+      opacity: 0; transition: opacity 0.1s; z-index: 200;
+    }
+    .tooltip.visible { opacity: 1; }
+    .tt-head {
+      font-weight: 800; font-size: 12px; color: var(--p4);
+      margin-bottom: 3px; padding-bottom: 4px;
+      border-bottom: 1px solid #333;
+    }
+    .tt-date {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: #C9A878; margin-bottom: 4px;
+    }
+    .tt-body { font-size: 11px; line-height: 1.7; color: var(--p6); }
+    .tt-track {
+      margin-top: 5px; padding-top: 4px; border-top: 1px solid #333;
+      font-size: 9px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: #606060;
+    }
+
+    /* ── NAV DOTS ── */
+    .slide-nav {
+      position: fixed; bottom: 46px; left: 50%;
+      transform: translateX(-50%); display: flex; gap: 8px; z-index: 100;
+    }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      border: 1.5px solid var(--p6); background: transparent;
+      cursor: pointer; padding: 0; transition: background 0.2s;
+    }
+    .dot.active        { background: var(--p2); border-color: var(--p2); }
+    .dot:focus-visible { outline: 2px solid var(--p2); outline-offset: 3px; }
+
+    /* ── FOOTER ── */
+    footer {
+      height: 38px; border-top: 2px solid var(--p7);
+      display: flex; align-items: center;
+      justify-content: space-between; padding: 0 26px; flex-shrink: 0;
+    }
+    footer p  { font-size: 10px; color: var(--p6); letter-spacing: 0.04em; }
+    .nav-hint { font-size: 10px; color: var(--p6); letter-spacing: 0.08em; }
+
+    /* ── LEARN ── */
+    .learn-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 17px 34px; padding-bottom: 26px;
+    }
+    .learn-block { border-left: 3px solid var(--p2); padding-left: 13px; }
+    .learn-block h2 {
+      font-size: 10px; font-weight: 800;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--p2); margin-bottom: 6px;
+    }
+    .learn-block p  { font-size: 11.5px; line-height: 1.8; color: var(--p5); }
+    .learn-block p strong { color: var(--p1); font-weight: 700; }
+    .learn-block code {
+      font-family: var(--font); font-size: 10px;
+      color: var(--p2); background: var(--p4); padding: 1px 4px;
+    }
+    .framework-ref {
+      grid-column: 1 / -1; background: var(--p4);
+      border: 1.5px solid var(--p7); padding: 13px 17px;
+    }
+    .framework-ref .label { display: block; color: var(--p2); margin-bottom: 6px; }
+    .framework-ref p      { font-size: 11.5px; line-height: 1.75; color: var(--p1); }
+    .framework-ref p strong { color: var(--p2); }
+    .design-decision {
+      grid-column: 1 / -1; border-top: 2px solid var(--p7); padding-top: 13px;
+    }
+    .design-decision h2 {
+      font-size: 10px; font-weight: 800;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--p6); margin-bottom: 6px;
+    }
+    .design-decision p { font-size: 11.5px; line-height: 1.8; color: var(--p5); }
+    .design-decision p strong { color: var(--p1); font-weight: 700; }
+    .design-decision code {
+      font-family: var(--font); font-size: 10px;
+      color: var(--p2); background: var(--p4); padding: 1px 4px;
+    }
+
+    @media (max-width: 700px) {
+      .learn-grid  { grid-template-columns: 1fr; }
+      .slide       { padding: 11px 13px 4px; }
+      footer       { padding: 0 13px; }
+      .slide-title { font-size: 11px; }
+      .track-legend { gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="tooltip" id="tooltip" role="tooltip" aria-live="polite" aria-atomic="true"></div>
+
+<div class="slides-wrapper">
+
+  <!-- ── SLIDE 1: TIMELINE ── -->
+  <section class="slide active" id="slide-01"
+           aria-label="Multi-track timeline: Humanitarian history 1991–2024">
+
+    <div class="slide-meta">
+      <span class="label">// HAI — HUMANITARIAN HISTORY · 4 TRACKS · 26 EVENTS · 1991–2024</span>
+      <span class="label" id="data-summary"></span>
+    </div>
+
+    <h1 class="slide-title">
+      Three Simultaneous Revolutions — Legal, Digital, and Financial —<br>
+      Accelerating in Parallel as Operations Scale and Multiply
+    </h1>
+
+    <!-- Type legend -->
+    <div class="track-legend" aria-label="Chart symbol key">
+      <div class="track-legend-item" style="color:var(--p5)">
+        <div class="tl-swatch-point" style="background:var(--p5);color:var(--p5)"></div>
+        Point event
+      </div>
+      <div class="track-legend-item" style="color:var(--p5)">
+        <div class="tl-swatch-span" style="background:var(--p5)"></div>
+        Duration event
+      </div>
+      <div class="track-legend-item" style="color:var(--p3)">
+        <svg width="20" height="10" aria-hidden="true">
+          <line x1="2" y1="5" x2="18" y2="5" stroke="#B52C2C" stroke-width="1.5" stroke-dasharray="4,3"/>
+        </svg>
+        Today
+      </div>
+    </div>
+
+    <div class="controls-bar">
+      <button class="btn" id="zoom-reset"  aria-label="Reset zoom to full view">↺ reset zoom</button>
+      <button class="btn" id="zoom-in"     aria-label="Zoom in">+ zoom</button>
+      <button class="btn" id="zoom-out"    aria-label="Zoom out">− zoom</button>
+      <button class="btn" id="audio-toggle" aria-label="Play narration">▶ narration</button>
+      <span class="label" style="margin-left:4px">scroll or drag to pan · pinch or buttons to zoom</span>
+    </div>
+
+    <div class="viz-container" id="chart-container">
+      <svg id="chart-svg" role="img" aria-labelledby="tl-title tl-desc">
+        <title id="tl-title">Multi-Track Timeline — Humanitarian History 1991–2024</title>
+        <desc id="tl-desc">
+          Four horizontal tracks sharing a common time scale from 1991 to 2025.
+          Track 1 (walnut): Legal and Policy — 6 events including UN Res. 46/182 (1991),
+          Cluster System (2005), World Humanitarian Summit (2016).
+          Track 2 (blood-red): Data and Technology — 6 events including ReliefWeb (1996),
+          HDX Launch (2011), AI Pilots (2017–2019).
+          Track 3 (dim-gray): Major Operations — 7 events including Rwanda (1994),
+          Indian Ocean Tsunami (2004), Ukraine crisis (2022).
+          Track 4 (mist): Financing — 7 events including GHD Principles (2004),
+          Grand Bargain (2016), COVID Funding Surge (2020).
+        </desc>
+      </svg>
+    </div>
+
+    <audio id="page-audio" src="./timeline/audio.mp3" preload="none"></audio>
+
+  </section>
+
+  <!-- ── SLIDE 2: LEARN PANEL ── -->
+  <section class="slide slide-learn" id="slide-02"
+           aria-label="Learn panel: Timeline theory and design decisions">
+
+    <div class="slide-meta">
+      <span class="label">// LEARN — TIMELINE · FT VISUAL VOCABULARY: CHANGE OVER TIME + DISTRIBUTION</span>
+      <span class="label">ABELA QUADRANT: DATA OVER TIME</span>
+    </div>
+
+    <h1 class="slide-title">What Makes a Timeline Work — And Why Scale Is the Operative Word</h1>
+
+    <div class="learn-grid">
+
+      <div class="learn-block">
+        <h2>What this chart is</h2>
+        <p>
+          A scaled timeline places events on a proportional time axis — the spatial distance
+          between two events encodes the actual time interval between them. This is the
+          defining property that separates a timeline from a simple list: <strong>the gap
+          between events is data</strong>. A 15-year gap between two legal milestones
+          occupies 15× the horizontal space of a 1-year gap. The viewer reads clustering,
+          isolation, and acceleration directly from spatial density, without calculation.
+          This chart uses two event types: <strong>point events</strong> (circles) for
+          moments in time, and <strong>span events</strong> (rectangles) for durations —
+          encoding the temporal structure of each event in its own geometric form.
+        </p>
+      </div>
+
+      <div class="learn-block">
+        <h2>Why multi-track</h2>
+        <p>
+          When events cluster by thematic category, a single-axis timeline becomes
+          illegible: events at the same date overlap, and the viewer cannot parse which
+          event belongs to which domain. Multi-track timelines separate events into
+          horizontal swim lanes while maintaining a <strong>shared time axis</strong> —
+          the most important property, because it lets the viewer look down a vertical
+          line at any date and see what was happening simultaneously across all tracks.
+          The vertical scan reveals co-occurrence: the 2016 column shows the World
+          Humanitarian Summit, the Grand Bargain signing, and a funding reform peak
+          all at the same moment — pattern that no separate track can convey.
+        </p>
+      </div>
+
+      <div class="learn-block">
+        <h2>Point events vs. span events</h2>
+        <p>
+          The choice of circle vs. rectangle is not decorative — it encodes
+          <strong>temporal structure</strong>. A point event (circle) conveys: this thing
+          happened at a specific moment; its duration is irrelevant or negligible.
+          A span event (rectangle) conveys: this thing persisted across time; its duration
+          is part of the data. Using circles for multi-year crises would misrepresent them
+          as instantaneous. Using rectangles for legislative votes would imply a duration
+          that doesn't exist. Mixing both types on the same axis, as this chart does,
+          gives each event <strong>the temporal shape that matches its actual nature</strong>.
+          The gestalt reading of the whole chart then shows which domains operate in
+          bursts versus sustained engagements.
+        </p>
+      </div>
+
+      <div class="learn-block">
+        <h2>What the alternatives would break</h2>
+        <p>
+          A <strong>table</strong> lists events chronologically but loses the spatial
+          interval: the reader cannot see that 1994–2004 was a decade-long gap in
+          major financing architecture. A <strong>calendar view</strong> handles daily
+          granularity but collapses across decades — a 30-year humanitarian history
+          becomes 360 cells that show nothing. A <strong>Gantt chart</strong> (built
+          earlier in this series) is appropriate for future tasks with dependency
+          relationships; a timeline is appropriate for historical events where the
+          relationships are temporal proximity and co-occurrence, not dependency chains.
+          The Catalogue's note about combining other visualizations with timelines points
+          to sparklines, bar charts, or population data on individual tracks — all valid
+          extensions of this base structure.
+        </p>
+      </div>
+
+      <div class="framework-ref">
+        <span class="label">// FRAMEWORK REFERENCE</span>
+        <p>
+          The FT Visual Vocabulary classifies timelines under <strong>Change over time</strong>,
+          noting that when scaled, timelines also support <strong>Distribution</strong>:
+          revealing when events are clustered versus sparse. Abela's framework routes here
+          when the question is "when did these things happen, and how are they
+          distributed in time?" Tufte's principle of the smallest effective difference
+          applies to the two event types: the circle and rectangle must be
+          <strong>just different enough</strong> to communicate point-vs-duration without
+          introducing unnecessary visual complexity. Using diamonds, triangles, or
+          elaborate icons would add cognitive load without adding information.
+          The circle-rectangle pair is the minimum necessary geometric vocabulary
+          for this encoding task.
+        </p>
+      </div>
+
+      <div class="design-decision">
+        <h2>// The one design decision worth knowing</h2>
+        <p>
+          <strong>Zoom is a first-class interaction, not an afterthought.</strong>
+          The 34-year span of this dataset (1991–2024) contains events separated by
+          hours (the 2023 earthquake) and decades (legal reform cycles). At the default
+          zoom level, year-level granularity is readable; at 10× zoom, individual months
+          become visible. The zoom behavior uses <code>event.transform.rescaleX(xBase)</code>
+          — D3's zoom transform rescales the original x scale rather than translating
+          a fixed scale, which means <strong>all label positions, bar widths, and axis
+          ticks update continuously</strong> from a single source of truth.
+          This matters because a naive implementation might translate elements and
+          produce bars that drift from their labels. The rescale approach ensures
+          geometric consistency at every zoom level. Double-click or the ↺ reset button
+          returns to the full 1991–2025 view.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    <p>Nik Bear Brown, Irreducibly Human, What AI Can and Can't Do
+       &nbsp;·&nbsp; boondoggling.ai &nbsp;·&nbsp; irreducibly.xyz &nbsp;·&nbsp;
+       brutalist.art &nbsp;·&nbsp; bearbrown.co &nbsp;·&nbsp; frictional.xyz</p>
+    <span class="nav-hint">← → slides &nbsp;|&nbsp; esc reset zoom</span>
+  </footer>
+
+</div>
+
+<nav class="slide-nav" role="navigation" aria-label="Slide navigation">
+  <button class="dot active" data-slide="0"
+          aria-label="Go to slide 1: Timeline visualization" tabindex="0"></button>
+  <button class="dot"        data-slide="1"
+          aria-label="Go to slide 2: Learn panel"            tabindex="0"></button>
+</nav>
+
+
+<script>
+'use strict';
+
+// ============================================================
+//  SLIDE NAVIGATION
+// ============================================================
+const slides  = document.querySelectorAll('.slide');
+const dots    = document.querySelectorAll('.dot');
+let   current = 0;
+
+function goToSlide(n) {
+  slides[current].classList.remove('active');
+  dots[current].classList.remove('active');
+  current = Math.max(0, Math.min(n, slides.length - 1));
+  slides[current].classList.add('active');
+  dots[current].classList.add('active');
+}
+
+dots.forEach(d => d.addEventListener('click', () => goToSlide(+d.dataset.slide)));
+document.addEventListener('keydown', e => {
+  if (['ArrowRight','ArrowDown'].includes(e.key)) goToSlide(current + 1);
+  if (['ArrowLeft', 'ArrowUp'  ].includes(e.key)) goToSlide(current - 1);
+  if (e.key === 'Escape') resetZoom();
+});
+
+// ============================================================
+//  AUDIO
+// ============================================================
+const audio    = document.getElementById('page-audio');
+const audioBtn = document.getElementById('audio-toggle');
+audioBtn.addEventListener('click', () => {
+  if (audio.paused) {
+    audio.play().catch(() => {});
+    audioBtn.textContent = '⏸ narration';
+    audioBtn.setAttribute('aria-label', 'Pause narration');
+  } else {
+    audio.pause();
+    audioBtn.textContent = '▶ narration';
+    audioBtn.setAttribute('aria-label', 'Play narration');
+  }
+});
+audio.addEventListener('ended', () => {
+  audioBtn.textContent = '▶ narration';
+  audioBtn.setAttribute('aria-label', 'Play narration');
+});
+
+// ============================================================
+//  TOOLTIP
+// ============================================================
+const tooltipEl = document.getElementById('tooltip');
+
+function showTooltip(event, d, track) {
+  const fmt = d3.timeFormat('%B %d, %Y');
+  const dateStr = d.type === 'point'
+    ? fmt(new Date(d.date))
+    : `${fmt(new Date(d.start))} — ${fmt(new Date(d.end))}`;
+
+  tooltipEl.innerHTML = `
+    <div class="tt-head">${d.label}</div>
+    <div class="tt-date">${dateStr}</div>
+    <div class="tt-body">${d.description}</div>
+    <div class="tt-track" style="color:${track.color}">${track.label}</div>
+  `;
+  moveTooltip(event);
+  tooltipEl.classList.add('visible');
+}
+
+function moveTooltip(event) {
+  const tw = tooltipEl.offsetWidth;
+  const th = tooltipEl.offsetHeight;
+  let x = event.clientX + 14;
+  let y = event.clientY - th / 2;
+  if (x + tw > window.innerWidth  - 8) x = event.clientX - tw - 14;
+  if (y < 5)                            y = 5;
+  if (y + th > window.innerHeight - 5) y = window.innerHeight - th - 5;
+  tooltipEl.style.left = x + 'px';
+  tooltipEl.style.top  = y + 'px';
+}
+
+function hideTooltip() { tooltipEl.classList.remove('visible'); }
+
+// ============================================================
+//  RENDER CHART
+// ============================================================
+const container = document.getElementById('chart-container');
+const chartSVG  = d3.select('#chart-svg');
+let   rawData   = null;
+let   zoomBehavior, zoomNode;
+
+function resetZoom() {
+  if (zoomNode) d3.select(zoomNode).call(zoomBehavior.transform, d3.zoomIdentity);
+}
+
+document.getElementById('zoom-reset').addEventListener('click', resetZoom);
+document.getElementById('zoom-in').addEventListener('click', () => {
+  if (zoomNode) d3.select(zoomNode).call(zoomBehavior.scaleBy, 1.6);
+});
+document.getElementById('zoom-out').addEventListener('click', () => {
+  if (zoomNode) d3.select(zoomNode).call(zoomBehavior.scaleBy, 0.625);
+});
+
+function renderChart(data) {
+  chartSVG.selectAll('*').remove();
+
+  const rect = container.getBoundingClientRect();
+  const W    = Math.max(rect.width, 480);
+  const H    = Math.max(rect.height, 220);
+
+  const ML     = 148;   // track header column width
+  const MR     = 16;
+  const MT     = 46;    // time axis height
+  const MB     = 8;
+  const iW     = W - ML - MR;
+  const iH_avail = H - MT - MB;
+  const TRACK_H  = Math.floor(iH_avail / data.tracks.length);
+  const BAR_H    = Math.max(14, Math.round(TRACK_H * 0.36));
+  const PT_R     = Math.max(5, Math.round(TRACK_H * 0.14));
+  const iH       = data.tracks.length * TRACK_H;
+
+  chartSVG.attr('width', W).attr('height', H).attr('viewBox', `0 0 ${W} ${H}`);
+
+  // ── BASE X SCALE ──
+  const xBase = d3.scaleTime()
+    .domain(data.domain.map(d => new Date(d)))
+    .range([0, iW]);
+
+  const today = new Date(data.today);
+
+  // ── DEFS + CLIP ──
+  chartSVG.append('defs').append('clipPath').attr('id', 'tl-clip')
+    .append('rect')
+    .attr('x', 0).attr('y', -MT - 2).attr('width', iW).attr('height', iH + MT + 4);
+
+  // ── CHART GROUP (right of track headers) ──
+  const g = chartSVG.append('g').attr('transform', `translate(${ML}, ${MT})`);
+  const clipG = g.append('g').attr('clip-path', 'url(#tl-clip)');
+
+  // ── TRACK BACKGROUNDS ──
+  data.tracks.forEach((track, ti) => {
+    clipG.append('rect')
+      .attr('x', 0).attr('y', ti * TRACK_H)
+      .attr('width', iW).attr('height', TRACK_H)
+      .attr('fill', ti % 2 === 0 ? '#F7FAFD' : '#FFFFFF')
+      .attr('fill-opacity', 0.6)
+      .attr('pointer-events', 'none');
+
+    // Thin centerline
+    const cy = ti * TRACK_H + TRACK_H / 2;
+    clipG.append('line')
+      .attr('class', 'track-centerline')
+      .attr('x1', 0).attr('x2', iW)
+      .attr('y1', cy).attr('y2', cy)
+      .attr('stroke', '#EBEBEB').attr('stroke-width', 1)
+      .attr('pointer-events', 'none');
+  });
+
+  // ── TRACK SEPARATORS ──
+  data.tracks.forEach((_, ti) => {
+    if (ti > 0) {
+      clipG.append('line')
+        .attr('x1', 0).attr('x2', iW)
+        .attr('y1', ti * TRACK_H).attr('y2', ti * TRACK_H)
+        .attr('stroke', '#EDEDED').attr('stroke-width', 1)
+        .attr('pointer-events', 'none');
+    }
+  });
+
+  // ── X AXIS ──
+  const xAxisG = clipG.append('g')
+    .attr('transform', `translate(0, 0)`)
+    .call(
+      d3.axisTop(xBase)
+        .ticks(d3.timeYear.every(5))
+        .tickFormat(d3.timeFormat('%Y'))
+        .tickSize(4).tickPadding(5)
+    );
+  styleAxis(xAxisG);
+
+  // ── VERTICAL GRID LINES ──
+  const gridG = clipG.append('g').attr('class', 'grid').attr('pointer-events', 'none');
+  function drawGrid(x) {
+    gridG.selectAll('.vgrid').remove();
+    gridG.selectAll('.vgrid')
+      .data(x.ticks(d3.timeYear.every(5)))
+      .join('line').attr('class', 'vgrid')
+      .attr('x1', d => x(d)).attr('x2', d => x(d))
+      .attr('y1', 0).attr('y2', iH)
+      .attr('stroke', '#EDEDED').attr('stroke-opacity', 0.8);
+  }
+  drawGrid(xBase);
+
+  // ── TODAY LINE ──
+  const todayLine = clipG.append('line')
+    .attr('class', 'today-line')
+    .attr('x1', xBase(today)).attr('x2', xBase(today))
+    .attr('y1', -12).attr('y2', iH)
+    .attr('stroke', '#B52C2C').attr('stroke-width', 1.5)
+    .attr('stroke-dasharray', '4,3').attr('stroke-opacity', 0.75)
+    .attr('pointer-events', 'none');
+
+  clipG.append('text')
+    .attr('class', 'today-label')
+    .attr('x', xBase(today) + 4).attr('y', -22)
+    .style('font-family', 'JetBrains Mono, monospace')
+    .style('font-size', '8px').style('font-weight', '700')
+    .style('letter-spacing', '0.1em').style('text-transform', 'uppercase')
+    .style('fill', '#B52C2C').attr('pointer-events', 'none')
+    .text('today');
+
+  // ── FLATTEN EVENTS ──
+  const allSpans  = [];
+  const allPoints = [];
+  data.tracks.forEach((track, ti) => {
+    track.events.forEach(e => {
+      const enriched = { ...e, track, trackIdx: ti,
+        _cy: ti * TRACK_H + TRACK_H / 2 };
+      if (e.type === 'span')  allSpans.push(enriched);
+      if (e.type === 'point') allPoints.push(enriched);
+    });
+  });
+
+  // ── SPAN BARS ──
+  const spanG = clipG.append('g').attr('class', 'spans');
+  const spanRects = spanG.selectAll('.tl-span')
+    .data(allSpans, d => d.id)
+    .join('rect')
+    .attr('class', 'tl-span tl-event')
+    .attr('x', d => xBase(new Date(d.start)))
+    .attr('y', d => d._cy - BAR_H / 2)
+    .attr('height', BAR_H)
+    .attr('rx', 3)
+    .attr('fill', d => d.track.color)
+    .attr('fill-opacity', 0.82)
+    .attr('stroke', '#FFFFFF').attr('stroke-width', 1)
+    .attr('tabindex', '0')
+    .attr('role', 'img')
+    .attr('aria-label', d => `${d.label}: ${d.start} to ${d.end}. ${d.description}`)
+    .attr('width', 0)
+    .transition().duration(550).ease(d3.easeCubicOut)
+    .delay(d => (xBase(new Date(d.start)) / iW) * 700 + 120)
+    .attr('width', d => Math.max(3, xBase(new Date(d.end)) - xBase(new Date(d.start))));
+
+  // ── POINT MARKERS ──
+  const ptG = clipG.append('g').attr('class', 'points');
+  const ptCircles = ptG.selectAll('.tl-point')
+    .data(allPoints, d => d.id)
+    .join('circle')
+    .attr('class', 'tl-point tl-event')
+    .attr('cx', d => xBase(new Date(d.date)))
+    .attr('cy', d => d._cy)
+    .attr('r', 0)
+    .attr('fill', d => d.track.color)
+    .attr('stroke', '#FFFFFF').attr('stroke-width', 2)
+    .attr('tabindex', '0')
+    .attr('role', 'img')
+    .attr('aria-label', d => `${d.label}: ${d.date}. ${d.description}`)
+    .transition().duration(280).ease(d3.easeBounceOut)
+    .delay(d => (xBase(new Date(d.date)) / iW) * 700 + 200)
+    .attr('r', PT_R);
+
+  // ── SPAN LABELS ──
+  const lblSpanG = clipG.append('g').attr('class', 'span-labels').attr('pointer-events', 'none');
+  const spanLabels = lblSpanG.selectAll('.span-lbl')
+    .data(allSpans, d => d.id)
+    .join('text')
+    .attr('class', 'span-lbl')
+    .attr('x', d => xBase(new Date(d.start)) + 5)
+    .attr('y', d => d._cy)
+    .attr('dy', '0.35em')
+    .style('font-family', 'JetBrains Mono, monospace')
+    .style('font-size', '9px').style('font-weight', '700')
+    .style('fill', '#FFFFFF')
+    .style('pointer-events', 'none')
+    .text(d => d.label);
+
+  // ── POINT LABELS ──
+  const lblPtG = clipG.append('g').attr('class', 'pt-labels').attr('pointer-events', 'none');
+  const ptLabels = lblPtG.selectAll('.pt-lbl')
+    .data(allPoints, d => d.id)
+    .join('text')
+    .attr('class', 'pt-lbl')
+    .attr('x', d => xBase(new Date(d.date)))
+    .attr('y', d => d._cy - PT_R - 5)
+    .attr('text-anchor', 'middle')
+    .style('font-family', 'JetBrains Mono, monospace')
+    .style('font-size', '8px').style('font-weight', '700')
+    .style('letter-spacing', '0.04em')
+    .style('fill', d => d.track.color)
+    .style('pointer-events', 'none')
+    .text(d => d.label.length > 14 ? d.label.substring(0, 13) + '…' : d.label);
+
+  // ── HOVER INTERACTIONS ──
+  function attachEvents(sel) {
+    sel
+      .on('mouseover', function(event, d) {
+        showTooltip(event, d, d.track);
+        d3.select(this).raise()
+          .transition().duration(120)
+          .attr('stroke-width', 3)
+          .attr('fill-opacity', 1);
+      })
+      .on('mousemove', event => moveTooltip(event))
+      .on('mouseout', function(event, d) {
+        hideTooltip();
+        d3.select(this).transition().duration(200)
+          .attr('stroke-width', d.type === 'span' ? 1 : 2)
+          .attr('fill-opacity', d.type === 'span' ? 0.82 : 1);
+      })
+      .on('focus', function(event, d) {
+        showTooltip({ clientX: 200, clientY: 200 }, d, d.track);
+      })
+      .on('blur', () => hideTooltip());
+  }
+
+  // Attach events after transitions (re-select without transition)
+  setTimeout(() => {
+    attachEvents(spanG.selectAll('.tl-span'));
+    attachEvents(ptG.selectAll('.tl-point'));
+  }, 900);
+
+  // ── TRACK HEADER COLUMN (outside zoom/clip) ──
+  const headerG = chartSVG.append('g').attr('transform', `translate(0, ${MT})`);
+
+  data.tracks.forEach((track, ti) => {
+    const cy = ti * TRACK_H + TRACK_H / 2;
+
+    // Colored left bar
+    headerG.append('rect')
+      .attr('x', 0).attr('y', ti * TRACK_H)
+      .attr('width', 4).attr('height', TRACK_H)
+      .attr('fill', track.color);
+
+    // Track label (two lines if long)
+    const words = track.label.split(' & ');
+    if (words.length > 1) {
+      headerG.append('text')
+        .attr('x', 12).attr('y', cy - 6)
+        .style('font-family', 'JetBrains Mono, monospace')
+        .style('font-size', '9px').style('font-weight', '800')
+        .style('letter-spacing', '0.05em')
+        .style('fill', track.color)
+        .text(words[0]);
+      headerG.append('text')
+        .attr('x', 12).attr('y', cy + 6)
+        .style('font-family', 'JetBrains Mono, monospace')
+        .style('font-size', '9px').style('font-weight', '800')
+        .style('letter-spacing', '0.05em')
+        .style('fill', track.color)
+        .text(words[1]);
+    } else {
+      headerG.append('text')
+        .attr('x', 12).attr('y', cy)
+        .attr('dy', '0.35em')
+        .style('font-family', 'JetBrains Mono, monospace')
+        .style('font-size', '9px').style('font-weight', '800')
+        .style('letter-spacing', '0.05em')
+        .style('fill', track.color)
+        .text(track.label);
+    }
+
+    // Separator line
+    if (ti > 0) {
+      headerG.append('line')
+        .attr('x1', 0).attr('x2', ML)
+        .attr('y1', ti * TRACK_H).attr('y2', ti * TRACK_H)
+        .attr('stroke', '#EDEDED').attr('stroke-width', 1);
+    }
+  });
+
+  // Header/chart separator
+  chartSVG.append('line')
+    .attr('x1', ML).attr('x2', ML)
+    .attr('y1', MT).attr('y2', MT + iH)
+    .attr('stroke', '#EDEDED').attr('stroke-width', 1.5);
+
+  // Bottom border
+  chartSVG.append('line')
+    .attr('x1', ML).attr('x2', W - MR)
+    .attr('y1', MT + iH).attr('y2', MT + iH)
+    .attr('stroke', '#EDEDED').attr('stroke-width', 1);
+
+  // ── ZOOM BEHAVIOR ──
+  const overlay = chartSVG.append('rect')
+    .attr('x', ML).attr('y', 0)
+    .attr('width', iW).attr('height', H)
+    .attr('fill', 'transparent')
+    .attr('pointer-events', 'all')
+    .style('cursor', 'grab');
+
+  zoomNode = overlay.node();
+
+  zoomBehavior = d3.zoom()
+    .scaleExtent([0.4, 20])
+    .translateExtent([[0, 0], [iW, H]])
+    .on('zoom', function(event) {
+      const xz = event.transform.rescaleX(xBase);
+
+      // Update x-axis
+      xAxisG.call(
+        d3.axisTop(xz)
+          .ticks(computeTicks(event.transform.k))
+          .tickFormat(d3.timeFormat(event.transform.k > 3 ? '%b %Y' : '%Y'))
+          .tickSize(4).tickPadding(5)
+      );
+      styleAxis(xAxisG);
+
+      // Update grid
+      drawGrid(xz);
+
+      // Update today line
+      const tx = xz(today);
+      todayLine.attr('x1', tx).attr('x2', tx);
+      clipG.select('.today-label').attr('x', tx + 4);
+
+      // Update spans
+      spanG.selectAll('.tl-span')
+        .attr('x', d => xz(new Date(d.start)))
+        .attr('width', d => Math.max(3, xz(new Date(d.end)) - xz(new Date(d.start))));
+
+      // Update span labels
+      lblSpanG.selectAll('.span-lbl')
+        .attr('x', d => xz(new Date(d.start)) + 5)
+        .style('display', d => {
+          const w = xz(new Date(d.end)) - xz(new Date(d.start));
+          return w > 45 ? null : 'none';
+        });
+
+      // Update points
+      ptG.selectAll('.tl-point').attr('cx', d => xz(new Date(d.date)));
+
+      // Update point labels
+      lblPtG.selectAll('.pt-lbl').attr('x', d => xz(new Date(d.date)));
+
+      overlay.style('cursor', event.transform.k > 1 ? 'grab' : 'default');
+    })
+    .on('start', () => overlay.style('cursor', 'grabbing'))
+    .on('end',   () => overlay.style('cursor', 'grab'));
+
+  overlay.call(zoomBehavior);
+  overlay.on('dblclick.zoom', () => resetZoom());
+
+  function computeTicks(k) {
+    if (k < 1)   return d3.timeYear.every(10);
+    if (k < 2.5) return d3.timeYear.every(5);
+    if (k < 5)   return d3.timeYear.every(2);
+    if (k < 10)  return d3.timeYear.every(1);
+    return d3.timeMonth.every(3);
+  }
+}
+
+function styleAxis(axisG) {
+  axisG.select('.domain').attr('stroke', '#EDEDED');
+  axisG.selectAll('.tick line').attr('stroke', '#EDEDED');
+  axisG.selectAll('.tick text')
+    .style('font-family', 'JetBrains Mono, monospace')
+    .style('font-size', '10px').style('fill', '#797C7F');
+}
+
+// ============================================================
+//  DATA LOAD
+// ============================================================
+d3.json('./timeline/data.json').then(data => {
+  rawData = data;
+  const totalEvents = data.tracks.reduce((s, t) => s + t.events.length, 0);
+  document.getElementById('data-summary').textContent =
+    `${data.tracks.length} tracks · ${totalEvents} events`;
+
+  renderChart(data);
+
+  const ro = new ResizeObserver(debounce(() => {
+    if (current === 0 && rawData) renderChart(rawData);
+  }, 180));
+  ro.observe(container);
+
+}).catch(() => {
+  document.getElementById('chart-container').innerHTML =
+    '<p style="color:var(--p3);padding:40px;font-size:12px;font-family:var(--font)">' +
+    '// data.json not found — add <strong>timeline/data.json</strong> to run this visualization.</p>';
+});
+
+// ============================================================
+//  UTILS
+// ============================================================
+function debounce(fn, ms) {
+  let t;
+  return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
+}
+</script>
+</body>
+</html>

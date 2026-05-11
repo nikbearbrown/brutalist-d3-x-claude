@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Humanitarian Funding Pipeline by Region — Multi-set Bar Chart</title>
+  <meta name="description" content="Grouped bar chart comparing humanitarian funding requested, received, and actual expenditure across five geographic regions, FY 2024.">
+  <meta name="keywords" content="multiset bar chart, grouped bar chart, clustered bar chart, humanitarian funding, aid gap, D3.js, data visualization, comparison, series">
+  <meta name="author" content="Nik Bear Brown">
+  <meta name="category" content="Humanitarian Data Visualization">
+
+  <!-- PALETTE: hai — Humanitarians AI
+       WCAG NOTE:
+         p4 (#F7FAFD) 1.1:1 on white — not used for text
+         p7 (#EDEDED) 1.1:1 on white — borders/subtle bg only
+       All text: p1 (18.2:1), p2 (10.7:1), p5 (9.4:1), p6 (4.6:1) — all AA+
+       Bar fills (graphical, 3:1 threshold):
+         #5C3317 on white: 9.3:1 ✓ | #B52C2C on white: 5.8:1 ✓ | #4A4D4F on white: 9.4:1 ✓
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --p1: #1B1B1B;
+      --p2: #5C3317;
+      --p3: #B52C2C;
+      --p4: #F7FAFD;
+      --p5: #4A4D4F;
+      --p6: #797C7F;
+      --p7: #EDEDED;
+      --p8: #FFFFFF;
+      --font: 'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: var(--p8);
+      color: var(--p1);
+      font-family: var(--font);
+      overflow: hidden;
+    }
+
+    /* ─── SLIDES ─────────────────────────────────── */
+    .slide {
+      position: absolute; inset: 0;
+      display: none; flex-direction: column;
+      padding: 1.3rem 2.2rem 2.7rem;
+    }
+    .slide.active { display: flex; }
+
+    .slide-meta {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 0.45rem; flex-shrink: 0;
+    }
+
+    .label {
+      font-size: 9.5px; font-weight: 600;
+      letter-spacing: 0.13em; color: var(--p6);
+      text-transform: uppercase;
+    }
+
+    h1.slide-title {
+      font-size: clamp(12px, 1.6vw, 19px);
+      font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.045em; color: var(--p1);
+      line-height: 1.2; margin-bottom: 0.28rem;
+      max-width: 88ch; flex-shrink: 0;
+    }
+
+    .subtitle {
+      font-size: 10.5px; color: var(--p5);
+      margin-bottom: 0.55rem; line-height: 1.5; flex-shrink: 0;
+    }
+
+    /* ─── VIZ ────────────────────────────────────── */
+    .viz-container {
+      flex: 1; position: relative;
+      min-height: 0; border-top: 1px solid var(--p7);
+    }
+
+    #chart-svg { width: 100%; height: 100%; display: block; overflow: visible; }
+
+    /* ─── CHART ELEMENTS ─────────────────────────── */
+    .grid-line {
+      stroke: var(--p7); stroke-width: 1;
+      stroke-dasharray: 3,3;
+    }
+
+    .axis-text {
+      font-family: var(--font); font-size: 10px;
+      fill: var(--p5); letter-spacing: 0.04em;
+    }
+
+    .axis-label {
+      font-family: var(--font); font-size: 9px;
+      fill: var(--p6); letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .group-label {
+      font-family: var(--font);
+      font-size: clamp(8.5px, 0.9vw, 11px);
+      font-weight: 600; fill: var(--p1);
+      text-anchor: middle; letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .bar {
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .bar.dimmed { opacity: 0.12; }
+    .bar.lit    { opacity: 1; stroke: var(--p1); stroke-width: 0.8; }
+    .bar:focus  { outline: 2px solid var(--p2); outline-offset: 1px; }
+
+    /* Gap bracket: small downward bracket showing funding gap */
+    .gap-bracket {
+      stroke: var(--p2); stroke-width: 1;
+      fill: none; opacity: 0.6;
+    }
+    .gap-label {
+      font-family: var(--font); font-size: 8.5px;
+      fill: var(--p2); font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    /* ─── LEGEND ─────────────────────────────────── */
+    .legend {
+      display: flex; gap: 1.4rem; align-items: center;
+      justify-content: center;
+      padding-top: 0.3rem; flex-shrink: 0;
+    }
+
+    .leg-item {
+      display: flex; align-items: center; gap: 5px;
+      cursor: pointer; user-select: none;
+    }
+    .leg-item.hidden .leg-swatch { opacity: 0.2; }
+    .leg-item.hidden .leg-text   { opacity: 0.35; }
+
+    .leg-swatch {
+      width: 11px; height: 11px; flex-shrink: 0;
+      transition: opacity 0.15s;
+    }
+
+    .leg-text {
+      font-size: 9.5px; font-weight: 600;
+      color: var(--p5); letter-spacing: 0.06em;
+      text-transform: uppercase;
+      transition: opacity 0.15s;
+    }
+
+    /* ─── TOOLTIP ────────────────────────────────── */
+    #tooltip {
+      position: absolute; pointer-events: none;
+      background: var(--p1); color: var(--p8);
+      font-family: var(--font); font-size: 11px;
+      font-weight: 400; line-height: 1.65;
+      padding: 8px 12px; border: 1px solid var(--p2);
+      max-width: 230px; z-index: 90;
+      opacity: 0; transition: opacity 0.1s ease;
+    }
+    #tooltip.visible { opacity: 1; }
+
+    #tooltip .tt-head {
+      font-size: 11.5px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 0.09em;
+      color: #C4956A; /* walnut-light 4.8:1 on dark — AA ✓ */
+      border-bottom: 1px solid #333;
+      padding-bottom: 3px; margin-bottom: 5px;
+    }
+
+    .tt-row {
+      display: flex; justify-content: space-between;
+      gap: 12px; margin-bottom: 1px;
+    }
+    .tt-row .tt-key   { color: #AAA; }
+    .tt-row .tt-val   { font-weight: 700; color: var(--p8); }
+    .tt-row .tt-gap   { color: #E08080; font-weight: 700; }
+
+    /* ─── CONTROLS ───────────────────────────────── */
+    .controls {
+      display: flex; gap: 0.6rem; align-items: center;
+      padding-top: 0.35rem;
+      border-top: 1px solid var(--p7); flex-shrink: 0;
+    }
+
+    .btn {
+      font-family: var(--font); font-size: 9.5px;
+      font-weight: 600; letter-spacing: 0.09em;
+      background: transparent; border: 1px solid var(--p7);
+      color: var(--p5); padding: 3px 9px;
+      cursor: pointer; text-transform: uppercase;
+      transition: border-color 0.1s, color 0.1s;
+    }
+    .btn:hover  { border-color: var(--p2); color: var(--p2); }
+    .btn:focus  { outline: 2px solid var(--p2); outline-offset: 1px; }
+    .btn.active { border-color: var(--p2); color: var(--p2); background: rgba(92,51,23,0.07); }
+
+    /* ─── LEARN SLIDE ────────────────────────────── */
+    .slide-learn { overflow-y: auto; }
+    .learn-block { max-width: 66ch; }
+
+    .learn-block h2 {
+      font-size: clamp(10px, 0.95vw, 12px);
+      font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.11em; color: var(--p2);
+      margin: 1.35rem 0 0.38rem;
+      border-bottom: 1px solid var(--p7); padding-bottom: 3px;
+    }
+    .learn-block h2:first-of-type { margin-top: 0.2rem; }
+
+    .learn-block p {
+      font-size: 12.5px; color: var(--p1);
+      line-height: 1.82; margin-bottom: 0.45rem;
+    }
+
+    .learn-block code {
+      font-family: var(--font); font-size: 11px;
+      background: var(--p7); padding: 1px 5px;
+    }
+
+    .framework-ref {
+      margin-top: 1.25rem; padding: 0.6rem 0.9rem;
+      border-left: 3px solid var(--p2); background: #F5F3EF;
+    }
+    .framework-ref .label { display: block; margin-bottom: 3px; }
+    .framework-ref p { font-size: 12px; color: var(--p5); margin-bottom: 0; }
+
+    .design-note {
+      margin-top: 0.85rem; padding: 0.6rem 0.9rem;
+      border: 1px solid var(--p7); border-left: 3px solid var(--p3);
+    }
+    .design-note .label { display: block; margin-bottom: 3px; }
+    .design-note p { font-size: 12px; color: var(--p5); margin-bottom: 0; }
+
+    /* ─── NAV ────────────────────────────────────── */
+    .slide-nav {
+      position: fixed; bottom: 1.4rem;
+      left: 50%; transform: translateX(-50%);
+      display: flex; gap: 7px; z-index: 200;
+    }
+    .dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--p7); border: 1px solid var(--p6);
+      cursor: pointer; padding: 0; transition: background 0.15s;
+    }
+    .dot.active { background: var(--p2); border-color: var(--p2); }
+    .dot:focus  { outline: 2px solid var(--p2); outline-offset: 2px; }
+
+    /* ─── FOOTER ─────────────────────────────────── */
+    footer {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      padding: 0.22rem 2.2rem;
+      border-top: 2px solid var(--p7);
+      display: flex; justify-content: space-between; align-items: center;
+      background: var(--p8); z-index: 150;
+    }
+    footer p { font-size: 9px; color: var(--p6); letter-spacing: 0.07em; }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════
+     SLIDE 01 — MULTISET BAR CHART
+══════════════════════════════════════════════════ -->
+<section class="slide active" id="slide-01"
+         aria-label="Grouped bar chart: humanitarian funding pipeline by region, FY 2024">
+  <div class="slide-meta">
+    <span class="label">// funding pipeline by region — fy 2024</span>
+    <span class="label">01 / 02</span>
+  </div>
+  <h1 class="slide-title">No Region Receives What It Requests — Middle East Faces the Largest Absolute Funding Gap at $2.33B</h1>
+  <p class="subtitle">
+    Each group shows three bars per region: requested, received, and actual expenditure.
+    Bars start at zero. Click legend items to isolate a series. Hover any group for detail.
+    Values in USD millions, FY 2024 (simulated).
+  </p>
+
+  <div class="viz-container" id="chart-container">
+    <svg id="chart-svg" viewBox="0 0 960 400"
+         preserveAspectRatio="xMidYMid meet"
+         role="img"
+         aria-labelledby="chart-title"
+         aria-describedby="chart-desc">
+      <title id="chart-title">Grouped bar chart: humanitarian funding requested, received, and expenditure by region, FY 2024</title>
+      <desc id="chart-desc">
+        Five regional groups: East Africa, West Africa, Middle East, South Asia, Latin America.
+        Each group has three bars. Middle East has the highest values across all three series.
+        In every region, funding received is substantially below what was requested.
+        Actual expenditure is close to received funding, indicating efficient spending.
+      </desc>
+      <defs>
+        <!-- Hatching pattern for Expenditure bars — redundant shape encoding -->
+        <pattern id="hatch-exp" patternUnits="userSpaceOnUse" width="5" height="5"
+                 patternTransform="rotate(45 0 0)">
+          <line x1="0" y1="0" x2="0" y2="5"
+                stroke="#4A4D4F" stroke-width="2" opacity="0.7"/>
+        </pattern>
+      </defs>
+      <g id="grid-g"></g>
+      <g id="bars-g"></g>
+      <g id="gap-g"></g>
+      <g id="axes-g"></g>
+    </svg>
+    <div id="tooltip" role="status" aria-live="polite"></div>
+  </div>
+
+  <!-- Legend — series toggle -->
+  <div class="legend" id="legend" aria-label="Series legend — click to toggle visibility"></div>
+
+  <div class="controls">
+    <button class="btn" id="audio-btn" aria-label="Play narration">▶ narration</button>
+    <button class="btn" id="sort-gap-btn" aria-label="Sort regions by funding gap descending">sort by gap</button>
+    <button class="btn" id="sort-req-btn" aria-label="Sort regions by funding requested descending">sort by size</button>
+    <button class="btn" id="reset-sort-btn" aria-label="Restore original region order">original order</button>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════
+     SLIDE 02 — LEARN
+══════════════════════════════════════════════════ -->
+<section class="slide slide-learn" id="slide-02"
+         aria-label="Learn: Multi-set Bar Chart">
+  <div class="slide-meta">
+    <span class="label">// learn — multi-set bar chart (grouped · clustered)</span>
+    <span class="label">02 / 02</span>
+  </div>
+  <h1 class="slide-title">Why a Multi-set Bar Chart</h1>
+
+  <div class="learn-block">
+
+    <h2>What this chart is</h2>
+    <p>A multi-set bar chart places multiple bars side-by-side within each category group. The viewer simultaneously reads two things: the length of individual bars (how large each series value is for that category) and the relative lengths of bars within the same group (how the series compare against each other at that category). The primary perceptual channel is <strong>length along a common baseline</strong> — the most accurate quantitative judgment available to the human visual system, according to Cleveland and McGill's hierarchy of perceptual tasks.</p>
+    <p>The structural signature is the nested scale: one scale governs the position of each group along the x-axis; a second, inner scale governs the position of each bar within its group. In D3, this is implemented as <code>d3.scaleBand()</code> nested inside another <code>d3.scaleBand()</code> — the outer band sets group widths, the inner band subdivides each group into individual series bars.</p>
+
+    <h2>Why it was chosen here</h2>
+    <p>The data has a specific two-level comparison structure: the analyst needs to compare values <em>across regions</em> (is the Middle East gap larger than East Africa's?) and <em>within regions</em> (how does received compare to requested in the same region?). A multi-set bar chart handles both questions simultaneously. The within-group comparison is immediate — adjacent bars share a baseline and differ only in length. The across-group comparison is also readable because the same series appears in the same position in every group, so the eye tracks a single color band across all five groups.</p>
+    <p>The funding pipeline story has a natural left-to-right series order: Requested → Received → Expenditure follows the logical flow of money. Placing the series in this order inside each group encodes a mini-narrative — the viewer reads left to right and sees each step of the pipeline contracting. This ordering decision is carrying analytical weight, not just aesthetic preference.</p>
+
+    <h2>What the alternatives lose</h2>
+    <p>A <strong>stacked bar chart</strong> would allow the total of all three series per region to be read directly — but the funding requested, received, and expenditure values do not sum to a meaningful whole. Stacking three pipeline stages would imply they are additive components of a total, which they are not. More critically, the within-group comparison between series would be degraded: only the bottom series has a common baseline; all others float and require the eye to judge floating bar lengths, which is less accurate than common-baseline judgment.</p>
+    <p>A <strong>small multiples line chart</strong> (one panel per region) would make the within-region trend across series easy to read but would make cross-region comparison of the same series harder — the eye has to jump between panels rather than tracking a single color. For five regions with three series, small multiples adds panels without adding information.</p>
+    <p>A <strong>dot plot</strong> would reduce the visual weight and show the same data more cleanly for audiences who resist bar charts — but dot plots sacrifice the strong visual encoding of area (bar height × width) that makes the magnitude difference between Middle East ($6.15B requested) and Latin America ($1.92B requested) immediately apparent.</p>
+
+    <div class="framework-ref">
+      <span class="label">// framework — FT Visual Vocabulary</span>
+      <p>The FT Visual Vocabulary places grouped bar charts in its <strong>Comparison</strong> category alongside simple bar charts and dot plots. Its note: use a grouped bar chart when the subcategory comparison within groups is as important as the comparison between groups. The test — if you only need to compare totals across categories, a simple bar chart suffices. If you need to see the internal breakdown, group or stack. If the components are not additive, group rather than stack.</p>
+    </div>
+
+    <div class="design-note">
+      <span class="label">// design decision — hatching on expenditure bars</span>
+      <p>The expenditure bars carry a diagonal hatch pattern in addition to their dim-gray fill. This provides a redundant visual encoding that does not depend on color: a viewer with deuteranopia or protanopia who cannot reliably distinguish the three series colors can still identify expenditure bars by their texture. This is the WCAG 2.1 principle that color must never be the sole differentiator — shape, pattern, or position must carry the same information. The hatch was chosen (rather than a solid pattern) because it preserves the perceived bar height, which is the primary encoding channel. A solid tonal difference would change the perceived brightness and distort the length comparison.</p>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ─── NAV + FOOTER ──────────────────────────── -->
+<nav class="slide-nav" aria-label="Slide navigation">
+  <button class="dot active" data-target="0" aria-label="Slide 1: Chart"></button>
+  <button class="dot"        data-target="1" aria-label="Slide 2: Learn"></button>
+</nav>
+
+<footer>
+  <p>Nik Bear Brown, Irreducibly Human, What AI Can and Can't Do</p>
+  <p>boondoggling.ai · irreducibly.xyz · brutalist.art · bearbrown.co · frictional.xyz</p>
+</footer>
+
+<audio id="page-audio" src="./multiset-bar/audio.mp3"></audio>
+
+<!-- ─── SCRIPTS ────────────────────────────────── -->
+<script src="https://d3js.org/d3.v7.min.js"></script>
+
+<script>
+'use strict';
+
+// ══════════════════════════════════════════════
+// SLIDE NAV
+// ══════════════════════════════════════════════
+const slides = Array.from(document.querySelectorAll('.slide'));
+const dots   = Array.from(document.querySelectorAll('.dot'));
+let current  = 0;
+
+function goTo(i) {
+  const n = Math.max(0, Math.min(i, slides.length - 1));
+  slides[current].classList.remove('active');
+  dots[current].classList.remove('active');
+  current = n;
+  slides[current].classList.add('active');
+  dots[current].classList.add('active');
+}
+
+dots.forEach(d => d.addEventListener('click', () => goTo(+d.dataset.target)));
+document.addEventListener('keydown', e => {
+  if (['ArrowRight','ArrowDown'].includes(e.key)) goTo(current + 1);
+  if (['ArrowLeft', 'ArrowUp'  ].includes(e.key)) goTo(current - 1);
+});
+
+// ══════════════════════════════════════════════
+// AUDIO
+// ══════════════════════════════════════════════
+const audio    = document.getElementById('page-audio');
+const audioBtn = document.getElementById('audio-btn');
+audioBtn.addEventListener('click', () => {
+  if (audio.paused) { audio.play().catch(() => {}); audioBtn.textContent = '⏸ narration'; }
+  else              { audio.pause();                 audioBtn.textContent = '▶ narration'; }
+});
+
+// ══════════════════════════════════════════════
+// CHART
+// ══════════════════════════════════════════════
+const tooltip   = document.getElementById('tooltip');
+const container = document.getElementById('chart-container');
+
+// Chart geometry (in 960×400 viewBox space)
+const W = 960, H = 400;
+const margin = { top: 26, right: 24, bottom: 64, left: 72 };
+const chartW = W - margin.left - margin.right;
+const chartH = H - margin.top  - margin.bottom;
+
+const svg      = d3.select('#chart-svg');
+const gridG    = d3.select('#grid-g');
+const barsG    = d3.select('#bars-g');
+const gapG     = d3.select('#gap-g');
+const axesG    = d3.select('#axes-g');
+
+// State
+let activeSet  = new Set();   // visible series
+let allBars;                  // D3 selection — scoped for redraw
+let dataset;                  // full dataset
+
+// ── Load data ──────────────────────────────────
+d3.json('./multiset-bar/data.json').then(data => {
+  dataset = data;
+  const series = data.series;
+  activeSet    = new Set(series);
+
+  buildLegend(data);
+  render(data, data.data.map(d => d.region));
+
+  // Controls
+  document.getElementById('sort-gap-btn').addEventListener('click', () => {
+    resetBtns(); document.getElementById('sort-gap-btn').classList.add('active');
+    const order = [...data.data]
+      .sort((a,b) => (b.requested_m - b.received_m) - (a.requested_m - a.received_m))
+      .map(d => d.region);
+    render(data, order);
+  });
+
+  document.getElementById('sort-req-btn').addEventListener('click', () => {
+    resetBtns(); document.getElementById('sort-req-btn').classList.add('active');
+    const order = [...data.data]
+      .sort((a,b) => b.requested_m - a.requested_m)
+      .map(d => d.region);
+    render(data, order);
+  });
+
+  document.getElementById('reset-sort-btn').addEventListener('click', () => {
+    resetBtns();
+    render(data, data.data.map(d => d.region));
+  });
+
+}).catch(err => {
+  console.error('Load error:', err);
+  container.insertAdjacentHTML('afterbegin',
+    `<p style="padding:1rem;font-size:12px;color:var(--p3)">
+      Data failed to load. Serve from a local server so <code>./multiset-bar/data.json</code>
+      resolves.<br>Error: ${err.message}
+    </p>`
+  );
+});
+
+// ══════════════════════════════════════════════
+// RENDER (called on load and on sort)
+// ══════════════════════════════════════════════
+function render(data, groupOrder) {
+  gridG.selectAll('*').remove();
+  barsG.selectAll('*').remove();
+  gapG.selectAll('*').remove();
+  axesG.selectAll('*').remove();
+
+  const series = data.series;
+
+  // ── Flatten data in group order ──────────────
+  const groupData  = groupOrder.map(r => data.data.find(d => d.region === r));
+  const flatData   = [];
+  groupData.forEach(g => {
+    series.forEach(s => {
+      flatData.push({
+        region: g.region,
+        series: s,
+        label:  data.series_labels[s],
+        color:  data.series_colors[s],
+        value:  g[s]
+      });
+    });
+  });
+
+  // ── Scales ─────────────────────────────────
+  const x0 = d3.scaleBand()
+    .domain(groupOrder)
+    .range([margin.left, margin.left + chartW])
+    .paddingInner(0.32)
+    .paddingOuter(0.10);
+
+  const x1 = d3.scaleBand()
+    .domain(series)
+    .range([0, x0.bandwidth()])
+    .padding(0.06);
+
+  const maxVal = d3.max(flatData, d => d.value);
+  const y = d3.scaleLinear()
+    .domain([0, maxVal * 1.08])
+    .nice()
+    .range([margin.top + chartH, margin.top]);
+
+  // ── Grid lines ──────────────────────────────
+  const yTicks = y.ticks(5);
+  gridG.selectAll('line')
+    .data(yTicks)
+    .join('line')
+    .attr('class', 'grid-line')
+    .attr('x1', margin.left)
+    .attr('x2', margin.left + chartW)
+    .attr('y1', d => y(d))
+    .attr('y2', d => y(d));
+
+  // ── Axes ────────────────────────────────────
+  // Y axis
+  axesG.append('g')
+    .attr('transform', `translate(${margin.left},0)`)
+    .call(
+      d3.axisLeft(y)
+        .ticks(5)
+        .tickFormat(d => `$${d >= 1000 ? (d/1000).toFixed(1)+'B' : d+'M'}`)
+        .tickSize(0)
+    )
+    .call(g => g.select('.domain').remove())
+    .call(g => g.selectAll('text')
+      .attr('class', 'axis-text')
+      .attr('dx', '-8'));
+
+  // Y axis label
+  axesG.append('text')
+    .attr('class', 'axis-label')
+    .attr('transform', `rotate(-90)`)
+    .attr('x', -(margin.top + chartH / 2))
+    .attr('y', margin.left - 56)
+    .attr('text-anchor', 'middle')
+    .text('USD million');
+
+  // X axis group labels
+  axesG.selectAll('text.group-label')
+    .data(groupOrder)
+    .join('text')
+    .attr('class', 'group-label')
+    .attr('x', d => x0(d) + x0.bandwidth() / 2)
+    .attr('y', margin.top + chartH + 18)
+    .text(d => d);
+
+  // Baseline
+  axesG.append('line')
+    .attr('x1', margin.left).attr('x2', margin.left + chartW)
+    .attr('y1', margin.top + chartH).attr('y2', margin.top + chartH)
+    .attr('stroke', 'var(--p7)').attr('stroke-width', 1.5);
+
+  // ── Bars ─────────────────────────────────────
+  allBars = barsG.selectAll('rect.bar')
+    .data(flatData, d => `${d.region}-${d.series}`)
+    .join('rect')
+    .attr('class', 'bar')
+    .attr('x', d => x0(d.region) + x1(d.series))
+    .attr('width', x1.bandwidth())
+    .attr('y', margin.top + chartH)   // start at baseline
+    .attr('height', 0)
+    .attr('fill', d => d.series === 'expenditure_m' ? 'url(#hatch-exp)' : d.color)
+    .attr('stroke', d => d.series === 'expenditure_m' ? '#4A4D4F' : 'none')
+    .attr('stroke-width', 0.8)
+    .attr('opacity', d => activeSet.has(d.series) ? 1 : 0.12)
+    .attr('tabindex', 0)
+    .attr('role', 'img')
+    .attr('aria-label', d =>
+      `${d.label}, ${d.region}: $${d3.format(',')(d.value)} million`
+    );
+
+  // Entrance animation — staggered by group
+  allBars.transition()
+    .delay((d) => {
+      const gi = groupOrder.indexOf(d.region);
+      const si = series.indexOf(d.series);
+      return gi * 95 + si * 28 + 150;
+    })
+    .duration(580)
+    .ease(d3.easeCubicOut)
+    .attr('y', d => y(d.value))
+    .attr('height', d => (margin.top + chartH) - y(d.value));
+
+  // Bar interactions
+  allBars
+    .on('mouseover', (ev, d) => {
+      const grpData = groupData.find(g => g.region === d.region);
+      showTip(ev, d, grpData, data);
+      allBars
+        .classed('lit',    x => x.region === d.region)
+        .classed('dimmed', x => x.region !== d.region);
+    })
+    .on('mousemove', moveTip)
+    .on('mouseout',  () => {
+      hideTip();
+      allBars.classed('lit', false).classed('dimmed', false);
+    })
+    .on('focus',  (ev, d) => {
+      const grpData = groupData.find(g => g.region === d.region);
+      showTip(ev, d, grpData, data);
+    })
+    .on('blur',   hideTip)
+    .on('keydown', (ev, d) => {
+      if (ev.key === 'Enter' || ev.key === ' ') {
+        ev.preventDefault();
+        const grpData = groupData.find(g => g.region === d.region);
+        showTip(ev, d, grpData, data);
+      }
+    });
+
+  // ── Gap brackets (requested → received) ──────
+  // Drawn after animation completes
+  setTimeout(() => {
+    groupData.forEach(g => {
+      const gx    = x0(g.region);
+      const reqX  = gx + x1('requested_m') + x1.bandwidth() / 2;
+      const recX  = gx + x1('received_m')  + x1.bandwidth() / 2;
+      const reqY  = y(g.requested_m);
+      const recY  = y(g.received_m);
+      const bktY  = Math.min(reqY, recY) - 8;
+      const gap   = g.requested_m - g.received_m;
+      const pct   = Math.round((gap / g.requested_m) * 100);
+
+      // Small bracket connecting tops of requested and received bars
+      gapG.append('path')
+        .attr('class', 'gap-bracket')
+        .attr('d', `M ${reqX},${reqY - 2} L ${reqX},${bktY} L ${recX},${bktY} L ${recX},${recY - 2}`)
+        .attr('opacity', 0)
+        .transition().delay(800).duration(300)
+        .attr('opacity', 0.55);
+
+      // Gap label
+      gapG.append('text')
+        .attr('class', 'gap-label')
+        .attr('x', (reqX + recX) / 2)
+        .attr('y', bktY - 3)
+        .attr('text-anchor', 'middle')
+        .text(`−${pct}%`)
+        .attr('opacity', 0)
+        .transition().delay(900).duration(300)
+        .attr('opacity', 1);
+    });
+  }, 900);
+}
+
+// ══════════════════════════════════════════════
+// LEGEND
+// ══════════════════════════════════════════════
+function buildLegend(data) {
+  const legendEl = document.getElementById('legend');
+  legendEl.innerHTML = '';
+
+  data.series.forEach(s => {
+    const item = document.createElement('div');
+    item.className = 'leg-item';
+    item.tabIndex  = 0;
+    item.setAttribute('aria-label', `Toggle ${data.series_labels[s]}`);
+    item.dataset.series = s;
+
+    // Swatch — use a mini SVG to show hatch for expenditure
+    const swatchSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    swatchSvg.setAttribute('width', '11');
+    swatchSvg.setAttribute('height', '11');
+    swatchSvg.classList.add('leg-swatch');
+
+    if (s === 'expenditure_m') {
+      swatchSvg.innerHTML = `
+        <defs>
+          <pattern id="leg-hatch" patternUnits="userSpaceOnUse" width="4" height="4" patternTransform="rotate(45)">
+            <line x1="0" y1="0" x2="0" y2="4" stroke="${data.series_colors[s]}" stroke-width="1.8"/>
+          </pattern>
+        </defs>
+        <rect width="11" height="11" fill="url(#leg-hatch)" stroke="${data.series_colors[s]}" stroke-width="0.8"/>
+      `;
+    } else {
+      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      rect.setAttribute('width', '11');
+      rect.setAttribute('height', '11');
+      rect.setAttribute('fill', data.series_colors[s]);
+      swatchSvg.appendChild(rect);
+    }
+
+    const label = document.createElement('span');
+    label.className = 'leg-text';
+    label.textContent = data.series_labels[s];
+
+    item.appendChild(swatchSvg);
+    item.appendChild(label);
+    legendEl.appendChild(item);
+
+    // Toggle series visibility
+    function toggle() {
+      if (activeSet.has(s)) {
+        if (activeSet.size > 1) {
+          activeSet.delete(s);
+          item.classList.add('hidden');
+        }
+      } else {
+        activeSet.add(s);
+        item.classList.remove('hidden');
+      }
+      if (allBars) {
+        allBars.transition().duration(250)
+          .attr('opacity', d => activeSet.has(d.series) ? 1 : 0.08);
+      }
+    }
+
+    item.addEventListener('click', toggle);
+    item.addEventListener('keydown', ev => {
+      if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); toggle(); }
+    });
+  });
+}
+
+// ══════════════════════════════════════════════
+// TOOLTIP
+// ══════════════════════════════════════════════
+function showTip(ev, d, grp, data) {
+  const gap  = grp.requested_m - grp.received_m;
+  const pct  = Math.round((gap / grp.requested_m) * 100);
+  const eff  = Math.round((grp.expenditure_m / grp.received_m) * 100);
+  const fmt  = v => `$${d3.format(',')(v)}M`;
+
+  tooltip.innerHTML = `
+    <div class="tt-head">${grp.region}</div>
+    <div class="tt-row">
+      <span class="tt-key">Requested</span>
+      <span class="tt-val">${fmt(grp.requested_m)}</span>
+    </div>
+    <div class="tt-row">
+      <span class="tt-key">Received</span>
+      <span class="tt-val">${fmt(grp.received_m)}</span>
+    </div>
+    <div class="tt-row">
+      <span class="tt-key">Expenditure</span>
+      <span class="tt-val">${fmt(grp.expenditure_m)}</span>
+    </div>
+    <div class="tt-row" style="margin-top:4px;border-top:1px solid #333;padding-top:4px">
+      <span class="tt-key">Funding gap</span>
+      <span class="tt-gap">−${pct}% (${fmt(gap)})</span>
+    </div>
+    <div class="tt-row">
+      <span class="tt-key">Spend efficiency</span>
+      <span class="tt-val">${eff}% of received</span>
+    </div>
+  `;
+  tooltip.classList.add('visible');
+  moveTip(ev);
+}
+
+function moveTip(ev) {
+  const r = container.getBoundingClientRect();
+  let x = ev.clientX - r.left + 16;
+  let y = ev.clientY - r.top  - 12;
+  if (x + 240 > r.width)  x -= 256;
+  if (y + 160 > r.height) y -= 170;
+  tooltip.style.left = x + 'px';
+  tooltip.style.top  = y + 'px';
+}
+
+function hideTip() { tooltip.classList.remove('visible'); }
+
+// ══════════════════════════════════════════════
+// UTILITIES
+// ══════════════════════════════════════════════
+function resetBtns() {
+  document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+}
+</script>
+</body>
+</html>

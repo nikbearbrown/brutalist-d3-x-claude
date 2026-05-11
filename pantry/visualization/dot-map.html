@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Public Library Distribution Reveals Deep Regional Clustering</title>
+  <meta name="description" content="Dot Map: one point per public library branch across the contiguous United States, revealing how library density clusters in the Northeast and Great Lakes while thinning dramatically across the interior West.">
+  <meta name="keywords" content="dot map, point map, dot distribution, spatial patterns, D3.js, US public libraries, geographic distribution, brutalist design, data visualisation, hai palette">
+  <meta name="author" content="Nik Bear Brown">
+  <meta name="category" content="Geography / Civic Infrastructure">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+  <style>
+    /* ── HAI PALETTE ──────────────────────────────────────────── */
+    :root {
+      --p1: #1B1B1B;
+      --p2: #5C3317;
+      --p3: #B52C2C;
+      --p4: #F7FAFD;
+      --p5: #4A4D4F;
+      --p6: #797C7F;
+      --p7: #EDEDED;
+      --p8: #FFFFFF;
+      --font: 'JetBrains Mono', monospace;
+      --dot: #5C3317;
+      --dot-hover: #B52C2C;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      font-family: var(--font);
+      background: var(--p8);
+      color: var(--p1);
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+
+    /* ── SLIDES ──────────────────────────────────────────────── */
+    .slide {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: clamp(2rem, 4vw, 4.5rem) clamp(1.5rem, 6vw, 6.5rem);
+      border-bottom: 2px solid var(--p7);
+    }
+
+    .slide-meta { margin-bottom: 1rem; }
+
+    .label {
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.13em;
+      color: var(--p6);
+      text-transform: uppercase;
+    }
+
+    .slide-title {
+      font-size: clamp(16px, 2.5vw, 28px);
+      font-weight: 800;
+      text-transform: uppercase;
+      line-height: 1.15;
+      max-width: 72ch;
+      margin-bottom: 1.4rem;
+      border-left: 4px solid var(--p2);
+      padding-left: 1rem;
+      animation: fadeUp 0.5s ease-out both 0.1s;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── STAT BAR ────────────────────────────────────────────── */
+    .stats-bar {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      animation: fadeUp 0.5s ease-out both 0.2s;
+    }
+
+    .stat-item { line-height: 1.3; }
+
+    .stat-label {
+      font-size: 9px;
+      letter-spacing: 0.13em;
+      color: var(--p6);
+      text-transform: uppercase;
+      display: block;
+    }
+
+    .stat-value {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--p2);
+    }
+
+    /* ── VIZ CONTAINER ───────────────────────────────────────── */
+    .viz-container {
+      flex: 1;
+      min-height: 440px;
+      position: relative;
+      border: 1px solid var(--p7);
+      overflow: hidden;
+      background: var(--p8);
+    }
+
+    #map { display: block; width: 100%; height: 100%; cursor: grab; }
+    #map:active { cursor: grabbing; }
+
+    /* ── TOOLTIP ─────────────────────────────────────────────── */
+    .tooltip {
+      position: fixed;
+      pointer-events: none;
+      background: var(--p1);
+      color: var(--p8);
+      font-family: var(--font);
+      font-size: 11px;
+      font-weight: 400;
+      padding: 8px 13px;
+      border: 1px solid var(--p2);
+      opacity: 0;
+      transition: opacity 0.1s;
+      z-index: 200;
+      line-height: 1.85;
+      min-width: 150px;
+    }
+
+    .tooltip strong {
+      color: var(--p2);
+      display: block;
+      font-size: 12px;
+      margin-bottom: 2px;
+    }
+
+    /* ── LEGEND ──────────────────────────────────────────────── */
+    .legend {
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      background: rgba(255,255,255,0.94);
+      border: 1px solid var(--p7);
+      padding: 10px 14px;
+      font-size: 10px;
+      color: var(--p5);
+      line-height: 2;
+      pointer-events: none;
+    }
+
+    .legend-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--dot);
+      vertical-align: middle;
+      margin-right: 5px;
+    }
+
+    /* ── CONTROLS ────────────────────────────────────────────── */
+    .controls {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      margin-top: 1.1rem;
+      flex-wrap: wrap;
+      animation: fadeUp 0.5s ease-out both 0.3s;
+    }
+
+    .ctl-label { font-size: 10px; color: var(--p6); letter-spacing: 0.1em; text-transform: uppercase; }
+
+    .btn {
+      font-family: var(--font);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: transparent;
+      color: var(--p1);
+      border: 1px solid var(--p5);
+      padding: 5px 12px;
+      cursor: pointer;
+      transition: background 0.14s, color 0.14s;
+    }
+
+    .btn:hover, .btn.active { background: var(--p1); color: var(--p8); }
+    .btn:focus { outline: 2px solid var(--p2); outline-offset: 2px; }
+
+    .sep { width: 1px; height: 20px; background: var(--p7); margin: 0 0.25rem; }
+
+    .zoom-hint { font-size: 9px; color: var(--p6); letter-spacing: 0.08em; margin-top: 0.5rem; }
+
+    /* ── REGION FILTER ───────────────────────────────────────── */
+    .region-btns { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+    /* ── CHART EXPLAINER ─────────────────────────────────────── */
+    .chart-explainer {
+      margin-top: 2rem;
+      border-top: 1px solid var(--p7);
+      padding-top: 1.5rem;
+      animation: fadeUp 0.5s ease-out both 0.4s;
+    }
+
+    .explainer-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem 3rem;
+      max-width: 110ch;
+    }
+
+    @media (max-width: 760px) {
+      .explainer-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+    }
+
+    .explainer-block h3 {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--p2);
+      margin-bottom: 0.65rem;
+      padding-bottom: 0.35rem;
+      border-bottom: 1px solid var(--p7);
+    }
+
+    .explainer-block p {
+      font-size: clamp(11px, 1.05vw, 13px);
+      font-weight: 400;
+      line-height: 1.85;
+      color: var(--p5);
+    }
+
+    .explainer-block p strong {
+      color: var(--p1);
+      font-weight: 800;
+    }
+
+    /* ── NAV DOTS ────────────────────────────────────────────── */
+    .nav-dots {
+      position: fixed;
+      right: clamp(0.75rem, 2.5vw, 2rem);
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      z-index: 100;
+    }
+
+    .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--p7);
+      border: 1px solid var(--p6);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .dot.active { background: var(--p2); border-color: var(--p2); }
+
+    /* ── LEARN SLIDE ─────────────────────────────────────────── */
+    .slide-learn { background: var(--p4); }
+
+    .learn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem 3rem;
+      max-width: 110ch;
+    }
+
+    @media (max-width: 760px) { .learn-grid { grid-template-columns: 1fr; } }
+
+    .learn-block h2 {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--p2);
+      letter-spacing: 0.1em;
+      margin: 0 0 0.6rem;
+      padding-bottom: 0.35rem;
+      border-bottom: 1px solid var(--p7);
+    }
+
+    .learn-block p {
+      font-size: clamp(11px, 1.1vw, 13px);
+      font-weight: 400;
+      line-height: 1.9;
+      color: var(--p1);
+      margin-bottom: 0.7rem;
+    }
+
+    .anatomy-svg { width: 100%; max-width: 320px; margin: 0.75rem 0 1rem; display: block; }
+
+    .framework-ref {
+      grid-column: 1 / -1;
+      padding: 1rem 1.25rem;
+      border-left: 4px solid var(--p2);
+      background: var(--p8);
+      margin-top: 0.5rem;
+    }
+
+    .framework-ref p { font-size: 12px; color: var(--p5); line-height: 1.75; }
+
+    /* ── LOADING STATE ───────────────────────────────────────── */
+    .loading-msg {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: var(--p6);
+      letter-spacing: 0.1em;
+    }
+
+    /* ── FOOTER ──────────────────────────────────────────────── */
+    footer {
+      padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1.5rem, 6vw, 6.5rem);
+      border-top: 2px solid var(--p7);
+    }
+
+    footer p { font-size: 11px; color: var(--p6); line-height: 1.9; }
+
+    footer a {
+      color: var(--p6);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    footer a:hover { color: var(--p2); }
+  </style>
+</head>
+<body>
+
+<div class="tooltip" id="tooltip" role="tooltip"></div>
+
+<nav class="nav-dots" aria-label="Slide navigation">
+  <div class="dot active" data-slide="0" tabindex="0" role="button" aria-label="Map slide"></div>
+  <div class="dot"        data-slide="1" tabindex="0" role="button" aria-label="Learn panel"></div>
+</nav>
+
+<!-- ── SLIDE 1 — MAP ─────────────────────────────────────────── -->
+<section class="slide" id="slide-01" aria-label="Dot map: public library distribution across the United States">
+
+  <div class="slide-meta">
+    <span class="label">// DOT MAP — POINT DISTRIBUTION</span>
+  </div>
+  <h1 class="slide-title">Library density clusters in the Northeast and Great Lakes — the interior West is sparse</h1>
+
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-label">Total branches</span>
+      <span class="stat-value" id="stat-total">—</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Visible</span>
+      <span class="stat-value" id="stat-visible">—</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Hovered</span>
+      <span class="stat-value" id="stat-name">—</span>
+    </div>
+  </div>
+
+  <div class="viz-container" id="map-container">
+    <div class="loading-msg" id="loading">// loading topology + data …</div>
+    <svg id="map"
+      role="img"
+      aria-labelledby="map-title-text"
+      aria-describedby="map-desc-text">
+      <title id="map-title-text">Dot Map — Public Library Branches, United States</title>
+      <desc id="map-desc-text">
+        One walnut-coloured dot per public library branch. Dense clusters appear across New England,
+        the Mid-Atlantic, and the Great Lakes. The Great Plains and interior West show sparse coverage.
+        Scroll to zoom, drag to pan, hover dots for branch details.
+      </desc>
+    </svg>
+  </div>
+
+  <div class="controls">
+    <span class="ctl-label">Region —</span>
+    <div class="region-btns" role="group" aria-label="Filter by region">
+      <button class="btn active" data-region="all"       tabindex="0" aria-pressed="true">All</button>
+      <button class="btn"        data-region="northeast" tabindex="0" aria-pressed="false">Northeast</button>
+      <button class="btn"        data-region="midwest"   tabindex="0" aria-pressed="false">Midwest</button>
+      <button class="btn"        data-region="south"     tabindex="0" aria-pressed="false">South</button>
+      <button class="btn"        data-region="west"      tabindex="0" aria-pressed="false">West</button>
+    </div>
+    <div class="sep" aria-hidden="true"></div>
+    <button class="btn" id="btn-reset"  tabindex="0">Reset zoom</button>
+    <button class="btn" id="audio-toggle" tabindex="0" aria-label="Play narration">▶ narration</button>
+  </div>
+  <p class="zoom-hint">Scroll to zoom · Drag to pan · Hover dots for details · 1 dot = 1 branch</p>
+
+  <!-- ── EXPLANATORY TEXT ─────────────────────────────────── -->
+  <div class="chart-explainer">
+    <div class="explainer-grid">
+      <div class="explainer-block">
+        <h3>// About Dot Maps</h3>
+        <p>A <strong>Dot Map</strong> (Point Distribution Map) encodes the precise geographic location of each discrete observation as an equally-sized dot plotted over a geographic base layer. Unlike a choropleth map — which aggregates data by administrative boundary and encodes totals as fill colour — the dot map preserves the <strong>exact spatial coordinates</strong> of every individual entity. The primary perceptual mechanism is <strong>preattentive density detection</strong>: clusters of dots register as regions of high concentration before conscious counting begins, while sparse areas read as low concentration. Two variants exist. In a <strong>one-to-one map</strong>, each dot is a single real-world object. In a <strong>one-to-many map</strong>, each dot represents a count (e.g., 1 dot = 100 residents). This is a one-to-one map: every dot is one confirmed library branch at a real coordinate.</p>
+      </div>
+      <div class="explainer-block">
+        <h3>// About This Example</h3>
+        <p>This map plots confirmed <strong>public library branch locations</strong> across the contiguous United States. Each walnut-coloured dot represents one physical branch location with a recorded name, city, and state. The spatial pattern that emerges is striking: library density is highest across the <strong>Northeast corridor</strong> from Boston to Washington D.C., and across the <strong>Great Lakes region</strong> including Ohio, Michigan, and Illinois — reflecting historical settlement density and robust civic funding traditions. The <strong>interior West</strong> — Nevada, Wyoming, Montana, and the Dakotas — shows sparse coverage, a direct consequence of low population density and vast geographic area per resident. Use the <strong>region filter buttons</strong> to isolate and compare density across the four Census Bureau regions. <strong>Scroll to zoom</strong> into any dense cluster to resolve individual branches that appear merged at full extent.</p>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ── SLIDE 2 — LEARN ──────────────────────────────────────── -->
+<section class="slide slide-learn" id="slide-02" aria-label="Learn: Dot Map">
+
+  <div class="slide-meta">
+    <span class="label">// LEARN — DOT MAP / POINT DISTRIBUTION MAP</span>
+  </div>
+  <h1 class="slide-title">Why a dot map — and what it cannot tell you</h1>
+
+  <div class="learn-grid">
+
+    <div class="learn-block">
+      <h2>What this chart is</h2>
+      <p>A Dot Map encodes the geographic location of discrete events or objects as equally-sized points plotted over a geographic base layer. It exploits the viewer's perceptual ability to detect visual density — clusters of points register immediately as regions of high concentration, sparse areas as low concentration. This is a preattentive task: the pattern emerges before conscious counting begins.</p>
+      <p>Two variants exist. In a <em>one-to-one</em> map, each dot represents a single real-world object — one library, one hospital, one crime incident. In a <em>one-to-many</em> map, each dot represents a unit count (e.g., 1 dot = 100 residents). This implementation is one-to-one: every dot is a confirmed branch location with a name and coordinates.</p>
+    </div>
+
+    <div class="learn-block">
+      <h2>Anatomy of the encoding</h2>
+      <svg class="anatomy-svg" viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg" aria-label="Dot map anatomy diagram showing clustered and sparse regions">
+        <rect x="10" y="10" width="260" height="160" fill="#F7FAFD" stroke="#EDEDED" stroke-width="1" rx="2"/>
+        <circle cx="80"  cy="60"  r="4" fill="#5C3317" opacity="0.85"/>
+        <circle cx="92"  cy="55"  r="4" fill="#5C3317" opacity="0.85"/>
+        <circle cx="71"  cy="70"  r="4" fill="#5C3317" opacity="0.85"/>
+        <circle cx="88"  cy="72"  r="4" fill="#5C3317" opacity="0.85"/>
+        <circle cx="100" cy="62"  r="4" fill="#5C3317" opacity="0.85"/>
+        <circle cx="76"  cy="82"  r="4" fill="#5C3317" opacity="0.85"/>
+        <circle cx="95"  cy="80"  r="4" fill="#5C3317" opacity="0.85"/>
+        <circle cx="108" cy="70"  r="4" fill="#5C3317" opacity="0.85"/>
+        <circle cx="65"  cy="58"  r="4" fill="#5C3317" opacity="0.85"/>
+        <circle cx="104" cy="50"  r="4" fill="#5C3317" opacity="0.85"/>
+        <circle cx="180" cy="80"  r="4" fill="#5C3317" opacity="0.85"/>
+        <circle cx="220" cy="110" r="4" fill="#5C3317" opacity="0.85"/>
+        <circle cx="195" cy="130" r="4" fill="#5C3317" opacity="0.85"/>
+        <text x="85"  y="105" font-family="JetBrains Mono,monospace" font-size="9" fill="#5C3317" text-anchor="middle" font-weight="600">HIGH DENSITY</text>
+        <text x="85"  y="116" font-family="JetBrains Mono,monospace" font-size="8" fill="#797C7F" text-anchor="middle">clustered dots →</text>
+        <text x="85"  y="125" font-family="JetBrains Mono,monospace" font-size="8" fill="#797C7F" text-anchor="middle">pattern detected</text>
+        <text x="200" cy="155" y="155" font-family="JetBrains Mono,monospace" font-size="9" fill="#797C7F" text-anchor="middle">LOW DENSITY</text>
+        <text x="200" y="165" font-family="JetBrains Mono,monospace" font-size="8" fill="#797C7F" text-anchor="middle">sparse → no pattern</text>
+        <text x="10" y="187" font-family="JetBrains Mono,monospace" font-size="8" fill="#797C7F">1 dot = 1 branch location (one-to-one)</text>
+      </svg>
+    </div>
+
+    <div class="learn-block">
+      <h2>Why it was chosen here</h2>
+      <p>The message is about spatial distribution and clustering — where things are, and whether they concentrate. No aggregation is applied: each point is a real facility at a real coordinate. Aggregating to county or state would mask the intra-regional variation that is the actual story (a state with one dense urban cluster and vast rural emptiness looks identical to a state with uniform coverage).</p>
+      <p>The dot map preserves the original spatial resolution of the data while making density patterns immediately visible through point clustering. It is the correct chart when the story is <em>where</em>, not <em>how many</em> in aggregate — that distinction is the design decision.</p>
+    </div>
+
+    <div class="learn-block">
+      <h2>What the rejected alternative breaks</h2>
+      <p>A <strong>Choropleth Map</strong> — the most common alternative — aggregates values by administrative unit (state, county) and encodes them as fill colour. For this data, it would collapse every library in Massachusetts into a single state-level count, hiding the fact that Boston has dozens of branches within a few square miles while rural western Massachusetts has almost none. The choropleth answers "how many per state?" The dot map answers "where exactly?"</p>
+      <p>A <strong>Bubble Map</strong> would aggregate counts by city or county centroid, losing the precise location information and misrepresenting the data as a comparison of totals rather than a distribution of individual points. When you have real coordinates for individual events, using them is always more honest than throwing them away to draw circles.</p>
+    </div>
+
+    <div class="learn-block">
+      <h2>What dot maps cannot tell you</h2>
+      <p>Dot maps do not encode quantity at a point — a dot cluster of twelve libraries and a dot cluster of forty look similar unless you zoom in and count. They are not suitable for retrieving precise counts or comparing exact values between regions. They also suffer from overplotting at dense scales: when many points share near-identical coordinates, they merge visually and the underlying count is lost.</p>
+      <p>This implementation mitigates overplotting with a small dot radius, semi-transparency on the SVG layer, and zoom — the viewer can drill into any dense cluster to separate individual points. But the limitation is structural: if the message requires exact counts, the dot map hands off to a bar chart or table.</p>
+    </div>
+
+    <div class="framework-ref">
+      <span class="label">// FRAMEWORK REFERENCE</span>
+      <p><strong>FT Visual Vocabulary — Spatial (Distribution) category.</strong> "Use a dot map when you want to show where individual things are located and how they cluster geographically." Abela quadrant: Distribution (geographic). Tufte principle applied: the base map provides essential geographic context — it is not decoration; removing state boundaries would make clustering uninterpretable. But the choropleth fill is deliberately absent — every pixel of colour on the base layer encodes only topology, not data. All data encoding is in the dot positions. The one design decision worth knowing: dot radius is fixed at 3px regardless of zoom level, so density perception at any zoom scale reflects true geographic concentration rather than artificially enlarged points.</p>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <p>Nik Bear Brown, Irreducibly Human, What AI Can and Can't Do</p>
+  <p>
+    <a href="https://nikbearbrown.com" target="_blank" rel="noopener">nikbearbrown.com</a>
+    &nbsp;·&nbsp;
+    <a href="https://boondoggling.ai" target="_blank" rel="noopener">boondoggling.ai</a>
+    &nbsp;·&nbsp;
+    <a href="https://brutalist.art" target="_blank" rel="noopener">brutalist.art</a>
+  </p>
+</footer>
+
+<audio id="page-audio" src="./dot-map/slide_1.mp3"></audio>
+
+<script>
+(function () {
+
+  // ── NAV ──────────────────────────────────────────────────────
+  const slides = document.querySelectorAll('.slide');
+  const navDots = document.querySelectorAll('.dot');
+
+  function scrollToSlide(i) { slides[i].scrollIntoView({ behavior: 'smooth' }); }
+
+  navDots.forEach((d, i) => {
+    d.addEventListener('click', () => scrollToSlide(i));
+    d.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); scrollToSlide(i); }
+    });
+  });
+
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const idx = Array.from(slides).indexOf(entry.target);
+        navDots.forEach((d, i) => d.classList.toggle('active', i === idx));
+      }
+    });
+  }, { threshold: 0.45 });
+  slides.forEach(s => io.observe(s));
+
+  document.addEventListener('keydown', e => {
+    const cur = Array.from(navDots).findIndex(d => d.classList.contains('active'));
+    if (e.key === 'ArrowDown' && cur < slides.length - 1) scrollToSlide(cur + 1);
+    if (e.key === 'ArrowUp'   && cur > 0)                 scrollToSlide(cur - 1);
+  });
+
+  // ── AUDIO ────────────────────────────────────────────────────
+  const audio    = document.getElementById('page-audio');
+  const audioBtn = document.getElementById('audio-toggle');
+  let playing = false;
+  audioBtn.addEventListener('click', () => {
+    if (playing) { audio.pause(); audioBtn.textContent = '▶ narration'; }
+    else         { audio.play().catch(() => {}); audioBtn.textContent = '⏸ narration'; }
+    playing = !playing;
+  });
+  audio.addEventListener('ended', () => { playing = false; audioBtn.textContent = '▶ narration'; });
+
+  // ── TOOLTIP ──────────────────────────────────────────────────
+  const tip = document.getElementById('tooltip');
+
+  function showTip(html, cx, cy) {
+    tip.innerHTML = html;
+    tip.style.opacity = 1;
+    const tw = tip.offsetWidth  || 160;
+    const th = tip.offsetHeight || 60;
+    let left = cx + 14, top = cy - th / 2;
+    if (left + tw > window.innerWidth  - 8) left = cx - tw - 14;
+    if (top < 8)                            top  = 8;
+    if (top + th > window.innerHeight - 8) top  = window.innerHeight - th - 8;
+    tip.style.left = left + 'px';
+    tip.style.top  = top  + 'px';
+  }
+  function hideTip() { tip.style.opacity = 0; }
+
+  // ── REGION LOOKUP ────────────────────────────────────────────
+  const regionStates = {
+    northeast: ['ME','NH','VT','MA','RI','CT','NY','NJ','PA'],
+    midwest:   ['OH','MI','IN','IL','WI','MN','IA','MO','ND','SD','NE','KS'],
+    south:     ['DE','MD','VA','WV','NC','SC','GA','FL','KY','TN','AL','MS','AR','LA','OK','TX','DC'],
+    west:      ['MT','ID','WY','CO','NM','AZ','UT','NV','CA','OR','WA','AK','HI']
+  };
+
+  function stateRegion(stateAbbr) {
+    for (const [region, states] of Object.entries(regionStates)) {
+      if (states.includes(stateAbbr)) return region;
+    }
+    return 'all';
+  }
+
+  // ── MAP BUILD ────────────────────────────────────────────────
+  let allPoints = [];
+  let activeRegion = 'all';
+
+  function buildMap(usTopology, points) {
+    const container = document.getElementById('map-container');
+    const loadingEl = document.getElementById('loading');
+    if (loadingEl) loadingEl.remove();
+
+    const W = container.clientWidth  || 900;
+    const H = container.clientHeight || 500;
+
+    const svg = d3.select('#map')
+      .attr('viewBox', `0 0 ${W} ${H}`)
+      .attr('width', W)
+      .attr('height', H);
+
+    svg.selectAll('*').remove();
+
+    const projection = d3.geoAlbersUsa()
+      .scale(W * 1.22)
+      .translate([W / 2, H / 2]);
+
+    const path = d3.geoPath().projection(projection);
+
+    const defs = svg.append('defs');
+    defs.append('clipPath').attr('id', 'map-clip')
+      .append('rect').attr('width', W).attr('height', H);
+
+    const mapGroup = svg.append('g').attr('clip-path', 'url(#map-clip)');
+
+    const states = topojson.feature(usTopology, usTopology.objects.states);
+
+    mapGroup.append('g').attr('class', 'states')
+      .selectAll('path')
+      .data(states.features)
+      .join('path')
+        .attr('d', path)
+        .attr('fill', '#F7FAFD')
+        .attr('stroke', '#DADDE0')
+        .attr('stroke-width', 0.6);
+
+    mapGroup.append('path')
+      .datum(topojson.mesh(usTopology, usTopology.objects.states, (a, b) => a !== b))
+      .attr('fill', 'none')
+      .attr('stroke', '#C8CDD2')
+      .attr('stroke-width', 0.8)
+      .attr('d', path);
+
+    const dotsGroup = mapGroup.append('g').attr('class', 'dots');
+
+    function renderDots(region) {
+      const filtered = region === 'all'
+        ? points
+        : points.filter(p => stateRegion(p.state) === region);
+
+      document.getElementById('stat-visible').textContent = filtered.length.toLocaleString();
+
+      dotsGroup.selectAll('circle').remove();
+
+      dotsGroup.selectAll('circle')
+        .data(filtered)
+        .join('circle')
+          .attr('cx', d => {
+            const proj = projection([d.lon, d.lat]);
+            return proj ? proj[0] : -999;
+          })
+          .attr('cy', d => {
+            const proj = projection([d.lon, d.lat]);
+            return proj ? proj[1] : -999;
+          })
+          .attr('r', 3)
+          .attr('fill', '#5C3317')
+          .attr('fill-opacity', 0.72)
+          .attr('stroke', '#3D2210')
+          .attr('stroke-width', 0.3)
+          .attr('tabindex', 0)
+          .attr('role', 'img')
+          .attr('aria-label', d => `${d.name}, ${d.city}, ${d.state}`)
+          .attr('opacity', 0)
+          .on('mousemove', function (event, d) {
+            d3.select(this).attr('fill', '#B52C2C').attr('fill-opacity', 1).attr('r', 4.5);
+            document.getElementById('stat-name').textContent = d.name;
+            showTip(
+              `<strong>${d.name}</strong>${d.city}, ${d.state}`,
+              event.clientX, event.clientY
+            );
+          })
+          .on('mouseleave', function () {
+            d3.select(this).attr('fill', '#5C3317').attr('fill-opacity', 0.72).attr('r', 3);
+            document.getElementById('stat-name').textContent = '—';
+            hideTip();
+          })
+          .on('keydown', function (event, d) {
+            if (event.key === 'Enter' || event.key === ' ') {
+              document.getElementById('stat-name').textContent = d.name;
+            }
+          })
+          .transition()
+          .duration(600)
+          .delay((d, i) => Math.min(i * 2, 400))
+          .attr('opacity', 1);
+    }
+
+    renderDots(activeRegion);
+
+    // Remove old legend if any, then add fresh
+    container.querySelectorAll('.legend').forEach(el => el.remove());
+    const legendEl = document.createElement('div');
+    legendEl.className = 'legend';
+    legendEl.innerHTML =
+      `<span class="legend-dot"></span>1 dot = 1 library branch<br>` +
+      `<span style="color:var(--p6);font-size:9px;letter-spacing:0.08em;">HOVER FOR NAME · SCROLL TO ZOOM</span>`;
+    container.appendChild(legendEl);
+
+    let currentTransform = d3.zoomIdentity;
+
+    const zoom = d3.zoom()
+      .scaleExtent([0.9, 20])
+      .on('zoom', event => {
+        currentTransform = event.transform;
+        mapGroup.attr('transform', event.transform);
+        dotsGroup.selectAll('circle')
+          .attr('r', 3 / event.transform.k)
+          .attr('stroke-width', 0.3 / event.transform.k);
+      });
+
+    svg.call(zoom);
+
+    document.getElementById('btn-reset').onclick = () => {
+      svg.transition().duration(450).call(zoom.transform, d3.zoomIdentity);
+    };
+
+    document.querySelectorAll('[data-region]').forEach(btn => {
+      btn.addEventListener('click', function () {
+        activeRegion = this.dataset.region;
+        document.querySelectorAll('[data-region]').forEach(b => {
+          b.classList.remove('active');
+          b.setAttribute('aria-pressed', 'false');
+        });
+        this.classList.add('active');
+        this.setAttribute('aria-pressed', 'true');
+        svg.transition().duration(350).call(zoom.transform, d3.zoomIdentity)
+          .on('end', () => renderDots(activeRegion));
+      });
+    });
+
+    let rt;
+    const ro = new ResizeObserver(() => {
+      clearTimeout(rt);
+      rt = setTimeout(() => buildMap(usTopology, points), 200);
+    });
+    ro.observe(container);
+  }
+
+  // ── DATA + TOPOLOGY LOAD ─────────────────────────────────────
+  Promise.all([
+    d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json'),
+    d3.json('./dot-map/data.json')
+  ]).then(([topology, json]) => {
+    allPoints = json.data;
+    document.getElementById('stat-total').textContent   = allPoints.length.toLocaleString();
+    document.getElementById('stat-visible').textContent = allPoints.length.toLocaleString();
+    buildMap(topology, allPoints);
+  }).catch(err => {
+    const loadingEl = document.getElementById('loading');
+    if (loadingEl) loadingEl.textContent = '// error loading data — check console';
+    console.error('Load error:', err);
+  });
+
+})();
+</script>
+</body>
+</html>

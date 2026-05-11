@@ -1,0 +1,18 @@
+{
+  "_schema": {
+    "description": "Population distribution across clean energy access categories. Each unit = 1% of population. All counts must sum to 100.",
+    "fields": {
+      "label": "string — category name shown in legend and tooltip",
+      "count": "number — integer from 1 to 100; all counts must sum to 100",
+      "desc":  "string — one-line description shown in tooltip"
+    },
+    "replace": "Swap label/count/desc with your real categories. Counts must total 100. The grid is always 10x10 — each dot represents exactly one unit. For non-percentage data, normalise to 100 first."
+  },
+  "data": [
+    { "label": "Full access",        "count": 31, "desc": "Reliable grid with modern infrastructure" },
+    { "label": "Partial access",     "count": 24, "desc": "Grid access but frequent outages" },
+    { "label": "Unreliable grid",    "count": 18, "desc": "Grid exists but supply is intermittent" },
+    { "label": "No access",          "count": 19, "desc": "No electricity access of any kind" },
+    { "label": "Off-grid renewable", "count":  8, "desc": "Solar/wind microgrid, no central grid" }
+  ]
+}

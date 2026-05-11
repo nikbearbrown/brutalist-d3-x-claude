@@ -1,0 +1,51 @@
+{
+  "_schema": {
+    "description": "Three-set Venn diagram data. Seven regions covering all combinations of membership in sets A, B, C. Replace sets and regions with real content.",
+    "fields": {
+      "sets[].id":          "string — single uppercase letter: A, B, or C",
+      "sets[].label":       "string — set name (\\n for two-line label)",
+      "sets[].color":       "string — hex color for this set circle and label",
+      "regions[].id":       "string — combination key: A, B, C, AB, AC, BC, or ABC",
+      "regions[].title":    "string — name of this intersection shown in info panel",
+      "regions[].desc":     "string — one or two sentence description of what this region means",
+      "regions[].items":    "string[] — examples or members belonging to this region",
+      "regions[].count":    "number — size of this region (shown in count mode)"
+    },
+    "replace": "Swap sets[].label and regions[].title/desc/items/count with your real sets and their members. All seven region ids (A, B, C, AB, AC, BC, ABC) should be present even if some have empty items arrays — the Venn diagram draws all regions regardless."
+  },
+  "sets": [
+    { "id": "A", "label": "Domain\nExpertise",     "color": "#5C3317" },
+    { "id": "B", "label": "Data\nLiteracy",         "color": "#1B1B1B" },
+    { "id": "C", "label": "Communication\nSkills",  "color": "#797C7F" }
+  ],
+  "regions": [
+    { "id": "A",   "title": "Domain Expertise only",
+      "desc": "Deep subject-matter knowledge without data or communication skills. Valuable but siloed.",
+      "items": ["Industry specialist","Subject matter expert","Technical domain owner","Process authority"],
+      "count": 42 },
+    { "id": "B",   "title": "Data Literacy only",
+      "desc": "Strong with data and models but lacking domain context and communication skills.",
+      "items": ["Data engineer","ML infrastructure role","Database specialist","Metrics analyst"],
+      "count": 28 },
+    { "id": "C",   "title": "Communication Skills only",
+      "desc": "Excellent communicator and facilitator without domain or data grounding.",
+      "items": ["Generalist facilitator","Change manager","Executive coach","Soft skills trainer"],
+      "count": 19 },
+    { "id": "AB",  "title": "Domain Expertise + Data Literacy",
+      "desc": "Understands both the field and the data — can audit model outputs and spot domain errors.",
+      "items": ["Data scientist (domain-embedded)","Quantitative analyst","Research scientist","Clinical informatics"],
+      "count": 31 },
+    { "id": "AC",  "title": "Domain Expertise + Communication",
+      "desc": "Can translate complex domain knowledge for broad audiences but lacks data fluency.",
+      "items": ["Domain consultant","Technical writer","Subject-matter communicator","Policy advisor"],
+      "count": 24 },
+    { "id": "BC",  "title": "Data Literacy + Communication",
+      "desc": "Can explain data findings clearly but may miss domain-specific nuance or errors.",
+      "items": ["Data journalist","BI analyst","Data storyteller","Dashboard designer"],
+      "count": 18 },
+    { "id": "ABC", "title": "AI Collaborator",
+      "desc": "Full triple intersection: domain knowledge, data fluency, and communication. Can direct, evaluate, and explain AI outputs across the entire pipeline.",
+      "items": ["AI product manager","Applied AI lead","Human-AI workflow designer","Strategic AI advisor","Responsible AI practitioner"],
+      "count": 12 }
+  ]
+}

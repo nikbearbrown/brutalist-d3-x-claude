@@ -1,0 +1,128 @@
+{
+  "_schema": {
+    "description": "Hierarchical data for a sunburst diagram. Structure is a nested tree: each node has a name, an optional value (leaf nodes), and optional children (branch nodes). The root node is the centre circle. Each ring outward is one level deeper. Values on leaf nodes drive arc angles; branch node values are summed from children automatically. Do not provide values on branch nodes — the chart computes them.",
+    "fields": {
+      "name":     "string — label for this node",
+      "value":    "number (leaf nodes only) — magnitude that drives arc angle",
+      "children": "array (branch nodes only) — child nodes at the next ring level"
+    },
+    "replace": "Replace the tree structure with your own hierarchy. Any depth is supported (rings are added automatically). Keep labels short (≤16 chars) — they are placed inside arcs."
+  },
+  "title": "Global Tech Revenue",
+  "unit": "USD billion",
+  "year": "2023",
+  "tree": {
+    "name": "Tech",
+    "children": [
+      {
+        "name": "Cloud",
+        "children": [
+          {
+            "name": "AWS",
+            "children": [
+              { "name": "Compute",  "value": 38 },
+              { "name": "Storage",  "value": 22 },
+              { "name": "Database", "value": 18 },
+              { "name": "Other",    "value": 13 }
+            ]
+          },
+          {
+            "name": "Azure",
+            "children": [
+              { "name": "IaaS",     "value": 34 },
+              { "name": "PaaS",     "value": 20 },
+              { "name": "SaaS",     "value": 16 }
+            ]
+          },
+          {
+            "name": "GCP",
+            "children": [
+              { "name": "Compute",  "value": 18 },
+              { "name": "Data",     "value": 12 },
+              { "name": "AI/ML",    "value": 9  }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Devices",
+        "children": [
+          {
+            "name": "Apple",
+            "children": [
+              { "name": "iPhone",   "value": 200 },
+              { "name": "Mac",      "value": 29  },
+              { "name": "iPad",     "value": 28  },
+              { "name": "Wearables","value": 40  }
+            ]
+          },
+          {
+            "name": "Samsung",
+            "children": [
+              { "name": "Mobile",   "value": 98  },
+              { "name": "Consumer", "value": 42  },
+              { "name": "Displays", "value": 21  }
+            ]
+          },
+          {
+            "name": "Sony",
+            "children": [
+              { "name": "PlayStation","value": 38 },
+              { "name": "Electronics","value": 24 }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Advertising",
+        "children": [
+          {
+            "name": "Google Ads",
+            "children": [
+              { "name": "Search",   "value": 175 },
+              { "name": "YouTube",  "value": 32  },
+              { "name": "Network",  "value": 32  }
+            ]
+          },
+          {
+            "name": "Meta Ads",
+            "children": [
+              { "name": "Facebook", "value": 94  },
+              { "name": "Instagram","value": 50  },
+              { "name": "Audience", "value": 8   }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Software",
+        "children": [
+          {
+            "name": "Microsoft",
+            "children": [
+              { "name": "Office",    "value": 69  },
+              { "name": "Dynamics", "value": 19  },
+              { "name": "LinkedIn", "value": 15  }
+            ]
+          },
+          {
+            "name": "Salesforce",
+            "children": [
+              { "name": "Sales Cl.", "value": 18 },
+              { "name": "Service",  "value": 16  },
+              { "name": "Platform", "value": 12  }
+            ]
+          },
+          {
+            "name": "Adobe",
+            "children": [
+              { "name": "Creative", "value": 12  },
+              { "name": "Document", "value": 7   },
+              { "name": "Experience","value": 5  }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

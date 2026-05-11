@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Population Pyramid — Age &amp; Sex Distribution</title>
+<meta name="description" content="Interactive population pyramid showing age and sex distribution for two countries side by side, with shape interpretation and animated transitions between datasets.">
+<meta name="keywords" content="population pyramid, age sex pyramid, histogram, d3, data visualization, demographics, distribution, comparison">
+<meta name="author" content="Nik Bear Brown">
+<meta name="category" content="Demographics / Distribution / Comparison">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --p1:#1B1B1B;--p2:#5C3317;--p3:#B52C2C;--p5:#4A4D4F;--p6:#797C7F;--p7:#EDEDED;--p8:#FFFFFF;
+  --font:'JetBrains Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;background:var(--p8);color:var(--p1);font-family:var(--font);overflow-x:hidden}
+.slides-wrapper{width:100%;scroll-snap-type:y mandatory;overflow-y:scroll;height:100vh}
+.slide{min-height:100vh;display:flex;flex-direction:column;padding:40px 48px 32px;scroll-snap-align:start;border-bottom:2px solid var(--p7)}
+.slide-meta{display:flex;align-items:center;gap:20px;margin-bottom:16px}
+.lbl{font-size:11px;font-weight:400;color:var(--p6);letter-spacing:.08em;text-transform:uppercase}
+.dot-nav{display:flex;gap:8px;margin-left:auto}
+.nav-dot{width:7px;height:7px;border-radius:50%;background:var(--p7);cursor:pointer;border:1px solid var(--p6);transition:background .2s}
+.nav-dot.active{background:var(--p2);border-color:var(--p2)}
+.slide-title{font-size:clamp(14px,2.6vw,27px);font-weight:800;text-transform:uppercase;letter-spacing:-.02em;line-height:1.1;color:var(--p1);max-width:900px;margin-bottom:5px}
+.slide-subtitle{font-size:12px;color:var(--p5);margin-bottom:20px;letter-spacing:.02em}
+.viz-container{flex:1;min-height:400px;position:relative}
+#tooltip{position:fixed;background:var(--p1);color:var(--p8);font-family:var(--font);font-size:12px;font-weight:600;padding:9px 13px;border:1px solid var(--p2);pointer-events:none;opacity:0;transition:opacity .12s;z-index:100;line-height:1.7;max-width:230px}
+.controls{display:flex;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap}
+.controls button{background:transparent;border:1px solid var(--p6);color:var(--p5);font-family:var(--font);font-size:11px;padding:5px 12px;cursor:pointer;letter-spacing:.06em;text-transform:uppercase;transition:all .15s}
+.controls button:hover,.controls button.active{border-color:var(--p2);color:var(--p2)}
+.controls button.active{background:#5C331710}
+.controls select{background:transparent;border:1px solid var(--p6);color:var(--p5);font-family:var(--font);font-size:11px;padding:5px 10px;cursor:pointer;letter-spacing:.04em;outline:none;transition:all .15s}
+.controls select:hover{border-color:var(--p2);color:var(--p2)}
+.legend{display:flex;gap:20px;flex-wrap:wrap;font-size:11px;color:var(--p6);margin-top:12px;align-items:center}
+.legend-item{display:flex;align-items:center;gap:7px}
+.legend-swatch{width:18px;height:10px}
+.shape-badge{display:inline-block;font-size:10px;font-weight:600;letter-spacing:.05em;padding:3px 8px;border:1px solid var(--p2);color:var(--p2);text-transform:uppercase;margin-left:auto}
+.slide-learn{background:#FAFAFA}
+.learn-block{max-width:860px;columns:2;column-gap:48px}
+@media(max-width:720px){.learn-block{columns:1}.slide{padding:24px 20px}}
+.learn-block h2{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--p2);margin:24px 0 8px;break-after:avoid}
+.learn-block h2:first-child{margin-top:0}
+.learn-block p{font-size:13px;font-weight:400;color:var(--p5);line-height:1.75;break-inside:avoid}
+.framework-ref{border-left:3px solid var(--p2);padding:12px 16px;margin-top:24px;break-inside:avoid}
+.framework-ref .lbl{display:block;margin-bottom:6px}
+.framework-ref p{font-size:12px;font-style:italic;color:var(--p6)}
+footer{padding:20px 48px;border-top:2px solid var(--p7);font-size:11px;color:var(--p6);letter-spacing:.04em;line-height:1.8}
+[tabindex="0"]:focus-visible{outline:2px solid var(--p2);outline-offset:2px}
+</style>
+</head>
+<body>
+
+<div id="tooltip"></div>
+
+<div class="slides-wrapper">
+
+<!-- SLIDE 1 ─────────────────────────────────────────────── -->
+<section class="slide" id="slide-01" aria-label="Population Pyramid">
+  <div class="slide-meta">
+    <span class="lbl">// POPULATION PYRAMID</span>
+    <div class="dot-nav" role="navigation" aria-label="Slide navigation">
+      <div class="nav-dot active" onclick="scrollToSlide(0)" tabindex="0" aria-label="Slide 1"></div>
+      <div class="nav-dot" onclick="scrollToSlide(1)" tabindex="0" aria-label="Slide 2 learn panel"></div>
+    </div>
+  </div>
+  <h1 class="slide-title">Age &amp; Sex Distribution — Two Population Profiles Side by Side</h1>
+  <p class="slide-subtitle">Hover any bar for exact count &nbsp; Switch dataset &nbsp; Toggle overlay mode &nbsp; Arrow keys navigate age bands</p>
+  <div class="viz-container" id="chart" role="img" aria-label="Back-to-back population pyramid. Left side: female population by age group. Right side: male population by age group. Y-axis lists age bands 0-4 through 80+."></div>
+  <div class="controls">
+    <select id="dataset-select" onchange="switchDataset(this.value)" aria-label="Select population dataset">
+      <option value="nigeria">Nigeria (young)</option>
+      <option value="germany">Germany (ageing)</option>
+      <option value="india">India (transitional)</option>
+      <option value="japan">Japan (inverted)</option>
+    </select>
+    <button id="btn-overlay" onclick="toggleOverlay()" aria-pressed="false">Compare overlay</button>
+    <button id="btn-pct" onclick="togglePercent()" aria-pressed="false">Show %</button>
+    <button id="audio-toggle" onclick="toggleAudio()" aria-label="Play narration">&#9654; narration</button>
+  </div>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-swatch" style="background:#5C3317;opacity:.85"></div><span>Female</span></div>
+    <div class="legend-item"><div class="legend-swatch" style="background:#1B1B1B;opacity:.75"></div><span>Male</span></div>
+    <div class="legend-item" id="overlay-legend" style="display:none"><div class="legend-swatch" style="background:#B52C2C;opacity:.35;border:1px solid #B52C2C"></div><span>Overlay dataset</span></div>
+    <span class="shape-badge" id="shape-badge">Expansive</span>
+  </div>
+</section>
+
+<!-- SLIDE 2 ─────────────────────────────────────────────── -->
+<section class="slide slide-learn" id="slide-02" aria-label="Learn Panel — Population Pyramid">
+  <div class="slide-meta">
+    <span class="lbl">// LEARN — Population Pyramid</span>
+    <div class="dot-nav" role="navigation" aria-label="Slide navigation">
+      <div class="nav-dot" onclick="scrollToSlide(0)" tabindex="0" aria-label="Slide 1"></div>
+      <div class="nav-dot active" onclick="scrollToSlide(1)" tabindex="0" aria-label="Slide 2 learn panel"></div>
+    </div>
+  </div>
+  <div class="learn-block">
+    <h2>What this chart is</h2>
+    <p>A population pyramid is two back-to-back horizontal bar charts sharing a common categorical y-axis of age bands. Female bars extend leftward; male bars extend rightward. The x-axis encodes either absolute count or percentage of total population. The overall silhouette — the outline formed by all bar ends — is the primary signal: a wide base tapering to a narrow top indicates high fertility and high mortality (expansive, developing); a near-uniform column indicates stable fertility and mortality (stationary, developed); a narrow base widening in middle age then tapering indicates an ageing population with declining fertility (constrictive). This silhouette reading is the key perceptual advantage over a table: demographic structure becomes a shape, not a number.</p>
+    <h2>Why it was chosen here</h2>
+    <p>The data is a bivariate categorical distribution — age band crossed with sex — and the message is about demographic structure, not a specific value comparison. A grouped bar chart could show the same numbers but would lose the bilateral symmetry convention that allows immediate sex-ratio reading at each age band. A stacked bar chart across age bands would collapse the male/female distinction. The back-to-back layout exploits the viewer's bilateral symmetry detection: any horizontal imbalance between left and right bars is immediately visible as a sex-ratio anomaly — war cohort gaps, female longevity advantage in older bands, and selective migration effects are all apparent before any number is read. No other chart type makes this comparison as effortless.</p>
+    <h2>What the alternative would break</h2>
+    <p>A standard histogram for each sex in separate panels would work but requires the viewer to mentally align two separate scales. The back-to-back layout enforces shared axes, which is precisely what makes silhouette comparison possible. An area chart of population over age for each sex would show the distribution shape but lose the discreteness of age-band counts, which matters for policy planning (pension age thresholds, school cohort sizing). A line chart across age bands would imply continuity between categorical bins — age bands are ordered but not continuous in the same way that years are, and bar encoding correctly communicates that each band is a distinct count.</p>
+    <div class="framework-ref">
+      <span class="lbl">// FRAMEWORK</span>
+      <p>FT Visual Vocabulary category: Distribution — "Show the range and concentration of values in a dataset, here bivariate (age × sex)." Abela quadrant: Distribution / Comparison (comparing two distributions across the same ordered categories). The one design decision worth knowing: the x-axis is mirrored — female values are positive numbers plotted leftward using a reversed scale, not negative numbers. This keeps the axis labels positive and avoids the cognitive double-negation of reading "negative population." D3 implements this with two separate linear scales sharing the same domain [0, maxVal], with the female scale's range reversed.</p>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  <p>Nik Bear Brown, Irreducibly Human, What AI Can and Can't Do</p>
+  <p>boondoggling.ai &nbsp; irreducibly.xyz &nbsp; brutalist.art &nbsp; bearbrown.co &nbsp; frictional.xyz</p>
+</footer>
+
+<audio id="page-audio" src="./population-pyramid/audio.mp3"></audio>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script>
+/* ── DATA ─────────────────────────────────────────────────
+   Each dataset: array of { band, female, male } in thousands.
+   Bands must be ordered youngest to oldest (bottom to top on y-axis).
+   Replace with real census data; keep same structure.
+─────────────────────────────────────────────────────────── */
+const DATASETS = {
+  nigeria: {
+    label: 'Nigeria (2023)',
+    shape: 'Expansive',
+    shapeNote: 'Wide base, high fertility & mortality — rapid population growth',
+    data: [
+      { band:'0–4',  female:17200, male:17600 },
+      { band:'5–9',  female:15800, male:16100 },
+      { band:'10–14',female:14200, male:14500 },
+      { band:'15–19',female:12400, male:12700 },
+      { band:'20–24',female:10800, male:10900 },
+      { band:'25–29',female: 9200, male: 9300 },
+      { band:'30–34',female: 7800, male: 7900 },
+      { band:'35–39',female: 6400, male: 6500 },
+      { band:'40–44',female: 5200, male: 5300 },
+      { band:'45–49',female: 4100, male: 4200 },
+      { band:'50–54',female: 3200, male: 3300 },
+      { band:'55–59',female: 2400, male: 2400 },
+      { band:'60–64',female: 1800, male: 1800 },
+      { band:'65–69',female: 1200, male: 1200 },
+      { band:'70–74',female:  800, male:  750 },
+      { band:'75–79',female:  480, male:  440 },
+      { band:'80+',  female:  280, male:  240 },
+    ]
+  },
+  germany: {
+    label: 'Germany (2023)',
+    shape: 'Constrictive',
+    shapeNote: 'Narrow base, ageing population — shrinking workforce, pension pressure',
+    data: [
+      { band:'0–4',  female:1920, male:2010 },
+      { band:'5–9',  female:2050, male:2150 },
+      { band:'10–14',female:2180, male:2290 },
+      { band:'15–19',female:2240, male:2360 },
+      { band:'20–24',female:2350, male:2480 },
+      { band:'25–29',female:2680, male:2820 },
+      { band:'30–34',female:3020, male:3150 },
+      { band:'35–39',female:3180, male:3310 },
+      { band:'40–44',female:2980, male:3090 },
+      { band:'45–49',female:3080, male:3160 },
+      { band:'50–54',female:3410, male:3490 },
+      { band:'55–59',female:3520, male:3550 },
+      { band:'60–64',female:3280, male:3240 },
+      { band:'65–69',female:2960, male:2820 },
+      { band:'70–74',female:2740, male:2510 },
+      { band:'75–79',female:2200, male:1880 },
+      { band:'80+',  female:2820, male:1960 },
+    ]
+  },
+  india: {
+    label: 'India (2023)',
+    shape: 'Transitional',
+    shapeNote: 'Bulging working-age cohorts — demographic dividend window',
+    data: [
+      { band:'0–4',  female:58000, male:62000 },
+      { band:'5–9',  female:61000, male:65000 },
+      { band:'10–14',female:64000, male:68000 },
+      { band:'15–19',female:65000, male:70000 },
+      { band:'20–24',female:63000, male:68000 },
+      { band:'25–29',female:60000, male:64000 },
+      { band:'30–34',female:55000, male:58000 },
+      { band:'35–39',female:49000, male:52000 },
+      { band:'40–44',female:43000, male:46000 },
+      { band:'45–49',female:37000, male:39000 },
+      { band:'50–54',female:31000, male:33000 },
+      { band:'55–59',female:25000, male:27000 },
+      { band:'60–64',female:19500, male:20500 },
+      { band:'65–69',female:14000, male:14500 },
+      { band:'70–74',female: 9500, male: 9600 },
+      { band:'75–79',female: 5800, male: 5700 },
+      { band:'80+',  female: 4200, male: 3900 },
+    ]
+  },
+  japan: {
+    label: 'Japan (2023)',
+    shape: 'Inverted',
+    shapeNote: 'Narrowest base — world\'s most acute demographic decline',
+    data: [
+      { band:'0–4',  female:1420, male:1500 },
+      { band:'5–9',  female:1560, male:1640 },
+      { band:'10–14',female:1620, male:1710 },
+      { band:'15–19',female:1700, male:1790 },
+      { band:'20–24',female:1880, male:1960 },
+      { band:'25–29',female:2080, male:2160 },
+      { band:'30–34',female:2280, male:2360 },
+      { band:'35–39',female:2520, male:2600 },
+      { band:'40–44',female:2980, male:3060 },
+      { band:'45–49',female:3680, male:3740 },
+      { band:'50–54',female:4120, male:4140 },
+      { band:'55–59',female:3860, male:3820 },
+      { band:'60–64',female:3540, male:3440 },
+      { band:'65–69',female:3820, male:3600 },
+      { band:'70–74',female:4280, male:3920 },
+      { band:'75–79',female:3960, male:3380 },
+      { band:'80+',  female:5840, male:3680 },
+    ]
+  }
+};
+
+/* ── HAI PALETTE ─────────────────────────────────────────── */
+const COL_F   = '#5C3317';  /* walnut   — female */
+const COL_M   = '#1B1B1B';  /* obsidian — male   */
+const COL_OVL = '#B52C2C';  /* blood-red — overlay ghost */
+
+/* ── STATE ─────────────────────────────────────────────────── */
+let currentKey  = 'nigeria';
+let overlayKey  = 'germany';
+let showOverlay = false;
+let showPct     = false;
+
+/* ── DRAW ─────────────────────────────────────────────────── */
+function draw(transition) {
+  const container = document.getElementById('chart');
+  const tip = document.getElementById('tooltip');
+  const W   = container.clientWidth  || 800;
+  const H   = container.clientHeight || 480;
+
+  const ds  = DATASETS[currentKey];
+  const ovl = DATASETS[overlayKey];
+  const n   = ds.data.length;
+
+  const margin = { top:16, right:60, bottom:36, left:60 };
+  const centerX = W / 2;
+  const halfW   = centerX - margin.left - 8;
+  const innerH  = H - margin.top - margin.bottom;
+  const bandH   = innerH / n;
+
+  /* compute totals for percent mode */
+  const totalPop = ds.data.reduce((s,d) => s + d.female + d.male, 0);
+  const getValue = d => showPct
+    ? { female: d.female / totalPop * 100, male: d.male / totalPop * 100 }
+    : { female: d.female, male: d.male };
+
+  const allVals = ds.data.flatMap(d => [d.female, d.male]);
+  const ovlVals = ovl.data.flatMap(d => [d.female, d.male]);
+  const maxVal  = showPct
+    ? d3.max(allVals) / totalPop * 100
+    : d3.max(allVals);
+  const maxOvl  = showPct
+    ? d3.max(ovlVals) / ovl.data.reduce((s,d)=>s+d.female+d.male,0) * 100
+    : d3.max(ovlVals);
+  const globalMax = showOverlay ? Math.max(maxVal, maxOvl) : maxVal;
+
+  /* scales */
+  const scaleF = d3.scaleLinear().domain([0, globalMax * 1.05]).range([0, halfW]);
+  const scaleM = d3.scaleLinear().domain([0, globalMax * 1.05]).range([0, halfW]);
+  const scaleY = d3.scaleBand()
+    .domain(ds.data.map(d => d.band).reverse())
+    .range([margin.top, margin.top + innerH])
+    .padding(0.12);
+
+  /* fresh SVG or reuse */
+  let svg = d3.select('#chart').select('svg');
+  if (svg.empty()) {
+    svg = d3.select('#chart').append('svg')
+      .attr('width', W).attr('height', H).attr('role','img');
+  } else {
+    svg.attr('width', W).attr('height', H);
+  }
+
+  const dur = transition ? 600 : 0;
+
+  /* ── GRIDLINES ─────────────────────────────────────────── */
+  svg.selectAll('.grid-line').remove();
+  const ticks = scaleF.ticks(5);
+  ticks.forEach(t => {
+    const xF = centerX - scaleF(t);
+    const xM = centerX + scaleM(t);
+    svg.append('line').attr('class','grid-line')
+      .attr('x1',xF).attr('y1',margin.top).attr('x2',xF).attr('y2',margin.top+innerH)
+      .attr('stroke','#EDEDED').attr('stroke-width',.5).attr('stroke-dasharray','3 3');
+    svg.append('line').attr('class','grid-line')
+      .attr('x1',xM).attr('y1',margin.top).attr('x2',xM).attr('y2',margin.top+innerH)
+      .attr('stroke','#EDEDED').attr('stroke-width',.5).attr('stroke-dasharray','3 3');
+  });
+  /* center spine */
+  svg.append('line').attr('class','grid-line')
+    .attr('x1',centerX).attr('y1',margin.top).attr('x2',centerX).attr('y2',margin.top+innerH)
+    .attr('stroke','#1B1B1B').attr('stroke-width',1).attr('opacity',.25);
+
+  /* ── X-AXIS LABELS ─────────────────────────────────────── */
+  svg.selectAll('.x-lbl').remove();
+  const fmt = showPct ? v => v.toFixed(1)+'%' : v => (v>=1000 ? (v/1000).toFixed(0)+'k' : v);
+  ticks.forEach(t => {
+    if (t === 0) return;
+    svg.append('text').attr('class','x-lbl')
+      .attr('x', centerX - scaleF(t)).attr('y', margin.top + innerH + 20)
+      .attr('text-anchor','middle')
+      .attr('font-family',"'JetBrains Mono',monospace").attr('font-size','10px').attr('fill','#797C7F')
+      .text(fmt(t));
+    svg.append('text').attr('class','x-lbl')
+      .attr('x', centerX + scaleM(t)).attr('y', margin.top + innerH + 20)
+      .attr('text-anchor','middle')
+      .attr('font-family',"'JetBrains Mono',monospace").attr('font-size','10px').attr('fill','#797C7F')
+      .text(fmt(t));
+  });
+
+  /* col header labels */
+  svg.selectAll('.col-hdr').remove();
+  ['Female','Male'].forEach((lbl,i) => {
+    svg.append('text').attr('class','col-hdr')
+      .attr('x', i===0 ? centerX - halfW/2 : centerX + halfW/2)
+      .attr('y', margin.top - 4)
+      .attr('text-anchor','middle')
+      .attr('font-family',"'JetBrains Mono',monospace").attr('font-size','11px').attr('font-weight','600')
+      .attr('fill', i===0 ? COL_F : COL_M)
+      .text(lbl);
+  });
+
+  /* dataset title */
+  svg.selectAll('.ds-title').remove();
+  svg.append('text').attr('class','ds-title')
+    .attr('x', centerX).attr('y', margin.top + innerH + 34)
+    .attr('text-anchor','middle')
+    .attr('font-family',"'JetBrains Mono',monospace").attr('font-size','11px').attr('font-weight','800')
+    .attr('fill','#1B1B1B')
+    .text(ds.label + (showOverlay ? '  vs  ' + ovl.label : ''));
+
+  /* ── Y-AXIS (age band labels) ──────────────────────────── */
+  svg.selectAll('.y-lbl').remove();
+  ds.data.map(d=>d.band).forEach(band => {
+    svg.append('text').attr('class','y-lbl')
+      .attr('x', centerX).attr('y', scaleY(band) + scaleY.bandwidth()/2)
+      .attr('text-anchor','middle').attr('dominant-baseline','middle')
+      .attr('font-family',"'JetBrains Mono',monospace").attr('font-size','9px').attr('fill','#797C7F')
+      .text(band);
+  });
+
+  /* ── OVERLAY GHOST BARS ────────────────────────────────── */
+  svg.selectAll('.bar-ovl-f, .bar-ovl-m').remove();
+  if (showOverlay) {
+    const ovlTotal = ovl.data.reduce((s,d)=>s+d.female+d.male,0);
+    ovl.data.forEach(d => {
+      const fv = showPct ? d.female/ovlTotal*100 : d.female;
+      const mv = showPct ? d.male/ovlTotal*100   : d.male;
+      const bh = scaleY.bandwidth();
+      const y  = scaleY(d.band);
+      if (!y && y !== 0) return;
+      svg.append('rect').attr('class','bar-ovl-f')
+        .attr('x', centerX - scaleF(fv)).attr('y', y)
+        .attr('width', scaleF(fv)).attr('height', bh)
+        .attr('fill', COL_OVL).attr('opacity', .22).attr('stroke', COL_OVL).attr('stroke-width',.5);
+      svg.append('rect').attr('class','bar-ovl-m')
+        .attr('x', centerX).attr('y', y)
+        .attr('width', scaleM(mv)).attr('height', bh)
+        .attr('fill', COL_OVL).attr('opacity', .22).attr('stroke', COL_OVL).attr('stroke-width',.5);
+    });
+  }
+
+  /* ── MAIN BARS ─────────────────────────────────────────── */
+  const barsF = svg.selectAll('.bar-f').data(ds.data, d=>d.band);
+  const barsM = svg.selectAll('.bar-m').data(ds.data, d=>d.band);
+
+  /* enter */
+  barsF.enter().append('rect').attr('class','bar-f')
+    .attr('x', centerX).attr('width', 0)
+    .attr('y', d => scaleY(d.band)).attr('height', scaleY.bandwidth())
+    .attr('fill', COL_F).attr('opacity',.85)
+    .attr('tabindex', 0)
+    .attr('aria-label', d => 'Female ' + d.band + ': ' + d.female.toLocaleString())
+    .on('mousemove', function(event, d) { showTip(event, d, 'female'); })
+    .on('mouseout',  ()   => { tip.style.opacity='0'; })
+    .on('click',     (e,d)=> { showTip(e, d, 'female'); })
+    .on('keydown',   function(event,d) {
+      if (event.key==='Enter') showTip(event, d, 'female');
+      navigateKey(event, d, ds.data, 'bar-f');
+    })
+    .merge(barsF)
+    .transition().duration(dur).ease(d3.easeCubicOut)
+    .attr('x', d => { const v=getValue(d); return centerX - scaleF(v.female); })
+    .attr('width', d => { const v=getValue(d); return scaleF(v.female); })
+    .attr('y', d => scaleY(d.band))
+    .attr('height', scaleY.bandwidth());
+
+  barsM.enter().append('rect').attr('class','bar-m')
+    .attr('x', centerX).attr('width', 0)
+    .attr('y', d => scaleY(d.band)).attr('height', scaleY.bandwidth())
+    .attr('fill', COL_M).attr('opacity',.75)
+    .attr('tabindex', 0)
+    .attr('aria-label', d => 'Male ' + d.band + ': ' + d.male.toLocaleString())
+    .on('mousemove', function(event, d) { showTip(event, d, 'male'); })
+    .on('mouseout',  ()   => { tip.style.opacity='0'; })
+    .on('click',     (e,d)=> { showTip(e, d, 'male'); })
+    .on('keydown',   function(event,d) {
+      if (event.key==='Enter') showTip(event, d, 'male');
+      navigateKey(event, d, ds.data, 'bar-m');
+    })
+    .merge(barsM)
+    .transition().duration(dur).ease(d3.easeCubicOut)
+    .attr('x', centerX)
+    .attr('width', d => { const v=getValue(d); return scaleM(v.male); })
+    .attr('y', d => scaleY(d.band))
+    .attr('height', scaleY.bandwidth());
+
+  barsF.exit().transition().duration(dur).attr('width',0).attr('x',centerX).remove();
+  barsM.exit().transition().duration(dur).attr('width',0).remove();
+
+  /* update shape badge */
+  document.getElementById('shape-badge').textContent = ds.shape;
+  document.getElementById('shape-badge').title = ds.shapeNote;
+}
+
+function showTip(event, d, sex) {
+  const tip = document.getElementById('tooltip');
+  const ds  = DATASETS[currentKey];
+  const total = ds.data.reduce((s,r)=>s+r.female+r.male,0);
+  const val   = sex === 'female' ? d.female : d.male;
+  const pct   = (val / total * 100).toFixed(2);
+  tip.style.opacity = '1';
+  tip.style.left  = (event.clientX + 14) + 'px';
+  tip.style.top   = (event.clientY - 10) + 'px';
+  tip.innerHTML =
+    '<strong style="color:' + (sex==='female'?COL_F:COL_M) + '">' + (sex==='female'?'Female':'Male') + ' &nbsp;' + d.band + '</strong><br>' +
+    val.toLocaleString() + ' thousand<br>' +
+    '<span style="color:var(--p6)">' + pct + '% of total</span><br>' +
+    '<span style="color:var(--p6)">Sex ratio: ' + (d.male/d.female).toFixed(2) + ' M/F</span>';
+}
+
+function navigateKey(event, d, data, cls) {
+  const idx = data.indexOf(d);
+  const all = d3.selectAll('.' + cls).nodes();
+  if (event.key==='ArrowUp'   && idx+1 < all.length)  all[idx+1].focus();
+  if (event.key==='ArrowDown' && idx-1 >= 0)           all[idx-1].focus();
+}
+
+/* ── CONTROLS ────────────────────────────────────────────── */
+function switchDataset(key) {
+  currentKey = key;
+  overlayKey = Object.keys(DATASETS).find(k => k !== key) || 'germany';
+  document.getElementById('overlay-legend').style.display = showOverlay ? 'flex' : 'none';
+  draw(true);
+}
+
+function toggleOverlay() {
+  showOverlay = !showOverlay;
+  const btn = document.getElementById('btn-overlay');
+  btn.classList.toggle('active', showOverlay);
+  btn.setAttribute('aria-pressed', showOverlay);
+  btn.textContent = showOverlay ? 'Overlay: on' : 'Compare overlay';
+  document.getElementById('overlay-legend').style.display = showOverlay ? 'flex' : 'none';
+  draw(true);
+}
+
+function togglePercent() {
+  showPct = !showPct;
+  const btn = document.getElementById('btn-pct');
+  btn.classList.toggle('active', showPct);
+  btn.setAttribute('aria-pressed', showPct);
+  btn.textContent = showPct ? 'Show count' : 'Show %';
+  draw(true);
+}
+
+function toggleAudio() {
+  const audio = document.getElementById('page-audio');
+  const btn   = document.getElementById('audio-toggle');
+  if (!audio) return;
+  if (audio.paused) {
+    audio.play().then(() => { btn.innerHTML='&#9646;&#9646; narration'; }).catch(()=>{});
+  } else {
+    audio.pause();
+    btn.innerHTML = '&#9654; narration';
+  }
+}
+
+function scrollToSlide(idx) {
+  document.querySelectorAll('.slide')[idx]?.scrollIntoView({ behavior:'smooth' });
+}
+
+let rTimer;
+const ro = new ResizeObserver(() => { clearTimeout(rTimer); rTimer = setTimeout(() => draw(false), 150); });
+ro.observe(document.getElementById('chart'));
+
+draw(false);
+</script>
+</body>
+</html>

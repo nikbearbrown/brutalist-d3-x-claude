@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<!--
+  INFERENCES: chart=proportional area chart (circle packing), message=North America
+  and East Asia account for 62% of global AI for Good investment — Sub-Saharan Africa
+  and Oceania receive less than 3% combined, palette=hai, filename=proportional-area.
+  CRITICAL ENCODING NOTE: circle AREA is proportional to value (r = sqrt(value/π) × k).
+  The radius-error toggle demonstrates what happens when r ∝ value instead —
+  a common and consequential implementation mistake that exaggerates large values
+  by squaring. The distortion factor for this dataset reaches 1,849× at the extremes.
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proportional Area Chart — AI Investment by Region</title>
+  <meta name="description" content="Interactive proportional area chart comparing AI for Good investment by world region. Circle area encodes value. A radius-error toggle demonstrates the common implementation mistake of using radius instead of area.">
+  <meta name="keywords" content="proportional area chart, bubble chart, circle packing, D3.js, area encoding, data visualization, AI investment, regional comparison">
+  <meta name="author" content="Nik Bear Brown">
+  <meta name="category" content="Magnitude Comparison">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* ── HAI PALETTE ──────────────────────────────────────────── */
+    :root {
+      --p1: #1B1B1B;
+      --p2: #5C3317;
+      --p3: #B52C2C;
+      --p4: #F7FAFD;
+      --p5: #4A4D4F;
+      --p6: #797C7F;
+      --p7: #EDEDED;
+      --p8: #FFFFFF;
+      --font: 'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      font-family: var(--font);
+      background: var(--p8);
+      color: var(--p1);
+      overflow: hidden;
+    }
+
+    /* ── SLIDE ENGINE ─────────────────────────────────────────── */
+    .slides {
+      position: relative;
+      width: 100%;
+      height: calc(100vh - 40px);
+      overflow: hidden;
+    }
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 22px 44px 0;
+      transform: translateX(100%);
+      transition: transform 0.55s cubic-bezier(0.77, 0, 0.175, 1);
+      overflow: hidden;
+    }
+    .slide.active  { transform: translateX(0); }
+    .slide.exiting { transform: translateX(-100%); }
+
+    /* ── TYPE ─────────────────────────────────────────────────── */
+    .label {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      color: var(--p6);
+      text-transform: uppercase;
+    }
+    .slide-meta {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 8px;
+    }
+    .slide-title {
+      font-size: clamp(11px, 1.75vw, 21px);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--p1);
+      line-height: 1.1;
+      max-width: 820px;
+      margin-bottom: 10px;
+    }
+
+    /* ── VIZ ROW ──────────────────────────────────────────────── */
+    .viz-row {
+      flex: 1;
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      min-height: 0;
+    }
+    .viz-container {
+      flex: 1;
+      min-width: 0;
+      min-height: 0;
+      position: relative;
+    }
+    #svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* ── ERROR BANNER ─────────────────────────────────────────── */
+    #error-banner {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      background: var(--p3);
+      color: var(--p8);
+      font-family: var(--font);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-align: center;
+      padding: 5px 0;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      z-index: 10;
+    }
+    #error-banner.visible { opacity: 1; }
+
+    /* ── SIDEBAR ──────────────────────────────────────────────── */
+    .sidebar {
+      width: 175px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 18px;
+      padding-left: 22px;
+      border-left: 2px solid var(--p7);
+      margin-left: 14px;
+    }
+    .sidebar-block .label { display: block; margin-bottom: 6px; }
+    .sidebar-stat {
+      font-size: clamp(18px, 2.5vw, 30px);
+      font-weight: 800;
+      color: var(--p2);
+      line-height: 1;
+    }
+    .sidebar-sub {
+      font-size: 10px;
+      color: var(--p6);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+    .distortion-block {
+      padding: 10px;
+      border: 1px solid var(--p7);
+    }
+    .distortion-block.warning {
+      border-color: var(--p3);
+      background: #FFF5F5;
+    }
+
+    /* ── TOOLTIP ──────────────────────────────────────────────── */
+    #tooltip {
+      position: fixed;
+      background: var(--p1);
+      color: var(--p8);
+      font-family: var(--font);
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1.7;
+      padding: 8px 13px;
+      border: 1px solid var(--p2);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.1s;
+      z-index: 200;
+      white-space: nowrap;
+    }
+    #tooltip.visible { opacity: 1; }
+
+    /* ── CONTROLS ─────────────────────────────────────────────── */
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 0 10px;
+      border-top: 2px solid var(--p7);
+      margin-top: 6px;
+      flex-wrap: wrap;
+    }
+    button {
+      font-family: var(--font);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      background: transparent;
+      border: 1px solid var(--p5);
+      color: var(--p5);
+      padding: 5px 10px;
+      cursor: pointer;
+      transition: background 0.13s, color 0.13s, border-color 0.13s;
+    }
+    button:hover, button:focus-visible {
+      background: var(--p1);
+      color: var(--p8);
+      border-color: var(--p1);
+      outline: none;
+    }
+    button.error-active {
+      background: var(--p3);
+      color: var(--p8);
+      border-color: var(--p3);
+    }
+    .nav-dots {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-left: auto;
+    }
+    .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--p7);
+      cursor: pointer; border: none; padding: 0;
+      transition: background 0.2s;
+    }
+    .dot.active { background: var(--p2); }
+
+    /* ── LEARN SLIDE ──────────────────────────────────────────── */
+    .learn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px 32px;
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 8px;
+      min-height: 0;
+    }
+    .learn-block { border-left: 3px solid var(--p2); padding-left: 16px; }
+    .learn-block h2 {
+      font-size: 10px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.12em; color: var(--p2); margin-bottom: 8px;
+    }
+    .learn-block p { font-size: 11px; line-height: 1.85; color: var(--p5); }
+    .learn-block strong { color: var(--p1); font-weight: 800; }
+    .learn-block em     { color: var(--p2); font-style: normal; font-weight: 600; }
+    .error-callout {
+      background: #FFF5F5;
+      border: 2px solid var(--p3);
+      padding: 12px 14px;
+      margin-top: 10px;
+    }
+    .error-callout .label { display: block; margin-bottom: 6px; color: var(--p3); }
+    .framework-box {
+      background: var(--p4);
+      border: 1px solid var(--p7);
+      padding: 12px 15px;
+      margin-top: 10px;
+    }
+    .framework-box .label { display: block; margin-bottom: 7px; }
+
+    /* ── FOOTER ───────────────────────────────────────────────── */
+    footer {
+      border-top: 2px solid var(--p7);
+      padding: 9px 44px;
+      font-size: 10px;
+      color: var(--p6);
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+
+<div id="tooltip" role="tooltip" aria-live="polite"></div>
+
+<div class="slides" id="slides">
+
+  <!-- ══ SLIDE 01 — VISUALIZATION ════════════════════════════ -->
+  <section class="slide active" id="slide-01"
+           aria-label="Proportional area chart — AI for Good investment by region">
+
+    <div class="slide-meta">
+      <span class="label">// PROPORTIONAL AREA — 01 / 02</span>
+    </div>
+    <h1 class="slide-title">North America + East Asia hold 62% of global AI for Good investment</h1>
+
+    <div class="viz-row">
+
+      <div class="viz-container" id="chart" role="img"
+           aria-labelledby="chart-accessible-title" style="position:relative;">
+        <div id="error-banner" aria-live="assertive">
+          ⚠ radius encoding active — areas are now value² — this is the common error
+        </div>
+        <svg id="svg">
+          <title id="chart-accessible-title">
+            Proportional area chart. Eight circles represent world regions. Circle area
+            is proportional to AI for Good investment in USD millions. North America
+            is the largest circle at $8,420M; Oceania is the smallest at $195M.
+            Hover circles for exact values and percentages.
+          </title>
+          <desc>
+            Circle pack layout. Area encoding is correct by default. The radius-error
+            toggle demonstrates what goes wrong when radius rather than area is used.
+          </desc>
+        </svg>
+      </div>
+
+      <div class="sidebar" id="sidebar">
+        <div class="sidebar-block">
+          <span class="label">// total</span>
+          <div class="sidebar-stat" id="stat-total">$22.6B</div>
+          <div class="sidebar-sub">global commitment</div>
+        </div>
+        <div class="sidebar-block">
+          <span class="label">// largest share</span>
+          <div class="sidebar-stat" id="stat-top">N. Am. 37%</div>
+          <div class="sidebar-sub">$8,420M</div>
+        </div>
+        <div class="sidebar-block">
+          <span class="label">// smallest share</span>
+          <div class="sidebar-stat" id="stat-bot"
+               style="color:var(--p6);">OC 0.9%</div>
+          <div class="sidebar-sub">$195M</div>
+        </div>
+        <div class="sidebar-block distortion-block" id="distortion-block">
+          <span class="label">// area ratio</span>
+          <div class="sidebar-stat" id="distortion-stat"
+               style="font-size:clamp(14px,2vw,22px);">43×</div>
+          <div class="sidebar-sub" id="distortion-sub">
+            largest : smallest<br>(area correct)
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button id="audio-toggle" tabindex="0" aria-label="Play narration">▶ narration</button>
+      <button id="replay-btn" tabindex="0">replay</button>
+      <button id="error-btn" tabindex="0"
+              title="Switch to radius encoding — demonstrates the common implementation error">
+        radius error: off
+      </button>
+      <div class="nav-dots" aria-label="Slide navigation">
+        <button class="dot active" data-slide="0" tabindex="0"
+                aria-label="Slide 1: visualization" aria-current="true"></button>
+        <button class="dot" data-slide="1" tabindex="0"
+                aria-label="Slide 2: learn panel"></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SLIDE 02 — LEARN ════════════════════════════════════ -->
+  <section class="slide" id="slide-02"
+           aria-label="Learn panel — Proportional Area Chart">
+
+    <div class="slide-meta">
+      <span class="label">// LEARN — PROPORTIONAL AREA — 02 / 02</span>
+    </div>
+    <h1 class="slide-title">Area ≠ radius — the encoding error that distorts at the square</h1>
+
+    <div class="learn-grid">
+
+      <div class="learn-block">
+        <h2>What this chart is</h2>
+        <p>A Proportional Area Chart encodes quantitative values as the
+        <em>area</em> of geometric shapes — most commonly circles, but any
+        closed shape works. The perceptual mechanism is <strong>area
+        estimation</strong>: the eye reads the space inside the shape and
+        compares it across items. Area estimation is less precise than
+        position on a common axis (the bar chart's mechanism), which makes
+        proportional area charts better suited to <em>presentational</em>
+        contexts — conveying the scale of differences at a glance — than to
+        <em>analytical</em> ones, where readers need to extract specific values.
+        Value labels inside or beside circles are required; the chart alone
+        cannot support accurate reading.</p>
+      </div>
+
+      <div class="learn-block">
+        <h2>Why it was chosen here</h2>
+        <p>The data spans <strong>43:1</strong> from the largest to the smallest
+        value ($8,420M to $195M). A bar chart would render this honestly but the
+        smallest bars would be barely visible without a log scale, which introduces
+        its own perceptual problems. A proportional area chart handles extreme ratios
+        naturally: the eye tolerates wide size variation between circles and still
+        perceives the relative scale. The circular form also avoids implying a ranking
+        or sequence — these are independent regions, not ordered categories. The
+        packed layout groups them naturally without imposing a spatial hierarchy
+        that doesn't exist in the data.</p>
+      </div>
+
+      <div class="learn-block">
+        <h2>The encoding error — and how to spot it</h2>
+        <div class="error-callout">
+          <span class="label" style="color:var(--p3);">// the common mistake</span>
+          <p style="font-size:11px;line-height:1.85;color:var(--p5);">
+            If you set <strong>radius ∝ value</strong> instead of
+            <strong>area ∝ value</strong>, area grows as value².
+            North America ($8,420M) is 43× larger than Oceania ($195M).
+            With correct area encoding: visually <em>43× larger area</em>.
+            With radius encoding: visually <em>1,849× larger area</em>.
+            The error amplifies differences by a factor equal to the value ratio.
+            Hit the <strong>radius error toggle</strong> on slide 1 and watch the
+            small circles become nearly invisible.
+          </p>
+        </div>
+        <p style="margin-top:10px;">
+          D3's fix: use <code>d3.scaleSqrt()</code> or pass the raw value to
+          <code>hierarchy.sum()</code> and let <code>d3.pack()</code> compute
+          <code>r = sqrt(value)</code> internally. Never map value directly to radius.
+        </p>
+      </div>
+
+      <div class="learn-block">
+        <h2>Framework reference &amp; the one decision worth knowing</h2>
+        <div class="framework-box">
+          <span class="label">// FT Visual Vocabulary + Tufte</span>
+          <p style="margin-top:6px;font-size:11px;line-height:1.8;color:var(--p5);">
+            FT Visual Vocabulary: <strong>Magnitude — Size comparison</strong>.
+            Abela quadrant: <strong>Comparison</strong> — comparing the relative
+            magnitude of items without a continuous axis. Tufte: proportional area
+            charts sacrifice data-ink ratio precision for gestalt comprehension;
+            acceptable only when the scale of difference is the message, not the
+            precise values.
+          </p>
+        </div>
+        <p style="margin-top:12px;">
+          <strong>The one decision worth knowing:</strong> circle color uses the
+          same sequential scale as the size (darker = larger value). This is
+          <em>double encoding</em> — both area and colour encode the same
+          variable. That's usually redundant and inefficient; here it is deliberate.
+          Double encoding reinforces the size hierarchy for viewers who find area
+          estimation difficult, and it makes the smallest circles (which are almost
+          invisible by area) still perceptible by hue contrast.
+        </p>
+      </div>
+
+    </div>
+
+    <div class="controls">
+      <button id="audio-toggle-2" tabindex="0" aria-label="Play narration">▶ narration</button>
+      <div class="nav-dots" aria-label="Slide navigation">
+        <button class="dot" data-slide="0" tabindex="0"
+                aria-label="Slide 1: visualization"></button>
+        <button class="dot active" data-slide="1" tabindex="0"
+                aria-label="Slide 2: learn panel" aria-current="true"></button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <span>Nik Bear Brown, Irreducibly Human, What AI Can and Can't Do</span>
+  <span>boondoggling.ai · irreducibly.xyz · brutalist.art · bearbrown.co · frictional.xyz</span>
+</footer>
+
+<audio id="page-audio" src="./proportional-area/audio.mp3" preload="none"></audio>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script>
+'use strict';
+
+/* ══ SLIDE SYSTEM ══════════════════════════════════════════════ */
+let currentSlide = 0;
+const slideEls = document.querySelectorAll('.slide');
+const allDots  = document.querySelectorAll('.dot');
+
+function goToSlide(idx) {
+  if (idx === currentSlide) return;
+  slideEls[currentSlide].classList.remove('active');
+  slideEls[currentSlide].classList.add('exiting');
+  const old = currentSlide;
+  currentSlide = idx;
+  slideEls[currentSlide].classList.add('active');
+  allDots.forEach((d, i) => {
+    d.classList.toggle('active', i === currentSlide);
+    d.setAttribute('aria-current', i === currentSlide ? 'true' : 'false');
+  });
+  setTimeout(() => slideEls[old].classList.remove('exiting'), 600);
+}
+
+allDots.forEach((dot, i) => dot.addEventListener('click', () => goToSlide(i)));
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') goToSlide(Math.min(currentSlide + 1, slideEls.length - 1));
+  if (e.key === 'ArrowLeft')  goToSlide(Math.max(currentSlide - 1, 0));
+});
+
+/* ══ AUDIO ═════════════════════════════════════════════════════ */
+const audio = document.getElementById('page-audio');
+['audio-toggle','audio-toggle-2'].forEach(id => {
+  document.getElementById(id).addEventListener('click', () => {
+    const btns = document.querySelectorAll('[id^="audio-toggle"]');
+    if (audio.paused) {
+      audio.play().catch(() => {});
+      btns.forEach(b => b.textContent = '⏸ narration');
+    } else {
+      audio.pause();
+      btns.forEach(b => b.textContent = '▶ narration');
+    }
+  });
+});
+
+/* ══ TOOLTIP ═══════════════════════════════════════════════════ */
+const tip = document.getElementById('tooltip');
+function showTip(html, cx, cy) {
+  tip.innerHTML = html;
+  tip.classList.add('visible');
+  const tw = tip.offsetWidth, th = tip.offsetHeight;
+  tip.style.left = Math.min(cx + 14, window.innerWidth  - tw - 6) + 'px';
+  tip.style.top  = Math.max(cy - th - 12, 6) + 'px';
+}
+function hideTip() { tip.classList.remove('visible'); }
+
+/* ══ COLOR SCALE ════════════════════════════════════════════════ */
+const colorInterp = d3.interpolateRgb('#F5EEE8', '#5C3317');
+
+function circleColor(value, max) {
+  return colorInterp(Math.pow(value / max, 0.6)); // slight gamma for visual spread
+}
+
+/* ══ TEXT CONTRAST ══════════════════════════════════════════════ */
+function textOnColor(value, max) {
+  const t = Math.pow(value / max, 0.6);
+  // Luminance at interpolated color
+  const r1=245,g1=238,b1=232, r2=92,g2=51,b2=23;
+  const r = r1+(r2-r1)*t, g = g1+(g2-g1)*t, b2c = b1+(b2-b1)*t;
+  const lin = c => { c/=255; return c<=0.03928?c/12.92:Math.pow((c+0.055)/1.055,2.4); };
+  const L = 0.2126*lin(r)+0.7152*lin(g)+0.0722*lin(b2c);
+  return (1.05/(L+0.05)) >= ((L+0.05)/0.05) ? '#FFFFFF' : '#1B1B1B';
+}
+
+/* ══ CHART STATE ════════════════════════════════════════════════ */
+let chartData    = null;
+let useRadiusErr = false;
+
+/* ══ BUILD CHART ════════════════════════════════════════════════ */
+function buildChart(data, animate) {
+  const container = document.getElementById('chart');
+  const W = container.clientWidth;
+  const H = container.clientHeight;
+  const bannerH = useRadiusErr ? 28 : 0;
+  const iW = W;
+  const iH = H - bannerH;
+  if (iW < 20 || iH < 20) return;
+
+  const total  = d3.sum(data.items, d => d.value);
+  const maxVal = d3.max(data.items, d => d.value);
+  const minVal = d3.min(data.items, d => d.value);
+
+  // d3.pack: pass value² when showing radius error so r ∝ value (wrong)
+  // pass value for correct (r ∝ sqrt(value), area ∝ value)
+  const sumFn = useRadiusErr ? d => d.value * d.value : d => d.value;
+
+  const packRoot = d3.pack()
+    .size([iW - 4, iH - 4])
+    .padding(8)(
+      d3.hierarchy({ children: data.items })
+        .sum(sumFn)
+        .sort((a, b) => b.value - a.value)
+    );
+
+  const nodes = packRoot.leaves();
+
+  // Clear & rebuild
+  const svg = d3.select('#svg');
+  svg.selectAll('*').remove();
+
+  const g = svg.append('g')
+    .attr('transform', `translate(2, ${bannerH + 2})`);
+
+  // ── CIRCLES
+  const circles = g.selectAll('.bubble')
+    .data(nodes, d => d.data.id)
+    .join('g')
+    .attr('class', 'bubble')
+    .attr('transform', d => `translate(${d.x},${d.y})`)
+    .attr('tabindex', 0)
+    .attr('aria-label', d => {
+      const pct = ((d.data.value / total) * 100).toFixed(1);
+      return `${d.data.label}: $${d.data.value.toLocaleString()}M (${pct}%)`;
+    });
+
+  // Circle fills
+  const circlePaths = circles.append('circle')
+    .attr('r', animate ? 0 : d => d.r)
+    .attr('fill', d => circleColor(d.data.value, maxVal))
+    .attr('stroke', 'var(--p8)')
+    .attr('stroke-width', 2);
+
+  if (animate) {
+    circlePaths.transition()
+      .delay((d, i) => i * 65)
+      .duration(700)
+      .ease(d3.easeBounceOut)
+      .attr('r', d => d.r);
+  }
+
+  // ── LABELS — three tiers by circle size
+  // Tier 1: r > 55 — full label + value inside
+  // Tier 2: r > 28 — short label inside
+  // Tier 3: r ≤ 28 — external label with leader line
+
+  nodes.forEach((d, i) => {
+    const sel = g.select(`.bubble:nth-child(${i + 1})`);
+    const tc  = textOnColor(d.data.value, maxVal);
+    const pct = ((d.data.value / total) * 100).toFixed(1);
+
+    if (d.r > 55) {
+      // Full label inside
+      const lblG = sel.append('g')
+        .attr('opacity', animate ? 0 : 1)
+        .attr('pointer-events','none');
+      lblG.append('text')
+        .attr('text-anchor','middle')
+        .attr('dy', d.r > 70 ? '-1em' : '-0.35em')
+        .attr('font-family','var(--font)')
+        .attr('font-size', Math.min(d.r * 0.2, 13))
+        .attr('font-weight','800')
+        .attr('fill', tc)
+        .text(d.data.label);
+      lblG.append('text')
+        .attr('text-anchor','middle')
+        .attr('dy', d.r > 70 ? '0.2em' : '0.9em')
+        .attr('font-family','var(--font)')
+        .attr('font-size', Math.min(d.r * 0.17, 11))
+        .attr('font-weight','600')
+        .attr('fill', tc)
+        .attr('opacity', 0.85)
+        .text(`$${(d.data.value/1000).toFixed(1)}B`);
+      if (d.r > 65) {
+        lblG.append('text')
+          .attr('text-anchor','middle')
+          .attr('dy','1.5em')
+          .attr('font-family','var(--font)')
+          .attr('font-size', Math.min(d.r * 0.13, 10))
+          .attr('font-weight','400')
+          .attr('fill', tc)
+          .attr('opacity', 0.7)
+          .text(`${pct}%`);
+      }
+      if (animate) {
+        lblG.transition()
+          .delay(i * 65 + 500)
+          .duration(250)
+          .attr('opacity', 1);
+      }
+    } else if (d.r > 28) {
+      // Short label inside
+      const lbl = sel.append('text')
+        .attr('text-anchor','middle')
+        .attr('dominant-baseline','middle')
+        .attr('font-family','var(--font)')
+        .attr('font-size', Math.min(d.r * 0.25, 11))
+        .attr('font-weight','800')
+        .attr('fill', tc)
+        .attr('pointer-events','none')
+        .attr('opacity', animate ? 0 : 1)
+        .text(d.data.short);
+      if (animate) {
+        lbl.transition().delay(i * 65 + 500).duration(250).attr('opacity', 1);
+      }
+    } else {
+      // External label + leader line
+      // Direction: away from pack centre
+      const cx = iW / 2, cy = iH / 2;
+      const angle = Math.atan2(d.y - cy, d.x - cx);
+      const lx = Math.cos(angle) * (d.r + 18);
+      const ly = Math.sin(angle) * (d.r + 18);
+      const tx = Math.cos(angle) * (d.r + 22);
+      const ty = Math.sin(angle) * (d.r + 22);
+
+      const extG = sel.append('g')
+        .attr('pointer-events','none')
+        .attr('opacity', animate ? 0 : 1);
+
+      extG.append('line')
+        .attr('x1', Math.cos(angle) * d.r)
+        .attr('y1', Math.sin(angle) * d.r)
+        .attr('x2', lx).attr('y2', ly)
+        .attr('stroke','var(--p6)').attr('stroke-width',1);
+
+      extG.append('text')
+        .attr('x', tx).attr('y', ty)
+        .attr('text-anchor', Math.cos(angle) >= 0 ? 'start' : 'end')
+        .attr('dominant-baseline','middle')
+        .attr('font-family','var(--font)')
+        .attr('font-size', 9)
+        .attr('font-weight','800')
+        .attr('fill','var(--p5)')
+        .text(d.data.short);
+
+      if (animate) {
+        extG.transition().delay(i * 65 + 500).duration(250).attr('opacity', 1);
+      }
+    }
+  });
+
+  // ── HOVER INTERACTIONS
+  circles
+    .on('mouseover', function(event, d) {
+      d3.selectAll('.bubble circle').attr('opacity', 0.25);
+      d3.select(this).select('circle').attr('opacity', 1)
+        .attr('stroke','var(--p3)').attr('stroke-width', 3);
+      const pct = ((d.data.value / total) * 100).toFixed(1);
+      const areaRatio = (d.data.value / minVal).toFixed(1);
+      showTip(
+        `<strong>${d.data.label}</strong><br>` +
+        `$${d.data.value.toLocaleString()}M<br>` +
+        `${pct}% of total<br>` +
+        `${areaRatio}× smallest region`,
+        event.clientX, event.clientY
+      );
+    })
+    .on('mouseout', function() {
+      d3.selectAll('.bubble circle')
+        .attr('opacity', 1)
+        .attr('stroke','var(--p8)')
+        .attr('stroke-width', 2);
+      hideTip();
+    })
+    .on('keydown', function(event, d) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        const pct = ((d.data.value / total) * 100).toFixed(1);
+        showTip(
+          `<strong>${d.data.label}</strong><br>` +
+          `$${d.data.value.toLocaleString()}M  ·  ${pct}%`,
+          200, 200
+        );
+      }
+      if (event.key === 'Escape') hideTip();
+    });
+
+  // ── UPDATE SIDEBAR
+  const distBlock = document.getElementById('distortion-block');
+  const distStat  = document.getElementById('distortion-stat');
+  const distSub   = document.getElementById('distortion-sub');
+  if (useRadiusErr) {
+    const wrongRatio = Math.round((maxVal / minVal) * (maxVal / minVal));
+    distStat.textContent = `${wrongRatio.toLocaleString()}×`;
+    distStat.style.color = 'var(--p3)';
+    distSub.innerHTML    = 'visual area ratio<br><strong style="color:var(--p3);">radius error active</strong>';
+    distBlock.classList.add('warning');
+  } else {
+    distStat.textContent = `${Math.round(maxVal / minVal)}×`;
+    distStat.style.color = 'var(--p2)';
+    distSub.innerHTML    = 'largest : smallest<br>(area correct)';
+    distBlock.classList.remove('warning');
+  }
+}
+
+/* ══ ERROR BANNER & TOGGLE ══════════════════════════════════════ */
+const errorBanner = document.getElementById('error-banner');
+document.getElementById('error-btn').addEventListener('click', function() {
+  useRadiusErr = !useRadiusErr;
+  this.textContent = useRadiusErr ? 'radius error: ON' : 'radius error: off';
+  this.classList.toggle('error-active', useRadiusErr);
+  errorBanner.classList.toggle('visible', useRadiusErr);
+  if (chartData) buildChart(chartData, true);
+});
+
+/* ══ REPLAY ═════════════════════════════════════════════════════ */
+document.getElementById('replay-btn').addEventListener('click', () => {
+  if (chartData) buildChart(chartData, true);
+});
+
+/* ══ RESPONSIVE ═════════════════════════════════════════════════ */
+let resizeTimer;
+const ro = new ResizeObserver(() => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    if (chartData) buildChart(chartData, false);
+  }, 150);
+});
+ro.observe(document.getElementById('chart'));
+
+/* ══ FALLBACK DATA ══════════════════════════════════════════════ */
+const FALLBACK = {
+  title: 'AI for Good Investment Commitments by Region',
+  unit: 'USD million (2024)',
+  items: [
+    {id:'na',label:'North America',     short:'N. Am.',   value:8420},
+    {id:'ea',label:'East Asia',          short:'E. Asia',  value:5680},
+    {id:'we',label:'Western Europe',     short:'W. Eur.',  value:4290},
+    {id:'me',label:'Middle East',        short:'M. East',  value:2150},
+    {id:'la',label:'Latin America',      short:'Lat. Am.', value:890},
+    {id:'sa',label:'South Asia',         short:'S. Asia',  value:640},
+    {id:'af',label:'Sub-Saharan Africa', short:'SSA',      value:310},
+    {id:'oc',label:'Oceania',            short:'OC',       value:195}
+  ]
+};
+
+/* ══ LOAD & INIT ════════════════════════════════════════════════ */
+d3.json('./proportional-area/data.json')
+  .then(d => { chartData = d; buildChart(d, true); })
+  .catch(() => { chartData = FALLBACK; buildChart(FALLBACK, true); });
+</script>
+</body>
+</html>

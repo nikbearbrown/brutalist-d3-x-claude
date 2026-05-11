@@ -1,0 +1,24 @@
+{
+  "_schema": {
+    "description": "Exam scores (0–100) for two fictional class sections. Section A has a wider spread with more extreme values on both ends. Section B clusters tightly in the 70s and 80s. Both sections have 28 students. The back-to-back stemplot reveals these distributional differences at every stem level simultaneously.",
+    "fields": {
+      "section_a": "array of integers — raw exam scores for Section A. Values are integers 0–100. Optimal range for stemplot display: 20–50 values.",
+      "section_b": "array of integers — raw exam scores for Section B. Same scale as section_a for meaningful back-to-back comparison."
+    },
+    "replace": "Replace both arrays with your own integer datasets. For a single-dataset stemplot, populate only section_b and use 'Single' mode. Values should share the same scale for back-to-back comparison to be meaningful. Non-integer values require adjusting the stem/leaf split logic (e.g. stem = tens, leaf = ones works for 0–99; for 100–999, stem = hundreds, leaf = tens)."
+  },
+  "section_a": [
+    62, 65, 67, 68,
+    71, 73, 74, 75, 78,
+    81, 82, 84, 85, 85, 86, 88, 89,
+    91, 93, 94, 97,
+    61, 78, 83, 90, 72, 66, 95
+  ],
+  "section_b": [
+    63,
+    70, 72, 73, 74, 75, 76, 77, 78, 79,
+    80, 81, 82, 82, 83, 84, 85, 86, 87, 88, 89,
+    91, 92, 94,
+    71, 76, 83, 88
+  ]
+}
