@@ -1,301 +1,144 @@
-# Chapter 11 — Flow and Network Charts
+# Chapter 13 — Flow and Network Charts
+
 *What Flows Where — and How Much.*
 
-## Three suggested titles
+---
 
-- Flow and Network Charts: Sankey, Chord, Arc, Force-Directed
-- When Width Carries Meaning, and When It Doesn't
-- The Hairball Problem and What to Do About It
+Open the pantry's `sankey-diagram.html`. Energy sources on the left — oil, coal, natural gas, nuclear, renewables. Intermediate transformations in the middle — electricity, transportation fuel, heating. End uses on the right — industrial, residential, commercial. Between them run bands of varying width.
+
+That variation in width is the entire claim. Oil to transportation fuel is a thick band — most oil becomes transportation fuel. Coal to electricity is another thick band. Nuclear and renewable contributions to electricity are thinner bands. Some renewable-to-end-use paths are thin slivers. The thickest band in the diagram tells you more about energy policy than most prose summaries: the dominant path for oil is the transportation sector, not electricity generation. You see this in a second.
+
+Now suppose someone made the same diagram with every band the same width. It would still show the paths — oil connects to transportation fuel, coal connects to electricity. But you would learn nothing about magnitude. The chart would have become a topology diagram: does this connection exist? The original chart answers a different question: how much flows along it?
+
+That distinction — *does this connection exist* versus *how much flows along it* — is the organizing principle of this entire chapter. Every choice between a Sankey diagram and a force-directed graph, between a ribbon chord diagram and an arc diagram, reduces to it. Get the distinction clear and the form selection almost selects itself.
+
+<!-- → [IMAGE: two versions of the same three-column flow data — left: Sankey with proportional band widths (oil-to-transportation-fuel band visibly dominant, thin bands for smaller flows); right: the same topology drawn with uniform-width bands. Annotations on the left version: "Width = quantity (Bertin's magnitude channel)." Annotations on the right: "Uniform width = topology only. Cannot answer 'how much?'" Caption: "The same connections. Different questions. Different charts."] -->
 
 ---
 
-## Chapter overview
+## Width as a channel
 
-By the end of this chapter you will be able to build the family of flow and network charts — Sankey diagrams, alluvial diagrams, chord diagrams, arc diagrams, force-directed graphs — and you will know when each is right. You will know the channel-theory distinction between *flow magnitude* (Sankey/alluvial/chord-with-ribbons) and *connection existence* (non-ribbon chord, arc, force-directed), and how the distinction determines which form to choose.
+Jacques Bertin's framework for visual encoding includes width — or thickness — as a magnitude channel. A line of uniform width carries no quantitative information. A line whose width varies encodes magnitude at each point. Sankey diagrams are built entirely on this principle: the flow band's width at any cross-section is proportional to the quantity flowing there. If the band narrows, less is flowing; if it widens, more is flowing. The reader's eye tracks the width and reads it as quantity.
 
----
+Width ranks roughly third in the Cleveland and McGill accuracy hierarchy — below position and length, but above area and color intensity. The ranking tells you that a Sankey diagram is less accurate than a bar chart for the same data, but more accurate than a color-encoded map. Sankey diagrams earn their complexity when the flow *structure* — the path from source through transformation to destination — is the question, not just the magnitudes themselves. A bar chart of total aid by donor shows the magnitudes; a Sankey shows where the aid went after leaving each donor.
 
-## Learning objectives
+Tufte's proportional ink principle applies directly. The visual area of a Sankey band must be proportional to the quantity it represents. If the band from oil to transportation fuel represents 40 exajoules and the band from coal to electricity represents 20 exajoules, the first band must look twice as wide. A designer who makes the oil band only 1.3 times as wide as the coal band because "it looks better" has broken the encoding. The chart now makes a claim the data doesn't support.
 
-1. **(Apply)** Build a Sankey diagram where flow width is proportional to quantity; verify that the proportionality holds at both the widest and narrowest flows (Tufte's proportional ink principle).
-2. **(Analyze)** Diagnose a chord diagram that has become unreadable due to too many entities and propose a structural redesign, distinguishing between cases where ribbon width carries quantitative meaning vs. cases where existence is all that matters.
-3. **(Evaluate)** Assess whether a force-directed graph or a Sankey diagram better serves a specified flow communication goal, using the Gestalt law of connection to justify the choice.
+When auditing Claude Code output for Sankey diagrams, the first check is always proportionality: measure the width of the two largest flows and confirm the ratio matches the data ratio. It is the most common failure in AI-generated flow charts — the algorithm places nodes correctly but the scaling is off.
 
----
-
-## Opening case — the HAI Sankey of global energy flow
-
-Open `pantry/visualization/sankey-diagram.html` in a browser. Energy sources on the left (oil, coal, natural gas, nuclear, renewables); intermediate transformations in the middle (electricity, transportation fuel, heating); end uses on the right (industrial, residential, commercial). The flows between them are bands whose *width* is proportional to the energy quantity in exajoules.
-
-You can read the chart in seconds: oil dominates as an energy source. Most oil flows to transportation fuel. Coal and natural gas dominate the electricity-generation flow. Nuclear and renewables contribute smaller bands. The thinnest flows (some renewable contributions to specific end uses) are visibly thin; the largest flow (oil to transportation fuel) is the dominant visual.
-
-The chart is a flow map in Bertin's framework: width-as-channel encodes quantitative magnitude. The mark is a flow band; the channel is band width. The reader's perception applies Stevens' power law on area perception (Chapter 1) — wider bands look proportionally larger, with sublinear compression. Width is the channel that distinguishes Sankey from a non-quantitative network diagram.
-
-What breaks if the flow widths are uniform? The chart becomes a topology diagram (does this connection exist?) rather than a flow diagram (how much flows?). The visual claim is fundamentally different. The data has not changed; the channel decision has, and the chart's meaning has shifted with it.
-
-This is the channel-theory distinction this chapter is built around. **Flow magnitude** charts (Sankey, alluvial, chord-with-ribbons) use width as the magnitude channel; the question is "how much flows from A to B?" **Connection existence** charts (non-ribbon chord, arc, force-directed) use line presence; the question is "does A connect to B at all?" The two questions produce different chart families.
+<!-- → [INFOGRAPHIC: Sankey proportionality audit diagram — three flows shown: Flow A (400 units, correct width ~40px), Flow B (200 units, correct width ~20px), Flow C (80 units, correct width ~8px). Below, a "common failure" version where Flow A is 30px, Flow B is 20px, Flow C is 12px — the proportions are wrong. Annotations show the correct ratios (A:B = 2:1, A:C = 5:1) and the failure ratios (A:B = 1.5:1, A:C = 2.5:1). Caption: "Tufte's proportional ink applies: band area must be proportional to value. Verify the ratio, not just the order."] -->
 
 ---
 
-## Theoretical grounding — Bertin on width-as-channel, Gestalt connection, Cairo on Sankey origins
+## The three flow-magnitude forms
 
-**Bertin on width as a channel.** Bertin's framework includes width (or thickness) as a magnitude channel. A line of consistent width carries no quantitative information; a line whose width varies encodes magnitude. Sankey diagrams exploit this directly: the flow band's width at any point is proportional to the quantity flowing there. If the flow narrows, the quantity has decreased; if it widens, increased. Width-as-channel is rank ~3 in Cleveland & McGill's accuracy ranking — usable but worse than position. The form earns its complexity when the flow structure itself is the question.
+Three chart families use width as a magnitude channel.
 
-**Gestalt law of connection.** The principle: connected elements are perceived as belonging to the same group. Force-directed graphs exploit this — nodes and edges form clusters that the eye reads as cohesive groups. The Gestalt mechanism is what makes the visualization work. The same mechanism produces the failure mode (the "hairball"): when connection density is high, every node connects to many others, the visual becomes a tangled mass, and the Gestalt grouping breaks down.
+**Sankey diagrams** show flows from a source set through optional intermediate stages to a destination set. The canonical use is the energy flow diagram that gave the form its name — Captain Sankey used it in 1898 to visualize where steam energy was being lost in industrial processes. The original problem clarifies what the form is for: substances or quantities moving from sources through transformations to destinations, with the magnitude of each path visible.
 
-**Cairo on Sankey origins.** Sankey diagrams were invented for energy-flow analysis (Captain Matthew Henry Phineas Riall Sankey, 1898). The original problem: visualize how energy is consumed and lost through industrial processes. Knowing the original problem clarifies when Sankey works — for *flows* (substances or quantities moving from sources to destinations through transformations), not for *correlations* or *similarity relationships*. Alluvial diagrams (a related form) extend Sankey to track *category transitions over time* (which voters shifted from one party to another between elections, for example).
+The form works best with two to four columns of nodes. More columns and the chart sprawls horizontally; the reader loses track of the flow across too much visual distance. Within each column, nodes are ordered to minimize crossing flows. D3's `d3.sankey()` layout handles this automatically using the Sankey justify algorithm, which produces reasonable orderings; manual adjustment is sometimes necessary for particular datasets.
 
----
+Color is a secondary channel. The typical convention assigns a hue to each source node and carries that hue downstream through the flows it generates. The result is that the reader can trace a specific source's contribution through the system by following its color. An alternative assigns hue to destination nodes, which emphasizes where things end up rather than where they came from. The choice depends on the communication question.
 
-## Concept 1 — Sankey diagrams
+**Alluvial diagrams** extend Sankey to track categorical transitions over multiple time points. Voters in 2016 → voters in 2018 → voters in 2020. Students who entered as freshmen → students at the end of sophomore year → students who graduated. Customer segments at onboarding → customer segments at six months → customer segments at one year. The flows show who shifted to where at each transition, with band width encoding the count of entities making that shift.
 
-A Sankey diagram shows flows from a source set to a destination set (often with intermediate processing steps). Each flow is a band whose width encodes quantity.
+The form is Sankey generalized to longitudinal categorical data. Where Sankey asks "how much moves from A to B through C?", alluvial asks "across these time points, how did the population redistribute?" The use cases are more specific but consequential — electoral analysis, cohort studies, customer journey mapping.
 
-### When Sankey diagrams work
+**Ribbon chord diagrams** place entities on a circle and draw ribbons between them, with ribbon width encoding the magnitude of the flow or relationship. Trade flows between countries are a common application: each country occupies an arc on the circle; the ribbon from France to Germany encodes the bilateral trade volume; the ribbon is thicker where the volume is larger.
 
-- Quantitative flow data: things move from A to B with measurable magnitude.
-- The structure of the flow (where does the most go?) is the primary question.
-- 2–4 levels of source-intermediate-destination structure. Past 4, the chart becomes hard to read.
+The circular layout distributes attention evenly across all entities, which is appropriate when there is no natural left-to-right directionality (trade is mutual; energy flow is directional). The trade-off is that circular layouts are harder for many audiences to read than the left-to-right flow of a Sankey. Past about fifteen to twenty entities, the ribbons fill the circle and the chart becomes unreadable.
 
-### Design decisions
-
-**Layout direction.** Most Sankey diagrams flow left to right (matching reading direction). Top-to-bottom is also defensible. Right-to-left and bottom-to-top are unusual and earn explanation costs.
-
-**Node ordering.** Within each column, nodes are typically ordered to minimize crossing flows. D3's `d3-sankey` layout handles this automatically (with some manual adjustment available). Reducing crossings improves readability significantly.
-
-**Color hue.** Each node typically has its own color hue (categorical encoding). Flows can inherit either source's or destination's hue, or use a neutral color. The choice matters for what relationship the reader emphasizes.
-
-**Annotations.** Quantitative labels on the larger flows; tooltip on hover for smaller flows. The largest flows get prominence; the smaller ones remain available to detailed reading.
-
-For Claude Code work: `d3-sankey` is the canonical D3 implementation. Specify it: "use d3.sankey() for layout."
-
-> ### ↳ Dig Deeper — Sankey design choices
->
-> **Prompt:**
->
-> > Walk me through three Sankey design decisions: node ordering (which algorithm, how to override), flow color (source vs. destination vs. neutral), and quantitative label placement (always vs. above-threshold). For each, name the trade-off. Cite Tufte's proportional ink principle as the constraint that the flow widths must respect.
->
-> **What to do with the output:** Save the analysis. The decisions recur in every Sankey project.
+<!-- → [INFOGRAPHIC: three-panel comparison of the magnitude family — left: Sankey (three columns, left-to-right flow, bands proportional to quantity); center: alluvial (same structure but showing three time points with categorical transitions); right: ribbon chord (same entities arranged on a circle, ribbons of varying width). Each panel labeled with the question it answers: "How much flows A→B→C?" / "How did categories shift across time?" / "How much flows between any pair?" Caption: "Three forms, one channel (width), three layouts for three question structures."] -->
 
 ---
 
-## Concept 2 — Alluvial diagrams: Sankey across time
+## The three connection-existence forms
 
-An alluvial diagram is a Sankey extended to track category transitions over multiple time points. Voters in election 2020 by party → voters in election 2022 by party → voters in election 2024 by party. The flows show *who shifted to where*.
+A different set of questions produces a different set of forms. When the question is *does A connect to B* rather than *how much flows from A to B*, the magnitude channel is no longer needed. The line's presence encodes the connection; its width is irrelevant or decorative.
 
-### When alluvial diagrams work
+**Non-ribbon chord diagrams** use the same circular layout as ribbon chord diagrams, but draw lines rather than ribbons. The line's width is uniform; only its presence encodes the connection. The form answers topology questions — who is connected to whom in this network? — for datasets where no meaningful magnitude is attached to the relationships.
 
-- Categorical data tracked across multiple time points.
-- The transitions (who moved to where) are the primary question.
-- 3–6 time points. Past 6, the chart sprawls.
+**Arc diagrams** lay entities along a horizontal axis and draw arcs above the line between connected entities. The arc height is typically uniform. The form makes one thing easy that the circular chord layout does not: linear ordering. Entities can be sorted alphabetically, by a property value, or by connection count, and that ordering is directly visible. The reader can scan the arc diagram and see that the most highly-connected entities are clustered in one region of the axis.
 
-The form generalizes Sankey to longitudinal categorical data. The use cases (voter shifts, student outcome cohorts, customer journey transitions) are specific but consequential.
+Arc diagrams fail when the network is dense. Many arcs stacked above the line overlap and the structure becomes illegible — a different version of the hairball problem.
 
-The pantry's alluvial implementation shows the form. Compare to Sankey: same flow vocabulary, different time structure.
+**Force-directed graphs** are the most common network visualization. Each entity is a node; each connection is an edge. A physics simulation places the nodes — connected nodes attract each other, all nodes repel each other — and the layout settles into a configuration where related nodes cluster. The reader sees the clusters as visual groups, which is what makes the form work. The Gestalt law of connection is the mechanism: connected elements are perceived as belonging together. When nodes cluster with their neighbors, the eye reads the cluster as a meaningful group.
 
----
-
-## Concept 3 — Chord diagrams
-
-A chord diagram is a circular layout where entities are placed around the circle's perimeter and flows between them are drawn as ribbons (or lines) crossing the interior.
-
-### Two variants
-
-**Ribbon chord** uses width to encode flow magnitude. Like Sankey, the ribbon's width is the magnitude channel. Used for trade flows between countries, message flows between groups, etc.
-
-**Non-ribbon chord** uses lines without width — only the *existence* of a connection matters. Used for relationship networks where the question is "who is connected to whom?" rather than "how much flows."
-
-The distinction matters. The same dataset can produce two different chord diagrams; the choice depends on whether the flow magnitude or the connection existence is the question.
-
-### When chord diagrams work
-
-- Inter-entity relationships within a closed set of entities.
-- 5–20 entities. Past 20, the chord lines crisscross unreadably.
-- Circular arrangement is acceptable to the reader (some audiences find it harder than left-to-right Sankey).
-
-### Failures
-
-- Too many entities (>20). Chord lines tangle.
-- Asymmetric relationships (A→B is a different magnitude than B→A). Chord diagrams handle this with different ribbon ends, but the visual gets complicated.
-- Relationships that aren't really cyclical or symmetric (data flows from sources to destinations without back-flows). Sankey is cleaner.
-
-The pantry's chord implementations show both variants. Compare them.
+Force-directed graphs answer structural questions: which entities are central to the network? which are peripheral? are there tightly connected communities? They cannot answer magnitude questions, because the edges have no width. A dataset with quantitative edge weights can be visualized as a force-directed graph, but the weights are used only to adjust the spring strength in the simulation — they do not appear visually in the output.
 
 ---
 
-## Concept 4 — Arc diagrams: connection-existence in a linear arrangement
+## The hairball
 
-An arc diagram places entities along a horizontal line and draws arcs above (or below) the line connecting related entities. The arc height typically has no encoding; only the existence of a connection is visualized.
+Dense networks produce hairballs. When every node connects to many others, the edges fill the interior of the visualization and no structure is visible. The nodes float in a tangle of crossing lines. The chart proves that a network exists; it reveals nothing about its structure.
 
-### When arc diagrams work
+The hairball is not a design failure — it is a structural failure. The chart is trying to show something it cannot show, because the data is too dense for any single-level visualization to reveal. The fix is not to improve the chart; it is to change what the chart is trying to show.
 
-- Network data where the structure of connections matters (which nodes are central, which are peripheral).
-- Linear arrangement is meaningful (nodes have an order — alphabetical, by category, by connection count).
-- Audience prefers a single horizontal layout to a circular one.
+Four mitigations:
 
-### When they fail
+**Filter by threshold.** Show only edges above a certain weight, or only the highest-degree nodes. The remaining network is sparser and its structure becomes visible. The cost is that filtered edges and nodes are invisible; the reader cannot know what they are missing unless the chart annotates the filter.
 
-- Dense networks. Arcs overlap.
-- Networks where connection magnitude matters. Use a Sankey or ribbon chord instead.
+**Cluster.** Apply a community-detection algorithm to the network and aggregate nodes into clusters. Visualize the cluster network (five to ten super-nodes) with a force-directed layout. Provide the within-cluster structure on request, as a secondary visualization or a drill-down.
 
-The pantry's arc-diagram example shows the form.
+**Aggregate.** If the network has a natural higher-level structure (research collaborations organized by department, trade organized by continent), show the aggregated network rather than the individual-node network.
 
----
+**Switch to a matrix view.** An adjacency matrix — a heatmap where rows and columns are nodes and cells are shaded if the corresponding pair is connected — shows every connection in a dense network without any lines crossing. Structure emerges from the row and column ordering. The matrix view requires the reader to decode a grid rather than a spatial layout, which has its own graphicacy requirements, but it scales to hundreds of nodes where force-directed graphs cannot.
 
-## Concept 5 — Force-directed graphs: the network as physics
+The choice of mitigation depends on what the question is. Filtering preserves the network structure at the cost of completeness. Clustering answers a different question (what are the communities?) rather than the original one (what is the full connection structure?). Matrix views answer the full connection question but require a different reading strategy.
 
-A force-directed graph treats nodes as particles connected by springs (the edges). The layout algorithm runs a physics simulation: connected nodes attract each other; all nodes repel each other; the layout settles into a stable configuration where related nodes cluster.
-
-### When force-directed graphs work
-
-- Networks with non-trivial cluster structure. The clusters become visible as the layout settles.
-- Up to ~50 nodes. Larger networks become hairballs.
-- Audiences who can read a network diagram (graphicacy required).
-
-### When they fail
-
-- Highly dense networks (every node connects to many others). The hairball failure mode.
-- Networks where flow magnitude matters. Force-directed shows existence; not magnitude.
-- Reproducibility matters. The simulation has random initial conditions; running the layout twice produces different results. This is fine for exploration; problematic for publication.
-
-### Design decisions
-
-**Edge style.** Curved edges look organic; straight edges are easier to read. Choose based on density.
-
-**Node size.** Can encode a quantitative property (degree centrality, betweenness centrality, node-specific value). Stevens' power law applies.
-
-**Color hue.** Categorical (community membership) or sequential (some node attribute).
-
-**Interaction.** Hover-to-highlight neighbors; click to expand; drag to rearrange. Interactive force-directed graphs work much better than static ones.
-
-For Claude Code work: D3's `d3-force` library handles the simulation. Specify forces: "use forceSimulation() with forceLink, forceManyBody, forceCenter."
-
-The pantry's force-directed example shows the form.
+<!-- → [IMAGE: four-panel hairball mitigation comparison — all four panels use the same 200-node high-density network. Panel 1: unmitigated force-directed layout (hairball, no structure visible). Panel 2: filtered to top-30 nodes by degree (sparse, structure visible). Panel 3: clustered to 8 super-nodes (community structure visible; individual nodes invisible). Panel 4: adjacency matrix sorted by degree (all connections visible; spatial clustering invisible). Caption under each panel names what the mitigation reveals and what it gives up."] -->
 
 ---
 
-## Concept 6 — The hairball problem
+## Choosing between the families
 
-The recurring failure mode of network visualization. When a network is too dense or too large, the visual becomes a tangled mass — the "hairball" — where individual nodes and connections cannot be distinguished.
+The channel-theory question comes first: is the magnitude of the flow part of the message, or only the existence of the connection?
 
-### Why hairballs happen
+If magnitude matters → Sankey (directional, multi-level), alluvial (longitudinal categorical), or ribbon chord (circular, symmetric).
 
-The Gestalt law of connection produces grouping. When too many connections compete, the grouping breaks down. The chart shows a network exists but reveals no structure.
+If existence is all that matters → non-ribbon chord, arc, or force-directed.
 
-### Mitigations
+Within each family, the secondary question is layout: does the flow have a natural direction (left-to-right Sankey), a natural circular structure (chord), a natural linear order (arc), or no imposed structure (force-directed)?
 
-**Filter.** Show only the most-connected nodes (top-25 by centrality). Or only nodes within 2 hops of a focal node. Or only edges above a certain weight.
+The entity and connection count determines which forms remain feasible. Sankey diagrams support 5–30 nodes across 2–4 columns. Chord diagrams support 5–20 entities around the circle. Arc diagrams support 10–100 entities on the axis, depending on density. Force-directed graphs support 5–50 nodes before the hairball risk becomes severe.
 
-**Cluster.** Use a community-detection algorithm to find groups; visualize the groups as super-nodes; show within-group structure on demand.
+There is a common mismatch worth naming: using a force-directed graph for data that has quantitative flow magnitudes. The force-directed graph cannot show the magnitudes — it shows topology. A designer with a Sankey-appropriate dataset who reaches for a force-directed graph is making the same error as a designer with a comparison question who reaches for a pie chart. The form doesn't fit the question.
 
-**Switch forms.** A matrix view (heatmap of adjacency) is sometimes more readable than a force-directed graph for dense networks. The matrix shows every connection; structure emerges from the row/column ordering.
-
-**Aggregate.** Show the network at a higher level of abstraction. Don't try to show every node; show every cluster.
-
-The hairball is a structural failure, not a design failure. The chart cannot show what it tries to show. The fix is to change what you are trying to show.
+<!-- → [TABLE: form selection reference — rows: Sankey / alluvial / ribbon chord / non-ribbon chord / arc / force-directed. Columns: primary question (magnitude or existence), layout type, entity count range, typical use case, failure condition. Student uses this as a lookup card before building any flow or network chart.] -->
 
 ---
 
-## Mid-chapter checkpoint
+## The design decisions in the pantry Sankey
 
-Pick a flow or network context from your work. Identify the primary question: flow magnitude (Sankey/alluvial/chord-with-ribbons) or connection existence (non-ribbon chord, arc, force-directed). Estimate the number of entities and connections. Predict whether the form you would choose risks the hairball.
+Return to `sankey-diagram.html`. The chart works because specific decisions were made before the code was written.
 
-You should be able to do this in 60 seconds.
+**Proportional flow widths.** The bands are sized proportionally to the quantities they represent. This is not the default behavior of all Sankey layout libraries — some normalize flows in ways that distort the proportionality. The chart must be checked: the largest flow should be visually the widest, and the ratio of widths should match the ratio of values.
 
----
+**Node ordering minimizes crossings.** Within each column, nodes are sequenced to reduce the number of flow bands that cross each other. This is a layout optimization that D3's `d3.sankey()` performs automatically, but the result should be verified. Crossing flows make the chart significantly harder to read; a few small crossings are acceptable but many large ones suggest the node ordering needs adjustment.
 
-## Extended worked example — building a Sankey with Claude Code
+**Color follows source.** The hue assigned to each source node (oil, coal, gas, nuclear, renewables) cascades through the flows it generates. The reader can trace nuclear energy through to its end uses by following the nuclear hue. This is a design choice — color-follows-destination would make end-use composition more legible instead — and it is the right choice when the question is "where does this source go?" rather than "what composes this end use?"
 
-Take a humanitarian dataset: aid flows from donor countries through implementing organizations to recipient countries. 5 donor countries, 4 implementing organizations, 8 recipient countries. Three columns of nodes; flows between adjacent columns.
+**Quantitative labels on the largest flows.** The thickest bands carry text annotations. Smaller flows carry their values via tooltips. This is the standard trade-off: direct annotation supports quick reading of the dominant flows; tooltip interaction supports detailed reading of the smaller ones.
 
-### Channel decomposition
+None of these is decoration. Each is a channel decision made explicit before the code was written. Claude Code can implement them precisely when the specification names them precisely. A prompt that says "make a Sankey diagram" leaves these decisions to the model's defaults, which may or may not match the data's structure. A prompt that says "proportional widths, color follows source, labels on flows above $50M, tooltip on smaller flows" leaves nothing to chance.
 
-- Marks: rectangles (nodes) and bands (flows).
-- Position-x: column (donor / implementer / recipient — 3 columns).
-- Position-y (within column): node ordering, optimized to minimize crossings.
-- Width-of-flow-band: aid magnitude (USD).
-- Color hue: donor country (cascading through subsequent flows).
-
-### The four-move prompt
-
-```
-**Show what I have:**
-Three-column flow data: donor → implementer → recipient. Aid amounts
-in USD millions for each donor-implementer pair and each
-implementer-recipient pair. Donors: USA, EU, UK, Germany, Japan.
-Implementers: UN agencies, ICRC, Red Cross, MSF. Recipients: 8 countries.
-
-**Say what I want:**
-Sankey diagram in D3 v7. Single self-contained HTML file with inline
-CSS and inline D3 (loaded via CDN). Responsive to window resize.
-
-**Constrain it:**
-- Use d3.sankey() for layout.
-- Marks: rectangles (nodes), bands (flows).
-- Layout direction: left to right.
-- Node ordering: d3.sankeyJustify() for default layout.
-- Flow width: proportional to aid amount (USD millions).
-- Color hue: donor country, cascading through implementer and recipient.
-- Annotations: quantitative labels on flows >$50M; tooltip on smaller
-  flows.
-- Subtitle: "International Humanitarian Aid Flows, FY2024 (USD millions)".
-- Margins: top 60, right 200 (legend), bottom 40, left 80.
-- Dark mode support.
-
-**Verify:**
-Restate the channel decomposition. Then write D3 v7 code with comments
-showing which line implements which channel. Verify that flow widths
-are proportional (Tufte's proportional ink applies — the band's area
-must encode the value; band-width-times-band-height must be proportional
-to aid amount).
-```
-
-### Audit
-
-Standard Evergreen/Emery plus:
-
-- Flow widths proportional to values (proportional ink).
-- Node ordering minimizes crossings.
-- Color cascade works (donors visible at all three columns).
-- Quantitative labels on the largest flows.
+<!-- → [IMAGE: annotated screenshot of the pantry's sankey-diagram.html with four callout arrows — (1) "Proportional widths: oil-to-transportation band ~2× coal-to-electricity band, matching data ratio" pointing to the two dominant flows; (2) "Node ordering: columns sorted to minimize crossing bands" pointing to the middle column; (3) "Color follows source: nuclear hue traceable through all downstream flows" following the nuclear color; (4) "Labels on dominant flows; tooltip on smaller flows" pointing to an annotated band and a thin band. Caption: "Every decision is a channel specification. None is a default."] -->
 
 ---
 
-## Chapter summary
+## What you can now do
 
-You can now do four things you could not do before this chapter.
+You can identify the primary question in any flow or network dataset — flow magnitude or connection existence — and choose the right form family based on that distinction alone.
 
-You can build Sankey diagrams, alluvial diagrams, chord diagrams (ribbon and non-ribbon), arc diagrams, and force-directed graphs — choosing the form based on whether flow magnitude or connection existence is the question.
+You can build Sankey diagrams with proportional flow widths, correct node ordering, and the color-follows-source or color-follows-destination decision made deliberately. You can verify the proportionality by checking the width ratio against the value ratio.
 
-You can apply the Bertin width-as-channel framework to flow charts: when width encodes quantity, the form is a Sankey or ribbon chord; when width is uniform, the form shows topology not flow.
+You can build alluvial diagrams for longitudinal categorical transitions, ribbon and non-ribbon chord diagrams for circular network data, arc diagrams for linearly-ordered networks, and force-directed graphs for exploratory network topology.
 
-You can recognize the hairball failure mode in dense network charts and apply mitigation strategies (filter, cluster, switch forms to matrix, aggregate).
+You can recognize the hairball failure mode and apply the right mitigation: filter, cluster, aggregate, or switch to a matrix view, depending on what the question is.
 
-You can specify a flow chart for Claude Code with the right layout algorithm (`d3.sankey()`, `d3.chord()`, `d3.forceSimulation()`) and the right encoding decisions for the family.
+You can specify any of these charts for Claude Code with the right D3 layout algorithm — `d3.sankey()`, `d3.chord()`, `d3.forceSimulation()` — and the encoding decisions that make the output honest.
 
----
-
-## Key terms
-
-- **Sankey diagram.** Flows from sources to destinations; width-as-channel encodes magnitude.
-- **Alluvial diagram.** Sankey across multiple time points; tracks category transitions.
-- **Chord diagram (ribbon).** Circular layout with magnitude-encoding ribbons.
-- **Chord diagram (non-ribbon).** Circular layout with existence-only lines.
-- **Arc diagram.** Linear node arrangement with arcs above for connections.
-- **Force-directed graph.** Physics simulation; clusters emerge from layout.
-- **Hairball problem.** Dense networks visualize as tangled mass; structure invisible.
-- **Width-as-channel (Bertin).** Width can encode magnitude; uniform width means existence only.
-- **Gestalt law of connection.** Connected elements perceived as same group; mechanism behind force-directed visualization.
-
----
-
-## Discussion questions
-
-1. The Sankey/chord distinction is layout (linear vs. circular), not channel (both use width for magnitude). What does each layout afford that the other doesn't?
-2. Force-directed graphs hide the magnitude question. When is this acceptable; when does it become a Cairo-class moral failure?
-3. The hairball problem is structural, not aesthetic. What does this say about whether visualization can solve it?
-4. Alluvial diagrams are uncommon. What contexts in your domain would justify them?
-5. *Cross-chapter synthesis.* Chapter 12 will introduce flow maps (geographic flow visualization). Frame the relationship between non-spatial flow charts (Chapter 11) and spatial flow maps (Chapter 12).
+The thing to watch for, going forward, is the force-directed graph applied to quantitative flow data. Force-directed graphs show topology; Sankey diagrams show flow. The question determines the form. When the question is "how much flows from A to B through C," the force-directed graph is the wrong answer, regardless of how many examples you have seen of it used for that purpose.
 
 ---
 
@@ -303,116 +146,133 @@ You can specify a flow chart for Claude Code with the right layout algorithm (`d
 
 ### Warm-up
 
-**Exercise 11.1** — *Form selection.* For each, choose the right flow/network form:
-- Aid flows from 5 donors through 3 implementers to 10 recipients.
-- Voter shifts between 4 parties across 3 elections.
-- Connections between 200 academic researchers (co-authorships).
-- Trade between 12 countries (bilateral, asymmetric).
-- Co-occurrence of 50 keywords in a corpus.
+**Exercise 13.1 — Form selection: magnitude vs. existence.** *(Tests: the primary distinction)*
+For each dataset below, identify whether the primary question is flow magnitude or connection existence, and name the right form:
+- Aid flows from 5 donor countries through 3 implementing organizations to 8 recipient countries, with USD amounts for each flow.
+- Voter shifts between 4 political parties across 3 consecutive elections, tracked as proportions of each prior-election cohort.
+- Co-authorship connections between 200 academic researchers, with no associated magnitude.
+- Trade flows between 12 countries, bilateral and asymmetric, with USD volume for each pair.
+- Twitter follows between 50 accounts in a professional community, with no edge weights.
 
-**Exercise 11.2** — *Sankey vs. chord.* Take a bilateral flow dataset. Build a Sankey and a chord diagram. Compare.
+**Exercise 13.2 — Width proportionality check.** *(Tests: Tufte's proportional ink applied to Sankey)*
+A Sankey diagram has three flows: Flow A (400 units), Flow B (200 units), Flow C (80 units). What should the width ratio between Flow A and Flow B be? Between Flow A and Flow C? You measure the rendered chart and find Flow A is 3 times the width of Flow B. What is the proportional-ink violation? Write the follow-up prompt that corrects it.
 
-**Exercise 11.3** — *Hairball mitigation.* You have a network of 200 nodes with high connection density. Specify three mitigation strategies.
+**Exercise 13.3 — Hairball diagnosis.** *(Tests: recognizing the hairball and selecting the right mitigation)*
+You have a force-directed graph of 300 nodes with average degree 18 (each node connects to 18 others on average). Predict whether the chart will produce a hairball. For each of the four mitigations (filter, cluster, aggregate, matrix view), state what question the mitigation answers and what question it gives up.
 
 ### Application
 
-**Exercise 11.4** — *Build a Sankey.* Take a real flow dataset. Build with `d3.sankey()`. Audit.
+**Exercise 13.4 — Build a Sankey with Claude Code.** *(Tests: four-move prompt structure + proportionality audit)*
+Take a real flow dataset with directional, multi-level structure (donor → program → recipient, or supply chain source → processing → end use). Write a four-move Claude Code prompt specifying `d3.sankey()`, proportional flow widths, node ordering to minimize crossings, and color-follows-source. Submit it. Audit the output: check width proportionality for the two largest flows (measure the rendered widths and compare to the data ratio). If proportionality fails, write the correction prompt.
 
-**Exercise 11.5** — *Build a force-directed graph with interaction.* Network data, 20–50 nodes. Add hover-highlight and drag interaction.
+**Exercise 13.5 — Build a force-directed graph with interaction.** *(Tests: existence-form build and hairball mitigation)*
+Take a network dataset with 20–50 nodes. Build a force-directed graph using `d3.forceSimulation()` with `forceLink`, `forceManyBody`, and `forceCenter`. Add hover-to-highlight (mousing over a node highlights its neighbors and fades all others). Is the hairball present? If yes, implement one mitigation — threshold filter, degree-based node filter, or community clustering — and document what the mitigation gives up.
 
-**Exercise 11.6** — *Audit a published flow chart.* Find one in a recent publication. Audit using Evergreen/Emery + flow-specific (proportional widths, node ordering).
+**Exercise 13.6 — Chord ribbon vs. Sankey for the same data.** *(Tests: layout trade-offs within the magnitude family)*
+Take a bilateral flow dataset with a defined set of entities (trade between 8 countries, message flows between 6 departments). Build it as a Sankey (linear, directional) and as a ribbon chord (circular, symmetric). For the question "which pair has the largest flow?", which form answers it more accurately? For the question "how does each entity's outflow compare to its inflow?", which form makes this more visible? Document the trade-offs.
 
 ### Synthesis
 
-**Exercise 11.7** — *Alluvial cohort.* Take longitudinal categorical data (student cohort outcomes, customer state transitions). Build an alluvial diagram.
+**Exercise 13.7 — Alluvial cohort diagram.** *(Tests: alluvial form for longitudinal categorical data)*
+Take a longitudinal categorical dataset with 3–5 time points — student cohort outcomes (enrolled, continuing, graduated, dropped out), customer state transitions (trial, active, churned, renewed), or voter registration by party across 3 elections. Build an alluvial diagram. Verify that band widths are proportional to the counts making each transition. Identify: which transition is the most common? Which cohort has the highest retention?
 
-**Exercise 11.8** — *Network as matrix.* Take a moderately dense network. Build it as both a force-directed graph and a matrix (heatmap of adjacency). Compare.
+**Exercise 13.8 — Magnitude vs. existence mismatch.** *(Tests: identifying and correcting form-question mismatch)*
+Find a published network visualization that uses a force-directed graph but where the underlying data has quantitative edge weights that matter to the question (the edge weights are mentioned in the caption or surrounding text). Identify the mismatch: what question is the force-directed graph answering vs. what question the data could support? Build the correct form (ribbon chord or Sankey depending on the data's directionality). Document what the corrected chart reveals that the force-directed graph hid.
 
 ### Challenge
 
-**Exercise 11.9** — *Sankey with energy data.* Replicate a simplified energy-flow Sankey (sources → transformations → uses) for a real energy dataset.
+**Exercise 13.9 — Sankey with four levels.** *(Tests: multi-level Sankey readability)*
+Build a Sankey diagram with four levels of nodes — for example: donor country → fund mechanism → program type → recipient region. Verify width proportionality at each level (the total width entering any node must equal the total width leaving it). At what point does the chart become difficult to read? If readability degrades at level 4, identify the design adjustment that restores it (aggregation, filtering, or a tooltip-on-hover for the deepest level).
 
-**Exercise 11.10** — *Multi-level Sankey.* Build a Sankey with 4–5 levels (donor → fund → program → project → outcome). Test how readable it remains at depth.
+**Exercise 13.10 — Matrix view as alternative to hairball.** *(Tests: matrix view for dense networks)*
+Take a dense network dataset with 40–80 nodes and high average degree that would produce a hairball in force-directed layout. Build the adjacency matrix (heatmap: rows and columns are nodes, cells shaded for connections). Sort rows and columns by node degree (most connected first). Compare the matrix view to the force-directed graph: what structural feature is visible in the matrix that was invisible in the hairball? What feature of the force-directed layout (cluster proximity, community grouping) is lost in the matrix? Write one paragraph on when each form is appropriate for dense networks.
 
 ---
 
-## LLM Exercise — Chapter 11: Flow and Network Charts
+## LLM Exercise — Chapter 13: Flow and Network Charts
+
+**What you're building:** A flow or network chart selected for a specific question, built with the magnitude-vs-existence distinction applied and the encoding decisions documented.
+
+**Tool:** Claude Code (for the build) + Claude chat (for the audit).
+
+### The prompt
 
 ```
 I have flow or network data of [DESCRIBE: entities, connections,
-magnitudes if applicable]. The communication goal is [DESCRIBE].
+magnitudes if applicable, directionality]. The communication goal
+is [DESCRIBE: flow magnitude, connection existence, community
+structure, temporal transitions].
 
 Walk me through:
-1. Confirm flow vs. network family.
-2. Identify primary question: flow magnitude or connection existence.
-3. Choose form: Sankey / alluvial / chord (ribbon or not) / arc /
-   force-directed.
-4. If risk of hairball, specify mitigation.
-5. Specify channels (width as magnitude channel for Sankey/ribbon;
-   uniform width for existence-only).
-6. Write four-move Claude Code prompt with appropriate D3 layout
-   (d3.sankey, d3.chord, d3.forceSimulation).
 
-Audit using Evergreen/Emery + flow-specific (proportionality, node
-ordering, label placement, hairball check).
+1. Confirm the family is flow/network (vs. comparison, distribution,
+   part-to-whole). If it isn't, recommend the right family and stop.
+
+2. Identify the primary question: flow magnitude (how much flows from
+   A to B?) or connection existence (does A connect to B?). This
+   distinction determines the form family.
+
+3. Choose the specific form based on:
+   - Flow magnitude → Sankey (directional multi-level), alluvial
+     (longitudinal categorical), or ribbon chord (circular symmetric)
+   - Connection existence → non-ribbon chord, arc (linear order
+     meaningful), or force-directed (cluster structure is question)
+   - Entity and connection count (Sankey: 5–30 nodes / 2–4 columns;
+     chord: 5–20 entities; arc: 10–100 nodes; force-directed: 5–50
+     nodes before hairball risk)
+
+4. If the network is dense enough to risk a hairball, specify the
+   mitigation: filter by threshold, cluster to super-nodes, aggregate
+   to higher level, or switch to matrix view.
+
+5. Specify the channels:
+   - For magnitude forms: flow-band width = quantity (cite Bertin
+     width-as-channel and Tufte's proportional ink)
+   - For existence forms: edge presence = connection
+   - Color hue: source-following or destination-following or
+     categorical by node attribute
+   - Node size (if used): which attribute, what encoding
+
+6. Write a single Claude Code prompt using the four-move structure
+   (show, say, constrain, verify), specifying the correct D3 layout:
+   d3.sankey() for Sankey, d3.chord() for chord, d3.forceSimulation()
+   with forceLink/forceManyBody/forceCenter for force-directed.
+
+After Claude Code returns the chart, audit it for flow-specific failures:
+- Sankey: are flow widths proportional to values (check ratio of
+  widest to second-widest)?
+- Chord ribbon: do ribbon widths encode the correct magnitudes at
+  both ends?
+- Force-directed: is the hairball present? If yes, apply mitigation.
+- All forms: is node ordering sensible (Sankey: minimizes crossings;
+  arc: meaningful sort; chord: sorted by value)?
+
+Flag any audit failure and write the follow-up prompt that corrects it.
 ```
 
-**Connection to previous chapters:** Chapter 1 (width-as-channel from Bertin), Chapter 4 (workflow), Chapter 9 (cross-form proportional encoding).
+**What this produces:** A markdown audit document and an HTML file containing the working D3 chart. Save as `chapter-13-flow-audit.md` and `chapter-13-flow.html`.
 
-**Preview of next chapter:** Chapter 12 covers spatial and geographic charts. Where Chapter 11 was about flow between abstract entities, Chapter 12 is flow and pattern across geography.
+**How to adapt this prompt:**
+- *For your own domain:* Replace the dataset description, directionality, and communication goal.
+- *For ChatGPT or Gemini:* Works as-is.
+- *For a Claude Project:* Save the Chapter 01 channel framework and Bertin's width-as-channel concept as reference files; the per-chapter audit prompt becomes the user message for each new chart.
+- *For Cowork:* Use Cowork to execute the Claude Code prompt and save the resulting HTML file directly to your project directory.
 
----
+**Connection to previous chapters:** Builds on Chapter 01 (Bertin's width-as-channel, Gestalt law of connection, Stevens' power law on area perception), Chapter 02 (chart selection — confirming you are in the flow/network family), Chapter 05 (data audit — identifying whether the question is flow magnitude or connection existence), Chapter 11 (part-to-whole — chord and Sankey are sometimes confused with stacked forms).
 
-## Visual suggestions
-
-This chapter is about flow and network chart selection. Each chart family it discusses has a Part II reference; the focal figure here is the chapter's central worked example.
-
-Part II references for flow and network charts: [Sankey Diagram](62-sankey-diagram.md), [Chord Diagram](28-chord-diagram.md), [Arc Diagram](18-arc-diagram.md), [Network Diagram](47-network-diagram.md), [Flow Map](37-flow-map.md), [Parallel Sets](51-parallel-sets.md). Each Part II chapter has its own prompt.
-
-### Figure 11.1 — Sankey with width-as-channel demonstration
-
-The chapter's central worked example. A Sankey diagram of humanitarian aid flow from donors through programs to recipients, with link width encoding flow magnitude. The figure makes width-as-area-channel literal — the reader sees that link width is the data and there is no decorative ink anywhere in the chart.
-
-See [Sankey Diagram](62-sankey-diagram.md) and [Chord Diagram](28-chord-diagram.md) in Part II for the canonical references.
-
-```
-Generate a Sankey diagram in D3 v7 with a hairball-mitigation toggle. Two files:
-
-1. `chapter-11-fig-01.html` — full HTML with inline CSS and inline D3 v7 (loaded via CDN; also load the d3-sankey plugin from `https://cdnjs.cloudflare.com/ajax/libs/d3-sankey/0.12.3/d3-sankey.min.js`). A Sankey diagram with a toggle to filter low-volume links. Page subtitle: "Width-as-channel — flow visible without decorative ink."
-
-2. `chapter-11-fig-01/data.json` — the dataset.
-
-Data shape:
-- A 3-layer flow: donors (5–8) → programs (4–6) → recipient regions (5–7).
-  - `nodes`: array of `{id, label, layer}` (layer: 0, 1, or 2).
-  - `links`: array of `{source, target, value}`.
-
-{DATA NEEDED} — Humanitarian aid flow, donor → program → recipient region. OCHA Financial Tracking Service publishes this; UNHCR and WFP also have donor-program-recipient flow data.
-
-Encoding:
-- Three vertical columns, one per layer.
-- Node height: total flow through that node.
-- Link width: flow value between source and target.
-- Hue: by source layer (walnut for donors, blood-red for high-volume programs, gray for everything else) OR by program for cross-layer continuity.
-- Toggle: filter out links below a chosen volume threshold (slider). Demonstrates hairball mitigation — the chart becomes more readable as the threshold rises, at the cost of showing fewer relationships.
-
-Caption: "Every pixel of link width encodes a flow value. The chart's data-ink ratio is near 1.0; what looks like decoration is structure."
-
-Style: warm monochrome.
-
-Provide both files as separate code blocks.
-```
+**Preview of next chapter:** Chapter 14 covers geographic and spatial charts — choropleths, cartograms, flow maps, dot density maps. Where Chapter 13 was about flow between abstract entities, Chapter 14 is about flow and pattern across physical geography. The channel decisions change: x and y position now encode latitude and longitude rather than abstract network position, and the projection choice becomes a design constraint that affects every encoding in the chart.
 
 ---
 
 ## Further reading
 
-- **Sankey, Captain. (1898).** Original paper on energy-flow visualization.
-- **Munzner, Tamara. (2014).** *Visualization Analysis and Design.* Section on network visualization.
-- **The book's pantry** — `sankey-diagram.html`, `arc-diagram.html`, `chord-diagram.html` (in some implementations).
+- **Sankey, Captain M. H. P. R. (1898).** "The Thermal Efficiency of Steam Engines." *Minutes of the Proceedings of the Institution of Civil Engineers* 134. The original Sankey diagram, with the use case that defines what the form is for.
+- **Munzner, Tamara. (2014).** *Visualization Analysis and Design.* Chapters 9 and 14 on network and tree visualization. The most rigorous treatment of when force-directed graphs succeed and fail.
+- **Bertin, Jacques. (1983).** *Semiology of Graphics.* The width-as-channel framework that grounds every proportional flow diagram in this chapter.
+- **Cairo, Alberto. (2016).** *The Truthful Art.* Chapter 9 on flow and network visualization; the Sankey origins discussion is developed here.
+- **Munzner, Tamara. (2014).** *Visualization Analysis and Design.* Section 9.3 on the hairball problem and its mitigations.
+- **The book's pantry** — `sankey-diagram.html`, `arc-diagram.html`. Each is the reference implementation for its form; compare the width-encoding of the Sankey against the uniform edges of the arc diagram.
 
 ---
 
-## Tags
-
-flow-charts, network-charts, Sankey, alluvial, chord-diagram, ribbon-chord, arc-diagram, force-directed, hairball, Bertin-width, Gestalt-connection, d3-sankey, d3-force, D3, Claude-Code
+*Tags: flow-charts, network-charts, Sankey, alluvial, chord-diagram, ribbon-chord, arc-diagram, force-directed, hairball, Bertin-width, Gestalt-connection, d3-sankey, d3-force, D3, Claude-Code*
