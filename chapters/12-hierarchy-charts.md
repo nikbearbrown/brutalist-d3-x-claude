@@ -1,314 +1,167 @@
-# Chapter 10 — Hierarchy Charts
+# Chapter 12 — Hierarchy Charts
 *Containment as the Encoding.*
 
-## Three suggested titles
+---
 
-- Hierarchy Charts: Treemap, Sunburst, Circle Packing — When Each Wins
-- Showing Proportion vs. Depth vs. Exact Structure
-- The Squarification Algorithm and What It Optimizes
+Here is a problem that looks like it has an obvious solution.
+
+You have a government budget. It breaks down into departments. Each department breaks down into programs. Each program breaks down into line items. You want to show, in a single chart, how the money is distributed at every level — how much goes to Health versus Education, how much of Health goes to hospitals versus prevention, how much of hospitals goes to staff versus equipment. You want the reader to see both the big picture and the detail, simultaneously.
+
+You make a treemap. Nested rectangles, area proportional to budget. The top-level rectangles are the departments. Inside each, smaller rectangles are the programs. Inside each program, even smaller rectangles are the line items. The chart works. The reader can see that Health is the largest department at a glance. They can see which program within Health is largest. They can drill down to any line item.
+
+Then someone asks: can you also show the organizational hierarchy — not the budget proportions, but the *reporting structure*? Which programs report to which assistant secretary? How many levels of management separate the line item from the secretary?
+
+You cannot do this with a treemap. The treemap shows area (budget). It does not show hierarchy depth as a distinct visual signal. If you add a fourth level of nesting, the innermost rectangles become unreadable slivers. If you want to show depth as the primary structure, you need a different form.
+
+This is the organizing question of hierarchy chart design: what is the hierarchy *for*? The form follows the answer.
+
+<!-- → [FIGURE: Two side-by-side panels, same government-budget dataset (4 departments → 3–4 programs each → 2–3 line items each). Left: treemap — the reader can immediately see that Health is the largest department; the proportional structure is clear. Right: tree diagram — the reporting structure is clear; Health has an Assistant Secretary, three division directors, and six branch chiefs; but the budget proportions are invisible (all nodes are the same size). Caption: "Same hierarchy, two questions. Left: how are the proportions distributed? Right: who reports to whom? The chart cannot answer both simultaneously. Choose the question first."] -->
 
 ---
 
-## Chapter overview
+## What a Hierarchy Actually Contains
 
-By the end of this chapter you will be able to build the family of hierarchy charts — treemap, sunburst, circle packing, tree diagram — and you will know which form best reveals which feature of a hierarchical dataset (proportion vs. depth vs. exact structure). You will know why treemaps fail past three levels of depth, why circle packing handles irregular branching better than treemaps, and how to specify a hierarchy chart for Claude Code with the right layout algorithm and depth limit.
+Before choosing a form, name what the hierarchy contains. Hierarchies have three distinguishable properties that different forms encode differently.
 
----
+**Proportions.** At each level, the children of a node divide the parent's value. A department's total budget equals the sum of its programs' budgets. Showing proportions means making the area of each node visually proportional to its value.
 
-## Learning objectives
+**Depth.** The hierarchy has levels, and the number of levels matters. An organization with five layers of management between the CEO and a frontline worker is structured differently from one with two layers — and the chart should make this visible.
 
-1. **(Apply)** Build a treemap and sunburst from the same hierarchical dataset; identify what each form reveals that the other hides (proportion vs. depth).
-2. **(Analyze)** Diagnose a sunburst with more than five hierarchy levels, explain why outer rings compress into illegible slivers, and specify the redesign.
-3. **(Evaluate)** Justify the choice between treemap and circle packing for a dataset with irregular hierarchy depth, citing the specific perceptual mechanism each exploits.
+**Exact structure.** Who reports to whom. Which nodes are siblings. How many children each parent has. Structure is not the same as proportion or depth — it is the topology of the graph.
 
----
-
-## Opening case — the HAI circle packing chart
-
-Open `pantry/visualization/treemap.html` and `pantry/visualization/illustration-diagram.html` (or whichever pantry files show the HAI circle packing example). Both visualize humanitarian-AI-application categories with sub-categories. The treemap shows nested rectangles. The circle packing shows nested circles.
-
-The treemap looks orderly: each top-level category is a rectangle, subdivided into smaller rectangles for its sub-categories. The squarification algorithm (Bruls, Huizing, van Wijk 1999) arranges them to keep aspect ratios close to square, maximizing area-comparison accuracy. Where the hierarchy has uniform depth (every branch goes 3 levels deep), the treemap reads cleanly.
-
-The circle packing chart looks organic: each top-level category is a circle, with sub-categories as nested circles inside. Where one branch has more sub-categories than another, the circles arrange themselves around the available space. Where the hierarchy has irregular depth (some branches go 3 levels, others 2), circle packing handles it gracefully — the circles simply nest deeper where they need to.
-
-The choice between forms is not stylistic. It is a channel-and-structure decision. Treemaps are better at proportion comparison (rectangular area is more accurately judged than circular area). Circle packing is better at irregular hierarchies (it doesn't try to fit unequal branches into a fixed grid). Sunbursts are better at depth (concentric rings make level structure visible).
-
-This chapter is about that choice — and about the specific design failures (depth limits, label crowding, area encoding errors) that hierarchy charts produce when their forms are mismatched to the data.
+These three properties are not equally accessible to every form. The form choice is a question of which property the reader needs to see most.
 
 ---
 
-## Theoretical grounding — Bertin on area, Gestalt figure-ground, Friendly on Shneiderman's treemap
+## The Four Forms and What Each Encodes
 
-Three sources ground this chapter.
+**Treemap.** Nested rectangles where each rectangle's area encodes its value. The squarified algorithm (Bruls, Huizing, van Wijk, 2000) keeps aspect ratios near square, which maximizes the accuracy with which the reader can compare areas. Treemaps answer the question "how are the proportions distributed?" with the highest accuracy available for area encoding. They do this well for two or three levels of nesting. Past three levels, the innermost rectangles compress into thin slivers where area is impossible to read and labels cannot fit.
 
-**Bertin on area encoding.** Hierarchy charts use *area* as the primary magnitude channel: the area of each region (rectangle in a treemap, circle in circle packing, ring segment in a sunburst) encodes the value at that node. Stevens' power law (Chapter 1) on area perception applies — perception is sublinear, exponent ≈ 0.7. The eye underestimates area. Ratios between large and small regions are read with some compression, but the relative ordering is preserved.
+**Sunburst.** Concentric rings where the center is the root, each ring is one level of depth, and each segment's angle is proportional to its value within its parent. The sunburst answers the question "how many levels deep does this hierarchy go, and how are the proportions distributed at each level?" It makes depth structurally visible — the ring position encodes level without ambiguity. The failure mode is the inverse of the treemap's: the sunburst can show more levels, but past five or so, the outer ring compresses into illegible slivers because each ring's radial width is a fixed fraction of the radius.
 
-**Gestalt figure-ground.** Sunburst diagrams in particular create strong figure-ground relationships: the center is the figure, the outer rings are background structure. The Gestalt mechanism makes hierarchy depth visible — the inner rings (closer to the center) read as parents, the outer rings (further out) read as children. The same mechanism produces the failure mode: when too many rings are stacked, the outer rings compress into unreadable slivers because each ring shares the available radial space with all the levels below it.
+**Circle packing.** Nested circles where each circle's area encodes its value and children are packed inside their parent circle. Circle packing handles irregular hierarchy depth gracefully — a branch with five levels nests five circles deep without forcing other branches to match. It answers the question "what is the proportional structure of this hierarchy, including its irregular branching?" The cost: circles cannot tile space as efficiently as rectangles (typical packing efficiency is 70–90%), and area comparisons between circles are less accurate than between rectangles because circles lack the aligned edges that help the eye anchor.
 
-**Friendly on Ben Shneiderman's treemap (1991).** Shneiderman invented the treemap to visualize disk usage with nested directories. The original problem: the file system has a hierarchy (files in folders in folders), and Shneiderman wanted a visualization that fit on a single screen. The treemap was the answer: nested rectangles where area encodes file size. Knowing the original problem clarifies when treemaps work — they work for hierarchies where the *area* is the primary question and the depth is bounded. They work less well for hierarchies where exact structure matters (a phylogenetic tree) or where depth varies widely.
+**Tree diagram.** Nodes connected by edges, usually arranged top-to-bottom or left-to-right. No area encoding — each node is the same visual size regardless of its value. The tree diagram answers "what is the exact structural relationship between nodes?" It shows reporting lines, taxonomy membership, decision paths. It fails when the dataset is large (50+ nodes produces a sprawling chart that requires scrolling) or when the quantitative magnitude at each node is the question.
 
----
+Four forms. Four primary questions. The choice is not aesthetic.
 
-## Concept 1 — Treemaps: the squarified hierarchy
-
-A treemap divides a rectangular space into smaller rectangles, each representing a node in the hierarchy. The area of each rectangle encodes the node's value. Children of a node are nested inside their parent's rectangle.
-
-### When treemaps work
-
-- Hierarchies with relatively uniform depth (most branches go 2–3 levels).
-- The reader needs to compare *proportions* (area of one node vs. another).
-- The dataset is large enough that a treemap is more space-efficient than a tree diagram.
-
-### Design decisions
-
-**Layout algorithm.** D3's `d3-hierarchy` library offers several treemap layout algorithms:
-
-- `treemapBinary` — splits each rectangle in half repeatedly. Produces long thin rectangles for skewed data.
-- `treemapDice` / `treemapSlice` — always splits horizontally (slice) or vertically (dice).
-- `treemapSquarify` — minimizes aspect ratio variance. Most readable for area comparison. Default in most contexts.
-
-For Claude Code work: specify `treemapSquarify` explicitly. The other algorithms have specific use cases (slice for time-ordered hierarchies, etc.) but squarify is the right default.
-
-**Depth limit.** Three levels is the practical limit. Past three, inner rectangles become too small to read or label. For deeper hierarchies, consider zoomable interaction (where the reader clicks a rectangle to drill into its children) or switch to a different form (sunburst, circle packing).
-
-**Labels.** Top-level rectangles get visible labels. Second-level rectangles get labels if they're large enough. Third-level rectangles often need hover tooltips rather than visible labels. Layout-aware labeling (only label rectangles above a minimum size threshold) is the right default.
-
-**Color.** Two common encoding choices:
-
-- **Top-level category as color hue.** Each top-level rectangle and its descendants share a color. The reader sees the hierarchy structure immediately.
-- **Quantitative variable as color luminance.** A second variable (beyond size) encodes via color. The reader sees both the size structure and the second variable.
-
-Don't try to encode three variables (size + hue + luminance). The cognitive load exceeds what most readers can decode at a glance.
-
-> ### ↳ Dig Deeper — Treemap depth strategies
->
-> **Prompt:**
->
-> > Walk me through the three strategies for handling deep hierarchies in treemaps: depth-limited (show top 3 levels only, aggregate the rest), zoomable (interactive drill-down), and switching forms (sunburst or circle packing). For each, name the use case where it's best and the trade-offs. Cite Shneiderman's original treemap paper and modern extensions.
->
-> **What to do with the output:** Save the analysis. The depth-limit decision recurs in every treemap project.
+<!-- → [INFOGRAPHIC: Four-panel reference grid, one panel per hierarchy form. Each panel: form name (uppercase, JetBrains Mono), a thumbnail sketch of the form's visual structure, the primary channel labeled, and the one-line "use when" condition. Panels: Treemap (nested rectangles, "area encodes value," "proportions are the question"), Sunburst (concentric rings, "ring position encodes depth, angle encodes proportion," "depth is the question"), Circle packing (nested circles, "area encodes value, nesting reflects topology," "irregular depth"), Tree diagram (nodes + edges, "structure only, no area encoding," "exact parent-child relationships"). This is the navigation reference the reader returns to whenever they have hierarchical data.] -->
 
 ---
 
-## Concept 2 — Sunburst diagrams: depth as the primary channel
+## Why Rectangles Win on Area Comparison
 
-A sunburst diagram is a hierarchy chart with concentric rings. The center represents the root; each subsequent ring represents one level of depth. Each segment's *angle* encodes its value (proportional to the parent), and the *radial extent* encodes its level.
+Both treemaps and circle packing encode area. The treemap wins on area comparison accuracy, and the reason is the same mechanism that makes bar charts outperform pie charts.
 
-### When sunbursts work
+Rectangles have aligned edges. When two rectangles share a common baseline or a common axis, the reader can compare their heights or widths with near-position-accuracy — the eye anchors on the shared reference. This is the same mechanism that makes bar charts so readable: position along a common scale is the highest-accuracy channel Cleveland and McGill identified.
 
-- Hierarchies where *depth* is the primary question (organizational structure with many levels; taxonomic classification; file-system browsing).
-- Up to ~5 levels of depth. Past 5, outer rings compress into slivers.
-- The reader needs to see hierarchy structure clearly.
+Circles have no such alignment. Comparing the area of two circles requires the eye to estimate both radii, square them (or estimate the area directly), and compare. Stevens' power law applies: area perception has an exponent of about 0.7, so a doubled area is perceived as roughly 1.5 to 1.7 times larger. For both forms, the area compression applies. But rectangles provide an additional anchor — the shared edges — that circles do not.
 
-### When sunbursts fail
+The practical consequence: for datasets where precise area comparison matters, use a treemap. For datasets where the hierarchy's irregular structure is the point — some branches deep, some shallow, the topology itself the argument — use circle packing. The perceptual trade-off is real but bounded; the structural-match trade-off is not.
 
-- Hierarchies with too many leaves at deep levels. The outer ring becomes a wall of tiny segments.
-- Datasets where exact value comparison matters. Angle is rank 4 in Cleveland & McGill (Chapter 1); position-based forms (treemap, bar) are more accurate.
-- Audiences without graphicacy for radial-encoded forms.
-
-### Design decisions
-
-**Depth limit.** Five levels maximum. Past 5, the outer ring slivers are illegible. The pantry's sunburst examples observe this limit.
-
-**Angle encoding.** The default is for angle to be proportional to value (each segment's angle = parent's angle × child's share). This gives a consistent encoding: zooming in or out, the relative angles preserve proportions.
-
-**Color.** Top-level categorical hue cascading through descendants is the standard. Each "branch" of the sunburst has its own hue family. Within a branch, sub-categories share the parent's hue with luminance variation.
-
-**Interaction.** Sunbursts work better with interaction. A click on a segment can rotate or zoom to focus on that branch. Static sunbursts past 4 levels are rarely readable.
-
-The pantry's sunburst implementation shows the standard form. The depth limit is observed; the colors cascade by top-level category.
+<!-- → [FIGURE: Two pairs of shapes side by side showing the alignment advantage. Left pair: two rectangles (100 and 200 square units) sharing a common left edge — the reader can anchor the right edges against each other and estimate the 2:1 ratio with high accuracy. Right pair: two circles (100 and 200 square units) — no alignment, no anchor; the reader estimates area by radius, which introduces more error. Caption: "Rectangles provide an alignment anchor; circles do not. The same Stevens exponent applies to both, but rectangles' shared edges reduce the estimation error." Annotate approximate perceived ratio under Stevens for each pair.] -->
 
 ---
 
-## Concept 3 — Circle packing: the irregular-hierarchy form
+## The Depth Limit and Why It Exists
 
-Circle packing represents each hierarchy node as a circle. Children of a node are circles nested inside their parent's circle. The packing algorithm (Wang's algorithm or `d3-hierarchy`'s implementation) places the children to minimize wasted space.
+Treemaps fail past three levels. Sunbursts fail past five. These are not arbitrary rules — they follow from the geometry of the encoding.
 
-### When circle packing works
+For a treemap at level n, the area allocated to a node is the area of its parent rectangle multiplied by the node's proportion of its parent's value. Each level of nesting multiplies by a fraction less than 1. At three levels, a node with 10% share at each level has an area equal to 0.1 × 0.1 × 0.1 = 0.001 of the total chart area. If the chart is 800×600 pixels, that node occupies 0.48 square pixels — smaller than a single pixel. It is not just hard to label; it does not exist visually.
 
-- Hierarchies with *irregular depth* (some branches go 3 levels, others 5, others 1).
-- Datasets where the part-to-whole structure matters and depth comparison is secondary.
-- Audiences who appreciate the organic, less-structured aesthetic.
+For a sunburst, the radial width allocated to each ring is the total radius divided by the number of levels. A chart with a radius of 400 pixels and six levels gives each ring a width of about 67 pixels. The outermost ring at 400 pixels radius has a circumference of 2π × 400 ≈ 2,513 pixels, divided among all the segments at that level. If there are 50 leaf nodes, each segment is about 50 pixels wide. If there are 200 leaf nodes, each is about 12 pixels wide — too small to label and almost too small to distinguish visually.
 
-### Why irregular depth matters
+The depth limits are where the geometry of the encoding runs out of space. Knowing the mechanism means knowing when to stop and either truncate (show only the top N levels) or switch forms (zoomable treemap for deep hierarchies, circle packing for irregular ones).
 
-Treemaps assume each branch will be subdivided. When one branch has only one level and another has three, the treemap forces the single-level branch into a single rectangle while the three-level branch is subdivided heavily. The chart reads as if the deeper branches "matter more" because they have more visual elements.
-
-Circle packing handles this gracefully. Each branch's hierarchy is shown to whatever depth it has; less-detailed branches simply have fewer nested circles. The visual hierarchy reflects the data's actual structure.
-
-### Limitations
-
-- **Space efficiency.** Circles don't tile rectangular space; circle packing uses 70–90% of the available area, vs. treemaps' near-100%. For dense dashboards, this matters.
-- **Area perception.** Circle area is harder to compare than rectangle area (rectangles have aligned edges; circles don't). Stevens' power law applies similarly, but rectangles' alignment makes ranking easier.
-- **Labeling.** Circles inside circles can have labeling challenges; the leaf circles are smaller than the parent circles, and labels often overlap.
-
-The pantry's circle packing example shows the form. Compare to the treemap: same hierarchical data, different visual structure.
-
-> ### ↳ Dig Deeper — Treemap vs. circle packing for your data
->
-> **Prompt:**
->
-> > Take a hierarchical dataset I have (organizational structure, file system, taxonomic classification, expense breakdown). Walk through whether the depth is regular or irregular. If regular, recommend treemap with depth limit. If irregular, recommend circle packing. Build both with Claude Code. Compare what each reveals.
->
-> **What to do with the output:** Save the comparison. The form choice for hierarchical data recurs across many domains.
+<!-- → [FIGURE: Two panels showing depth-limit failure. Left: a treemap with 5 levels. The innermost rectangles at level 5 are shown with a zoom box: they measure approximately 2×3 pixels. Annotation: "At 10% share per level, a level-5 node occupies 0.001% of chart area = 0.48 sq px on an 800×600 chart. Not visible." Right: a sunburst with 7 levels. The outermost ring is shown with a zoom box: at 200 leaf nodes, each segment is ~12 pixels wide. Annotation: "200 leaf nodes at radius 400px → 12px per segment. Too small to label; barely distinguishable from gaps." Caption: "Both depth limits follow from the geometry of the encoding, not from taste."] -->
 
 ---
 
-## Concept 4 — Tree diagrams and dendrograms
+## Squarification and Why the Algorithm Matters
 
-A tree diagram represents the hierarchy as a node-link structure. Each node is a circle (or rectangle) with text; each parent-child relationship is a line. The chart shows exact structure rather than proportions.
+The squarified treemap algorithm deserves its own explanation because it is not obviously better than alternatives, and understanding why it is reveals something about the area-comparison mechanism.
 
-### When tree diagrams work
+The first treemap algorithms (slice-and-dice, attributed to Shneiderman 1991) divided each rectangle by alternating horizontal and vertical cuts. A large parent rectangle gets sliced into vertical columns; each column gets diced into horizontal rows. This produces a visually clean structure but tends to generate extremely elongated rectangles — a node with 2% of its parent's value, in a parent that is 600 pixels wide, gets a column that is 12 pixels wide and perhaps 400 pixels tall. A 12×400 rectangle and a 400×12 rectangle have the same area; they look nothing alike, and neither looks like it encodes the same value as a 69×69 rectangle (which is the squarish version of the same area).
 
-- The reader needs to see *exact structure* (which node is the parent of which child) rather than proportions.
-- Phylogenetic relationships, organizational charts where reporting structure matters more than headcount, decision trees.
-- Audiences familiar with org-chart-style visualization.
+Stevens' power law applies here too: the perception of area in elongated rectangles is more distorted than in near-square ones, because the eye tends to read the longer dimension as dominant. A very tall thin rectangle "looks bigger" than its actual area implies.
 
-### When they fail
+The squarified algorithm minimizes the worst aspect ratio in the layout. It groups items into the most square arrangement possible at each step. The result looks less regular than slice-and-dice, but area comparison is more accurate because the rectangles are closer to square.
 
-- Large hierarchies (50+ nodes). The chart sprawls and requires scrolling or zooming.
-- Datasets where the *quantitative magnitude* at each node is the primary question (treemap or sunburst is better).
-- Wide trees (many siblings per node). The horizontal layout becomes unwieldy.
+For Claude Code work: specify `d3.treemapSquarify` explicitly. The other D3 treemap algorithms (`treemapSlice`, `treemapDice`, `treemapBinary`) have specific uses (slice-and-dice for time-ordered data where one dimension should be preserved, binary for balanced splits) but the default for general area comparison is squarify.
 
-### Dendrograms
-
-A dendrogram is a tree diagram with the nodes arranged along an axis (typically vertical). Used commonly for hierarchical clustering output: the leaves are observations, the branches are merges, and the height of each merge encodes the dissimilarity at which it occurred.
-
-For Claude Code work: D3's `d3-hierarchy` provides `cluster` and `tree` layouts for these forms. Specify the layout in the prompt.
+<!-- → [FIGURE: Two treemaps side by side, same dataset (12 nodes with varying values). Left: slice-and-dice layout — several rectangles are extremely elongated (aspect ratios of 10:1 or higher). Three of the elongated rectangles are highlighted with their actual area and an annotation: "Eye reads this as larger than it is." Right: squarified layout — all rectangles are near-square. The same three nodes are highlighted: "Aspect ratios within 2:1. Eye reads area more accurately." Caption with the Stevens calculation: "A 12×400 rectangle and a 69×69 rectangle have identical areas. Stevens' dominant-dimension bias makes the tall thin one look larger."] -->
 
 ---
 
-## Concept 5 — Choosing among hierarchy forms
+## Sunbursts and the Gestalt Figure-Ground Mechanism
 
-The four major forms map to four primary questions:
+The sunburst diagram works because of a Gestalt perceptual mechanism that the treemap does not use: figure-ground.
 
-- **Proportions matter most → treemap.** Rectangular area is the most accurate hierarchical encoding.
-- **Depth matters most → sunburst.** Concentric rings make level structure visible.
-- **Irregular depth → circle packing.** Handles unequal branching gracefully.
-- **Exact structure matters most → tree diagram.** Node-link makes parent-child relationships explicit.
+In a sunburst, the center is the figure. The outer rings recede into background. The reader's eye naturally treats the center as the root — the organizing structure from which everything else radiates. Moving outward means moving deeper into the hierarchy. This spatial metaphor is so natural that readers unfamiliar with sunburst charts tend to understand the center-to-outer structure without instruction.
 
-The choice depends on what the reader needs to see. Most published hierarchical charts reach for the treemap by default; the alternatives win in specific contexts where the default fails.
+The Gestalt mechanism also produces the failure mode. When the sunburst has six or seven levels, the outer rings compress into slivers. The outermost ring is the least prominent, most recessed part of the figure — visually, it becomes part of the background rather than the content. The hierarchy's deepest elements, which are often the most granular and specific, become the least visible. The chart is punishing its most detailed elements for being detailed.
 
-For Claude Code work, the specification belongs in the prompt:
+The fix for deep hierarchies is interactive zooming: clicking on a segment expands it to fill the entire chart as a new root, with its children as the new ring structure. The reader navigates depth by zooming, not by trying to read all levels simultaneously. This is how the sunburst earns its keep for deeper hierarchies — not by showing all levels at once, but by letting the reader explore one branch at a time.
 
-> "Treemap with depth limit 3, squarified algorithm (`d3.treemapSquarify`), top-level hue cascading through descendants."
-
-vs.
-
-> "Sunburst with depth limit 5, click-to-zoom interaction, top-level hue cascading through descendants."
-
-vs.
-
-> "Circle packing with no depth limit (irregular), bubble color encoded by top-level category."
-
-The form follows the question, the audience, and the data structure.
+For Claude Code work: specify click-to-zoom interaction for sunbursts with more than three or four levels. Without interaction, a deep sunburst is typically worse than a treemap.
 
 ---
 
-## Mid-chapter checkpoint
+## Irregular Depth and Circle Packing's Structural Advantage
 
-Pick a hierarchical dataset from your work. Identify the depth (regular or irregular?). Identify the primary question (proportion, depth, or structure?). Match to a form. Walk through the channel decomposition you'd specify.
+The case for circle packing is most legible on an example.
 
-You should be able to do this in 90 seconds.
+Imagine a dataset describing humanitarian aid organizations: some are large multinationals with programs, sub-programs, and project activities (three levels); some are regional NGOs with programs only (two levels); some are local grassroots organizations with no formal sub-structure (one level). A treemap would need to decide how to handle the single-level organizations — either leaving them as flat rectangles that look formally equivalent to the top level of the multi-level organizations, or artificially adding empty hierarchy levels to equalize depth.
 
----
+Circle packing makes no such demand. Each organization is a circle. If it has programs, smaller circles nest inside. If those programs have sub-programs, smaller circles nest inside those. Organizations without sub-structure are just circles with no children — visually simple, reflecting their structural simplicity. The chart's topology matches the data's topology.
 
-## Extended worked example — building the HAI treemap
+The circle packing advantage is structural honesty for irregular hierarchies. The cost — lower area-comparison accuracy, poorer space efficiency — is real but often acceptable when the topology is what the reader needs to see.
 
-Build the HAI humanitarian R&D treemap. The data: 4 sectors, each with 3–5 sub-categories, each sub-category with a funding value.
-
-### Channel decomposition
-
-- Marks: nested rectangles.
-- Position-area (top-level): position by squarified algorithm; area by funding sum of children.
-- Position-area (sub-category): position within parent by squarified algorithm; area by funding value.
-- Color hue: sector identity (top-level), cascading to sub-categories with luminance variation.
-- Labels: sector names on top-level rectangles; sub-category names on rectangles above 5% of total.
-
-### The four-move prompt
-
-```
-**Show what I have:**
-Hierarchical funding data, 4 sectors with sub-categories. Sample (one
-sector):
-
-  Food Security
-    - Direct Aid: 280
-    - Cash Transfers: 60
-    - Voucher Programs: 40
-
-Total values per sector range $50M to $300M.
-
-**Say what I want:**
-Treemap in D3 v7. Single self-contained HTML file with inline CSS and
-inline D3 (loaded via CDN). Responsive to window resize.
-
-**Constrain it:**
-- Hierarchy: 2 levels (sector → sub-category).
-- Marks: nested rectangles.
-- Layout: d3.treemap() with d3.treemapSquarify (default).
-- Top-level rectangle area: sum of children (sector total).
-- Sub-category rectangle area: that sub-category's funding.
-- Color hue: sector identity. Use d3.scaleOrdinal with HAI palette
-  (Food Security #8B0000, Shelter #6B6B5E, Water #5C3317,
-  Health #4A4A4A).
-- Sub-category color: parent hue with luminance variation
-  (lighter for larger values within the parent).
-- Labels: sector name on top-level (always visible). Sub-category name
-  on rectangles >5% of total (otherwise hover tooltip).
-- Subtitle: "Humanitarian R&D Funding by Sector and Sub-category".
-- Margins: top 60, right 40, bottom 40, left 40.
-- Dark mode support.
-
-**Verify:**
-Restate the channel decomposition. Then write D3 v7 code with comments
-showing which line implements which channel. Note any decisions not
-specified.
-```
-
-### Audit
-
-Standard Evergreen/Emery plus:
-
-- Squarified algorithm used (not slice or dice).
-- Depth limit observed (2 levels in this case; 3 maximum).
-- Color hierarchy cascades correctly.
-- Labels appear on rectangles large enough to read.
+<!-- → [FIGURE: Two panels, same dataset of humanitarian aid organizations with irregular depth. Left: treemap — single-level organizations are shown as flat rectangles visually equivalent to the top level of multi-level organizations; the chart looks like all organizations have the same depth, which is false. A 1-level local NGO and a 3-level multinational look formally similar. Right: circle packing — the 1-level local NGO is a single circle with no children; the 3-level multinational has three layers of nested circles. The structural difference is immediately visible. Caption: "Treemap forces a uniform grid onto unequal structure. Circle packing reflects the data's actual topology."] -->
 
 ---
 
-## Chapter summary
+## The Tree Diagram: When Topology Is Everything
 
-You can now do four things you could not do before this chapter.
+Sometimes neither proportions nor depth is the question. The question is: who reports to whom?
 
-You can build a treemap, sunburst, circle packing, or tree diagram — choosing the form based on whether the question is about proportions, depth, irregular branching, or exact structure.
+A tree diagram is the right form when the structure itself is the answer. An organizational chart showing reporting relationships. A phylogenetic tree showing species divergence. A decision tree showing conditional branches. In all these cases, the quantitative value at each node matters less than the edges between nodes — the explicit parent-child relationships that define the hierarchy.
 
-You can apply the depth limits each form requires (3 for treemaps; 5 for sunbursts; circle packing handles irregular without limit; tree diagrams scale to 50+ nodes before sprawl).
+Tree diagrams fail gracefully at small-to-medium sizes (up to 50 or so nodes) and fail hard at large sizes. A 500-node org chart cannot be read as a static tree diagram; it becomes a wall of boxes and lines. The solutions are either filtering (show only the top three levels; let the reader drill into sub-trees) or switching to a different form (a treemap or sunburst that uses area to make the large organization legible at a glance).
 
-You can specify the layout algorithm for treemaps (`d3.treemapSquarify` for area-comparison readability) and the interaction model for sunbursts (click-to-zoom for deep hierarchies).
-
-You can recognize when a hierarchical chart is the wrong family — when the data is part-to-whole without depth (use Chapter 9's forms), or when exact node-by-node structure matters more than aggregate proportions (use a node-link tree).
+For Claude Code work: D3's `d3.tree()` and `d3.cluster()` layouts handle the geometry. Specify the orientation (top-to-bottom vs. left-to-right), the node spacing, and whether to use smooth bezier curves or right-angle connectors. Left-to-right layouts work better for deep hierarchies (more horizontal space); top-to-bottom layouts work better for wide hierarchies (more vertical space).
 
 ---
 
-## Key terms
+## How This Changes the Prompt
 
-- **Treemap.** Nested rectangles, area encodes value. Best for proportion comparison.
-- **Squarified algorithm.** Treemap layout that minimizes aspect-ratio variance. The default in modern treemap practice.
-- **Sunburst.** Concentric rings; angle encodes value, radial position encodes depth.
-- **Circle packing.** Nested circles; handles irregular hierarchy depth.
-- **Tree diagram.** Node-link representation; shows exact parent-child structure.
-- **Depth limit.** Treemaps max 3, sunbursts max 5; past these, the chart fails on legibility.
+The channel decomposition for hierarchy charts differs from the charts in previous chapters because the primary channel — nested area — emerges from the layout algorithm, not from explicit x/y position assignments.
+
+For a treemap, the critical constraints are: the layout algorithm (`d3.treemapSquarify`), the depth limit (state it explicitly so Claude Code does not render all levels), the color encoding (top-level hue cascading to children, or a second quantitative variable as luminance), and the label rule (labels only on rectangles above a minimum size threshold, tooltip fallback for smaller ones).
+
+For a sunburst, the critical constraints are: the depth limit (5 maximum for static; more with click-to-zoom specified), the click-to-zoom interaction (required for depth > 3), and the color cascade (same top-level hue convention as treemaps).
+
+For circle packing, the critical constraint is that there is no depth limit — but the color encoding needs to identify levels, because the visual nesting alone may not be sufficient for the reader to count levels. Specify color or stroke-width to distinguish depth levels.
+
+For tree diagrams, the critical constraints are: orientation, node spacing, connector style (orthogonal right-angle connectors for org charts; diagonal beziers for phylogenies), and whether nodes should encode a quantitative variable via size or color.
+
+A follow-up prompt for the most common hierarchy failure — Claude Code rendering all six levels of a treemap when you specified three:
+
+> "The treemap is rendering all six levels. Limit to 3 levels by setting `root.depth <= 2` as the leaf condition in the layout. Rectangles at depth 3 should be leaf nodes regardless of whether the data has children below them. Regenerate."
 
 ---
 
-## Discussion questions
+## The Feynman Test
 
-1. Treemaps and circle packing both encode area. Why do treemaps win on accuracy when both forms work?
-2. Sunbursts make depth visible at the cost of angle perception. When is the trade-off worth it?
-3. Tree diagrams scale poorly to large hierarchies. What does this say about visualizing organizational structures with 1,000+ employees?
-4. The depth limits in this chapter (treemap: 3; sunburst: 5) are practical heuristics. What conditions could justify exceeding them?
-5. *Cross-chapter synthesis.* Chapter 9 (part-to-whole) and Chapter 10 (hierarchy) both deal with proportion encoding. Frame the boundary between them.
+The test for this chapter: given any hierarchical dataset, answer three questions before touching Claude Code.
+
+First: what is the primary question — proportion, depth, or structure? Proportion points to treemap. Depth points to sunburst. Structure points to tree diagram. Irregular topology points to circle packing.
+
+Second: how deep is the hierarchy, and is the depth regular or irregular? More than three levels in a treemap means the innermost nodes will be illegible. More than five levels in a sunburst means the outermost ring will be unreadable. Irregular depth in a treemap means artificial padding or misleading flat rectangles.
+
+Third: does the form require interaction to work? A treemap with four levels needs click-to-zoom. A sunburst with six levels needs click-to-zoom. A static chart at those depths fails. Knowing this before building saves the iteration that discovers it after.
+
+If you can answer all three questions in sixty seconds, you know the chapter. The forms, their encoding mechanisms, and their depth limits are compact enough to hold in working memory. What changes chart to chart is the data's structure — but the questions that reveal which form the structure requires are always the same three.
 
 ---
 
@@ -316,116 +169,132 @@ You can recognize when a hierarchical chart is the wrong family — when the dat
 
 ### Warm-up
 
-**Exercise 10.1** — *Form selection.* For each, choose treemap / sunburst / circle packing / tree diagram and justify:
-- Government budget broken down by department, sub-department, line item (3 levels).
-- A taxonomic tree of species with 6 levels of depth.
-- An organizational structure where some divisions have 4 layers and others have 1.
-- A phylogenetic relationships diagram for 30 organisms.
+**Exercise 12.1 — Form selection.** For each of the following, name the right hierarchy form (treemap, sunburst, circle packing, or tree diagram) and justify in one sentence using the chapter's three-property framework (proportions, depth, structure):
 
-**Exercise 10.2** — *Treemap depth diagnosis.* You see a treemap with 5 levels of depth. Rectangles at the deepest level are too small to label. Specify the redesign.
+- A government budget broken down by department, sub-department, and line item (3 uniform levels, proportions are the question).
+- A taxonomic classification with 6 levels of depth, from kingdom to species.
+- A portfolio of humanitarian aid organizations, some with 3 levels of structure and some with 1.
+- An organizational chart for a 30-person team where reporting lines are the question.
+- A file system visualization where disk space usage at every level is the question.
 
-**Exercise 10.3** — *Circle packing vs. treemap.* Take a hierarchical dataset where some branches are deeper than others. Build both forms with Claude Code. Compare.
+**Exercise 12.2 — Depth-limit calculation.** A treemap is 900×700 pixels (630,000 total square pixels). A node at the third level of nesting has a 15% share at each level. (a) Calculate its area in square pixels. (b) Would a label fit? (c) Specify the redesign — what two options does the chapter name?
+
+**Exercise 12.3 — Squarification audit.** Find a published treemap (in a report, dashboard, or data journalism piece). Estimate the aspect ratios of five rectangles. Are they close to 1:1 (squarified) or highly elongated (slice-and-dice)? If elongated, explain using Stevens' power law why the chart under-represents the size differences between nodes.
 
 ### Application
 
-**Exercise 10.4** — *Build a sunburst with depth limit.* Take a 5-level hierarchical dataset. Build a sunburst with click-to-zoom interaction.
+**Exercise 12.4 — Build a treemap with depth limit.** Take a hierarchical dataset with at least 3 levels. Write the four-move prompt specifying `d3.treemapSquarify`, a depth limit of 3, top-level hue cascading, and a label threshold (labels only on nodes above 3% of total). Run, audit, iterate. Document what Claude Code got wrong on the first attempt.
 
-**Exercise 10.5** — *Audit a published treemap.* Find one in a recent publication. Audit using Evergreen/Emery + hierarchy-specific (depth limit, labeling, color cascade).
+**Exercise 12.5 — Build a sunburst with click-to-zoom.** Take a hierarchical dataset with 4–5 levels. Write the four-move prompt specifying a depth limit of 5, click-to-zoom interaction, and the color cascade. Verify that the interaction works by clicking three levels deep.
 
-**Exercise 10.6** — *Tree diagram for org structure.* Take an organization chart. Build a tree diagram. Identify when the chart starts to fail (size? width?).
+**Exercise 12.6 — Circle packing for irregular depth.** Take a dataset with irregular hierarchy depth (some branches 3 levels, some 1). Build it as both a treemap and circle packing with Claude Code. Compare how each handles the branches with fewer levels. Identify which form is structurally honest.
 
 ### Synthesis
 
-**Exercise 10.7** — *Hierarchy form portfolio.* Take one hierarchical dataset and build it as treemap, sunburst, circle packing, and tree diagram. Compare what each reveals.
+**Exercise 12.7 — Hierarchy form portfolio.** Take one hierarchical dataset and build it as all four forms: treemap, sunburst, circle packing, and tree diagram. For each, name one question it answers clearly and one question it cannot answer. The exercise makes the form-choice framework concrete rather than abstract.
 
-**Exercise 10.8** — *Interaction design.* Add zoomable interaction to a treemap with Claude Code. Test it on a 4-level dataset.
+**Exercise 12.8 — Deep hierarchy strategy.** Take a hierarchical dataset with 6 levels. The chapter names three strategies for handling it: depth-limited static display (show top 3), zoomable interaction, or form switch. Implement all three with Claude Code. Which gives the reader the most useful access to the data? Justify using the three-question Feynman test.
 
 ### Challenge
 
-**Exercise 10.9** — *Squarified vs. slice algorithms.* Build the same treemap using `d3.treemapSquarify` and `d3.treemapSlice`. Compare what each reveals about the data.
+**Exercise 12.9 — Squarification algorithm comparison.** Build the same treemap using `d3.treemapSquarify`, `d3.treemapSlice`, and `d3.treemapBinary`. For each, measure the aspect ratio of the five largest rectangles. Calculate the Stevens-predicted area perception error for the most elongated rectangle in each version. Confirm that squarify produces the smallest perception error.
 
-**Exercise 10.10** — *Hybrid form.* Build a hybrid that combines a sunburst (showing top 3 levels) with a treemap (showing the deepest level when zoomed). Use Claude Code.
+**Exercise 12.10 — Hybrid hierarchy form.** Design and build a two-panel chart: a sunburst showing the top 3 levels on the left, and a treemap expanding the selected branch on the right. When the user clicks a segment in the sunburst, the treemap on the right updates to show that branch's sub-hierarchy in detail. This combines depth-as-primary-channel (sunburst) with proportion-as-primary-channel (treemap) in a coordinated view.
 
 ---
 
-## LLM Exercise — Chapter 10: Hierarchy Charts
+## Key Terms
+
+**Treemap.** Nested rectangles where area encodes value. Best for proportion comparison. Squarified algorithm minimizes aspect-ratio variance. Depth limit: 3 levels for static display.
+
+**Squarified algorithm.** Bruls, Huizing, van Wijk (2000). Groups nodes to minimize worst aspect ratio. More accurate for area comparison than slice-and-dice. Implemented as `d3.treemapSquarify`.
+
+**Sunburst.** Concentric rings; radial position encodes depth, angle encodes proportion within parent. Makes depth structurally visible. Depth limit: 5 levels for static; more with click-to-zoom.
+
+**Circle packing.** Nested circles; area encodes value. Handles irregular hierarchy depth without the forced-depth problem of treemaps. Lower area-comparison accuracy than treemaps due to absent aligned edges.
+
+**Tree diagram.** Node-link representation showing exact parent-child structure. No area encoding. Best for topology questions.
+
+**Depth limit.** The level beyond which the form becomes illegible. Treemap: 3. Sunburst: 5. Circle packing: no hard limit. Tree diagram: ~50 nodes.
+
+**Gestalt figure-ground (sunburst).** The center reads as the figure; outer rings recede. Makes hierarchy depth intuitively readable but punishes deep outer rings with visual compression.
+
+**Click-to-zoom.** Interaction pattern for deep hierarchy charts. Clicking a node expands it as a new root, showing its children as a new layout.
+
+---
+
+## LLM Exercise — Chapter 12: Hierarchy Charts
+
+**Project:** [TBD — selected after Chapter 00]
+
+**What you're building this chapter:** A hierarchy chart with explicit form selection and an audit document confirming depth limits, algorithm choice, color cascade, and label placement.
+
+**Tool:** Claude Code (for the build) + Claude chat (for the audit and iteration).
+
+---
+
+**The Prompt (audit + build):**
 
 ```
 I have a hierarchical dataset of [DESCRIBE: levels, branching pattern,
-values at leaves]. The communication goal is [DESCRIBE].
+values at leaves or nodes, whether depth is regular or irregular]. The
+communication goal is [DESCRIBE: what the reader needs to know in 5
+seconds].
 
-Walk me through:
-1. Identify hierarchy depth (regular vs. irregular).
-2. Identify the primary question (proportion, depth, structure).
-3. Choose form: treemap (proportion + regular depth), sunburst
-   (depth + 5-level limit), circle packing (irregular depth), or tree
-   diagram (exact structure).
-4. For treemaps: choose squarified algorithm; specify depth limit.
-   For sunbursts: specify depth limit; specify zoom interaction.
-   For circle packing: specify color encoding.
-5. Specify channels.
-6. Write four-move Claude Code prompt.
+Walk me through the hierarchy-chart design:
 
-Audit using Evergreen/Emery + hierarchy-specific (depth limits,
-algorithm choice, label placement, color cascade).
-```
+1. Identify the depth (how many levels?) and whether it is regular
+   (all branches the same depth) or irregular (branches vary in depth).
 
-**Connection to previous chapters:** Chapter 1 (Stevens' power law on area), Chapter 9 (part-to-whole connection), Chapter 4 (workflow).
+2. Identify the primary question:
+   - Proportions matter most → treemap.
+   - Depth matters most → sunburst.
+   - Irregular topology → circle packing.
+   - Exact structure → tree diagram.
 
-**Preview of next chapter:** Chapter 11 covers flow and network charts — Sankey, alluvial, chord, arc, force-directed. Where Chapter 10 used hierarchy depth as the structural channel, Chapter 11 uses connection (existence or magnitude) between entities.
+3. Apply the depth limit. For treemaps: 3 levels maximum for static
+   display; specify click-to-zoom if deeper. For sunbursts: 5 levels
+   maximum; specify click-to-zoom if deeper.
 
----
+4. For treemaps: specify d3.treemapSquarify (the squarified algorithm,
+   not slice-and-dice). Justify why squarification improves area
+   comparison accuracy.
 
-## Visual suggestions
+5. Specify the color encoding: top-level hue cascading to children
+   with luminance variation, or a second quantitative variable as
+   luminance.
 
-This chapter is about hierarchy chart selection. Each chart family it discusses has a Part II reference; the focal figure here is the chapter's central worked example.
+6. Specify the label rule: visible labels only on nodes above a
+   minimum size threshold; hover tooltip for smaller nodes.
 
-Part II references for hierarchy charts: [Treemap](75-treemap.md), [Sunburst](70-sunburst.md), [Circle Packing](30-circle-packing.md), [Tree Diagram](74-tree-diagram.md), [Brainstorm](23-brainstorm.md). Each Part II chapter has its own prompt.
+7. Write a four-move Claude Code prompt that produces the chart.
 
-### Figure 10.1 — Treemap with squarification toggle
-
-The chapter's central worked example. A treemap of nested humanitarian-AI applications by domain, with a toggle that switches between squarified (Bruls–Huizing–van Wijk 2000, the modern default) and slice-and-dice (the older algorithm) layouts. The figure makes the squarification trade-off concrete: aspect ratio matters because area-perception under elongated rectangles is worse than under near-square ones.
-
-See [Treemap](75-treemap.md) and [Sunburst](70-sunburst.md) in Part II for the canonical references.
-
-```
-Generate a treemap in D3 v7 with a squarification toggle. Two files:
-
-1. `chapter-10-fig-01.html` — full HTML with inline CSS and inline D3 v7. A treemap with a toggle that switches layout algorithms. Page subtitle: "Squarification trade-off — aspect ratio and area perception."
-
-2. `chapter-10-fig-01/data.json` — the dataset.
-
-Data shape:
-- A nested hierarchy 2–3 levels deep, leaves with quantitative values.
-  - Root → 4–5 categories → 3–6 sub-items each.
-
-{DATA NEEDED} — A humanitarian AI capability or program portfolio: top-level domains (Data Collection, Analysis & Prediction, Decision Support, Delivery & Accountability) → specific applications under each.
-
-Encoding:
-- Top-level rectangles tile the chart, sub-items tile their parent rectangle.
-- Area encodes leaf value.
-- Toggle: `d3.treemapSquarify` (modern default) vs. `d3.treemapSlice` or `d3.treemapDice` (alternates that produce extreme aspect ratios for teaching).
-- Hue encodes top-level category (identity); luminance optional for sub-item ordering within a parent.
-- Direct labels on rectangles large enough to hold them; smaller rectangles hover-only.
-
-Caption beneath the toggle reads: "Squarification keeps aspect ratios near 1:1 so areas are comparable by eye. Slice-and-dice produces narrow rectangles whose area is harder to estimate."
-
-Style: warm monochrome.
-
-Provide both files as separate code blocks.
+After Claude Code returns, audit using the Evergreen/Emery subset plus
+hierarchy-specific checks: depth limit observed, squarified algorithm
+confirmed in code, color cascade correct, labels appear only where
+readable, click-to-zoom implemented if the depth requires it.
 ```
 
 ---
 
-## Further reading
+**What this produces:** Audit document plus working hierarchy chart. Save as `chapter-12-hierarchy-audit.md` and `chapter-12-hierarchy.html`.
 
-- **Shneiderman, Ben. (1992).** "Tree visualization with tree-maps: 2-d space-filling approach." *ACM Transactions on Graphics.* The original treemap.
-- **Bruls, Mark, Kees Huizing, and Jarke J. van Wijk. (2000).** "Squarified treemaps." The squarified layout algorithm.
-- **Munzner, Tamara. (2014).** *Visualization Analysis and Design.* Section on hierarchical visualization.
-- **The book's pantry** — `treemap.html`, `tree-diagram.html`.
+**How to adapt this prompt:**
+- *For your own dataset:* Replace the description and communication goal.
+- *For ChatGPT / Gemini:* Works as-is.
+- *For a Claude Project:* Save the hierarchy-chart framework as system context.
+- *For Cowork:* Use Cowork to read the data file directly.
+
+**Connection to previous chapters:** Builds on Chapter 3 (Stevens' power law on area — treemap area encoding), Chapter 4 (chart selection — confirming the hierarchy family from the FT Visual Vocabulary), Chapter 5 (the Claude Code four-move prompt applied to hierarchical specifics). The area-encoding principle from Chapter 3 governs both bubble charts (Chapter 10) and hierarchy charts; this chapter applies it to the specific geometry of nested rectangles and circles.
+
+**Preview of next chapter:** Chapter 13 covers flow and network charts — Sankey, alluvial, chord, arc, force-directed. Where this chapter used containment as the encoding, Chapter 13 uses connection — the existence or magnitude of a link between entities.
 
 ---
 
-## Tags
+## Further Reading
 
-hierarchy-charts, treemap, sunburst, circle-packing, tree-diagram, dendrogram, Shneiderman, squarified-algorithm, depth-limit, Bertin-area, Stevens-power-law, Gestalt-figure-ground, D3, Claude-Code
+- **Shneiderman, Ben. (1992).** "Tree visualization with tree-maps: 2-d space-filling approach." *ACM Transactions on Graphics* 11(1). The original treemap.
+- **Bruls, Mark, Kees Huizing, and Jarke J. van Wijk. (2000).** "Squarified treemaps." In *Proceedings of the Joint Eurographics and IEEE TCVG Symposium on Visualization.* The squarified layout algorithm; available online.
+- **Munzner, Tamara. (2014).** *Visualization Analysis and Design.* CRC Press. Chapter on hierarchical visualization, including the depth-limit analysis and the treemap-vs-sunburst trade-off.
+- **Friendly, Michael. (2008).** "A Brief History of Data Visualization." In *Handbook of Data Visualization.* Springer. The origin story of Shneiderman's treemap and its development.
+- **The book's pantry** — `treemap.html`, `circle-packing.html`, `tree-diagram.html` for working examples of each form.
