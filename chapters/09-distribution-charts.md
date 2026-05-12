@@ -1,345 +1,160 @@
-# Chapter 7 — Distribution Charts
+# Chapter 09 — Distribution Charts
+
 *Shape, Spread, and Skew — Beyond the Mean.*
 
-## Three suggested titles
+---
 
-- Distribution Charts: What Violin Plots Reveal That Box Plots Hide
-- The Bin-Width Problem and the Graphicacy Cost of Each Form
-- From Histograms to KDE: Showing the Spread
+Open the pantry's `box-whisker.html`. Five box plots stand side by side, one per residential zone — Urban Core, Inner Suburbs, Outer Suburbs, Exurban, Rural. Each shows the household income distribution for that zone: a box from Q1 to Q3, a line at the median, whiskers extending to the most extreme value within one-and-a-half times the interquartile range, and scattered points beyond the whiskers for outliers.
+
+Now look at the Inner Suburbs box. There is a cluster of points sitting well above the upper whisker — a group of high-income households that doesn't fit the rest of the distribution. The box plot reveals that the cluster exists. It does not tell you whether the cluster is a separate sub-population or just the upper end of a long tail. Two distributions — a normal one and a bimodal one — can have identical five-number summaries. The box plot cannot distinguish between them.
+
+This is the central tension of the whole chapter. Every distribution chart is a compression. Some compressions preserve the shape. Others preserve the quartiles. Others preserve the raw values. No single form preserves everything, and the right choice depends on what the reader needs to see and what they are able to read.
+
+<!-- → [IMAGE: the pantry's box-whisker.html rendered in a browser — five box plots side by side for the five residential zones, with an annotation arrow pointing to the Inner Suburbs outlier cluster above the upper whisker. A second annotation asks "bimodal sub-population, or just a long tail?" and notes that the box plot cannot answer. Caption: "The cluster is visible. What it means is not."] -->
 
 ---
 
-## Chapter overview
+## What the mean hides
 
-By the end of this chapter you will be able to build the family of distribution charts — histograms, box plots, violin plots, density (KDE) plots, stem-and-leaf — and know when each is right. You will know what a violin plot reveals that a box plot hides, why histogram bin width can hide bimodality or invent peaks that aren't there, and how Cairo's *graphicacy* concept becomes a practical design constraint when the audience does not have the statistical background to read the more information-dense forms.
+When someone summarizes a distribution with a mean, they are making a specific choice about compression. The mean is a single number that describes the center of mass of the data. It is sensitive to every value — pull one observation to an extreme and the mean moves. It says nothing about spread, nothing about shape, nothing about whether the data is symmetric or skewed or bimodal.
 
----
+This is not an abstract concern. Consider a hypothetical: ten households with incomes of $30,000, $32,000, $35,000, $36,000, $38,000, $39,000, $40,000, $41,000, $43,000, and $200,000. The mean is about $53,000. The median is $38,500. These are the same data; they tell different stories. The mean is dominated by the outlier. The median is indifferent to it.
 
-## Learning objectives
+Or consider a dataset of patient recovery times after a surgical procedure. The distribution is bimodal: most patients recover quickly (peak around day 5) and a second group recovers slowly (peak around day 20). The mean — somewhere around day 10 — corresponds to almost no actual patients. A researcher who reports only the mean is describing a phantom center of a distribution that has two real centers. The distribution chart is not a decoration on top of the summary statistic. It is the correction to the summary statistic.
 
-1. **(Understand)** Explain what information a violin plot reveals that a box plot hides (multimodality, distribution shape) and vice versa (precise quartile values, outlier identification), using kernel density estimation as the mechanism.
-2. **(Apply)** Build a box plot and violin plot for the same distribution dataset; identify which features of each distribution are visible in each form.
-3. **(Analyze)** Diagnose a histogram where bin width obscures bimodality; specify the corrected bin width with reasoning.
-4. **(Evaluate)** Select the most appropriate distribution chart for a specified audience graphicacy level and analytical goal, applying Cairo's concept that more complex forms require more graphicacy to decode.
+John Tukey understood this when he designed the box plot in 1977. His goal was a form that could show distribution features — central tendency, spread, skewness, outliers — in a compact enough package to compare many distributions side by side. The five-number summary (minimum, Q1, median, Q3, maximum) was the compression he chose. It is robust to outliers because it uses rank-based statistics. Two box plots next to each other immediately show whether one distribution has a higher center, a wider spread, or more extreme outliers than the other.
 
----
+What it cannot show is shape. This is the limitation the violin plot exists to address.
 
-## Opening case — the HAI box plot and the suburban subpopulation
-
-Open `pantry/visualization/box-whisker.html` in a browser. Five box plots, side by side, one per residential zone (Urban Core, Inner Suburbs, Outer Suburbs, Exurban, Rural). Each box shows household income distribution for that zone — the Q1, median, Q3, and the whisker extent (1.5× IQR per Tukey's rule). Outlier points appear above or below the whiskers where they exist.
-
-The Inner Suburbs box has an interesting feature: a cluster of outlier points sitting well above the upper whisker. The cluster suggests there's a high-income group within the Inner Suburbs that doesn't fit the rest of the distribution. The box plot reveals their existence. The box plot does *not* reveal whether the cluster is a separate sub-population (a bimodal distribution) or a long right tail of the same distribution.
-
-This is the box plot's most consequential limitation. Box plots summarize distributions using five numbers: minimum, Q1, median, Q3, maximum. The five-number summary captures central tendency and spread efficiently, and lets the reader compare distributions across groups at a glance. But the five-number summary cannot distinguish between distribution *shapes*. A normal distribution and a bimodal distribution can have identical five-number summaries; the box plot will show them identically.
-
-A violin plot answers the follow-up question. A violin plot is a density estimate (kernel density estimation, KDE) drawn symmetrically around a vertical axis. The width of the violin at any point represents the density of observations at that value. A bimodal distribution shows two bulges. A normal distribution shows a single symmetric bulge. A skewed distribution shows an asymmetric bulge.
-
-The trade-off: a violin plot reveals shape but loses the precise five-number summary. The reader cannot read off the exact median or the exact Q1; they read the *envelope* of the density, not specific quartile values. Often this is the right trade. Sometimes it isn't.
-
-This chapter is about that trade. The choice between box plot and violin plot — and between either of those and the histogram, density plot, or stem-and-leaf — depends on what the reader needs to see, and what graphicacy level the reader brings.
+<!-- → [INFOGRAPHIC: two side-by-side distribution comparisons — left pair shows a normal distribution and a bimodal distribution that have identical five-number summaries (Q1, median, Q3, whiskers all match); their box plots are shown beneath each and are visually indistinguishable. Right pair shows the same two distributions as violin plots, where the bimodal shape is unmistakable. Caption: "Same five-number summary. Different shapes. The box plot cannot tell them apart."] -->
 
 ---
 
-## Theoretical grounding — Tukey's box plot, Cairo's graphicacy, Heer & Bostock on histograms
+## The histogram and the bin-width problem
 
-This chapter draws on three sources, each at the moment its specific contribution is needed.
+Before the box plot and the violin, there is the histogram. It is the most commonly encountered distribution chart because it appears in every introductory statistics course. It bins continuous data into discrete intervals and shows the count per bin as a column.
 
-**John Tukey's box and whisker plot (1977).** Tukey's *Exploratory Data Analysis* introduced the box plot as a five-number summary: minimum, Q1, median, Q3, maximum. Tukey's specific design choices — the box from Q1 to Q3, the median line inside the box, the whiskers extending to the most extreme value within 1.5×IQR of Q3 (or Q1) — became the standard. The 1.5×IQR fence rule for outliers is empirical; Tukey chose it because it reliably separated genuine outliers from the natural tail of common distributions. Every design decision in the standard box plot traces back to Tukey's paper. Variations (notched box plots showing 95% confidence intervals around the median) appeared later but rest on the same five-number foundation.
+The histogram's critical design decision is the bin width. The choice is more consequential than most people realize.
 
-**Cairo's concept of graphicacy.** Graphicacy is the audience's capacity to read visual representations of data. Just as literacy varies (some readers handle complex prose, others need simpler text), graphicacy varies (some readers handle violin plots, others need histograms with annotations). A chart that exceeds the audience's graphicacy is a failure of design — the chart is technically informative but practically useless to its readers. This chapter is where graphicacy becomes a *practical design constraint* rather than just a theoretical concept. Distribution charts span a wide graphicacy range: stem-and-leaf is accessible to general audiences; histograms are familiar to most college-educated readers; box plots require statistical training; violin plots require both statistical training and visualization training. The choice of form depends on who the reader is.
+Take a dataset of household incomes in a mixed neighborhood — some working-class residents, some affluent ones, a genuine bimodal distribution with peaks around $40,000 and $120,000. Now build the histogram with very wide bins: one bin for $0–$50,000, one for $50,000–$100,000, one for $100,000–$150,000. The two peaks merge into a broad, roughly uniform shape. You cannot see the bimodality; the bin width has swallowed it.
 
-**Heer & Bostock (2010) on histogram perception.** The Heer-Bostock crowdsourced replication of Cleveland & McGill (Chapter 1) included tests on histogram and bar chart perception. The finding relevant here: bin choices substantially affect perceived distribution shape, and readers consistently misjudge the underlying distribution when bin width is poorly chosen. This is the empirical evidence that the histogram bin-width problem (Concept 3) is not a theoretical concern; it is a measurable perceptual failure that produces wrong conclusions.
+Now build it with very narrow bins: $1,000 intervals. The sampling variation in each bin is large relative to the true density at that point. The histogram shows dozens of small wiggles — apparent peaks and valleys that are noise, not structure. The bimodality is hidden again, this time inside a forest of artifact.
 
----
+At the right bin width, both peaks are visible, the noise is smoothed out, and the gap between the two income groups is legible. There is no universal formula for "right," though several rules of thumb provide defensible starting points. Freedman-Diaconis — bin width equals two times the interquartile range divided by the cube root of n — is robust to outliers and generally well-behaved. Sturges' rule (bins equal the ceiling of log₂(n) plus 1) is a simple conservative default. Scott's rule is optimized for normal distributions.
 
-## Concept 1 — Histograms: the bin-width problem
+For Claude Code work, the implication is direct: specify the bin width or the selection rule explicitly. "Use Freedman-Diaconis binning" leaves no ambiguity. Leaving the choice to default will usually produce Sturges' rule, which is conservative and may miss fine structure.
 
-A histogram bins continuous data into discrete intervals and shows the count (or density) per bin as a column. The chart is the most common distribution form because it is taught in every introductory statistics class.
+The practical test for bimodality is to build three histograms at different bin widths — narrow, medium, wide — and ask whether the two peaks survive across all three. A bimodality that appears at narrow bins and vanishes at wider ones is sampling noise. A bimodality that persists across all three bin widths is real, and at that point the histogram form may be less informative than a density-based alternative.
 
-### When histograms work
-
-- The dataset is large enough (typically n > 50, ideally n > 200) for the binning to produce stable patterns.
-- The reader needs to see the distribution's shape — peaks, tails, gaps.
-- The data is continuous or near-continuous (a histogram of integer counts 0–10 looks like a bar chart, which is fine).
-
-### The bin-width problem
-
-The defining design decision is the *bin width* — how wide each interval is. The choice has substantial consequences.
-
-**Too few bins (too-wide bins).** The distribution's structure compresses into a smooth shape. Bimodality (two peaks) merges into a single broad peak. Skewness can be hidden. The chart shows less than the data contains.
-
-**Too many bins (too-narrow bins).** Random noise in the data produces visual peaks that aren't real. The chart shows more than the data supports — apparent multi-modality that's actually sampling variation.
-
-**Right bin width.** The structure of the distribution is visible; the noise is averaged out. The shape the reader sees corresponds to the underlying population.
-
-There is no universal "right" bin width. Several rules of thumb provide starting points:
-
-- **Sturges' rule:** k = ⌈log₂(n) + 1⌉ bins. Works for normal-ish distributions with moderate n.
-- **Square-root rule:** k = ⌈√n⌉ bins. A common simple default.
-- **Scott's rule:** bin width = 3.5σ / n^(1/3). Optimized for normal distributions.
-- **Freedman-Diaconis rule:** bin width = 2 × IQR / n^(1/3). Robust to outliers; often the best default.
-
-For Claude Code work: specify the bin width or the rule explicitly. "Use Freedman-Diaconis binning" or "bin width = 5" leaves no ambiguity. Letting Claude Code choose the default usually produces Sturges' rule or a similar conservative choice that misses fine structure.
-
-### The bimodality test
-
-If you suspect the distribution might be bimodal, test multiple bin widths. A bimodality that survives across several reasonable bin widths is real. A bimodality that appears at narrow bins and vanishes at wider bins is sampling noise. The test is: build the histogram with three bin widths (narrow, medium, wide). If the two peaks remain visible across all three, the bimodality is real.
-
-If the bimodality is real, consider switching to a violin plot or KDE plot. The histogram form is least informative for showing genuine multi-modality; density-based forms are better.
-
-> ### ↳ Dig Deeper — Bin-width sensitivity in your domain
->
-> **Prompt:**
->
-> > Pick a typical distribution dataset from my work (incomes, response times, scores, etc.). Compute Sturges, Scott's, and Freedman-Diaconis bin widths. Build histograms at each width with Claude Code. Compare what each reveals. Where do they agree on the distribution's shape? Where do they disagree, and which is more likely correct? Cite Heer & Bostock (2010) on histogram perception.
->
-> **What to do with the output:** Save the comparison. The bin-width sensitivity analysis is the muscle the rest of this chapter builds.
+<!-- → [IMAGE: three-panel histogram of the same bimodal income dataset — left panel: very wide bins ($50K intervals, two peaks merge into one broad shape), center panel: Freedman-Diaconis binning (both peaks visible, gap between them legible), right panel: very narrow bins ($1K intervals, noise produces dozens of spurious wiggles). Annotations label each panel with the failure mode (too wide: bimodality hidden / right: structure visible / too narrow: noise amplified). Caption: "Three bin widths. Two of them lie."] -->
 
 ---
 
-## Concept 2 — Box and whisker plots
+## What the box plot shows and doesn't
 
-Tukey's box plot summarizes a distribution using five numbers and visualizes them with a specific shape.
+The box plot's five-number summary has a specific design. Tukey's choices were deliberate.
 
-### The standard form
+The box spans Q1 to Q3 — the middle half of the data. This is the interquartile range (IQR). The box's height encodes the spread of the central mass of the distribution. A tall box means the middle fifty percent of values are spread widely. A short box means they are compressed.
 
-- **Box:** spans Q1 (lower edge) to Q3 (upper edge). The box's height (or width, in horizontal orientation) is the IQR.
-- **Median line:** horizontal line inside the box at Q2.
-- **Whiskers:** extend from the box to the most extreme data point within 1.5×IQR of the box's edge. The whisker doesn't necessarily reach the data minimum or maximum.
-- **Outliers:** individual points beyond the whiskers.
+The median line sits inside the box. When it sits near the center of the box, the distribution's middle is roughly symmetric. When it sits near one edge, the distribution is skewed in that direction — the median is being pulled toward the denser side.
 
-### What box plots show well
+The whiskers extend from the box edges to the most extreme value within 1.5 times the IQR of each edge. Tukey chose the 1.5 factor empirically: it reliably separates genuine outliers from the natural tail of common distributions. Values beyond the whiskers appear as individual points.
 
-- **Cross-distribution comparison.** Five box plots side by side let the reader compare central tendency (median position), spread (IQR — box height), and outlier presence at a glance. This is what the HAI box plot does for residential zones.
-- **Skewness.** When the median sits near one edge of the box, the distribution is skewed in that direction.
-- **Outlier identification.** Tukey's 1.5×IQR rule produces a defensible flagging of unusual points.
-- **Robustness to outliers.** Because box plots use quartiles (rank-based statistics) rather than means and standard deviations, they are not pulled by extreme values the way mean-based summaries are.
+This design is robust to outliers in a specific sense: the box and whiskers are based on ranks (quartiles), not on distances from the mean. A single extreme value does not move Q1 or Q3. It may appear as an outlier point, but it does not distort the box itself.
 
-### What box plots hide
+What the box plot hides: distribution shape. Two distributions with the same Q1, median, Q3, and similar whisker extent can look completely different — one normal, one bimodal, one with a pronounced plateau, one skewed with a long tail. The box plot is indifferent to all of this variation because it is a five-number summary, not a shape summary. The cluster of outlier points visible in the Inner Suburbs box in the HAI example suggests a bimodal distribution — but only suggests. The box plot cannot confirm it.
 
-- **Distribution shape beyond skewness.** Bimodal, trimodal, and unusually shaped distributions look the same in box plots.
-- **Within-quartile structure.** The box doesn't show how data is distributed within each quartile range.
-- **Sample size.** Two box plots from samples of n=10 and n=10,000 look identical, but the inferential weight is dramatically different.
+Two additional things the standard box plot hides: sample size and within-quartile structure. Two box plots from samples of ten and ten thousand look identical. The reader cannot tell whether the summary is based on a handful of observations or a robust population. The variable-width box plot addresses this by encoding sample size as box width — wider boxes for larger samples — but the standard form does not.
 
-### Variations
-
-- **Notched box plot.** Adds a "notch" around the median showing approximately the 95% confidence interval. Two notches that don't overlap suggests medians differ significantly.
-- **Variable-width box plot.** Box width encodes sample size; wider boxes are larger samples.
-- **Letter-value plot.** Tukey's extension showing more quantile boundaries (Q1, Q3, and finer divisions) for larger datasets.
-
-For Claude Code work: the standard Tukey box plot is the default. Specify variations explicitly when needed. The pantry's `box-whisker.html` shows the standard form.
+<!-- → [INFOGRAPHIC: annotated box plot anatomy — one box plot with labeled callouts for each element: "Box top = Q3 (75th percentile)," "Median line = Q2 (50th percentile)," "Box bottom = Q1 (25th percentile)," "IQR = height of box," "Whisker = most extreme value within Q3 + 1.5×IQR," "Points beyond whisker = outliers by Tukey's rule." A second panel shows the min-to-max whisker failure mode with the label "This is NOT Tukey's box plot — it is a range chart." Caption: "Tukey's design is specific. The fence is what makes the outlier visible."] -->
 
 ---
 
-## Concept 3 — Violin plots and KDE
+## Violin plots: shape made visible
 
-A violin plot draws a kernel density estimate (KDE) symmetrically around a vertical axis. The width at any point encodes the density of observations at that value.
+A violin plot draws a kernel density estimate symmetrically around a vertical axis. The width at any point represents the density of observations at that value.
 
-### What KDE is
+Kernel density estimation is the machinery underneath the violin. Each observation in the dataset contributes a small smooth function — a kernel, typically Gaussian — centered at that value. Sum the contributions of all observations and you get a continuous density estimate. Where observations cluster densely, the sum is large and the violin is wide. Where they are sparse, the sum is small and the violin narrows.
 
-Kernel density estimation is a method for estimating a continuous probability density from a finite sample. Each data point contributes a small "kernel" function (typically Gaussian, sometimes Epanechnikov or other shapes) centered at the data value. The sum of all kernels produces a smooth density estimate.
+The bandwidth parameter controls how smooth the kernel is. Too narrow a bandwidth and the estimate tracks every individual observation, producing a jagged shape that reflects noise rather than structure. Too wide a bandwidth and real features — peaks, gaps, multimodality — get smoothed away. Silverman's rule and Scott's rule provide principled starting points. Like the histogram's bin width, the bandwidth choice is a design decision, and specifying it explicitly to Claude Code produces more reliable results than accepting whatever default the library chooses.
 
-The estimate has a parameter: the *bandwidth* (how wide each kernel is). Like the histogram bin width, the bandwidth choice matters:
+The violin's strength is exactly what the box plot cannot do: it shows shape. A bimodal distribution produces a violin with two bulges, one at each peak. A skewed distribution produces an asymmetric shape — wider on one side than the other. A distribution with a plateau produces a wide flat region in the middle. The reader sees the entire envelope of the density at once.
 
-- **Too narrow:** the estimate is rough and shows sampling noise as wiggles.
-- **Too wide:** the estimate is over-smoothed and hides real features.
-- **Right bandwidth:** the underlying distribution shape is visible; noise is suppressed.
+The violin's weakness is that the reader cannot extract precise quartile values from it. The edge of the violin at a given height is the estimated density, not a quartile boundary. For audiences who need to know the exact Q1, median, and Q3, the violin alone is insufficient.
 
-D3's `d3-array` library and several KDE-specific libraries provide bandwidth-selection rules (Silverman's rule, Scott's rule). For Claude Code work, specify the bandwidth selection method or use a standard default.
+The standard resolution is the hybrid form: a thin box plot overlaid inside the violin. The box gives the precise quartiles; the violin gives the shape. The hybrid is denser but more informative. It is best suited to audiences with high graphicacy — readers who have encountered both forms and can decode each independently.
 
-### When violin plots win
-
-- **Bimodal or multi-modal distributions.** The bulges in the violin reveal the modes.
-- **Skewed distributions.** The asymmetric shape of the violin shows the skew direction.
-- **Audiences with statistical literacy.** Readers comfortable with distribution shape concepts can extract more information from the violin than from the box plot.
-
-### When violin plots fail
-
-- **Audiences without statistical literacy.** A violin plot to a general audience is often unreadable. The form requires graphicacy that hasn't been built.
-- **Small sample sizes (n < 40).** KDE on small samples produces unreliable shapes; the violin is mostly artifact.
-- **Precise quartile reading.** The violin's edge isn't a clean Q1/Q3 boundary; readers can't read exact quartile values.
-
-### The hybrid: box-violin
-
-Many practitioners overlay a thin box plot inside the violin. The box gives the precise quartile values; the violin gives the shape. The hybrid form is denser but more informative — best for audiences with high graphicacy.
-
-The pantry's `violin-plot.html` shows a standard violin form. Compare it to the `box-whisker.html` for the same data; the differences reveal what each form makes visible.
-
-> ### ↳ Dig Deeper — Bandwidth selection
->
-> **Prompt:**
->
-> > Walk me through Silverman's rule, Scott's rule, and cross-validation for KDE bandwidth selection. Build a violin plot of a real bimodal distribution using each method. Compare the resulting shapes. Where do they agree? Where do they disagree, and which is more faithful to the underlying distribution? Cite the Heer & Bostock evidence on bin-width / bandwidth sensitivity.
->
-> **What to do with the output:** Save the comparison. Bandwidth selection is the most under-discussed technical decision in violin plot work.
+<!-- → [IMAGE: three-panel comparison of the same bimodal distribution — left: box plot alone (two-bulge shape invisible, only outlier cluster hints at it), center: violin plot alone (bimodality unmistakable, but no precise quartile values readable), right: hybrid box-violin (bimodal shape visible AND quartile lines readable). Caption: "Each form reveals what the others hide. The hybrid pays a density cost for completeness."] -->
 
 ---
 
-## Concept 4 — Stem-and-leaf and density plots
+## Cairo's graphicacy constraint
 
-Two less-commonly-used forms deserve mention because they fill specific niches.
+Graphicacy is the capacity to read visual representations of data. Just as literacy varies — some readers handle complex prose, others need simpler text — graphicacy varies. Some readers handle violin plots fluently. Others need histograms with annotations. Others need the numbers in a table.
 
-### Stem-and-leaf plots
+This is not a hierarchy. It is a constraint. A chart that exceeds the audience's graphicacy fails as communication, regardless of how technically informative it is. The distribution chart family spans a wide graphicacy range. Stem-and-leaf plots are accessible to nearly any numerate audience. Histograms are familiar to most college-educated readers. Box plots require statistical training to decode correctly — the reader must know what Q1, Q3, and the 1.5×IQR rule mean to interpret the whiskers honestly. Violin plots require both statistical training and visualization training; a general audience encountering a violin plot for the first time will often misread the width as frequency rather than density.
 
-Tukey introduced the stem-and-leaf plot for small datasets where you want to preserve the original data values while showing the distribution. The "stem" is the leading digit(s) of each value; the "leaf" is the trailing digit. Each value is represented by its leaf, placed next to its stem. The result is a textual chart that doubles as a sorted list of the actual values.
+Cairo's argument is that the designer's professional obligation is to the reader's understanding. Choosing a violin plot for an audience that cannot decode it is not more informative than choosing a histogram — it is less informative, because the reader cannot use it.
 
-Stem-and-leaf plots win for:
+The practical decision rule: match the chart form to the lowest reliable graphicacy level in your audience. If you are writing for statisticians in a peer-reviewed journal, violin plots are the right default for showing distribution shape. If you are presenting to a school board or a community meeting, histograms with annotations are more likely to produce genuine understanding. If the audience has no visualization training at all, a stem-and-leaf plot — which looks like a sorted list with structure — may be the most honest form available.
 
-- **Small datasets (n < 50).** Statistical inference is shaky for small samples; preserving raw values lets the reader inspect them directly.
-- **Audiences without statistical graphicacy.** The plot is more readable than histograms for readers unfamiliar with binning.
-- **Datasets where exact values matter.** A stem-and-leaf preserves all data; a histogram aggregates it.
-
-The pantry's `stem-leaf.html` shows the form. It's an unusual chart to build in D3 (it's almost text-as-chart), but the form has a niche.
-
-### Density plots without the violin shape
-
-A simple density plot shows a KDE as a line on a coordinate plane (x = value, y = density). Multiple distributions can be overlaid as multiple lines. This is the form most often used in scientific publications for comparing distributions.
-
-When to use density plots over violin plots:
-
-- The reader needs to compare distributions directly (overlaid lines).
-- Statistical literacy is assumed (the form is academic-publication standard).
-- The comparison is between specific distributions, not many groups.
-
-When to use violin plots:
-
-- Multiple groups (5+) where overlay would be unreadable.
-- The shape of each distribution is the primary message.
+<!-- → [TABLE: five-row graphicacy reference — columns: distribution form, required graphicacy level (general public / college-educated / statistically trained / visualization-trained), what it reveals, what it hides, best professional context. Rows: stem-and-leaf / histogram / box plot / violin plot / hybrid box-violin. Student uses this as a form-selection lookup card before building any distribution chart.] -->
 
 ---
 
-## Mid-chapter checkpoint
+## Stem-and-leaf and density plots
 
-Pick a distribution dataset you have on hand. Walk through the form selection: histogram (audiences without statistical training), box plot (cross-group comparison, robust statistics), violin plot (bimodality or skew matters), density plot (overlaid comparison), stem-and-leaf (small dataset, preserve values). Justify the choice using the audience's graphicacy level and the question being asked.
+Two less-common forms are worth naming because they fill specific niches neither the histogram nor the box plot nor the violin can fill.
 
-Then identify the binning/bandwidth decision the chart requires. What rule will you use, and why?
+A stem-and-leaf plot preserves the original data values while showing the distribution. The "stem" is the leading digit of each value; the "leaf" is the trailing digit. Each observation is represented as its leaf placed next to its stem. The result is a chart that doubles as a sorted list of the actual values — the reader can see both the distribution shape and every individual number.
 
-You should be able to do this in 90 seconds. If you cannot, the dataset is unusual or the audience is unspecified.
+Stem-and-leaf plots are right for small datasets where preserving raw values matters. For n below about 50, statistical inference is shaky; there is real value in letting the reader inspect the actual numbers rather than a smooth summary. They are also more readable by audiences with low graphicacy than histograms, because the textual structure is easier to trace than a column of bars.
 
----
+A density plot — a KDE drawn as a line on a standard coordinate plane rather than as a violin shape — is the form most often used in scientific publications for comparing multiple distributions directly. Two or three distributions overlaid as density lines are more readable than two or three side-by-side histograms. The density line form assumes statistical literacy; it is the publication-standard alternative to the histogram when the audience can handle it.
 
-## Extended worked example — building the HAI box plot with Claude Code
-
-The HAI box plot in `pantry/visualization/box-whisker.html` shows simulated AI capability scores across five cognitive domains. Walk the full pipeline.
-
-### Step 1 — Apply Chapter 3 (read the dataset)
-
-Five domains × 80 simulated observations each. Domain (categorical, 5 values, no inherent order). Score (quantitative, range 10–100, ratio scale).
-
-Communication question: "How does the distribution of AI capability scores compare across cognitive domains?"
-
-Cairo "compared with what?" — the comparison is across the five domains, on multiple distribution features (median, spread, outliers).
-
-### Step 2 — Apply Chapter 2 (select the chart)
-
-Functional category: distribution. Multiple groups → cross-group distribution comparison. The standard form for this is box plot.
-
-Why not violin plot? The audience is a research summary — graphicacy is moderate, the comparison is multi-group (5 panels would crowd at violin width), and the precise quartile values matter for the analysis. Box plot wins.
-
-Why not histogram? Five separate histograms takes too much space and makes cross-group comparison difficult.
-
-### Step 3 — Apply Chapter 1 (channel decomposition)
-
-- Marks: rectangles (boxes), lines (whiskers and median), points (outliers).
-- x-position: domain (categorical, 5 values, sorted by median for ranking readability).
-- y-position: score (quantitative, range 10–100).
-- Box top: Q3.
-- Box bottom: Q1.
-- Median line: Q2.
-- Whisker top: max value within Q3 + 1.5×IQR.
-- Whisker bottom: min within Q1 − 1.5×IQR.
-- Outlier points: beyond 1.5×IQR fences.
-- Color hue: domain identity (redundant with x-position; supports legend).
-
-### Step 4 — Write the four-move prompt
-
-```
-**Show what I have:**
-Five domains, 80 observations each. Domain (string), score (number,
-10-100). Sample data file: data/ai-capability-distribution.csv
-
-See pantry/visualization/box-whisker.html for the visual pattern.
-
-**Say what I want:**
-Box and whisker plot in D3 v7. Single self-contained HTML file with
-inline CSS and inline D3 (loaded via CDN). Responsive to window resize.
-
-**Constrain it:**
-- Marks: rectangle (box), line (median, whiskers), point (outliers).
-- x-position: domain (categorical, sorted by median descending).
-- y-position: score (quantitative, range 10-100, shared y-axis across
-  all boxes for direct comparison).
-- Box top edge: Q3 (75th percentile).
-- Box bottom edge: Q1 (25th percentile).
-- Whisker top: max value within Q3 + 1.5*IQR (Tukey's rule).
-- Whisker bottom: min value within Q1 - 1.5*IQR.
-- Median: horizontal line at the 50th percentile inside the box.
-- Outliers: points beyond 1.5*IQR fences.
-- Color hue: domain identity, redundant with x-position. Use a
-  five-color palette: #8B0000, #5C3317, #6B6B5E, #4A4A4A, #9B957F.
-- y-axis ticks at 0, 25, 50, 75, 100.
-- x-axis labels rotated -30 degrees.
-- Subtitle: "AI Capability Score Distribution by Cognitive Domain
-  (n=80 per domain)".
-- Margins: top 60, right 40, bottom 60, left 60.
-- Dark mode support.
-
-**Verify:**
-Restate the channel decomposition. Then write D3 v7 code with comments
-showing which line implements each statistical channel (Q1, Q3,
-median, whiskers, outliers). List any decisions not specified above.
-```
-
-### Step 5 — Audit
-
-Standard Evergreen/Emery subset plus distribution-specific checks:
-
-- Box top is Q3 (not Q4); box bottom is Q1 (not Q0).
-- Whiskers follow Tukey's rule (1.5×IQR), not min/max of all data.
-- Outliers are flagged as individual points beyond the whiskers.
-- Median line is inside the box, not on the box edge.
-
-The most common Claude Code failure: the "box" shows min-to-max range instead of Q1-to-Q3. The chart looks like a box plot but communicates very different information. Catch this in the audit; the follow-up prompt is "the box should span Q1 to Q3 (the IQR), not min to max. Tukey's rule for the whiskers is max within Q3 + 1.5×IQR; outliers are points beyond. Regenerate."
+When to use density lines over violin plots: when you need to overlay multiple distributions on the same axes, or when the comparison between specific distributions is the message and side-by-side shapes would be harder to read than overlaid lines.
 
 ---
 
-## Chapter summary
+## The form selection in practice
 
-You can now do four things you could not do before this chapter.
+The choice between distribution charts reduces to three questions.
 
-You can build a histogram, box plot, violin plot, density plot, or stem-and-leaf plot — choosing the form based on the dataset's size, the audience's graphicacy, and what the communication question demands.
+**What does the audience need to see?** Comparison across groups → box plot. Shape including multimodality → violin plot or KDE. Raw values preserved → stem-and-leaf. Overall shape for a general audience → histogram.
 
-You can apply the bin-width / bandwidth decision rules (Sturges, Scott, Freedman-Diaconis for histograms; Silverman, Scott for KDE) and recognize when the choice substantially changes what the chart reveals.
+**What is the audience's graphicacy level?** General public → histogram or stem-and-leaf. College-educated non-specialists → histogram or box plot. Statistically trained → any form. Visualization-trained → violin or hybrid.
 
-You can name what a violin plot reveals that a box plot hides (multi-modality, distribution shape) and what a box plot shows that a violin plot doesn't (precise quartile values, robust outlier flagging via Tukey's rule).
+**What is the sample size?** Very small (n < 40) → KDE-based forms (violin, density) are unreliable; use histogram or stem-and-leaf. Moderate (40–200) → any form is reasonable. Large (200+) → all forms work well; choose by the communication question.
 
-You can apply Cairo's graphicacy concept as a practical design constraint: distribution charts span a wide graphicacy range, and the right form depends on what your audience can read.
-
-The thing to watch for, going forward, is the temptation to use whatever distribution chart is most familiar to you regardless of the audience. The right chart for a paper read by statisticians is rarely the right chart for a public-policy briefing. The form follows the audience.
+One failure mode deserves naming explicitly: the box plot misread as a range chart. Some audiences interpret the box not as the IQR but as the full data range, and the whiskers as "error bars" in the sense of confidence intervals around the mean. Both misreadings produce wrong conclusions. If there is any doubt about the audience's familiarity with Tukey's design, annotate the chart or include a brief legend explaining what the box and whiskers represent. The chart form is only as good as the reader's ability to decode it.
 
 ---
 
-## Key terms
+## The design decisions in the pantry chart
 
-- **Histogram.** Continuous data binned into discrete intervals; column per bin shows count or density.
-- **Box plot.** Tukey's five-number-summary visualization: box from Q1 to Q3, median line, whiskers to 1.5×IQR, outlier points.
-- **Violin plot.** KDE drawn symmetrically around a vertical axis; width encodes density at each value.
-- **Kernel density estimation (KDE).** Method for estimating a smooth probability density from a finite sample.
-- **Bin width.** Histogram's defining design decision. Rules: Sturges, Scott, Freedman-Diaconis.
-- **Bandwidth.** KDE's defining design decision. Rules: Silverman, Scott.
-- **Tukey's 1.5×IQR rule.** Whisker extends to most extreme value within 1.5×IQR; points beyond are outliers.
-- **Stem-and-leaf.** Small-dataset distribution form that preserves raw values.
-- **Graphicacy (Cairo).** The audience's capacity to read visual representations of data; varies across audiences and across chart forms.
+Return to `box-whisker.html`. Every decision Tukey's design makes is doing work.
+
+The sort by median positions the best-performing domain on the left, giving the reader an immediate ranking alongside the distribution summary. The shared y-axis lets the reader compare distributions without rescaling — a box at the same height in two panels represents the same score value. The color hue distinguishes domains while remaining redundant with x-position, supporting color-blind readers and casual scanning. The whisker rule is Tukey's standard 1.5×IQR, not min-to-max, which would make every outlier invisible by absorbing it into the whisker extent.
+
+The most common failure in box plots generated by default tool settings is this last one: whiskers extending to the actual data minimum and maximum. The chart looks like a box plot but is not one. The Tukey form is informative because the whisker boundary means something specific — it defines the fence beyond which a value is anomalous. A chart with min-to-max whiskers has no fence. Every value is inside the whiskers. No outliers exist by construction. The reader cannot see the cluster of unusual observations that makes the Inner Suburbs box interesting.
+
+When auditing Claude Code output for box plots, the first check is always: do the whiskers stop at the most extreme value within 1.5×IQR, or do they extend to the data minimum and maximum? The distinction is the difference between a Tukey box plot and a range chart wearing a box plot's clothing.
+
+The second check is that the box boundaries are Q1 and Q3, not some other percentiles. The third is that the median line is inside the box, not at an edge. These are the distribution-specific audit items that sit on top of the standard Evergreen/Emery checks.
 
 ---
 
-## Discussion questions
+## What you can now do
 
-1. The box plot vs. violin plot trade-off is shape-vs-precision. When does each side win? Cite specific audience and communication-question contexts.
-2. Histogram bin width substantially changes what the chart reveals. Why is this not a violation of "show the data"? Or is it?
-3. Stem-and-leaf plots are unusual in modern publications. What do they offer that newer forms don't?
-4. KDE produces a smooth shape from sample data. Smoothing always introduces bias. When is the bias acceptable, and when does it matter for the inferential conclusion?
-5. *Cross-chapter synthesis.* Chapter 8 (relationship/correlation) will introduce scatterplots. A scatterplot of two variables shows joint distribution. Frame the relationship between Chapter 7's univariate distribution charts and Chapter 8's bivariate joint-distribution charts.
+You can build a histogram, box plot, violin plot, density plot, or stem-and-leaf plot and choose the form based on the dataset's size, the audience's graphicacy, and the communication question.
+
+You can apply the bin-width decision rules — Freedman-Diaconis, Scott, Sturges — and recognize when the choice substantially changes what the chart reveals. You can test for bimodality by comparing three bin widths, and you know that a bimodality that survives all three is real.
+
+You can name what a violin plot reveals that a box plot hides — multi-modality, distribution shape — and what a box plot shows that a violin plot does not — precise quartile values, robust outlier flagging via Tukey's 1.5×IQR rule.
+
+You can apply Cairo's graphicacy concept as a practical design constraint. The right distribution form depends on who the reader is. A chart that exceeds the audience's graphicacy fails as communication.
+
+The thing to watch for going forward is the temptation to use the distribution chart most familiar to you regardless of the audience. A violin plot for a school board is not more informative than a histogram — it is less informative, because the reader cannot use it. The form follows the audience.
 
 ---
 
@@ -347,49 +162,55 @@ The thing to watch for, going forward, is the temptation to use whatever distrib
 
 ### Warm-up
 
-**Exercise 7.1** — *Form selection by audience.* For each of the following, select the right distribution form:
-- Income distribution within a single ZIP code, presented in a community town hall.
-- Response time distribution for a clinical trial, in a peer-reviewed paper.
-- Test score distribution across five schools, for a school board.
-- Distribution of survey responses on a 1–5 Likert scale.
+**Exercise 9.1 — Form selection by audience and question.** *(Tests: Cairo's graphicacy constraint)*
+For each scenario below, name the right distribution form and justify the choice using graphicacy level and communication question:
+- Income distribution within a single ZIP code, presented at a community town hall to residents with no statistical training.
+- Recovery time distribution for a clinical trial, reported in a peer-reviewed medical journal.
+- Test score distributions across five schools, presented to a school board making resource decisions.
+- Distribution of Likert-scale survey responses (1–5) from 300 employees, for an internal HR summary.
 
-**Exercise 7.2** — *Bin-width diagnosis.* You see a histogram of household incomes with bin width $10,000, showing a single broad peak. Suspect bimodality. How do you test for it? What bin widths should you try?
+**Exercise 9.2 — Bin-width diagnosis.** *(Tests: histogram bin-width problem)*
+You have a histogram of household incomes showing a single broad peak centered around $65,000. You suspect the distribution may actually be bimodal. Describe the three-bin-width test: what bin widths would you try, what would you look for in each, and what result would confirm the bimodality is real versus sampling noise? Name the bin-width rule you would use as your medium-width starting point and justify the choice.
 
-**Exercise 7.3** — *Tukey's rule application.* Given a dataset with Q1 = 25, Q3 = 75, IQR = 50, what is the whisker extension? At what value do points become outliers?
+**Exercise 9.3 — Tukey's rule application.** *(Tests: box plot mechanics)*
+A dataset has Q1 = 42, Q3 = 78. Calculate the IQR, the upper and lower whisker fences (Tukey's 1.5×IQR rule), and the values at which individual points would be classified as outliers. Then explain what would be wrong with a box plot for this dataset where the upper whisker extends to the data maximum of 140.
 
 ### Application
 
-**Exercise 7.4** — *Box plot vs. violin plot, same data.* Take a real distribution dataset. Build it as both a box plot and a violin plot with Claude Code. Compare what each reveals. Identify which is right for your professional context and audience.
+**Exercise 9.4 — Box plot vs. violin plot, same data.** *(Tests: what each form reveals and hides)*
+Take a real distribution dataset with at least one group structure (two or more groups, 50+ observations each). Build both a box plot and a violin plot with Claude Code. For each, identify: one feature of the distribution clearly visible in this form but not the other, and one question you can answer from this form that you cannot answer from the other. Conclude with which form is right for your professional context and audience, citing graphicacy.
 
-**Exercise 7.5** — *Bin-width experiment.* Take a dataset that may be bimodal. Build histograms at three bin widths (Sturges, Scott, Freedman-Diaconis). Compare. Apply the bimodality test from Concept 1.
+**Exercise 9.5 — Bin-width experiment.** *(Tests: histogram sensitivity)*
+Take a dataset that may be bimodal (income, test scores, response times, or similar). Build histograms using Sturges', Scott's, and Freedman-Diaconis rules. For each, note the number of bins, the resulting bin width, and what the chart reveals about the distribution's shape. Apply the bimodality test: does the second peak survive all three bin widths, some, or none? State what the result tells you about whether the bimodality is real.
 
-**Exercise 7.6** — *Audit a published distribution chart.* Find a histogram, box plot, or violin plot in a recent publication. Audit using Evergreen/Emery plus distribution-specific checks. Identify any failures.
+**Exercise 9.6 — Audit a published distribution chart.** *(Tests: distribution-specific audit)*
+Find a histogram, box plot, or violin plot in a recent publication — academic paper, corporate report, or journalism. Audit it for distribution-specific failures: for histograms, is the bin width appropriate? For box plots, do the whiskers follow Tukey's 1.5×IQR rule or do they extend to the data min/max? For violin plots, is the bandwidth specified, and does the shape appear over-smoothed? Identify any failures and write the follow-up prompt that would correct each.
 
 ### Synthesis
 
-**Exercise 7.7** — *Graphicacy audit.* Take a distribution chart you produced. Estimate the audience's graphicacy. Is your form appropriate? If not, what is the fallback that maintains the message?
+**Exercise 9.7 — Graphicacy redesign.** *(Tests: graphicacy constraint applied to existing work)*
+Take a distribution chart you have produced or that your team uses regularly. Estimate the lowest reliable graphicacy level in your primary audience. Is your current form appropriate for that level? If the form exceeds your audience's graphicacy, redesign using a more accessible form that preserves the core message. If the form is below the audience's graphicacy (i.e., you are under-using the reader), identify what a more information-dense form would add. Build both versions with Claude Code if the redesign is non-trivial.
 
-**Exercise 7.8** — *Multi-form comparison.* Take a single dataset. Build five forms: histogram, box plot, violin plot, KDE line plot, stem-and-leaf. Compare. Which best supports each of three different communication questions you can identify for the data?
+**Exercise 9.8 — Multi-form comparison.** *(Tests: form selection across communication questions)*
+Take a single distribution dataset. Identify three different communication questions it could answer (e.g., "what is the distribution's central tendency and spread," "is the distribution bimodal," "how does this distribution compare to two others"). Build the best distribution form for each question. For each, explain why that form is the right choice for that specific question, citing the chapter's three-question decision framework (what to see, graphicacy level, sample size).
 
 ### Challenge
 
-**Exercise 7.9** — *Hybrid box-violin.* Build a hybrid plot that overlays a thin box on a violin. Use Claude Code. Compare to either form alone.
+**Exercise 9.9 — Hybrid box-violin.** *(Tests: combining form strengths)*
+Build a hybrid distribution chart that overlays a thin box plot inside a violin, using Claude Code. The box provides precise Q1, median, Q3 values; the violin provides distribution shape. Audit the result: is the box correctly drawn (Q1 to Q3, Tukey whiskers, outlier points)? Is the violin's bandwidth appropriate? Compare the hybrid to either form alone for the question "is this distribution bimodal, and if so where are the quartiles of the full distribution?" Write one paragraph on when the hybrid earns its added visual complexity.
 
-**Exercise 7.10** — *Bandwidth selection from data.* Implement cross-validation bandwidth selection for a KDE in D3 + Claude Code. Compare to Silverman's rule on the same data. When does each win?
-
----
-
-## LLM Exercise — Chapter 7: Distribution Charts
-
-**Project:** [TBD — selected after Chapter 00]
-
-**What you're building this chapter:** A distribution chart selected for a specific audience and built with the bin/bandwidth decision documented.
-
-**Tool:** Claude Code (build) + Claude chat (audit).
+**Exercise 9.10 — Bandwidth sensitivity from data.** *(Tests: KDE bandwidth decision)*
+Take a dataset with a known or suspected bimodal shape. Build violin plots at three bandwidths: one using Silverman's rule, one twice as wide (over-smoothed), and one half as wide (under-smoothed). For each, identify what the plot reveals and what it obscures. Determine which bandwidth best represents the underlying distribution and justify the choice. If Silverman's rule produces an over-smoothed result that hides the bimodality, explain what the bandwidth-selection rule is optimizing for and why it fails for this specific data shape.
 
 ---
 
-**The Prompt (audit + build):**
+## LLM Exercise — Chapter 09: Distribution Charts
+
+**What you're building:** A distribution chart selected for a specific audience and built with the bin/bandwidth decision documented.
+
+**Tool:** Claude Code (for the build) + Claude chat (for the audit).
+
+### The prompt
 
 ```
 I have a distribution dataset of [DESCRIBE: rows, single quantitative
@@ -397,76 +218,67 @@ variable, sample size, any group structure]. The audience is [DESCRIBE:
 graphicacy level, statistical training assumed].
 
 Walk me through:
-1. Confirm distribution family.
-2. Choose form (histogram / box / violin / density / stem-and-leaf)
-   based on audience and communication question.
-3. For histograms: name the bin-width rule. For KDE-based forms: name
-   the bandwidth selection method.
-4. Specify channels per Chapter 1.
-5. Apply Tukey's rule (for box plots) explicitly.
-6. Write four-move Claude Code prompt.
 
-Audit using Evergreen/Emery + distribution-specific checks (correct box
-boundaries, correct whisker rule, correct binning).
+1. Confirm the chart family is distribution (vs. comparison, time-series,
+   relationship, etc.). If it isn't, recommend the right family and stop.
+
+2. Choose the form (histogram / box plot / violin plot / density plot /
+   stem-and-leaf) based on audience graphicacy level and the
+   communication question. Cite Cairo's graphicacy concept in the
+   justification.
+
+3. For histograms: name the bin-width rule (Freedman-Diaconis, Scott,
+   or Sturges) and justify the choice. For KDE-based forms: name the
+   bandwidth selection method (Silverman, Scott).
+
+4. Specify the channels using the Chapter 01 framework:
+   - x-position: which attribute
+   - y-position (height of bar, width of violin, etc.): which statistic
+   - color: which attribute, how encoded
+
+5. For box plots: apply Tukey's 1.5×IQR rule explicitly. Confirm whiskers
+   stop at most extreme value within the fence, not at min/max.
+
+6. Write a single Claude Code prompt using the four-move structure
+   (show, say, constrain, verify), precise enough that Claude Code
+   produces a usable D3 v7 chart on the first attempt.
+
+After Claude Code returns the chart, audit it for distribution-specific
+failures:
+- Histogram: are bin widths as specified? Is the y-axis frequency or
+  density as intended?
+- Box plot: is the box Q1 to Q3 (not min to max)? Do whiskers follow
+  Tukey's 1.5×IQR rule? Are outliers shown as individual points?
+- Violin: is the bandwidth specified? Does the shape reflect the
+  underlying distribution or is it over-smoothed?
+
+Flag any audit failure and write the follow-up prompt that corrects it.
 ```
 
----
+**What this produces:** A markdown audit document and an HTML file containing the working D3 chart. Save as `chapter-09-distribution-audit.md` and `chapter-09-distribution.html`.
 
-**What this produces:** Audit document plus distribution chart. Save as `chapter-07-distribution-audit.md` and `chapter-07-distribution.html`.
+**How to adapt this prompt:**
+- *For your own domain:* Replace the dataset description and audience specification.
+- *For ChatGPT or Gemini:* Works as-is.
+- *For a Claude Project:* Save the Chapter 01 channel framework and Cairo's graphicacy concept as reference files; the per-chapter audit prompt becomes the user message for each new chart.
+- *For Cowork:* Use Cowork to execute the Claude Code prompt and save the resulting HTML file directly to your project directory.
 
-**Connection to previous chapters:** Chapter 1 (channels for distribution), Chapter 2 (selection — distribution category), Chapter 3 (audit — graphicacy assessment), Chapter 4 (workflow).
+**Connection to previous chapters:** Builds on Chapter 01 (channel ranking — distribution charts use position, length, area, and density as channels), Chapter 02 (chart selection — confirming you are in the distribution family), Chapter 05 (data type identification — distributions apply to quantitative variables). The audit step applies distribution-specific checks on top of the Evergreen/Emery checklist from Chapter 07.
 
-**Preview of next chapter:** Chapter 8 introduces relationship/correlation charts — scatterplots, bubble charts, parallel coordinates, heatmaps. The questions shift from "what does this variable's spread look like" to "how do these variables relate."
-
----
-
-## Visual suggestions
-
-This chapter is about distribution-chart selection. Each chart family it discusses has a Part II reference; the focal figure here is the chapter's central worked example.
-
-Part II references for distribution charts: [Histogram](40-histogram.md), [Box Plot](21-box-plot.md), [Box and Whisker Plot](22-box-whisker.md), [Violin Plot](77-violin-plot.md), [Density Plot](32-density-plot.md), [Stem and Leaf Plot](68-stem-leaf.md), [Multimodal Distribution](45-multimodal-distribution.md), [Population Pyramid](55-population-pyramid.md), [Error Bars](36-error-bars.md). Each Part II chapter has its own prompt.
-
-### Figure 7.1 — Same data, three distribution charts
-
-The chapter's central comparison. The same simulated AI-capability score dataset rendered three ways: histogram, box plot, and violin plot. The reader sees what each chart reveals and what each one hides.
-
-See [Histogram](40-histogram.md), [Box Plot](21-box-plot.md), and [Violin Plot](77-violin-plot.md) in Part II for the canonical references.
-
-```
-Generate a 3-panel distribution comparison in D3 v7. Two files:
-
-1. `chapter-07-fig-01.html` — full HTML with inline CSS and inline D3 v7. Three small panels in a row, each rendering the same source data with a different distribution chart. Page subtitle: "Same data, three views — what each chart reveals and hides."
-
-2. `chapter-07-fig-01/data.json` — the dataset.
-
-Data shape:
-- 80–120 simulated values in a known mixture distribution (so bimodality is genuinely present).
-  - `values`: array of numbers.
-
-{DATA NEEDED} — Any dataset where bimodality is plausible (response times, test scores by mixed-ability cohort, agency capacity scores spanning new and mature programs). Or simulate a Gaussian mixture for the demonstration.
-
-Panel 1 — histogram: 15–20 bins, bar height = frequency.
-Panel 2 — box plot: five-number summary, Tukey 1.5×IQR whiskers, outlier dots.
-Panel 3 — violin plot: KDE with overlaid box plot, Silverman bandwidth.
-
-Caption beneath each panel names what it reveals (histogram: bin frequency, multimodality if visible; box plot: quartiles, outliers, skew; violin: full shape, multimodality always visible).
-
-Style: warm monochrome. Same x-axis range across all three panels so the reader can align them visually.
-
-Provide both files as separate code blocks.
-```
+**Preview of next chapter:** Chapter 10 introduces relationship and correlation charts — scatterplots, bubble charts, parallel coordinates, heatmaps. The question shifts from "what does this single variable's spread look like" to "how do two or more variables co-vary." The channel decisions change: x and y position now encode two quantitative variables, not one variable against a count.
 
 ---
 
 ## Further reading
 
-- **Tukey, John W. (1977).** *Exploratory Data Analysis.* Addison-Wesley. The original box plot.
-- **Silverman, B. W. (1986).** *Density Estimation for Statistics and Data Analysis.* Chapman & Hall. KDE bandwidth selection.
-- **Wilke, Claus O. (2019).** *Fundamentals of Data Visualization.* O'Reilly. Chapter 7 on distributions is the modern standard.
-- **The book's pantry** — `histogram.html`, `box-whisker.html`, `violin-plot.html`, `stem-leaf.html`.
+- **Tukey, John W. (1977).** *Exploratory Data Analysis.* Addison-Wesley. The original box plot, the five-number summary, and the 1.5×IQR rule. Read Chapter 2 for the box plot; read it all eventually for the exploratory-analysis mindset the chapter inherits.
+- **Silverman, B. W. (1986).** *Density Estimation for Statistics and Data Analysis.* Chapman & Hall. The bandwidth-selection theory underlying KDE and violin plots.
+- **Wilke, Claus O. (2019).** *Fundamentals of Data Visualization.* O'Reilly. Chapter 7 is the most readable modern treatment of distribution chart selection; Wilke's graphicacy framing complements Cairo's.
+- **Weissgerber, Tracey L., et al. (2015).** "Beyond Bar and Line Graphs: Time for a New Data Presentation Paradigm." *PLOS Biology* 13(4). The empirical argument that bar charts of means hide distribution structure in ways that affect scientific conclusions — the direct motivation for the distribution-chart family this chapter covers.
+- **Heer, Jeffrey, and Michael Bostock. (2010).** "Crowdsourcing Graphical Perception." *CHI '10.* The bin-width sensitivity evidence, confirming that histogram perception is strongly affected by binning choices.
+- **Cairo, Alberto.** *The Functional Art* and *The Truthful Art.* The graphicacy concept is developed across both books; *The Functional Art* introduces it, *The Truthful Art* extends it into the ethical-design frame.
+- **The book's pantry** — `histogram.html`, `box-whisker.html`, `violin-plot.html`, `stem-leaf.html`. Each is the reference implementation for its form.
 
 ---
 
-## Tags
-
-distribution-charts, histogram, box-plot, violin-plot, KDE, kernel-density-estimation, stem-and-leaf, Tukey, bin-width, bandwidth, graphicacy, Cairo, Heer-Bostock, multimodality, D3, Claude-Code
+*Tags: distribution-charts, histogram, box-plot, violin-plot, KDE, kernel-density-estimation, stem-and-leaf, Tukey, bin-width, bandwidth, graphicacy, Cairo, Heer-Bostock, multimodality, D3, Claude-Code*
