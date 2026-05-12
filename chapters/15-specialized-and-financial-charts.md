@@ -1,305 +1,146 @@
-# Chapter 13 — Specialized and Financial Charts
+# Chapter 15 — Specialized and Financial Charts
+
 *Conventions That Earn Their Strangeness.*
 
-## Three suggested titles
+---
 
-- Specialized and Financial Charts: Candlestick, Kagi, Point & Figure, Bullet, Radar
-- When Domain Conventions Encode Information Standard Charts Cannot
-- Few's Bullet Graph: Position Beats Angle Wins Again
+Open the pantry's `kagi-chart.html`. Or if you have a candlestick chart handy, open that instead. Each candlestick has four values encoded in it: the price at the start of the period (open), the highest price reached during the period (high), the lowest (low), and the price at the end (close). The rectangular body of the candle spans open to close. The thin wicks extend from the body to the high above and the low below. If the price went up during the period, the body is one color — conventionally green or white. If it went down, another — red or black.
+
+Count what that convention encodes. Four quantitative values per period. All four encoded using **position** — the highest-accuracy channel from Cleveland and McGill. The body's position encodes open and close; the wick's position encodes high and low; the color encodes direction. In one glyph, a trader reads the trend (are candles mostly green or red?), the daily range (how tall are the wicks?), the daily volatility (how tall are the bodies relative to the wicks?), and the session's character (did the price close near the high or near the low?).
+
+A line chart of closing prices shows the trend. That's one variable. The candlestick shows four variables in the same screen space, using a convention so efficient that it packs the week's trading psychology into a column of colored boxes you can scan in a few seconds.
+
+This is what specialized chart conventions earn. They encode information that standard charts cannot — not because standard charts are limited by any fundamental perceptual principle, but because the convention bundles multiple data values into a single glyph whose reading the audience has already internalized. The convention is the compression algorithm, and reading it fluently is the audience's graphicacy.
+
+This chapter is about that compact — where it works, and where it fails.
+
+<!-- → [IMAGE: single candlestick period annotated with all four OHLC values — body top labeled "Close (or Open if down-period)," body bottom labeled "Open (or Close if down-period)," upper wick top labeled "High," lower wick bottom labeled "Low," body fill color labeled "Direction: green = close > open, red = close < open." A second panel shows a line chart of closing prices for the same time series. Caption: "The candlestick encodes four variables per period; the line chart encodes one. The efficiency is the convention's claim to exist."] -->
 
 ---
 
-## Chapter overview
+## What makes a convention earn its strangeness
 
-By the end of this chapter you will be able to build the family of specialized charts — candlestick / OHLC, Kagi, Point & Figure, bullet graph, radar/spider, polar area — and you will know when domain-specific conventions encode information that standard charts cannot. You will know why bullet graphs replace gauge charts (Few's argument: position beats angle, again), why Kagi and Point & Figure charts are time-independent (and what analytical question that serves), and how radar charts' axis-order dependence is a Bertin-class channel failure that limits when they earn their use.
+The candlestick convention earns its strangeness because three conditions hold simultaneously. The audience has already learned it (financial graphicacy is widespread among traders and analysts). The encoding is perceptually honest (position is used throughout; color encodes direction, not magnitude). And the form encodes something genuinely harder to show in a standard chart — four time-series in a single glyph without any visual compression cheating.
 
----
+Take those three conditions away and you get decorative noise. A gauge chart on a dashboard looks like an instrument panel from a cockpit. It uses a sweeping needle — encoding a single value as an angle — surrounded by a decorative dial face. The question the gauge answers is the same question a bullet graph answers: how does this value compare to a target? The bullet graph answers it with a horizontal bar and a target marker, both using position along a common scale. The gauge answers it with angular position, which ranks fourth in the Cleveland and McGill accuracy hierarchy, behind position, length, and color saturation. The gauge looks like a specialized instrument; the bullet graph looks like a bar. But the gauge is objectively less accurate for the same analytical task, and it uses more screen space.
 
-## Learning objectives
+Stephen Few made this argument in 2005. His bullet graph was not a new form so much as a discipline: stop using angle where position will do. The gauge chart's appearance of technical sophistication is decorative, not functional. Every dashboard gauge should be a bullet graph. The perceptual reasoning is exactly Chapter 07's reasoning about truncated bar charts applied to a different channel: the form encodes the data using a worse channel than is available, and the reader pays the accuracy cost.
 
-1. **(Understand)** Explain why Kagi and Point & Figure charts are time-independent and identify the specific class of analytical question (trend reversal detection, support/resistance identification) for which this matters.
-2. **(Apply)** Build a bullet graph as a dashboard component; explain why Few argued it replaces a gauge chart using the Cleveland & McGill accuracy hierarchy (position > angle).
-3. **(Analyze)** Diagnose the outer-ring distortion in a radial bar chart — tracing the mechanism to the area-encoding problem in Bertin's framework — and explain why the same data in a standard bar chart is more perceptually honest.
+The chapter's test for any specialized form: does it use an appropriate channel for its primary data? If a specialized form uses position (the best channel) and bundles information efficiently, it earns the learning cost. If it uses angle or area decoratively when position was available, it fails.
 
----
-
-## Opening case — the HAI candlestick chart
-
-Open `pantry/visualization/kagi-chart.html` in a browser. (Substitute a candlestick implementation if more relevant to your context.) Each candlestick represents one period (a day, an hour, a minute, depending on the timeframe). The candlestick has four data values:
-
-- **Open:** the price at the start of the period.
-- **High:** the highest price reached during the period.
-- **Low:** the lowest price.
-- **Close:** the price at the end of the period.
-
-The body of the candle (the rectangular region) spans Open to Close. If Close > Open, the body is one color (typically green or white); if Close < Open, another color (red or black). The wicks (thin lines extending above and below the body) span from the high (top wick) to the body, and from the body to the low (bottom wick).
-
-In one glyph, four quantitative values are encoded — all using **position** (the highest-accuracy channel from Cleveland & McGill). The body's position encodes Open and Close; the wicks encode High and Low. The color encodes the direction (rising or falling).
-
-This is what specialized chart conventions earn. A line chart of closing prices alone shows the trend. A candlestick chart shows the trend, the daily volatility (wick length), the daily direction (body color), and the daily range (body height + wick length) all simultaneously. For a trader making intraday decisions, the candlestick is more efficient than four separate line charts. The convention encodes information that standard charts cannot.
-
-This chapter is about that — the family of specialized charts where domain-specific conventions earn their complexity. Each form solves a specific problem; using each form for the wrong problem produces worse charts than the standard alternatives.
+<!-- → [TABLE: earn-your-strangeness reference — rows: candlestick / Kagi / Point & Figure / bullet graph / radar chart / polar area. Columns: primary channel used, Cleveland & McGill rank of that channel, the specific analytical question only this form answers, the condition that makes it fail. Student uses this as a lookup card before choosing any specialized form.] -->
 
 ---
 
-## Theoretical grounding — Cleveland & McGill (position > angle), Bertin on radial encoding, Few on bullet graphs
+## Candlestick and OHLC charts
 
-**Cleveland & McGill: position is the highest-accuracy channel.** This recurs throughout the book; for specialized charts, it is the criterion that distinguishes useful forms from decorative ones. Bullet graphs use position-along-a-common-scale (the bullet's position on the bar) to encode the value. Gauge charts (which bullet graphs replace) use angle (rank 4). For the same analytical task, the bullet graph wins on accuracy. Few's argument: gauge charts are decorative; bullet graphs are functional. The choice is not stylistic — it is a measurable accuracy difference.
+The candlestick is the standard form for financial price visualization because it uses position throughout. The body's height is the distance from open to close — a length measurement, channel rank two. The wick heights are position from the body edge to the extreme price — also length measurements. The color is a binary direction indicator, not a magnitude channel.
 
-**Bertin on radial encoding.** Radial encodings (radial bars, polar areas, sunbursts in some implementations) face systematic challenges: the eye cannot judge length along a curve as accurately as length along a straight line, and the outer-ring distortion (longer arcs cover more area than inner-ring arcs of the same radial extent) introduces ratios the eye misreads. Radial encodings earn their use in specific cases (cyclic data, advocacy contexts where rhetorical force matters) but lose to linear alternatives in most analytical contexts.
+The OHLC chart is the older variant. Instead of a candle body, it uses a vertical bar spanning the full high-to-low range, with a small horizontal tick to the left marking the open and a tick to the right marking the close. The encoding is equivalent; the visual is slightly different. OHLC is more compact; candlestick is more readable for the open-close direction signal.
 
-**Few on bullet graphs.** Stephen Few proposed the bullet graph in 2005 as a replacement for gauge charts in dashboards. Few's argument: gauge charts use angle (a low-accuracy channel) to encode a quantitative value, often surrounded by decorative gauge faces and gradient backgrounds; bullet graphs use position (high-accuracy channel) on a simple horizontal bar with a target marker and qualitative bands (e.g., "below target," "at target," "above target"). For dashboard use — where data density matters and pixel efficiency is paramount — bullet graphs are unambiguously better. Few's writing on this is in the pantry's chartjunk-debate document and in his books.
+Both work only when the audience knows the convention. The candlestick encodes four quantitative values in a compact glyph, but if the reader does not know that the body spans open to close or that a green candle means the price rose, the chart is a collection of colored bars whose meaning is invisible. Financial graphicacy is the prerequisite.
 
----
+Both fail when the OHLC structure is undefined. Daily candlesticks for an actively traded stock are natural — each day has a meaningful open and close. Weekly candlesticks aggregate five days into one glyph, which works. Second-by-second candlesticks for a low-volume stock produce candles where high and low are the same value (no trades occurred during most seconds), and the chart is meaningless.
 
-## Concept 1 — Candlestick and OHLC charts
-
-A candlestick chart visualizes financial price data with the OHLC (Open, High, Low, Close) convention. Each candlestick represents one time period; the convention encodes four values per period.
-
-### When candlestick charts work
-
-- Financial data with OHLC structure (any market with periodic snapshots — stocks, currencies, commodities).
-- Audiences who can read the convention (traders, analysts, financial-news readers).
-- The reader's question includes intraday volatility and direction, not just closing price.
-
-### When they fail
-
-- Audiences without financial graphicacy. The candlestick is a learned convention; readers without it see incomprehensible bars and wicks.
-- Time periods where the OHLC structure is undefined or arbitrary. Daily candlesticks for a stock work; weekly candlesticks make the periods less natural; second-by-second candlesticks for a low-volume stock have most periods without trades.
-
-### The OHLC variant
-
-OHLC charts (also called bar charts in finance) use a vertical bar instead of the candle body. The bar spans High to Low. Open and Close are marked as small horizontal ticks (left side: Open; right side: Close). The OHLC chart conveys the same information as the candlestick but with a different visual encoding.
-
-For Claude Code work: most contemporary financial charts use candlesticks; OHLC is the older convention. Specify which one you want.
+For Claude Code work, specify which form and which time period explicitly in the prompt. The D3 ecosystem has several OHLC and candlestick implementations; the four-move prompt should name the library or the encoding explicitly rather than leaving the choice to default.
 
 ---
 
-## Concept 2 — Kagi and Point & Figure: time-independent charts
+## Kagi and Point & Figure: removing time from the axis
 
-Two charts that *omit time as a primary axis*. Instead, the chart axis shows the price; the chart's structure represents price *movements* (reversals).
+Candlestick and OHLC charts have time on the x-axis. Each candle occupies one period of equal width, whether the period was eventful or quiet. Kagi and Point & Figure charts remove time from the axis entirely.
 
-### Kagi charts
+A Kagi chart has a price line that moves up when prices rise and down when they fall. The line does not advance along the x-axis based on elapsed time. It advances based on price movement. Crucially, the line only *reverses direction* when the price moves a configurable amount — typically four to seven percent — in the opposite direction. Small fluctuations are absorbed; the chart filters them out and shows only meaningful moves. When the trend reverses, the line also changes thickness: a rising market produces a thick line; a falling market produces a thin one. The thickness is a visual signal for the current trend direction.
 
-A Kagi chart has a price line that moves up while prices rise, moves down while prices fall, and *thickens or thins* when the trend reverses by a configurable amount (often 4–7%). The line's thickness encodes the trend direction; the path encodes the price movement.
+A Point and Figure chart uses a different convention. Rising price columns are filled with Xs; falling columns with Os. A column switches when the price moves by a reversal amount in the opposite direction. The columns advance across the page as reversals occur, but no column corresponds to a specific time period. A period of price stability might produce no new columns at all.
 
-What Kagi charts emphasize:
+Why would you want to remove time from the axis? The analytical questions these forms serve are not primarily temporal. A trader asking "is this stock in an uptrend or a downtrend?" is asking about price direction, not about what happened on Tuesday. A trader asking "what price levels has this stock repeatedly bounced off?" is asking about support and resistance — price zones that appear repeatedly in the data — not about when those zones appeared. Time is noise for these questions. The Kagi and Point & Figure forms filter it out.
 
-- **Trend reversals.** A thick line that thins (or vice versa) signals a trend change. The chart filters out small fluctuations and shows only meaningful moves.
-- **Time-independence.** Periods with no price movement contribute nothing to the chart. Periods with rapid movement contribute proportionally more.
-
-### Point & Figure charts
-
-A Point & Figure (P&F) chart uses Xs to mark rising price columns and Os to mark falling columns. A column reverses (X switches to O or vice versa) only when the price moves a configurable amount in the opposite direction (the "reversal amount"). Like Kagi, the chart is time-independent.
-
-What P&F charts emphasize:
-
-- **Support and resistance levels.** Patterns of Xs and Os reveal price levels at which the market repeatedly turned. Traders use these as entry/exit signals.
-- **Filtering noise.** Like Kagi, P&F removes small fluctuations and shows only meaningful price moves.
-
-### When time-independent charts work
-
-- Financial analysis where price reversals matter more than time-of-day.
-- Audiences with strong financial graphicacy.
-- Datasets with high-frequency noise (intraday traders) where time-based charts overwhelm.
-
-### When they fail
-
-- Non-financial domains. The conventions don't transfer.
-- Audiences without financial training. The Kagi line thickness or P&F column transitions require explanation.
-
-The pantry's `kagi-chart.html` shows the form. For Claude Code work, specify the reversal amount and the time period explicitly.
+The forms fail outside their context. In non-financial domains, price-reversal conventions don't translate. For a general audience, the chart conventions require explanation that costs more than the time-independence gains. For audiences who want to know *when* something happened as well as *that* it happened, the time-independence is a deficit, not a feature. The forms earn their strangeness specifically for the questions they were designed to answer: trend reversal detection, support and resistance identification, noise filtering for high-frequency price data.
 
 ---
 
-## Concept 3 — Bullet graphs: Few's dashboard form
+## Bullet graphs and the gauge chart replacement
 
-A bullet graph is a horizontal bar with three components:
+The bullet graph is a dashboard-design intervention. Stephen Few proposed it as a direct replacement for the gauge chart, which was (and still is) the dominant form for showing a single performance metric against a target in dashboard software.
 
-- **The primary measure** (the value being measured) shown as a bar from 0 to the value.
-- **A target marker** (often a small vertical tick) showing the target value.
-- **Qualitative bands** (background regions colored in light shades) showing performance ranges (poor / acceptable / good / excellent).
+The bullet graph has three components. The primary measure is a solid horizontal bar from zero to the current value. A target marker — a short vertical tick — sits at the target value. Qualitative performance bands — light gray regions of increasing darkness, labeled poor / acceptable / good or whatever the domain requires — run the full width of the chart behind both the bar and the marker.
 
-In one chart, three values are encoded: the actual measure, the target, and the qualitative range.
+In one chart: the actual value, the target, and the performance range.
 
-### When bullet graphs work
+The gauge chart has the same three components, encoded differently. The actual value is the needle's angle. The target is a marker on the dial face. The performance ranges are colored arcs along the dial's perimeter. But the primary channel for the actual value — the needle's angular position — ranks fourth in the Cleveland and McGill hierarchy. The bullet graph's primary channel — the bar's endpoint position along a common scale — ranks first. For the same analytical task, the bullet graph is measurably more accurate.
 
-- Dashboard contexts where pixel efficiency matters.
-- Performance metrics with clear targets and bands (revenue vs. budget; customer satisfaction; service-level agreements).
-- Multiple metrics shown together as small multiples (a row of bullet graphs, one per metric).
+Few also showed that bullet graphs are far more pixel-efficient. A gauge chart occupies a roughly square area (the dial). A bullet graph occupies a narrow horizontal strip. A dashboard that shows six gauge charts uses the space a dashboard showing thirty bullet graphs would need. In high-information-density contexts — executive dashboards, operations centers, monitoring screens — this matters.
 
-### Why they replace gauge charts
+The design decisions in a bullet graph are deliberate. The background bands should use sequential luminance — light gray for the lowest band, progressively darker gray for higher bands — rather than a traffic-light red-yellow-green sequence. The luminance encoding avoids colorblindness issues and avoids the implication that "red" is always bad (which it isn't: a budget metric where spending is the bar might have a "good" zone at the low end). The target marker should contrast against both the bar and the background. The qualitative band labels should appear consistently on all bullets in a multi-metric stack.
 
-Few's argument: gauge charts use angle (Cleveland & McGill rank 4) on a fixed gauge face; bullet graphs use position (rank 1) on a linear bar. For the same metric, the bullet graph reads more accurately and uses less screen space. The qualitative bands can be added to either form, but the position-vs-angle difference is non-negotiable.
+The pantry's `bullet-graph.html` shows the standard Few-original form. Compare it to any gauge chart you can find and the argument becomes empirical rather than rhetorical.
 
-### Design decisions
-
-**Color of the primary bar.** Solid, high-contrast color. Fills the band that contains the value.
-
-**Background bands.** Light luminance variations (light gray to dark gray); typically 3–5 bands. Can use color hue (red-yellow-green) but most modern bullet graphs use luminance to avoid colorblindness issues.
-
-**Target marker.** A short vertical tick at the target value, perpendicular to the bar.
-
-**Layout.** Horizontal is the default (matches reading direction). Vertical (bar pointing up) is also defensible but less conventional.
-
-The pantry's `bullet-graph.html` shows the standard Few-original form.
-
-> ### ↳ Dig Deeper — Bullet graph in your dashboards
->
-> **Prompt:**
->
-> > Take three dashboard metrics from my professional context (revenue vs. target, customer satisfaction score, service uptime). Build each as a bullet graph using Claude Code. Compare to the gauge chart alternative for the same data. Cite Few's argument (position > angle from Cleveland & McGill).
->
-> **What to do with the output:** Save the bullet graphs as a dashboard prototype.
+<!-- → [IMAGE: side-by-side comparison of the same KPI rendered as a gauge chart and as a bullet graph — left: semicircular gauge dial with needle at 87%, decorative face, red-yellow-green arcs, legend below; right: horizontal bullet graph with dark bar to 87%, small vertical tick at target (85%), three sequential-luminance background bands, direct value label. Annotations: on the gauge, "Angular position: Cleveland & McGill rank 4." On the bullet: "Position along common scale: Cleveland & McGill rank 1." A size comparison at the bottom shows the gauge occupying ~6× the vertical space of the bullet. Caption: "Same data. The bullet graph is more accurate and uses less space. Few's argument is not stylistic."] -->
 
 ---
 
-## Concept 4 — Radar charts: the axis-order problem
+## Radar charts and the axis-order problem
 
-A radar chart (also called spider chart, polar chart) places multiple variables as axes radiating from a center. Each observation is a polygon connecting points along these axes.
+A radar chart places multiple variables as axes radiating from a center. Each observation is a polygon connecting its values along these axes. For five variables per observation and four observations, you get four overlapping polygons on a five-spoked wheel.
 
-### When radar charts work
+The form seems to invite multi-dimensional comparison. In practice it introduces a specific channel failure that most of its users don't notice.
 
-- Comparing 3–7 quantitative variables across observations.
-- The polygon shape carries meaning (a "balanced" polygon is symmetric; an "imbalanced" polygon is asymmetric).
-- Audiences with graphicacy for the form.
+The polygon's shape depends on the order of the axes. Rearrange the axes and the same data produces a different-looking polygon. Not a slightly different polygon — a meaningfully different one. The "spiky" pattern that seems to characterize one observation's performance profile will move, flatten, or become a different kind of spike depending on which axes are adjacent. If the reader is drawing conclusions from the polygon's shape, they are drawing conclusions from the axis order, which is not an inherent property of the data.
 
-### The axis-order failure
+This is a Bertin-class failure. The encoding channel — the polygon's shape — is partially determined by an arbitrary design decision rather than exclusively by the data values. No such problem exists in a bar chart: the bar for "revenue" always looks the same regardless of what other bars are adjacent to it.
 
-A radar chart's polygon shape depends on the *order* of the axes. If you reorder the axes, the same data produces a different-looking polygon. Patterns visible in one order disappear in another. The visualization mechanism is the eye reading the polygon's shape, but the shape is determined by axis order, not by the underlying multi-dimensional data structure.
+There are mitigations. If the axes have a conceptual grouping — say, three axes representing customer experience metrics and three representing operational metrics — placing the grouped axes adjacent makes the polygon's shape partially meaningful. The conceptual grouping provides a non-arbitrary basis for the order, and the shape reflects that grouping. But the reader needs to know the grouping rationale; without it, the shape is uninterpretable.
 
-This is a Bertin-class channel failure. Position is being used as a magnitude channel for each axis (good); but the *connection lines* between axes use the axis order as a structuring element, and the order is somewhat arbitrary. Different orders are not equivalent — but no order is uniquely "right."
+For most multi-dimensional comparison tasks, parallel coordinates (a set of vertical axes placed side by side, with each observation as a line connecting its values across all axes) handle the same encoding more honestly. Parallel coordinates have the same axis-order problem — adjacent axes affect which patterns are visible — but the visual claim is more modest. The reader traces a line across axes rather than reading a polygon, and the line's behavior (rising or falling between adjacent axes) depends on the specific axis pair, not on all axes simultaneously.
 
-### Mitigations
+Small multiples are the most conservative alternative: one bar chart per dimension, all using the same y-axis scale, arranged in a grid. The reader compares each dimension separately. Nothing is conflated; the axis-order problem cannot arise because the axes are never adjacent. The trade-off is that the holistic "shape" comparison that makes radar charts visually appealing is gone.
 
-**Specify the order.** If certain axes are conceptually grouped, place them adjacent. The pattern then reflects the groupings.
+Radar charts earn their use when the audience has the graphicacy to decode them, the polygon shape reflects a meaningful conceptual grouping, and the goal is a gestalt comparison across a small number of observations (three or four overlapping polygons remain readable; eight become a tangled web). They fail when the axis order is arbitrary, when the polygon count is high, or when the audience lacks radar-chart literacy.
 
-**Use parallel coordinates instead.** Parallel coordinates (Chapter 8) use the same multi-axis encoding but linearly. The axis-order problem still exists but is less visually misleading.
-
-**Use small multiples.** A row of bar charts, one per dimension, with shared y-axis. The reader compares each dimension separately.
-
-For Claude Code work, specify the axis order in the prompt and document the rationale.
-
-The pantry's `radar-chart.html` shows the form.
+<!-- → [IMAGE: three-panel radar chart demonstration — all three panels use the same six-attribute dataset for the same three observations. Left: axes in original order (Speed, Strength, Endurance, Agility, Technique, Recovery). Center: axes reordered (Strength, Recovery, Speed, Technique, Endurance, Agility). Right: axes reordered again (Agility, Endurance, Recovery, Speed, Technique, Strength). The polygon shapes in all three panels look meaningfully different despite representing identical data. Caption: "Same data. Three axis orders. Three different-looking performance profiles. The shape is not the data — it is the axis order."] -->
 
 ---
 
-## Concept 5 — Polar area charts (Nightingale revisited)
+## Polar area charts (a brief return)
 
-The Nightingale rose chart (Chapter 9) is a polar area chart. The form returns here in the specialized-charts context because it is sometimes used with cyclical data (months of the year arranged radially).
+The Nightingale rose chart reappears here because it is sometimes treated as a "specialized" form for cyclical data — monthly patterns arranged radially around a clock face. The polar area encoding was discussed in Chapter 11 in the context of rhetorical vs. analytical contexts; the same analysis applies here.
 
-The Cleveland & McGill ranking and Stevens' power law continue to apply: the radial-area encoding sublinear; the angular-perception is moderate; the chart works in advocacy contexts and fails in analytical ones unless explicit disclosure is provided.
+When the data is genuinely cyclic — twelve months of the year, twenty-four hours of the day, seven days of the week — the radial layout can reinforce the cyclic structure. A bar chart of monthly precipitation arranged linearly shows January adjacent to February, December at the far right; a polar area chart arranges December adjacent to January, making the December-January transition visible as a single spatial relationship. For genuinely cyclic data, this is the form's justification.
 
-For Claude Code work: if you are using a polar area chart, document the choice with the disclosure annotation discussed in Chapter 9.
-
----
-
-## Mid-chapter checkpoint
-
-Pick a specialized-chart context from your work. Identify whether the domain convention earns its complexity (financial OHLC for a financial audience; bullet graph for dashboards; radar for multi-dimensional comparison with audience graphicacy).
-
-If the context is dashboard performance metrics, replace any gauge charts with bullet graphs. The redesign is unambiguously better; document the perceptual reasoning.
+The outer-ring amplification distortion (area scales as the square of radial length) still applies. Every polar area chart used in an analytical context requires the disclosure annotation that Chapter 11 specified. For advocacy contexts, the distortion serves the rhetorical purpose. For analytical contexts, it misleads.
 
 ---
 
-## Extended worked example — building a bullet graph dashboard
+## When specialized charts become decorative noise
 
-Take three dashboard metrics: monthly revenue ($M), customer satisfaction score (0-100), service uptime (%).
+The connecting thread across all the failures in this chapter is the same: a specialized form used for its appearance rather than for the specific analytical question it was designed to answer.
 
-### Channel decomposition (per metric)
+Gauge charts look like professional instruments. They appear in enterprise dashboards because dashboard-software defaults include them, because they look sophisticated, and because the people commissioning the dashboards are not thinking about the Cleveland and McGill accuracy hierarchy. The appearance of specialized sophistication is itself a decorative feature — one that impedes accurate reading.
 
-- Marks: rectangle (primary measure bar), tick (target), light rectangles (qualitative bands).
-- x-position: value (quantitative).
-- Bar color: solid; consistent across the three metrics.
-- Band colors: light luminance variations (light to dark gray).
-- Target tick: short vertical line at target position.
+Kagi and Point and Figure charts appear in amateur investment analysis for the same reason. The forms look complex and technical; they confer an appearance of professional rigor. But without the specific analytical question they serve — trend reversal detection, support and resistance identification — they are noise dressed as signal.
 
-### The four-move prompt (single bullet graph)
+Radar charts appear in product-comparison tables, sports-analytics dashboards, and performance reviews because they look holistic — all dimensions visible simultaneously in one shape. The shape reading is appealing precisely because it seems to reduce multi-dimensional complexity to a single gestalt. But the reduction is partly an artifact of the axis order, and the reader who draws conclusions from the shape is being partially misled.
 
-```
-**Show what I have:**
-Three metrics with: actual value, target value, three band thresholds.
-- Revenue: actual $4.2M, target $4.0M, bands: <$3M (poor), $3-4M
-  (acceptable), >$4M (good).
-- Customer satisfaction: actual 87, target 85, bands: <70 (poor),
-  70-80 (acceptable), >80 (good).
-- Service uptime: actual 99.7%, target 99.9%, bands: <99% (poor),
-  99-99.9% (acceptable), >99.9% (excellent).
+The test is always: what specific analytical question does this form answer better than any standard alternative? For candlesticks: four OHLC values per period in a single efficient glyph, for a financially literate audience. For Kagi: trend reversals and support levels for an audience willing to ignore time. For bullet graphs: performance vs. target with qualitative bands, more accurately than a gauge. For radar charts: holistic multi-dimensional shape comparison, with the axis-order caveat, for audiences who will not draw fine-grained conclusions from the polygon's geometry.
 
-**Say what I want:**
-Three bullet graphs in D3 v7. Single self-contained HTML file with
-inline CSS and inline D3 (loaded via CDN). Vertical stack, one bullet
-per metric. Responsive to window resize.
+When the answer to the test is "it looks more professional" or "it looks more sophisticated," the specialized form is decorative. The standard alternative is almost certainly better.
 
-**Constrain it:**
-- Marks: per metric: solid rectangle (primary bar), short vertical
-  tick (target), 3 light rectangles (bands).
-- x-position: value (quantitative; range per-metric).
-- Primary bar: solid color (#0D0D0D or palette-appropriate).
-- Bands: light luminance (light gray for bottom band, slightly darker
-  for middle, darkest for top band) — sequential luminance encoding.
-- Target tick: 8px vertical line, centered vertically on the bar,
-  contrasting color (#8B0000).
-- Per-metric label on the left.
-- Per-metric value annotation on the right.
-- Subtitle: "Performance Dashboard, FY2024 Q4".
-- Margins: top 60, right 80, bottom 40, left 200 (left margin for
-  metric labels).
-- Dark mode support.
-
-**Verify:**
-Restate the channel decomposition. Confirm position-along-common-scale
-encodes the value (Cleveland & McGill rank 1). Confirm bands use
-luminance (not categorical hue) for sequential encoding. Confirm
-target tick uses a contrasting color for visibility against both bar
-and bands.
-```
-
-### Audit
-
-Standard Evergreen/Emery plus:
-
-- Position used as primary channel (not angle, as a gauge would use).
-- Bands use sequential luminance.
-- Target marker visible against both bar and band backgrounds.
-- Three metrics presented as small multiples (consistent layout).
+<!-- → [INFOGRAPHIC: the earn-your-strangeness decision tree — root: "Does this form answer a specific analytical question better than any standard chart?" Yes branch: "Is the audience familiar with the convention?" Yes → use the specialized form with documentation. No → provide the convention explanation. No branch: "Why are you using this form?" → "It looks professional" → replace with the standard form. Two example paths labeled: Candlestick (yes/yes → use it) and Gauge chart (no → replace with bullet graph). Caption: "The test is the discipline. Specialization earns its cost or it doesn't."] -->
 
 ---
 
-## Chapter summary
+## What you can now do
 
-You can now do four things you could not do before this chapter.
+You can build candlestick and OHLC charts for financial data, encoding four values per period using position throughout, and you understand the graphicacy prerequisite that makes the convention legible.
 
-You can build candlestick / OHLC charts for financial data, encoding four values per period in a single glyph using position as the magnitude channel.
+You can build Kagi and Point and Figure charts for time-independent price analysis — trend reversals, support and resistance — and explain what question the time-independence serves and for whom.
 
-You can build Kagi and Point & Figure charts for time-independent financial analysis where price reversals and support/resistance levels matter more than time-of-day.
+You can build bullet graphs as Few-style dashboard alternatives to gauge charts, using position-along-a-common-scale for the primary value and sequential luminance for the qualitative bands, and you can explain why the bullet graph outperforms the gauge on both accuracy and pixel efficiency.
 
-You can build bullet graphs as Few-style dashboard alternatives to gauge charts, using position-along-a-common-scale (the highest-accuracy channel) instead of angle.
+You can recognize the radar chart's axis-order failure, specify an axis order when the grouping structure provides a non-arbitrary rationale, and identify when parallel coordinates or small multiples are the more honest alternatives.
 
-You can recognize the radar-chart axis-order problem and apply mitigations (specify order, use parallel coordinates instead, use small multiples for multi-dimensional comparison).
-
-The thing to watch for, going forward, is the temptation to use a specialized chart because it is visually distinctive. The specialized forms earn their complexity in specific contexts; using them outside those contexts produces decorative noise.
-
----
-
-## Key terms
-
-- **Candlestick / OHLC chart.** Financial chart encoding four values (Open, High, Low, Close) per period using position.
-- **Kagi chart.** Time-independent chart where line thickness encodes trend direction and reversals.
-- **Point & Figure chart.** Time-independent chart using Xs and Os to mark price columns.
-- **Bullet graph (Few).** Dashboard chart with primary measure (bar), target (tick), and qualitative bands (background luminance).
-- **Radar chart / spider chart.** Multi-axis polar chart for comparing 3-7 dimensions across observations.
-- **Axis-order problem.** Radar chart polygon shape depends on axis order; not unique.
-
----
-
-## Discussion questions
-
-1. Specialized charts earn their complexity through domain conventions. What makes a convention earn its place vs. become decorative?
-2. Bullet graphs are demonstrably better than gauge charts. Why do dashboards still use gauges? What does this say about software defaults vs. design quality?
-3. Time-independent charts (Kagi, P&F) are unfamiliar outside finance. What other domains might benefit from time-independent visualization?
-4. Radar charts have axis-order problems. When is the form still defensible?
-5. *Cross-chapter synthesis.* Chapter 13 closes Part II. The full taxonomy is now mapped. Chapter 14 will apply the design audit framework across all of Part II. Frame the relationship.
+You can apply the test to any specialized form: what specific analytical question does this form answer better than a standard alternative? When the answer is clear, the form earns its strangeness. When the answer is "it looks more sophisticated," the form is noise.
 
 ---
 
@@ -307,116 +148,129 @@ The thing to watch for, going forward, is the temptation to use a specialized ch
 
 ### Warm-up
 
-**Exercise 13.1** — *Specialized form selection.* For each, choose the right form:
-- Daily stock price tracking with intraday volatility.
-- Performance metric vs. target on a dashboard.
-- Multi-dimensional product comparison (5 dimensions).
-- Long-term price trend analysis with reversal detection.
-- Cyclical data (monthly cycles).
+**Exercise 15.1 — Specialized form selection.** *(Tests: the earn-your-strangeness test)*
+For each scenario below, apply the test ("what specific analytical question does this form answer better than any standard alternative?") and name the right form — or name the standard form if no specialized form earns its use:
+- Daily stock price tracking with intraday volatility for a financially literate trading audience.
+- A single performance metric vs. target on an executive dashboard.
+- Multi-dimensional product comparison across 5 attributes for a general marketing audience.
+- Long-term price trend analysis where small daily fluctuations are noise and the analyst cares only about meaningful reversals.
+- Monthly precipitation over a year, for a climate-science audience who needs to emphasize seasonal cycles.
 
-**Exercise 13.2** — *Bullet graph from gauge.* Find a gauge chart on a dashboard. Replace with a bullet graph using Claude Code.
+**Exercise 15.2 — Position vs. angle, quantified.** *(Tests: Few's bullet-vs-gauge argument)*
+A dashboard gauge shows a revenue metric of $4.2M against a target of $4.0M. The gauge dial spans $0M to $6M, so the needle sits at 70% of the arc. A bullet graph for the same metric shows a bar reaching 70% of the axis from 0 to 6. Where they differ: the gauge needle sweeps through 180° of arc; the bullet bar extends along a linear axis. According to the Cleveland & McGill hierarchy, which channel does each form use for the primary metric? Which ranks higher? Write one paragraph making Few's argument from this specific example.
 
-**Exercise 13.3** — *Radar order audit.* Take a radar chart with 6 axes. Reorder the axes randomly. Compare the visual shapes. Note what the same data looks like in different orders.
+**Exercise 15.3 — Radar chart axis-order audit.** *(Tests: the axis-order problem)*
+A radar chart compares three products across six attributes: Price, Quality, Speed, Support, Design, Durability. Describe what would happen to the polygon shapes if you reordered the axes to: Quality, Design, Price, Durability, Speed, Support. Would the pattern that "Product A is strong on operational attributes" remain visible, disappear, or change shape? Name the mitigation you would apply to make the axis order non-arbitrary.
 
 ### Application
 
-**Exercise 13.4** — *Build a candlestick.* Take financial data with OHLC structure. Build with Claude Code.
+**Exercise 15.4 — Build a bullet graph dashboard.** *(Tests: Few's specification applied)*
+Take three performance metrics with actual values, targets, and qualitative bands — from your professional context or the worked example in this chapter. Build a stacked row of three bullet graphs with Claude Code. Audit: is the primary bar using position (not angle)? Are bands sequential luminance (not traffic-light hue)? Is the target marker visible against both bar and bands? Is the layout consistent across all three metrics?
 
-**Exercise 13.5** — *Build a Kagi chart.* Specify the reversal amount. Build with Claude Code.
+**Exercise 15.5 — Build a candlestick chart.** *(Tests: OHLC encoding)*
+Take financial OHLC data for at least 20 trading periods (stock, currency, or commodity — freely available from Yahoo Finance or similar). Build a candlestick chart with Claude Code. Audit: do wick positions correctly encode high and low? Does body color correctly encode direction (close > open = up color)? Are the bodies proportional to the open-close range?
 
-**Exercise 13.6** — *Audit a published specialized chart.* Find one in finance, sports, or science. Audit using Evergreen/Emery + specialized-specific.
+**Exercise 15.6 — Gauge-to-bullet redesign.** *(Tests: position-vs-angle replacement)*
+Find a gauge chart on a public dashboard — enterprise software demos, government data portals, and sports statistics sites all have them. Build the bullet graph replacement with Claude Code. Present both side by side. For the specific metric the gauge shows, write one paragraph documenting: what accuracy is lost by the gauge's use of angle, what accuracy is gained by the bullet's use of position, and whether the gauge has any advantage the bullet cannot replicate.
 
 ### Synthesis
 
-**Exercise 13.7** — *Bullet graph dashboard.* Build a 6-metric dashboard using bullet graphs as the primary form.
+**Exercise 15.7 — Radar vs. small multiples.** *(Tests: radar chart mitigation applied to real data)*
+Take a multi-dimensional dataset comparing 3–4 observations across 5–6 attributes (athlete performance across speed/strength/endurance/agility/technique, or product ratings across multiple categories). Build a radar chart. Then build the same data as small multiples — one bar chart per attribute, shared y-axis, observations as grouped bars. For the question "which observation is strongest overall?", which form answers it more honestly and why? Cite the axis-order problem as the reason the radar chart's answer is partially unreliable.
 
-**Exercise 13.8** — *Radar vs. parallel coordinates.* Take multi-dimensional data. Build both a radar chart and a parallel coordinates chart. Compare what each reveals.
+**Exercise 15.8 — Kagi chart for a non-financial domain.** *(Tests: time-independence beyond finance)*
+Identify a non-financial domain where time-independent visualization might serve a legitimate analytical question — climate data with regime shifts, sports streaks filtered to ignore noise, or project milestone sequences where elapsed time between milestones is irrelevant. Build a Kagi-style chart with Claude Code for that dataset. Evaluate: does the time-independence gain clarity or lose it? What question is answered better by removing time from the axis, and what question becomes unanswerable?
 
 ### Challenge
 
-**Exercise 13.9** — *Time-independent in a non-financial domain.* Identify a non-financial domain where time-independent visualization could work (climate data with regime shifts? sports performance with streak detection?). Build a Kagi-style chart for it.
+**Exercise 15.9 — Specialized chart audit portfolio.** *(Tests: the earn-your-strangeness test applied at scale)*
+Find five examples of specialized charts used in published contexts — corporate dashboards, financial journalism, sports analytics, or academic research. For each, apply the test: does the form answer a specific analytical question better than any standard alternative? Classify each as: (a) earns its strangeness, (b) decorative — standard form would be better, or (c) borderline — defensible in this specific audience context. For each in category (b), build the standard-form replacement with Claude Code and document what accuracy is recovered.
 
-**Exercise 13.10** — *Replicate Few's bullet graph.* Build a bullet graph that exactly matches Few's original specification (gradient bands, primary measure, target, label conventions). Compare to Few's published image.
+**Exercise 15.10 — Replicate Few's bullet graph specification.** *(Tests: deep implementation of a designed form)*
+Read Few's original 2005 "Bullet Graph Design Specification" (available online; also referenced in the pantry). Build a bullet graph that matches Few's original specification precisely: the bar fills the entire bullet width, the qualitative bands use luminance (not hue), the target marker is perpendicular to the bar and extends through the full bar height, the comparative measure (if present) is a block overlapping the primary bar. Compare your output to Few's published reference image. Document every discrepancy and the follow-up prompt that corrected it. This is the exercise that turns the specification into fluency.
 
 ---
 
-## LLM Exercise — Chapter 13: Specialized Charts
+## LLM Exercise — Chapter 15: Specialized and Financial Charts
+
+**What you're building:** A specialized chart selected for a specific analytical question, with the domain-convention justification documented and the encoding decisions verified against the Cleveland and McGill hierarchy.
+
+**Tool:** Claude Code (for the build) + Claude chat (for the audit).
+
+### The prompt
 
 ```
-I have data for a specialized-chart context: [DESCRIBE: financial,
-dashboard, multi-dimensional, etc.]. The audience is [DESCRIBE].
+I have data for a specialized-chart context: [DESCRIBE: financial OHLC,
+dashboard performance metrics, multi-dimensional comparison, or cyclic
+temporal pattern]. The audience is [DESCRIBE: financial literacy level,
+dashboard context, graphicacy level].
 
 Walk me through:
+
 1. Confirm a specialized form earns its use vs. a standard alternative.
-2. Choose form: candlestick / OHLC / Kagi / P&F / bullet / radar /
-   polar area.
-3. For radar charts: specify axis order with rationale.
-4. For bullet graphs: specify bands and target.
-5. Specify channels.
-6. Write four-move Claude Code prompt.
+   Apply the test: what specific analytical question does this form
+   answer better than a bar chart, line chart, or other standard form?
+   If no clear answer exists, recommend the standard form instead.
 
-Audit using Evergreen/Emery + specialized-specific.
+2. Choose the specific form (candlestick / OHLC / Kagi / Point &
+   Figure / bullet graph / radar chart / polar area) based on the
+   analytical question and audience graphicacy.
+
+3. For bullet graphs: specify the actual value, target value, and band
+   thresholds. Confirm the primary channel is position (not angle).
+   Specify band colors as sequential luminance (not traffic-light hue).
+
+4. For radar charts: specify the axis order with rationale. Identify
+   whether the axes have a conceptual grouping that makes the order
+   non-arbitrary. If not, recommend parallel coordinates or small
+   multiples instead.
+
+5. For polar area charts: apply Cairo's rhetorical-vs-analytical frame.
+   Is this advocacy or analysis? If analysis, include the disclosure
+   annotation ("area scales as radial length squared").
+
+6. Specify all channels using the Chapter 01 framework, citing the
+   Cleveland & McGill ranking for the primary channel.
+
+7. Write a single Claude Code prompt using the four-move structure
+   (show, say, constrain, verify), specifying the appropriate D3
+   implementation.
+
+After Claude Code returns the chart, audit it for specialized-form
+failures:
+- Candlestick: do the wick positions correctly encode high and low?
+  Does body color correctly encode direction (close > open = up color)?
+- Bullet graph: is the primary bar using position (not angle)? Are
+  bands sequential luminance (not traffic-light hue)? Is the target
+  marker visible against both bar and bands?
+- Radar chart: is the axis order documented? Would reordering the axes
+  substantially change the polygon shape? If yes, consider redesign.
+
+Flag any audit failure and write the follow-up prompt that corrects it.
 ```
 
-**Connection to previous chapters:** All of Part II — Chapter 13 is the closing taxonomy chapter. Chapter 1's Cleveland & McGill ranking grounds the bullet-vs-gauge argument; Chapter 9's Nightingale-rose discussion is reflected in polar area considerations.
+**What this produces:** A markdown audit document and an HTML file containing the working D3 chart. Save as `chapter-15-specialized-audit.md` and `chapter-15-specialized.html`.
 
-**Preview of next chapter:** Chapter 14 begins Part III. The chart taxonomy is mapped; now we apply the design-audit framework across all Part II forms. The Tufte/Few/Cairo synthesis becomes the audit instrument.
+**How to adapt this prompt:**
+- *For your own domain:* Replace the dataset description and analytical question.
+- *For ChatGPT or Gemini:* Works as-is.
+- *For a Claude Project:* Save the Chapter 01 channel framework, Few's bullet graph specification, and Cairo's rhetorical-vs-analytical frame as reference files; the per-chapter audit prompt becomes the user message for each new chart.
+- *For Cowork:* Use Cowork to execute the Claude Code prompt and save the resulting HTML file directly to your project directory.
 
----
+**Connection to previous chapters:** Builds on Chapter 01 (Cleveland & McGill hierarchy — the position-vs-angle distinction that grounds the bullet-graph argument), Chapter 07 (zero-baseline and channel honesty — the same proportional-ink thinking applied to specialized forms), Chapter 11 (Nightingale rose and the rhetorical-vs-analytical frame — applied here to polar area charts), Chapter 09 (distribution charts — radar charts are sometimes misused for distribution comparison where a parallel-coordinates or small-multiples form is more honest).
 
-## Visual suggestions
-
-This chapter is about specialized and financial chart selection. Each chart family it discusses has a Part II reference; the focal figure here is the chapter's central worked example — Few's argument that bullet graphs replace gauge charts.
-
-Part II references for specialized charts: [Bullet Graph](26-bullet-graph.md), [Candlestick Chart](27-candlestick-chart.md), [OHLC Chart](49-ohlc-chart.md), [Kagi Chart](30-kagi-chart.md), [Point and Figure](54-point-figure.md), [Radar Chart](57-radar-chart.md), [Span Chart](64-span-chart.md), [Illustration Diagram](41-illustration-diagram.md), [Venn Diagram](76-venn-diagram.md), [Word Cloud](78-word-cloud.md). Each Part II chapter has its own prompt.
-
-### Figure 13.1 — Bullet graph vs. gauge chart for the same KPI
-
-The chapter's central argument made visible. The same dashboard KPI rendered two ways: a gauge chart (the dashboard cliché — round dial with a needle) and a bullet graph (Few's replacement — a bar with target marker and qualitative bands). The reader sees what each chart lets them read.
-
-See [Bullet Graph](26-bullet-graph.md) in Part II for the canonical reference.
-
-```
-Generate two side-by-side dashboard KPI panels in D3 v7. Two files:
-
-1. `chapter-13-fig-01.html` — full HTML with inline CSS and inline D3 v7. Two SVG panels in a flex layout, each rendering the same KPI value. Page subtitle: "Bullet graph vs. gauge chart — Few's argument made visible."
-
-2. `chapter-13-fig-01/data.json` — the dataset.
-
-Data shape:
-- Three KPIs, each with `actual`, `target`, and `bands` (poor / acceptable / good thresholds).
-  - For example: response time (target = 24h, bands at 12 / 24 / 48 hours), program completion (target = 95%, bands at 70 / 90 / 95 / 100), donor satisfaction (target = 4.5, bands at 3.0 / 4.0 / 4.5 / 5.0).
-
-{DATA NEEDED} — Three humanitarian-program KPIs with actual, target, and three qualitative bands per KPI. UNHCR or program-evaluation reports.
-
-Left panel — gauge chart:
-- A semicircular dial with a needle pointing at the current value.
-- Bands (poor/acceptable/good) drawn as colored arcs.
-- This is the dashboard cliché. Render it competently; do not improve the encoding beyond what is conventional.
-
-Right panel — bullet graph:
-- Horizontal bar showing the actual value.
-- A small marker line showing the target.
-- Background bands (poor/acceptable/good) drawn behind the bar in light gray gradations.
-- Direct value label.
-
-Caption beneath: "The bullet graph uses position-along-a-common-scale (Cleveland & McGill rank 1) for the actual value; the gauge uses angular position (rank 4). The bullet graph fits in less space and reads faster. Few's argument: replace gauges with bullets, in every dashboard, every time."
-
-Style: warm monochrome.
-
-Provide both files as separate code blocks.
-```
+**Preview of next chapter:** Chapter 16 begins Part III: the design audit framework. The chart taxonomy is now fully mapped across Chapters 07–15. Chapter 16 applies the Evergreen/Emery checklist systematically across all Part II forms — this is where the selection decisions and channel decompositions from every chapter converge into a single audit discipline.
 
 ---
 
 ## Further reading
 
-- **Few, Stephen. (2006).** *Information Dashboard Design.* The bullet graph and dashboard design principles.
-- **Murphy, John J. (1999).** *Technical Analysis of the Financial Markets.* Candlestick, OHLC, Kagi, P&F charts in financial context.
-- **The book's pantry** — `kagi-chart.html`, `bullet-graph.html`, `radar-chart.html`.
+- **Few, Stephen. (2006).** *Information Dashboard Design.* The bullet graph specification, the argument against gauge charts, and the broader case for position-based dashboard encoding.
+- **Few, Stephen. (2005).** "Bullet Graph Design Specification." *Perceptual Edge.* The original technical specification; available online. Read this alongside `bullet-graph.html` in the pantry.
+- **Murphy, John J. (1999).** *Technical Analysis of the Financial Markets.* Candlestick, OHLC, Kagi, and Point & Figure charts in their native analytical context. Reading this makes the time-independence question concrete.
+- **Cairo, Alberto. (2016).** *The Truthful Art.* Chapter 9 on form selection for specialized domains; the polar-area and Nightingale discussion connects directly to Chapter 15's treatment.
+- **The book's pantry** — `kagi-chart.html`, `bullet-graph.html`, `radar-chart.html`. Each is the reference implementation for its form; compare the bullet graph's position encoding against any gauge chart to make Few's argument empirical.
 
 ---
 
-## Tags
-
-specialized-charts, candlestick, OHLC, Kagi, Point-and-Figure, bullet-graph, Few, radar-chart, spider-chart, polar-area, Nightingale, axis-order-problem, Cleveland-McGill, position-vs-angle, dashboard, D3, Claude-Code
+*Tags: specialized-charts, candlestick, OHLC, Kagi, Point-and-Figure, bullet-graph, Few, radar-chart, spider-chart, polar-area, Nightingale, axis-order-problem, Cleveland-McGill, position-vs-angle, dashboard, D3, Claude-Code*
