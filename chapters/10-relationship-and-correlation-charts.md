@@ -1,321 +1,190 @@
-# Chapter 8 — Relationship and Correlation Charts
+# Chapter 10 — Relationship and Correlation Charts
 *Two Variables and the Question They Refuse to Settle.*
 
-## Three suggested titles
+---
 
-- Relationship and Correlation Charts: The Annotation That Belongs On All of Them
-- Stevens' Power Law and the Bubble Chart's Radius-Not-Area Failure
-- Scatterplots, Heatmaps, and the Ethics of Showing Correlation
+Here is a chart. Each point is a country. The x-axis shows the education index — a composite score between 0 and 1 measuring school enrollment and years of schooling. The y-axis shows life expectancy in years. There are about 170 points. An OLS regression line runs through the cloud, sloped upward and to the right. Pearson's r is annotated near the line: r = 0.79.
+
+The chart shows a strong positive correlation. Countries with higher education indices tend to have longer life expectancy. r = 0.79 is a substantial association. A reader looking at this chart, without anything else to go on, will naturally form the thought: better education leads to longer life.
+
+That thought is not what the chart shows.
+
+The chart shows a statistical association. Whether education *causes* longer life, whether longer-life-expectancy countries invest more in education, whether both are caused by a third variable — institutional quality, wealth, political stability, nutrition — the chart cannot say. The OLS line fits the cloud. It does not identify a causal mechanism. Every statistics textbook says this. Every scatterplot that omits the caveat invites the reader to forget it.
+
+Alberto Cairo's frame is specific: a scatterplot showing strong correlation, without an explicit annotation distinguishing correlation from causation, invites the reader to make the causal inference. The chart's visual force exceeds its empirical claim. This is not a stylistic oversight. It is a moral failure. The designer's professional responsibility includes preventing the over-reading that the chart's visual authority would otherwise produce.
+
+The fix is short. Add a text block near the trend line: "Correlation does not imply causation. These variables are associated; the causal mechanism is not established by this chart." The caveat does not weaken the chart. It completes it. The reader now knows what is and is not being claimed.
+
+<!-- → [FIGURE: Two identical scatterplots side by side. Same 170-country education-index vs. life-expectancy dataset, same OLS trend line, same r = 0.79 annotation. Left: no causation caveat — the chart invites the causal inference. Right: a visible callout box near the trend line reads "Correlation does not imply causation. These variables are associated; the causal mechanism is not established by this chart." Caption: "Same chart. Left invites an inference the data cannot support. Right completes the claim. The caveat is not decoration — it is the difference between a chart that misleads and one that informs."] -->
+
+This chapter is about the family of relationship charts and the design responsibilities that come with them. The scatterplot is the canonical form. Bubble charts, connected scatterplots, heatmaps, and parallel coordinates are extensions for specific analytical situations. Each form has its own channel rules, its own failure modes, and its own version of the ethical obligation Cairo names.
 
 ---
 
-## Chapter overview
+## What a Scatterplot Actually Is
 
-By the end of this chapter you will be able to build the family of relationship charts — scatterplots, bubble charts, connected scatterplots, parallel coordinates, heatmaps — and you will know when each is right. You will know why bubble charts must encode the third variable as area and not radius (the Stevens' power law mechanism), why every chart that shows correlation needs a "correlation is not causation" annotation in Cairo's frame, and how to mitigate overplotting (the most common scatterplot failure) without distorting the data.
+A scatterplot has two quantitative axes and a point mark for each observation at the (x, y) coordinate corresponding to its values. The channels are x-position and y-position — the two highest-accuracy channels from the Cleveland and McGill ranking. The marks are points. The form shows how two variables co-vary.
 
----
+The convention: the independent variable — the one the designer suspects is the predictor or cause — goes on the x-axis. The dependent variable — the one being predicted or caused — goes on the y. The convention matters because readers default to reading x as input and y as output. If the designer places variables arbitrarily, the reader imports a causal story the designer did not intend.
 
-## Learning objectives
+The OLS regression line is the standard addition. It summarizes the linear relationship: for each unit increase in x, the line predicts a given increase in y. Pearson's r measures the strength of the linear association: 0 is no association, 1 is perfect positive correlation, −1 is perfect negative. Both statistics are honest summaries of the data. Neither is a causal claim. The chart that reports them without annotation leaves the reader to make the inference.
 
-1. **(Apply)** Build a scatterplot with OLS trend line and annotate it with the appropriate correlation-is-not-causation caveat — applying Cairo's ethical frame that omitting this caveat is a moral failure, not just a style choice.
-2. **(Analyze)** Identify overplotting in a scatterplot and specify at least two mitigation strategies (jittering, alpha transparency, 2D binning) with their trade-offs.
-3. **(Evaluate)** Assess whether a bubble chart's third variable encoding (area vs. radius) is perceptually honest and correct it if not, citing Stevens' power law.
+The scatterplot's strength is the cloud shape. Not just the trend line — the whole shape of the scatter. A linear cloud and a curved cloud have the same r if the curve is symmetric; they have different implications for the relationship. A cloud with a consistent band width is homoscedastic; a fan-shaped cloud where variance increases with x is heteroscedastic. An outlier ten standard deviations from the trend line may be a data error or the most important observation. None of these is visible in a summary statistic. The scatterplot shows them all.
 
----
-
-## Opening case — the HAI scatterplot of education and life expectancy
-
-Open `pantry/visualization/scatterplot.html` in a browser. A single scatterplot. Each point is a country. The x-axis shows the country's education index (0 to 1). The y-axis shows life expectancy (years). An OLS regression line runs through the cloud, sloped upward and to the right. Pearson's r is annotated near the line: r = 0.79.
-
-The chart shows a strong positive correlation between education and life expectancy. The scatterplot mark is a point per country; both quantitative attributes use position (the highest-accuracy channel from Chapter 1); the OLS line summarizes the relationship.
-
-The chart is well-built. It is also incomplete. A reader looking at the chart could conclude that better education *causes* longer life expectancy. The correlation is real. The causal claim is not what the chart shows. The chart shows a statistical association; causation is a separate empirical question.
-
-This is where Cairo's ethical frame applies most pointedly. A scatterplot showing strong correlation, without an explicit annotation distinguishing correlation from causation, invites the reader to make the causal inference. The chart's visual force exceeds its empirical claim. In Cairo's reading, this is not a stylistic oversight — it is a *moral failure*. The designer's professional responsibility includes preventing the over-reading that the chart's visual force would otherwise produce.
-
-The annotation that fixes the chart is short. Add a callout near the trend line: "Correlation is not causation. Education and life expectancy are associated; the causal relationship is not established by this chart." That single line of text does not weaken the chart. It strengthens it. The reader now knows what the chart is and is not claiming.
-
-This chapter is about the family of relationship charts and the design responsibilities they impose. The scatterplot is the canonical form; bubble charts, connected scatterplots, parallel coordinates, and heatmaps are extensions for specific analytical needs. Each form has its own design rules, its own perceptual mechanisms, and its own ethical responsibilities around inference.
+<!-- → [FIGURE: Four small scatterplot panels, each with the same r ≈ 0.7 annotated. Panel 1: linear cloud — what the trend line correctly summarizes. Panel 2: curved (quadratic) cloud — r = 0.7 is technically correct but the relationship is non-linear; the linear trend line misrepresents it. Panel 3: fan-shaped cloud (heteroscedastic) — r = 0.7 but variance increases with x; the model is unstable at high x. Panel 4: linear cloud with one extreme outlier — r = 0.7 is dominated by the outlier; removing it gives r ≈ 0.3. Caption: "The same r = 0.7 can describe any of these clouds. The number summarizes; the chart shows. Always look at the cloud, not just the statistic."] -->
 
 ---
 
-## Theoretical grounding — Cairo's correlation-is-not-causation, Stevens on area perception, Munzner on parallel coordinates
+## The Overplotting Problem
 
-This chapter draws on three sources, each at the moment its specific contribution is needed.
+When sample size is large and points cluster, the standard scatterplot fails. The dense region becomes a black blob. The cloud shape disappears under the ink. The outliers become invisible relative to the mass. A scatterplot of 50,000 transactions or 10 years of daily measurements hits this problem immediately.
 
-**Cairo on correlation-is-not-causation.** Cairo's *How Charts Lie* (2019), Chapter 2, includes the El País Catalan independence poll case: 45.3% No vs. 44.5% Yes, margin of error ±2.95. The story said Catalonia "swings toward No." The correct statement: the difference is within sampling error. A chart that shows the 0.8 percentage-point difference without showing the margin of error visually invites a conclusion the data does not support. Cairo's frame: omitting the uncertainty visualization or the appropriate caveat is a moral failure, not a style choice. The same frame applies to scatterplots: a strong correlation without explicit causal-claim disambiguation invites readers to over-read.
+Three strategies mitigate it:
 
-**Stevens' psychophysical power law on area perception.** Chapter 1 introduced the law: perception of physical magnitude follows a power function. For *area*, the exponent is approximately 0.7 — perception is sublinear. Doubled area is perceived as roughly 1.5–1.7× larger, not 2×. This matters acutely for bubble charts, where the third variable is encoded as the bubble's size. If the size is encoded as the *radius*, doubling the value produces a bubble with 4× the area (because area scales as radius squared). The eye, applying Stevens' power law to that 4× area, perceives it as roughly 2.5×. The chart now shows three numbers — the data (2×), the area (4×), the perceived area (2.5×) — and none matches the others. The fix is to encode the third variable as *area* directly: doubled value, doubled area, perceived as roughly 1.5–1.7× — closer to the data.
+**Alpha transparency.** Set point fill opacity low — 0.1 to 0.3. Each individual point is faint; dense regions accumulate alpha and appear darker; sparse regions remain visible as individual points. The cloud shape returns. This is the simplest strategy and almost always the right first move. It preserves the point-level structure while revealing the density structure simultaneously.
 
-**Munzner on parallel coordinates and axis order.** Tamara Munzner's *Visualization Analysis and Design* (2014) treats parallel coordinates as a high-dimensional visualization technique that works because each axis is position-along-a-common-scale (Chapter 1's highest-accuracy channel). The form's distinctive failure mode — that the visual pattern depends on axis order — is a Bertin-class channel limitation: the lines connecting axes use position to encode pairwise relationships, and changing the order changes the visible pattern without changing the data. Munzner's framework: parallel coordinates are excellent when the analyst can interactively reorder axes (brush and explore); they are weaker when published as static charts (one axis order is canonical, hiding patterns visible in others).
+**Jittering.** Add small random offsets to point positions. Useful when many points have identical or near-identical values — which happens with discrete variables (ratings from 1 to 5, integer measurements) or with rounded data. Without jittering, a scatterplot of discrete data shows only a small grid of dot clusters; with jittering, the count at each (x, y) position becomes visible as a local cloud.
 
----
+**2D binning.** Aggregate points into a 2D grid (rectangular or hexagonal) and show count per cell as color luminance — a hexbin chart. This converts the point cloud into a density display. Hexagonal binning is preferred over rectangular because hexagons tile without directional bias. The trade-off: individual outliers disappear into their bins; the cloud shape is revealed at the cost of exact positions.
 
-## Concept 1 — Scatterplots: the workhorse of relationship
+The right strategy depends on what the reader needs to see. If individual points matter (each is a named country, a specific patient, a unique transaction that might be wrong), alpha transparency preserves point-level information. If the distribution shape is the question (where do most of the 100,000 points live?), 2D binning answers it more clearly. If the data has discrete clustering, jittering reveals structure that alpha cannot.
 
-A scatterplot is a chart with two quantitative axes (x and y), and a point mark for each observation at the (x, y) coordinate corresponding to its values. Scatterplots show how two variables co-vary.
+These strategies belong in the "Constrain it" block of the Claude Code prompt. The default scatterplot will overplot on dense data. Specify: "use alpha transparency 0.2" or "use hexagonal 2D binning with d3.hexbin" or "jitter x-positions by up to 0.5 units." Without explicit instruction, Claude Code renders the default, and the default for large n is a black mass.
 
-### When scatterplots work
-
-- Two quantitative variables. The relationship between them is the question.
-- Sample size large enough to see a pattern (n > 30 typical; more is better).
-- The reader wants to see the *cloud shape* — direction of correlation, strength, outliers, possible non-linearity.
-
-### Design decisions
-
-**Axes.** Both quantitative; both use position (the highest-accuracy channel). Convention: independent variable (cause, predictor) on x; dependent variable (effect, outcome) on y. The convention matters because readers default to "x predicts y."
-
-**Trend line.** OLS regression line is the standard. Other options: LOESS (locally weighted, captures non-linearity), median trend, Theil-Sen (robust to outliers). Choose based on whether the relationship is plausibly linear.
-
-**Confidence band.** Optional shaded region around the trend line showing uncertainty in the trend. Useful when sample size is moderate (the band shows whether the trend is well-estimated).
-
-**Annotations.** Pearson's r (or appropriate correlation coefficient) near the trend line. The correlation-is-not-causation annotation. Any specific points worth highlighting (outliers, named cases).
-
-### The overplotting problem
-
-When sample size is large and points cluster, a standard scatterplot becomes a black blob in the dense region. The cloud shape becomes invisible. Three mitigation strategies:
-
-**Alpha transparency.** Set point fill opacity to 0.1–0.4. Dense regions accumulate alpha and appear darker; sparse regions remain visible as individual points. The cloud shape returns. This is the simplest and usually the right first move.
-
-**Jittering.** Add small random offsets to point positions. Useful when many points have identical or near-identical values (typical with discrete variables on a scatterplot). Jittering reveals the count at each value.
-
-**2D binning.** Aggregate points into a 2D grid; show count per cell as color luminance (a hexbin chart). This converts the scatterplot into a heatmap-style display. Good for very large datasets (n > 10,000); loses individual outliers.
-
-For Claude Code work: specify the mitigation strategy in the prompt. The default scatterplot will overplot if the data is dense; the prompt should say "use alpha transparency 0.3" or "use 2D hexagonal binning" for the appropriate strategy.
-
-> ### ↳ Dig Deeper — Overplotting strategies in your domain
->
-> **Prompt:**
->
-> > Take a scatterplot context typical of my work where overplotting is likely (10,000+ point comparison; clustered discrete data; etc.). Walk through alpha transparency, jittering, and 2D binning as mitigations. For each, name the perceptual trade-off (what gets revealed; what gets hidden). Recommend the right strategy for my context.
->
-> **What to do with the output:** Save the analysis. Use it next time you build a scatterplot of dense data.
+<!-- → [FIGURE: Four-panel comparison using the same 10,000-point dataset. Panel 1: full opacity — dense region is a solid black mass, cloud shape invisible. Panel 2: alpha transparency 0.15 — cloud shape visible, individual outliers preserved, density gradient clear. Panel 3: jittered — useful only if the data had discrete clustering (this panel works best with a discrete-variable dataset). Panel 4: hexagonal 2D binning — density shown as luminance gradient, individual points lost, useful when the distribution shape is the question. Caption below each panel names the strategy, what it reveals, and what it hides.] -->
 
 ---
 
-## Concept 2 — Bubble charts and the radius-not-area failure
+## Bubble Charts and the Radius Trap
 
-A bubble chart is a scatterplot where each point's *size* encodes a third variable. The mark is a point (typically a circle); the channels are x-position, y-position, and size.
+A bubble chart is a scatterplot with a third variable encoded as point size. The two position channels carry the first two variables; the size channel carries the third.
 
-### When bubble charts work
+Size, as a channel, is area perception. And area perception follows Stevens' power law with an exponent of approximately 0.7: a doubled area looks 1.5 to 1.7 times larger, not twice as large. This is the sublinear perception that Chapter 3 established. The bubble chart lives inside this perceptual cost. The question is how to minimize it.
 
-- Three quantitative variables with one designated as "size" (cumulative magnitude, weight, importance).
-- The reader needs to compare three values per observation.
-- The size variable has meaningful magnitude differences across observations (otherwise all bubbles look the same).
+The question of whether to encode size as *radius* or *area* is not a question of taste. It is a question of what the eye receives.
 
-### The radius-vs-area trap
+If you scale the bubble's **radius** linearly with the value, a value that doubles produces a bubble whose radius doubles — and whose **area** quadruples. The eye, applying Stevens' law to the quadrupled area with exponent 0.7, perceives something roughly 2.6 times as large. The data said 2×. The chart delivered 4×. The eye reads 2.6×. Three different numbers, none of which matches.
 
-The defining design decision is how the size encodes the value. Two options:
+If you scale the bubble's **area** linearly with the value, a value that doubles produces a bubble whose area doubles. The eye perceives it as roughly 1.5× to 1.7× as large. The data said 2×. The chart delivered 2×. The eye reads 1.6×. Two of the three numbers match; only Stevens' compression remains.
 
-**Encode by radius.** Bubble radius scales linearly with the value. A value of 100 produces a bubble of radius 10; a value of 200 produces radius 20. The *areas* are 100π and 400π. The visual area is 4× for a 2× value — distorted before perception even enters.
+There is no way to eliminate Stevens' compression entirely — it is a fact of human perception, not a chart design choice. But the radius encoding compounds it with an avoidable squared distortion. Area encoding removes that compounding and leaves only the perceptual distortion that cannot be designed away.
 
-**Encode by area.** Bubble area scales linearly with the value. A value of 100 produces area 100; a value of 200 produces area 200. The *radii* are √100 ≈ 10 and √200 ≈ 14. The visual area matches the value.
+<!-- → [FIGURE: Two bubble pairs side by side, each showing a small bubble (value 100) and a large bubble (value 200). Left pair: radius-linear encoding. Small bubble radius = 10px; large bubble radius = 20px. Area ratio = 4:1. Stevens' perceived ratio ≈ 2.6:1. Three annotated numbers: "Data: 2×. Area: 4×. Perceived: 2.6×. None match." Right pair: area-linear encoding (d3.scaleSqrt). Small bubble area = 100 units; large bubble area = 200 units. Radius ratio ≈ 1.41:1. Stevens' perceived ratio ≈ 1.6:1. Three annotated numbers: "Data: 2×. Area: 2×. Perceived: 1.6×. Two match." Caption: "Radius encoding makes a bad situation worse. Area encoding makes it as good as human perception allows."] -->
 
-Stevens' power law adds another layer. Even with area encoding, perception of area is sublinear (exponent ≈ 0.7). A doubled-area bubble is perceived as roughly 1.5–1.7× larger. With area encoding, the data-to-perception map is data → area (linear) → perception (sublinear). With radius encoding, it's data → area (squared) → perception (sublinear) — the squaring compounds the perceptual distortion.
+The D3 implementation is specific: `d3.scaleSqrt` maps the value to the radius such that the area is proportional to the value. The function applies the square root to the input (because radius = sqrt(area/π), up to a constant), producing a radius that gives the right area. `d3.scaleLinear` for bubble radius is the common error; it produces radius-linear encoding, area-quadratic distortion, and a chart that visually amplifies large values far beyond what the data supports.
 
-The HAI bubble chart in `pantry/visualization/bubble-chart.html` includes a toggle: "encode by radius" vs. "encode by area." Open it. Switch the toggle. The visual difference is dramatic. The same dataset under radius encoding looks like extreme values dominate; under area encoding, the values are visually proportional (within the limits Stevens' law allows).
+For the Claude Code prompt, the specification is explicit and non-negotiable: "Use `d3.scaleSqrt` for the bubble radius scale. The bubble's visual area must be proportional to the value. Do not use `d3.scaleLinear` for the radius." The follow-up when it comes back wrong:
 
-For Claude Code work: specify "area encoding" explicitly. Specify the scale function: `d3.scaleSqrt` (which scales by the square root of the input, producing area-proportional radii) is the canonical D3 method. The prompt: "use d3.scaleSqrt for the bubble radius scale, so that bubble area is proportional to the value."
+> "The bubble radius is scaled linearly. This makes visual area scale as value squared — a Stevens' power law violation. Replace `d3.scaleLinear` with `d3.scaleSqrt` for the radius scale and regenerate."
 
-### When to skip the bubble chart
-
-- The size variable doesn't add much beyond x and y. Dropping it produces a clean scatterplot.
-- The dataset is large (overplotting compounds with bubble size; bubbles cover each other).
-- The audience's graphicacy doesn't include "bubble chart with three variables." Two-variable scatterplot + small multiples often communicates better.
-
-The bubble chart is a higher-graphicacy form than the standard scatterplot. Use it when the third variable matters; skip it otherwise.
+The bubble chart earns its three-channel complexity only when the third variable genuinely matters for the reader's question. If the size variable does not add much beyond the two position channels — if the reader's question is answered by x and y alone — drop the size and use a clean two-variable scatterplot. The channel cost (Stevens' area compression) is only worth paying when the third dimension justifies it.
 
 ---
 
-## Concept 3 — Heatmaps and parallel coordinates
+## Heatmaps: Position Traded for Density
 
-Two specialized relationship forms for specific situations.
+A heatmap is a 2D grid where each cell's color encodes a value. The channels are x-position (categorical or continuous), y-position (categorical or continuous), and color luminance (for the magnitude at each intersection).
 
-### Heatmaps
+The heatmap appears in several analytical contexts:
 
-A heatmap is a 2D grid where each cell's color encodes a value. Common uses:
+**Two categorical variables with an intensity value.** A matrix of regions (rows) by sectors (columns), with color luminance encoding adoption rate per cell. Each cell is a single number; the chart shows patterns across all combinations at once.
 
-- **Two categorical variables + intensity.** A heatmap of "AI adoption by sector × by region" with color luminance encoding adoption rate. The form is part-comparison, part-relationship.
-- **Joint distribution of two quantitative variables.** A heatmap of a 2D KDE (or histogram), showing where in (x, y) space observations cluster. This is the 2D-binning extension of the scatterplot for very dense data.
-- **Correlation matrix.** A heatmap showing pairwise correlations across a set of variables. Each cell shows the correlation between two variables, usually with a sequential or diverging color scale.
+**Correlation matrix.** A square grid of variables, each cell showing the Pearson r between two variables. Color scale is diverging: one hue for negative correlations, white or gray at zero, a second hue for positive correlations. The reader can scan the matrix for clusters of correlated variables faster than they can read a table.
 
-Heatmap design rules:
+**Joint distribution of two quantitative variables.** This is the 2D-binning strategy applied to a scatterplot: divide the (x, y) space into a grid, count observations per cell, color by count. The result shows where the cloud is densest without the individual-point clutter.
 
-- **Color scale matched to data.** Sequential (single hue, varying luminance) for unipolar data. Diverging (two-hue, midpoint at zero) for data with meaningful zero. Categorical color is usually wrong for heatmap intensity (luminance is the magnitude channel).
-- **Cell labels for precise reading.** When exact values matter, add the value as text inside each cell. The chart now uses two channels (color luminance + text) — redundant but more readable.
-- **Sort order.** Rows and columns ordered to reveal structure. Hierarchical clustering, manual ordering by relevance, or numerical sort all work.
+The critical design decision is the color scale type:
 
-The pantry's `heatmap.html` shows a standard form.
+- **Sequential** (single hue, varying luminance from pale to dark): for unipolar data, where zero or near-zero is one end of the meaningful range.
+- **Diverging** (two hues, meeting at a neutral midpoint): for bipolar data, where zero is meaningful — correlations (−1 to +1), temperature anomalies (negative to positive), profit/loss.
 
-### Parallel coordinates
+The most common heatmap error is using a categorical or rainbow color scale for intensity — encoding a magnitude channel with an identity channel. As Chapter 3 established, hue is an identity channel; it distinguishes categories but cannot be ranked. A rainbow-colored heatmap forces the reader to remember which color corresponds to which magnitude, a task that varies by the reader's ability to hold a legend in working memory. Sequential or diverging luminance scales are magnitude channels and communicate intensity directly.
 
-Parallel coordinates show high-dimensional data by drawing parallel vertical axes (one per variable) and connecting each observation as a polyline that crosses all axes at the appropriate values.
+The second design decision is sort order. For categorical axes, the default is often alphabetical or source-file order — usually wrong. Sort rows and columns to reveal structure: by maximum value (which row has the highest intensity overall?), by hierarchical clustering (which rows are most similar to each other?), or by a domain-specific order the reader expects. The heatmap's visual pattern is highly dependent on ordering; the right order makes clusters visible, the wrong order hides them.
 
-When parallel coordinates work:
-
-- 3+ quantitative variables. The form generalizes scatterplots beyond two dimensions.
-- The reader can interactively explore (brushing, axis reordering, filtering). Static parallel coordinates are weaker.
-- Pattern detection across multiple dimensions matters more than precise comparison of any single pair.
-
-Parallel coordinates' fundamental limitation: the visual pattern depends on axis order. Reordering axes can reveal patterns invisible in other orders. For static charts, you choose one axis order; the chart shows what that order makes visible. For interactive charts, the user can explore.
-
-For Claude Code work: parallel coordinates are typically built with brushing interaction. Specify the interaction in the prompt: "include axis brushing — clicking and dragging on an axis filters the lines to show only observations within the brushed range."
+<!-- → [FIGURE: Two heatmaps side by side, same dataset (8 regions × 6 sectors, luminance = adoption rate). Left: alphabetical row and column order — no visible pattern, cells appear random. Right: rows sorted by maximum value (highest-adoption region at top), columns sorted by average value across regions (highest-adoption sector at left) — a bright upper-left cluster is immediately visible, showing that certain high-adoption regions concentrate in specific sectors. Caption: "Same data, two orderings. Left hides the pattern. Right reveals it. Sort order is a design decision, not a default."] -->
 
 ---
 
-## Concept 4 — Connected scatterplots and other extensions
+## Parallel Coordinates: When Dimensions Multiply
 
-A connected scatterplot connects scatterplot points in chronological order with a line. The form shows two quantitative variables co-varying over time.
+A scatterplot encodes two variables. A bubble chart encodes three. What about five variables, or ten?
 
-### When connected scatterplots work
+Parallel coordinates solve this by drawing multiple vertical axes side by side, one per variable, and representing each observation as a polyline that connects its values on all axes simultaneously. A dataset with 200 observations and six variables produces 200 polylines, each crossing all six axes. Observations with similar profiles produce similar-looking lines; divergent observations produce crossing lines.
 
-- Two quantitative variables, both varying over time.
-- The *path* between (x, y) values matters, not just the cloud of points.
-- Examples: GDP vs. CO₂ emissions over time for one country; revenue vs. customer count for one company.
+The form's advantage: it generalizes the scatterplot to any number of dimensions using the highest-accuracy channel (position) on each axis. The reader can see, at once, how all variables relate to each other for a given observation.
 
-### Design rules
+The form's fundamental limitation, named by Tamara Munzner: the visual pattern depends entirely on axis order. A dataset with six axes has 720 possible orderings (6! = 720). Each ordering makes different pairwise relationships visible and hides others. Two adjacent axes show their relationship clearly (the polylines connect them directly); non-adjacent axes show only the indirect relationship mediated by the axes between them.
 
-- **Temporal direction.** Use color luminance (pale-to-dark) along the path to show time direction. Or arrowheads at intervals. Or annotated points at key dates.
-- **Axes.** Both quantitative; standard scatterplot conventions.
-- **Path smoothing.** Usually `d3.curveLinear` (straight segments between points) is right. Smoothing can introduce visual artifacts.
+This limitation is manageable when the chart is interactive — the reader can drag axes, reorder them, brush to filter subsets, and explore the space of orderings. It is severe when the chart is static — one ordering is chosen, and patterns visible in other orderings are invisible.
 
-The form is uncommon but useful. A scatterplot of two variables hides their temporal evolution. A line chart of each variable separately hides the relationship. The connected scatterplot shows both.
+For Claude Code work: specify the axis order in the prompt (name the variables in the order that makes the most important pairwise relationships adjacent) and include axis brushing in the interaction requirements. A static parallel coordinates chart without brushing is often outperformed by a matrix of pairwise scatterplots.
 
-### Other extensions
-
-- **Slope graphs.** Connect two points (before/after) per category. Useful for showing change between two time points across categories.
-- **Marginal histograms.** Add small histograms along the x and y axes of a scatterplot to show univariate distributions in addition to the joint distribution.
-- **Hexbin overlay.** Show the cloud shape as a hexbin grid (color luminance for density) with selected outlier points highlighted on top.
-
-Each extension is a specific solution to a specific limitation of the standard scatterplot. Reach for them when the question demands.
+<!-- → [FIGURE: Two parallel coordinates charts, same dataset (six quantitative variables, 200 observations). Left: original axis order (alphabetical or source-file order) — the polyline patterns look tangled with no clear structure. Right: reordered axes placing the two most correlated variable pairs adjacent — two clear clusters emerge, visible as distinct bands of parallel lines. Annotation between the panels: "Axis order 1 hides the clusters. Axis order 2 reveals them. Same data. 720 possible orderings. This is Munzner's axis-order-dependence problem." Annotation on the right panel: "These two orderings were selected by placing the highest-r pairs adjacent."] -->
 
 ---
 
-## Mid-chapter checkpoint
+## Connected Scatterplots: Time as the Third Dimension
 
-Pick a relationship-chart context from your work. Walk through the form selection: scatterplot (two variables, cloud-shape question), bubble chart (three variables, with size as the third), connected scatterplot (two variables over time, path matters), parallel coordinates (3+ variables, multivariate exploration), heatmap (2D categorical or joint distribution).
+A connected scatterplot is a standard scatterplot with the points connected in temporal order by a line. The form shows two quantitative variables co-varying over time — the path between (x, y) positions is itself the data.
 
-Then identify the failure mode each form is most prone to: overplotting (scatterplot), radius-not-area (bubble chart), axis-order dependence (parallel coordinates), wrong color scale (heatmap). Specify the design that prevents the failure.
+The canonical case: GDP and CO₂ emissions for one country, one point per year from 1970 to 2020. A standard scatterplot shows the cloud of points; a connected scatterplot shows how the country moved through that cloud over time. The path might show a phase where GDP rose with emissions (industrialization), followed by a phase where GDP rose while emissions stabilized (efficiency), followed by a phase where GDP continued rising while emissions declined (decarbonization). None of that trajectory is visible in the cloud without the connecting path.
 
-You should be able to do this in 90 seconds.
+The design decisions are simple:
 
----
+- Time direction must be explicit. Color luminance along the path (pale at early dates, dark at late) encodes time. Arrowheads at intervals reinforce direction. Annotations at key dates label pivotal moments.
+- Smoothing is usually `d3.curveLinear` — straight segments between annual points. Aggressive smoothing introduces visual artifacts.
+- The axes are standard scatterplot conventions: both quantitative, independent variable on x if one exists.
 
-## Extended worked example — building a scatterplot with annotations
-
-Take a dataset: 50 countries with GDP per capita (x), life expectancy (y), and population (third variable). Communication question: what is the relationship between GDP and life expectancy, and which countries deviate from the trend?
-
-### Channel decomposition
-
-- Marks: points (one per country). Size: bubble area encoding population.
-- x-position: GDP per capita (quantitative).
-- y-position: life expectancy (quantitative).
-- Bubble area: population (quantitative). Use `d3.scaleSqrt` for area-proportional sizing.
-- Color hue: continent (categorical, identity channel).
-- OLS trend line (with optional confidence band).
-- Annotations: Pearson r; correlation-is-not-causation caveat; named outliers.
-
-### The four-move prompt
-
-```
-**Show what I have:**
-50 countries. Each row: country (string), gdp_per_capita (number, USD),
-life_expectancy (number, years), population (number, millions),
-continent (string, 6 values).
-
-Sample:
-  USA, 65000, 78.9, 331, North America
-  Norway, 75000, 82.4, 5.4, Europe
-  Bangladesh, 1700, 72.6, 165, Asia
-  ...
-
-**Say what I want:**
-Bubble scatterplot in D3 v7. Single self-contained HTML file with
-inline CSS and inline D3 (loaded via CDN). Responsive to window resize.
-
-**Constrain it:**
-- Marks: circles, one per country.
-- x-position: gdp_per_capita (quantitative, range 0 to 80000, log scale
-  recommended given the wide GDP range).
-- y-position: life_expectancy (quantitative, range 50 to 90).
-- Bubble area: population (quantitative). USE d3.scaleSqrt for radius
-  (NOT linear scaling). The bubble's visual AREA must be proportional
-  to population, not the radius. Stevens' power law applies.
-- Color hue: continent (categorical, identity channel). Use 6 distinct
-  hues.
-- Alpha transparency: 0.7 (some overlap is acceptable; full opacity
-  obscures clusters).
-- OLS trend line: through (gdp, life_expectancy). Display the slope
-  and Pearson r near the line.
-- Annotations:
-  - Top-right corner: "Correlation is not causation. Education and
-    life expectancy are associated; the causal relationship is not
-    established by this chart."
-  - Outliers (3+ standard deviations from trend): label by country name.
-- x-axis: log scale, ticks at 1000, 5000, 10000, 50000.
-- y-axis: linear, ticks at 60, 70, 80, 90.
-- Legend: continent colors, top-right.
-- Margins: top 80, right 240 (legend), bottom 60, left 80.
-- Dark mode support.
-
-**Verify:**
-Restate the channel decomposition. Then write D3 v7 code with comments
-showing which line implements which channel. Confirm that the bubble
-size uses d3.scaleSqrt (NOT linear). List any decisions not specified.
-```
-
-### Audit
-
-The standard Evergreen/Emery checks plus:
-
-- Bubble size uses `d3.scaleSqrt` (verify in the code).
-- Correlation-is-not-causation annotation is present and visible.
-- Trend line is OLS (or specified alternative).
-- Pearson r is annotated.
-- Overplotting is mitigated (alpha transparency in the constraints).
-
-The most common Claude Code failure on this prompt: linear scaling of bubble radius despite the explicit instruction. The follow-up prompt: "The bubble radius is scaled linearly with population. This produces visual area scaling as population squared, which is a Stevens' power law violation (Chapter 1). Replace `d3.scaleLinear` with `d3.scaleSqrt` for the radius scale. The bubble's visual area should be proportional to population, not its radius."
+The form is uncommon enough that it requires a brief orientation for unfamiliar readers. A caption note — "Each point is one year; the line shows the path in order" — prevents the reader from interpreting the line as a trend across the scatterplot rather than a time path through it.
 
 ---
 
-## Chapter summary
+## Cairo's Frame Applied Precisely
 
-You can now do four things you could not do before this chapter.
+Every chapter has mentioned Cairo's ethical frame. This chapter is where it is most specific.
 
-You can build a scatterplot with appropriate design decisions — OLS trend line, Pearson r annotation, correlation-is-not-causation caveat, overplotting mitigation strategy.
+The correlation-is-not-causation problem is structural to the scatterplot. The visual force of a tight cloud around an upward-sloping trend line, with r = 0.79 annotated, is persuasive. The reader's default inference is directional: x leads to y, or y follows from x. The chart did not claim this. The chart showed association. But the visual grammar of the scatterplot — independent variable on x, dependent on y, upward-sloping line — mimics the grammar of causation.
 
-You can build a bubble chart that encodes the third variable as area (using `d3.scaleSqrt` for the radius scale), avoiding the Stevens' power law radius-not-area trap.
+Cairo's frame: when the chart's visual force exceeds its empirical claim, the designer has a professional responsibility to close the gap. Not by weakening the chart. Not by hiding the correlation. By annotating explicitly what the chart shows and what it does not.
 
-You can build a heatmap with appropriate color scale (sequential for unipolar; diverging for bipolar), and a parallel coordinates chart with awareness of the axis-order dependence problem.
+The annotation belongs in the chart as text, not in a caption below it or a footnote at the bottom of the report. The reader who looks at the chart must see the caveat in the same visual field as the chart that invites the inference. A footnote does not discharge the responsibility. A methods section does not discharge it. The annotation does.
 
-You can apply Cairo's frame to relationship charts: the correlation-is-not-causation annotation is not optional aesthetic — it is a professional responsibility. Omitting it when the chart's visual force invites the causal inference is a moral failure in Cairo's reading.
-
-The thing to watch for, going forward, is the temptation to skip the annotation. A "clean" scatterplot without the caveat looks tidier; it also lies by omission. The caveat is the small text that prevents the over-reading the chart would otherwise produce.
+For Claude Code prompts, specify this annotation explicitly: "Add a text annotation in a visible callout box: 'Correlation does not imply causation. These variables are associated; the causal mechanism is not established by this chart.' Position the annotation inside the chart area, near the trend line." Without explicit specification, Claude Code will not add it. And without the annotation, the chart invites an inference the data does not support.
 
 ---
 
-## Key terms
+## How This Changes the Prompt
 
-- **Scatterplot.** Two-quantitative-variable chart with point marks at (x, y) coordinates.
-- **Bubble chart.** Scatterplot extended with a third variable encoded as point size.
-- **Connected scatterplot.** Scatterplot with points connected in time order.
-- **Heatmap.** 2D grid with color luminance encoding intensity per cell.
-- **Parallel coordinates.** Multi-axis chart for 3+ quantitative variables; observations as polylines.
-- **Stevens' power law (area perception).** Perceived area scales as area^0.7. Applies to bubble chart sizing.
-- **`d3.scaleSqrt`.** D3 scale function that produces area-proportional bubble radii.
-- **Overplotting.** When point density obscures cloud shape. Mitigated by alpha, jittering, or 2D binning.
-- **OLS trend line.** Ordinary Least Squares regression line through scatterplot points.
-- **Correlation-is-not-causation annotation.** Cairo-class ethical requirement on charts showing strong correlation without explicit causal disambiguation.
+Every form in this chapter has a specific specification that must appear in the "Constrain it" block.
+
+**Scatterplots:** overplotting strategy named (alpha, jitter, or hexbin); OLS trend line requested; Pearson r annotation requested; correlation-is-not-causation annotation text provided verbatim.
+
+**Bubble charts:** `d3.scaleSqrt` specified explicitly for the radius scale; the word "area" in the size description ("bubble area encodes population"); "NOT d3.scaleLinear" if necessary to prevent the default error.
+
+**Heatmaps:** color scale type named (sequential or diverging); sort order specified (alphabetical, by maximum, by clustering); cell labels requested if exact values matter; color-blind-safe palette specified.
+
+**Parallel coordinates:** axis order named (most important pairwise relationships adjacent); brushing interaction specified; tooltip on hover for individual observation values.
+
+**Connected scatterplots:** time direction encoding named (color luminance along path, or arrowheads); annotation note explaining "each point is one [time unit]"; key dates annotated.
+
+The chapter's content — the perceptual mechanisms, the failure modes, the ethical requirements — becomes the "Constrain it" block. The prompt does not re-derive the mechanism; it specifies the consequence of the mechanism. "Use d3.scaleSqrt" is the consequence of Stevens' power law. "Add the correlation-is-not-causation annotation" is the consequence of Cairo's frame. The Chapter 3 vocabulary produces the specification.
 
 ---
 
-## Discussion questions
+## The Feynman Test
 
-1. The correlation-is-not-causation annotation is widely repeated as an exhortation. Cairo's frame makes it stronger: omitting it is a moral failure. Where does the moral language land for you, and where does it overreach?
-2. Bubble charts encode three variables. The compounding perceptual loads (Stevens' power law on area; cognitive load of three channels) make them harder than scatterplots. When do they earn their cost?
-3. Parallel coordinates are powerful when interactive and weaker when static. What does this say about how to choose static vs. interactive forms in your professional context?
-4. Heatmaps use color luminance for magnitude — sixth on Cleveland & McGill's accuracy ranking. What do they offer that compensates for the channel-accuracy cost?
-5. *Cross-chapter synthesis.* Chapter 9 (part-to-whole) and Chapter 12 (spatial) both encounter area-as-channel. Frame the unified principle that connects them across chapters.
+The test for this chapter: next time you see a scatterplot with a strong correlation, ask three questions.
+
+First: is there an explicit annotation distinguishing the correlation from a causal claim? If not, the chart has failed its reader by omission, regardless of how well it is otherwise built.
+
+Second: if the chart is a bubble chart, is the size encoding radius-proportional or area-proportional? Scale by the fourth or fifth data point on the size axis. Is the large bubble visually 4× the small one, or 2×? Radius encoding produces 4×; area encoding produces 2×. The difference is visible.
+
+Third: is the overplotting handled? If the chart has more than a few hundred points and the cloud is a solid mass, the cloud shape is hidden. The form is not doing its job.
+
+If you can answer all three in thirty seconds, you know the chapter. The perceptual mechanisms — Stevens' law, the channel hierarchy, the structure of the visual authority a chart carries — are now in your diagnostic vocabulary. The ethical obligation — the annotation that closes the gap between what the chart shows and what it invites the reader to infer — is in your professional vocabulary.
+
+The scatterplot is the most honest form in this book, in the sense that its channels are the most accurate ones available. It is also among the most morally demanding, because the inference it invites is the most tempting one in data analysis. Correlation is not causation. The chart must say so.
 
 ---
 
@@ -323,121 +192,138 @@ The thing to watch for, going forward, is the temptation to skip the annotation.
 
 ### Warm-up
 
-**Exercise 8.1** — *Form selection.* For each, name the right relationship form:
-- Two variables across 200 observations, focus on cloud shape.
-- Two variables across 50,000 observations.
-- Three variables, the third varying continuously across observations.
-- Five quantitative variables across 100 observations.
-- Two categorical variables with intensity values.
+**Exercise 10.1 — Form selection.** For each of the following, name the right relationship form (scatterplot, bubble chart, connected scatterplot, heatmap, or parallel coordinates) and justify the choice in one sentence:
 
-**Exercise 8.2** — *Bubble-chart audit.* Find a published bubble chart. Does the bubble area or radius encode the third variable? If radius, specify the redesign.
+- Two quantitative variables across 200 country observations; the question is cloud shape and trend.
+- Two quantitative variables across 80,000 individual transactions; the question is where density concentrates.
+- Three quantitative variables per country; one is population and is the "weight" of each observation.
+- Five quantitative variables across 100 hospitals; the question is multivariate profile comparison.
+- Two categorical variables (8 regions × 6 sectors) with a numeric intensity value per cell.
 
-**Exercise 8.3** — *Causation diagnosis.* Find a published scatterplot showing strong correlation. Does it include the correlation-is-not-causation caveat? If not, write the caveat that should be added.
+**Exercise 10.2 — Bubble-chart audit.** Find a published bubble chart. (a) Determine whether it encodes the third variable by radius or by area — scale two points whose ratio you can estimate and see whether the visual ratio matches the radius ratio or the area ratio. (b) If it uses radius encoding, calculate the three-number problem: what the data ratio is, what the area ratio is, and what Stevens' law predicts the perceived ratio to be (use exponent 0.7). (c) Specify the redesign.
+
+**Exercise 10.3 — Causation diagnosis.** Find three published scatterplots with trend lines. For each: (a) does it carry an explicit correlation-is-not-causation annotation? (b) Does the axis convention (independent variable on x) match the directional inference the reader would naturally form? (c) If the annotation is absent, write the one-sentence caveat that should be added, placed inside the chart area near the trend line.
 
 ### Application
 
-**Exercise 8.4** — *Build a scatterplot with Claude Code.* Take a real two-variable dataset. Build with OLS, Pearson r, alpha transparency, causation caveat. Audit.
+**Exercise 10.4 — Build a scatterplot with Claude Code.** Take a real two-variable dataset. Write the four-move prompt specifying: OLS trend line, Pearson r annotation, overplotting mitigation (alpha, jitter, or hexbin — choose based on sample size and data type), and the correlation-is-not-causation annotation verbatim. Run, audit, iterate to publishable.
 
-**Exercise 8.5** — *Overplotting experiment.* Take a dense scatterplot dataset. Build it three ways: alpha transparency, jittering, 2D hexbin. Compare. Choose the right strategy for your context.
+**Exercise 10.5 — Overplotting experiment.** Take a scatterplot dataset with at least 5,000 points. Build it three ways with Claude Code: full opacity, alpha transparency at 0.15, and hexagonal 2D binning. Compare what each reveals and hides. Identify a specific observation (an outlier, a cluster, a gap) that is visible in one version and not in another.
 
-**Exercise 8.6** — *Heatmap from a correlation matrix.* Take a multi-variable dataset. Compute the correlation matrix. Build a heatmap of it with diverging color scale (zero at midpoint).
+**Exercise 10.6 — Heatmap design.** Take a dataset with two categorical variables and an intensity value per combination (e.g., regions × sectors, countries × years). Determine whether the color scale should be sequential or diverging by checking whether zero is a meaningful midpoint. Build the heatmap with Claude Code, specifying sort order (not alphabetical — sort by row maximum or by clustering). Audit the color scale choice.
 
 ### Synthesis
 
-**Exercise 8.7** — *Connected scatterplot.* Take a two-variable dataset that varies over time (a country's GDP and CO₂ emissions over decades; a company's revenue and employee count over years). Build a connected scatterplot. Compare to two separate line charts.
+**Exercise 10.7 — Connected scatterplot.** Take a two-variable dataset that varies over time (GDP and CO₂ emissions by decade, revenue and employee count by year). Build it as both a connected scatterplot and as two separate line charts. Compare: what does the connected form reveal about the relationship that the two line charts hide? What does the trajectory shape tell you that a static cloud does not?
 
-**Exercise 8.8** — *Parallel coordinates with brushing.* Take a multi-variable dataset (5+ variables). Build parallel coordinates with axis brushing. Test whether reordering axes reveals different patterns.
+**Exercise 10.8 — Parallel coordinates with axis order.** Take a dataset with five or more quantitative variables. Build parallel coordinates with Claude Code. Then reorder the axes to place a different variable pair adjacent — rebuild. Compare the two orderings. Name at least one pattern visible in the second ordering that was hidden in the first. This is Munzner's axis-order-dependence problem made concrete.
 
 ### Challenge
 
-**Exercise 8.9** — *Cairo audit on a published chart.* Find a published correlation chart that you suspect makes a stronger causal claim than the data supports. Write the redesign that respects the data while preserving the chart's information.
+**Exercise 10.9 — Cairo audit on a published chart.** Find a published correlation chart — in a news article, academic paper, or corporate report — where you suspect the visual force exceeds the empirical claim. Apply Cairo's frame: what causal inference does the chart invite? Is that inference supported by the data the chart shows? Write the redesign, including the annotation text and its position, that closes the gap between what the chart shows and what it claims.
 
-**Exercise 8.10** — *Marginal histograms.* Build a scatterplot with marginal histograms along the x and y axes. Use Claude Code. Compare to the bare scatterplot.
+**Exercise 10.10 — Marginal histograms.** Build a scatterplot with marginal histograms along both the x and y axes using Claude Code. The marginal histograms show the univariate distribution of each variable in addition to the bivariate relationship. Compare to the bare scatterplot: what does knowing each variable's individual distribution add to your interpretation of the joint distribution?
 
 ---
 
-## LLM Exercise — Chapter 8: Relationship Charts
+## Key Terms
+
+**Scatterplot.** Two-quantitative-variable chart with point marks at (x, y). Channels: x-position and y-position (both highest accuracy).
+
+**Bubble chart.** Scatterplot extended with a third variable as point size. The size channel encodes magnitude via area perception.
+
+**`d3.scaleSqrt`.** D3 scale function that maps values to radii producing area-proportional bubbles. The correct encoding for bubble charts.
+
+**Connected scatterplot.** Scatterplot with points connected in time order. Shows trajectory through two-variable space over time.
+
+**Heatmap.** 2D grid with color luminance encoding intensity per cell. Color scale must match data bipolarity: sequential or diverging.
+
+**Parallel coordinates.** Multi-axis chart for 3+ quantitative variables; observations as polylines. Pattern depends on axis order.
+
+**Overplotting.** When point density obscures cloud shape. Mitigated by alpha transparency, jittering, or 2D hexagonal binning.
+
+**OLS trend line.** Ordinary Least Squares regression line through scatterplot points. Summarizes linear association.
+
+**Correlation-is-not-causation annotation.** Cairo-class ethical requirement. Required on any chart showing strong correlation, inside the chart area, visible to any reader who sees the chart.
+
+**Stevens' power law (area perception).** Perceived area scales as area^0.7. Applies to bubble chart sizing. Radius encoding compounds this with a squared distortion; area encoding does not.
+
+---
+
+## LLM Exercise — Chapter 10: Relationship Charts
 
 **Project:** [TBD — selected after Chapter 00]
+
+**What you're building this chapter:** A relationship chart with explicit form selection and an audit document that confirms the correlation-is-not-causation annotation, the overplotting mitigation strategy, and — for bubble charts — the area-not-radius encoding.
+
+**Tool:** Claude Code (for the build) + Claude chat (for the audit and iteration).
+
+---
 
 **The Prompt (audit + build):**
 
 ```
 I have a relationship dataset of [DESCRIBE: variables, types, sample
 size, what each variable represents]. The communication goal is
-[DESCRIBE].
+[DESCRIBE: what the reader needs to know in 5 seconds].
 
-Walk me through:
-1. Confirm the family is relationship/correlation.
-2. Choose the form (scatterplot / bubble / connected scatter / parallel
-   coordinates / heatmap).
-3. For bubble charts, confirm area-not-radius encoding (Stevens' power
-   law). For heatmaps, choose appropriate color scale type.
-4. Specify channels per Chapter 1.
-5. Specify the correlation-is-not-causation annotation explicitly
-   (Cairo's ethical frame).
-6. Write four-move Claude Code prompt.
+Walk me through the relationship-chart design:
 
-Audit using Evergreen/Emery + relationship-specific (overplotting
-mitigation, area-not-radius, causation caveat).
-```
+1. Confirm the family is relationship/correlation. If the question is
+   distribution (how values spread) or composition (how parts sum to
+   a whole), flag the mismatch.
 
-**Connection to previous chapters:** Chapter 1 (Stevens' power law for bubble sizing), Chapter 2 (selection — relationship category), Chapter 3 (audit), Chapter 4 (workflow). Chapter 14 will revisit the design audit including ethical annotation requirements.
+2. Choose the form: scatterplot, bubble chart, connected scatterplot,
+   heatmap, or parallel coordinates. Justify the choice using:
+   - Number of variables (2 for scatterplot; 3 for bubble; 3+ for
+     parallel coordinates or heatmap).
+   - Whether time is a structuring variable (connected scatterplot).
+   - Whether the data is categorical × categorical (heatmap matrix).
+   - Sample size (large n pushes toward alpha, hexbin, or heatmap).
 
-**Preview of next chapter:** Chapter 9 covers part-to-whole — pies, donuts, waffles, Marimekko, Nightingale rose. Where Chapter 8 used position for two variables, Chapter 9 will use angle (pies) or area (treemaps) for proportions, with the corresponding perceptual costs.
+3. For bubble charts, confirm area-not-radius encoding. Name the
+   D3 scale function: d3.scaleSqrt, not d3.scaleLinear.
 
----
+4. For heatmaps, name the color scale type (sequential or diverging)
+   and the sort order for rows and columns.
 
-## Visual suggestions
+5. Specify channels using Chapter 3's framework.
 
-This chapter is about relationship and correlation charts. Each chart family it discusses has a Part II reference; the focal figure here is the chapter's central worked example.
+6. Specify the correlation-is-not-causation annotation explicitly.
+   Provide the exact text of the annotation and its position in the
+   chart. This is Cairo's ethical requirement — it is not optional.
 
-Part II references for relationship charts: [Scatterplot](36-scatterplot.md), [Bubble Chart](24-bubble-chart.md), [Parallel Coordinates](50-parallel-coordinates.md), [Heatmap](39-heatmap.md), [Parallel Sets](51-parallel-sets.md), [Connection Map](31-connection-map.md). Each Part II chapter has its own prompt.
+7. Specify the overplotting mitigation (alpha, jitter, hexbin) if
+   sample size is large.
 
-### Figure 8.1 — The HAI scatterplot with correlation-not-causation annotation
+8. Write a four-move Claude Code prompt that produces the chart.
 
-The chapter's central worked example. A scatterplot of GDP per capita vs. AI capability index, with an OLS regression line and an explicit annotation naming the correlation-is-not-causation moral requirement. The chart makes Cairo's ethical frame literal: a scatterplot with no caveat is a chart that fails its reader.
-
-See [Scatterplot](36-scatterplot.md) and [Bubble Chart](24-bubble-chart.md) in Part II for the canonical references.
-
-```
-Generate a scatterplot in D3 v7 with a correlation-coefficient readout and a moral-disclaimer annotation. Two files:
-
-1. `chapter-08-fig-01.html` — full HTML with inline CSS and inline D3 v7. A scatterplot with OLS trend line, Pearson r live readout, and a prominent annotation. Page subtitle: "Correlation, with the moral disclaimer Cairo requires."
-
-2. `chapter-08-fig-01/data.json` — the dataset.
-
-Data shape:
-- 50 countries with two attributes.
-  - `country`: string
-  - `gdp`: number — GDP per capita
-  - `capability`: number — AI capability index
-
-{DATA NEEDED} — World Bank GDP per capita + an AI capability index by country (Stanford AI Index, ITU AI Readiness, or similar). 50 countries spanning the income range.
-
-Encoding:
-- x-position: GDP per capita (log scale).
-- y-position: AI capability index (linear).
-- OLS regression line with shaded 95% confidence band.
-- Pearson r computed and displayed in a small readout box.
-- Annotation in a prominent box: "This chart shows that GDP and AI capability are correlated. It does not show that GDP causes AI capability or vice versa. Likely confounders: educational infrastructure, internet penetration, research investment, government policy. A causal claim requires evidence this chart cannot provide."
-
-Style: warm monochrome — black, dark walnut, blood-red accents. The disclaimer box is in walnut, not buried.
-
-Provide both files as separate code blocks.
+After Claude Code returns, audit using the Evergreen/Emery subset plus
+relationship-specific checks: area-not-radius encoding confirmed in
+code (look for d3.scaleSqrt), causation annotation present and visible,
+overplotting addressed, color scale appropriate for heatmaps.
 ```
 
 ---
 
-## Further reading
+**What this produces:** Audit document plus working relationship chart. Save as `chapter-10-relationship-audit.md` and `chapter-10-relationship.html`.
 
-- **Cairo, Alberto. (2019).** *How Charts Lie.* Chapter 2 develops the correlation-is-not-causation framing.
-- **Stevens, S. S. (1957).** "On the Psychophysical Law." *Psychological Review.* The power-law mechanism behind area perception.
-- **Munzner, Tamara. (2014).** *Visualization Analysis and Design.* Section on parallel coordinates.
-- **The book's pantry** — `scatterplot.html`, `bubble-chart.html`, `heatmap.html`.
+**How to adapt this prompt:**
+- *For your own dataset:* Replace the description and communication goal.
+- *For ChatGPT / Gemini:* Works as-is.
+- *For a Claude Project:* Save the relationship-chart framework as system context.
+- *For Cowork:* Use Cowork to read the data file directly.
+
+**Connection to previous chapters:** Builds on Chapter 3 (Stevens' power law for bubble sizing; channel hierarchy for scatterplot axis assignment), Chapter 4 (chart selection — confirming the relationship/correlation family), Chapter 5 (the Claude Code four-move prompt applied to relationship specifics). Cairo's ethical frame is introduced in Chapter 4; this chapter applies it most precisely.
+
+**Preview of next chapter:** Chapter 11 covers part-to-whole charts — pies, donuts, waffles, treemaps, Marimekko. Where this chapter used position for two variables, Chapter 11 uses angle (pies) or area (treemaps) for proportions, with the corresponding perceptual costs and the five-category pie limit.
 
 ---
 
-## Tags
+## Further Reading
 
-relationship-charts, scatterplot, bubble-chart, connected-scatter, parallel-coordinates, heatmap, OLS, Pearson-r, Stevens-power-law, area-not-radius, correlation-is-not-causation, Cairo, Munzner, overplotting, alpha-transparency, hexbin, D3, Claude-Code
+- **Cairo, Alberto. (2019).** *How Charts Lie: Getting Smarter About Visual Information.* Chapter 2 develops the correlation-is-not-causation framing with the Catalan independence poll case and others.
+- **Stevens, S. S. (1957).** "On the Psychophysical Law." *Psychological Review* 64(3). The power-law mechanism behind area perception — the direct grounding for the bubble-chart area-not-radius rule.
+- **Munzner, Tamara. (2014).** *Visualization Analysis and Design.* CRC Press. The section on parallel coordinates and the axis-order-dependence problem.
+- **Cleveland, William S., and Robert McGill. (1984).** "Graphical Perception." *Journal of the American Statistical Association* 79(387). The accuracy ranking that puts position-along-common-scale at the top — the foundation for why scatterplots use both axes as position channels.
+- **The book's pantry** — `scatterplot.html`, `bubble-chart.html`, `heatmap.html` for working examples of each form.
