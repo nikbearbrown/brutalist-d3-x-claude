@@ -1,481 +1,196 @@
-# Chapter 15 — Building a Complete Project
+# Chapter 17 — Building a Complete Project
 *From Raw Data to Published Chart in One Pipeline.*
 
-## Three suggested titles
+---
 
-- Building a Complete Project: From Raw Data to Published Output
-- The MBTA Process Model Applied End-to-End
-- The Final Exam: A Visualization Project from Scratch
+Here is the thing Feynman said at the end of a course: if you have been paying attention, you should now be able to figure out things you were never explicitly taught. The test is not whether you can repeat back what was covered. The test is whether the framework has become part of how you think — whether you can pick up a new problem, identify what kind of problem it is, and work your way to a solution without consulting a recipe.
+
+This chapter is that test.
+
+Everything you need is already in the book. Chapter 3 taught you to read a dataset before you draw anything. Chapter 4 taught you that the chart follows the question, not the data. Chapter 3 taught you that the chart type is a channel choice and the channel choice has perceptual consequences. Chapter 5 taught you to use Claude Code as an executor, not a designer. Chapters 6 through 14 taught you the chart families and their specific failure modes. Chapter 15 taught you to audit the output before calling it publishable.
+
+What this chapter does is run all of that together, in sequence, on a real project. Not a tutorial. Not a hypothetical. A complete pipeline: raw dataset, three communication questions, three charts, a published artifact. The pipeline has five phases. Each phase is the output of chapters you have already read.
+
+The dataset is UNHCR forced displacement figures, 2020 to 2024. The audience is public-policy readers who make decisions about where to focus humanitarian aid. The question is: what does the data actually say, and how do you show it?
+
+<!-- → [FIGURE: The five-phase pipeline as a horizontal flow diagram. Five labeled boxes: Phase A (Audit) → Phase B (Schema) → Phase C (Generate) → Phase D (Verify) → Phase E (Handoff). Each box contains two lines: what the phase produces (e.g., "Three framed questions + data audit") and what chapters it draws from (e.g., "Chapters 3 and 4"). Arrows between boxes. A sixth element at the end: "Published artifact." Above the flow, a label: "The MBTA model: start with the question; iterate on working code; publish with provenance." Caption: "Each phase is the output of chapters you have already read. This chapter runs them in sequence."] -->
 
 ---
 
-## Chapter overview
+## Why a Project Is Different From a Chart
 
-By the end of this chapter you will have built a complete D3 visualization project from raw dataset to published output, walking the entire pipeline this book has taught: data audit (Chapter 3), chart selection (Chapter 2), channel decomposition (Chapter 1), Claude Code workflow (Chapter 4), chart-family-specific design rules (Chapters 5–13), and design audit (Chapter 14). The chapter is structured around the MBTA project model (Barry & Card, 2014): start with the question, prototype on working code, iterate to publishable. The project is the test the book asks you to pass.
+A single chart has one question and one answer. A project has several related questions, a shared visual language, a publication context, and a paper trail of decisions that lets someone else — or future you — understand why each choice was made.
 
----
+The difference is not scale. A project with three charts is still a project. The difference is that a project makes the relationship between the charts explicit. Chart 1 establishes context; Chart 2 answers the primary question; Chart 3 shows a dimension of the question Chart 2 couldn't. The charts are not independent; they are a sequence.
 
-## Learning objectives
+A project also requires the infrastructure that a single chart does not: the `CLAUDE.md` that holds the project's coding standards so you do not re-specify them in every prompt, the `DESIGN.md` that holds the visual language so every chart looks like it belongs to the same publication, the `PROJECT.md` that records every decision so the project is reproducible, legible to a collaborator, and auditable after the fact.
 
-1. **(Create)** Given a raw dataset, produce a complete visualization following the MBTA project process model: define the communication question → prototype multiple forms → select and build with Claude Code → apply the Chapter 14 audit → iterate → publish.
-2. **(Evaluate)** Assess the final output against the communication question identified at the start and specify any gap between the chart and the question it was supposed to answer — applying Cairo's "the purpose of the graphic is to answer the question" criterion.
+The MBTA project — the transit visualization Mike Barry and Brian Card built as their master's thesis — is the model because their reflection on it is the most candid account of how a real visualization project actually goes. Their three questions guided everything. Their lesson — nothing beat iterating on working code — names what changed when the implementation barrier fell.
 
----
-
-## Opening case — the MBTA project's three guiding questions
-
-Mike Barry and Brian Card began their MBTA visualization project with three questions:
-
-1. "When and where are the trains crowded or delayed?"
-2. "How do snowstorms affect the system?"
-3. "How congested is my route?"
-
-Every design decision in the project traces back to one of these questions. Where the data didn't support a question, they reframed. Where multiple chart types could have answered a question, they prototyped to compare. Where the prototype revealed something the question hadn't anticipated, they updated the question.
-
-This is the model. The project starts with the question, not the data. The data audit (Chapter 3) follows the question, not the other way around. The chart selection (Chapter 2) follows the audit. The build (Chapter 4) follows the selection. Each step builds on the previous. Skipping any one of them produces work that breaks at later steps.
-
-This chapter walks the model end-to-end on a humanitarian data project. The dataset is real (UNHCR forced displacement figures); the questions are reader-focused; the workflow follows everything Part I and Part II of this book have taught. By the end, you will have produced a complete visualization project that you could publish — and you will have a `PROJECT.md` documenting every decision.
+The lesson applies more forcefully now than it did in 2014. When producing a working chart from a specification took a day, the decision about what to iterate first was expensive. When it takes twelve seconds, the iteration is nearly free. The right move is to get a working chart in front of you as fast as possible and let the artifact tell you what needs to change.
 
 ---
 
-## Theoretical grounding — the MBTA process model, Cairo's "purpose answers question," the full Brutalist phase model
+## Phase A: The Question Precedes the Data
 
-This chapter applies the entire framework of the book.
+The MBTA team began with three questions. This is not a workflow choice. It is the only sequence that produces a coherent project.
 
-**The MBTA process model (Barry & Card, 2014).** From their published reflection: "Mockups and prototypes helped us formulate ideas, but nothing beat iterating on working code." The full process, generalized:
+If you start with the data, you will produce charts that show whatever the data makes easy to show. The chart will be technically accurate and communicatively inert — a mirror of the data's structure, not an answer to a question anyone has. The reader will look at it and not know what to do with it.
 
-1. Define the communication questions before touching data or charts.
-2. Explore the data to find what it actually supports.
-3. Prototype multiple forms — "nothing beats iterating on working code."
-4. Select the form that answers the reader's question most directly.
-5. Build with Claude Code, iterate.
-6. Apply the design audit (Chapter 14).
-7. Publish with annotations.
+For the forced displacement project, the three questions are:
 
-**Cairo's "the purpose of the graphic is to answer the question."** The design's success criterion is whether the chart answers the question identified at the start. A chart that is technically clean, perceptually accurate, well-annotated, and visually polished — but which doesn't answer the communication question — is a failed chart. The design audit (Chapter 14) tests for technical and perceptual quality; the project's final evaluation tests for whether the question is answered.
-
-**The full Brutalist phase model.** This chapter is the first chapter that walks all five phases together:
-
-- **Phase A — AUDIT.** Data audit (Chapter 3). What types are present? What relationships does the data support? What is the analyst's question vs. the reader's question?
-- **Phase B — SCHEMA.** Define `CLAUDE.md` (the project's coding constitution), `DESIGN.md` (the project's visual constitution — palette, typography, spacing, dark-mode behavior, responsive breakpoints), and `PROJECT.md` (the project state). All three populated before generation. The `CLAUDE.md`/`DESIGN.md` split, introduced in Chapter 00, exists because the LLM instruction budget cannot reliably hold both coding and visual rules in a single file. Sessions that do not involve visual decisions load only `CLAUDE.md`; sessions that do load both.
-- **Phase C — GENERATE.** Claude Code produces the visualization. One chart at a time. Each chart's prompt follows the four-move structure (Chapter 4).
-- **Phase D — VERIFY.** Run the chart. Apply the Chapter 14 audit. Iterate to publishable.
-- **Phase E — HANDOFF.** Publish with annotations, accessibility metadata, source documentation, methodology notes.
-
-The book's preceding 14 chapters were the inputs to this chapter. Chapter 15 is the integration.
-
----
-
-## Concept 1 — Phase A: defining the questions and reading the data
-
-The project starts with the question, not the data.
-
-### The chosen project: humanitarian forced displacement, 2020–2024
-
-The dataset: UNHCR forced displacement figures by country, 2020–2024. Each row: country of origin, country of asylum (or internal displacement), year, count. The dataset has roughly 5,000 rows.
-
-### Step 1.1 — Frame the questions
-
-Before opening the data, write the communication questions. Three reader-focused questions for a public-policy audience:
-
-1. "Which countries of origin are producing the most refugees? How has this changed across 2020-2024?"
-2. "Which countries are receiving the most refugees? Where are people going?"
-3. "What proportion of forced displacement is internal (within country) vs. international (across borders)?"
-
-These are the MBTA-style questions: specific, audience-focused, answerable by visualization. Each will produce a chart (or set of charts).
-
-### Step 1.2 — Apply the Chapter 3 data audit
-
-For each question, walk the audit:
-
-- **Data types:** Country of origin (categorical, 100+ countries). Country of asylum (categorical). Year (temporal). Count (quantitative). Type of displacement (categorical: refugee, asylum-seeker, internally displaced).
-- **Analyst's question vs. reader's question:** The dataset suggests many analyst questions (where do refugees flow? what countries are stable as origins? what is the temporal trajectory?). The three reader-focused questions above narrow the analyst space.
-- **"Compared with what?":** Q1 compares countries to each other across years. Q2 compares destination countries. Q3 compares two categories (internal vs. international).
-- **Relationships supported:** comparison (countries on a quantitative scale), change over time (year axis), part-to-whole (international vs. internal), spatial (origin and destination geography), flow (origin → destination).
-
-Each question maps to a different chart family.
-
-### Step 1.3 — Identify gaps
-
-The data does not directly answer "which routes are most used by refugees?" — origin-destination pair counts are present, but the chart family (flow map, Chapter 12) requires geographic projection. The dataset doesn't contain geographic coordinates; we'd need to join with a country-coordinates lookup. The honest move: acknowledge the gap and proceed with the three questions above.
-
-This is the Phase A output. It defines the project scope.
-
----
-
-## Concept 2 — Phase B: schema (`CLAUDE.md`, `DESIGN.md`, and `PROJECT.md`)
-
-Before generating any charts, build the project's three schema files: `CLAUDE.md` (coding constitution, loads every session), `DESIGN.md` (visual constitution, loads when visual decisions are in scope), and `PROJECT.md` (project state, the per-project audit document). Chapter 00 explains why `CLAUDE.md` and `DESIGN.md` are separate files — the LLM instruction budget cannot reliably hold both coding and visual rules in a single document. This chapter applies that separation to a real project.
-
-### `CLAUDE.md` — the project's coding constitution
-
-`CLAUDE.md` loads at the start of every Claude Code session in this project. It contains coding rules — D3 version, file structure, encoding requirements, accessibility implementation, the chart-family-specific rules that govern *how the code gets written*. Visual rules (palette, typography, responsive behavior) live in `DESIGN.md` and load only when the session involves visual decisions.
-
-```markdown
-# CLAUDE.md — Forced Displacement Visualization Project
-
-## D3 version
-- D3 v7. No mixing with v6 or earlier.
-- CDN: https://cdn.jsdelivr.net/npm/d3@7
-
-## File structure
-- One self-contained HTML file per chart.
-- Inline CSS (component scoped).
-- Inline D3 (script tag).
-- One companion JSON file per chart at `{slug}/data.json`.
-
-## Required encoding rules
-- Bar charts: zero baseline non-negotiable.
-- Bubble charts: d3.scaleSqrt for radius (area-not-radius — Stevens' law).
-- Choropleths: d3.geoEqualEarth or d3.geoAlbersUsa (equal-area projection).
-- Sankey diagrams: d3.sankey() with sankeyJustify alignment.
-
-## Naming conventions
-- SVG IDs: chart-{type}-{n} pattern.
-- CSS classes: BEM-light (.chart, .chart__bar, .chart__bar--highlighted).
-
-## Accessibility
-- Every SVG: role="img", aria-label.
-- Every encoded element: <title> child for screen-reader.
-- Keyboard focus on interactive elements.
-- Color-blind safety: verify with simulator before publishing.
-
-## Four-move prompt template
-Every chart prompt follows show / say / constrain / verify (Chapter 00).
-
-## Forbidden without explicit instruction
-- Do not modify existing charts in this project.
-- Do not substitute one chart type for another (e.g., bar → pie).
-- Do not invent encoding decisions; specify them in the prompt.
-```
-
-### `DESIGN.md` — the project's visual constitution
-
-`DESIGN.md` loads when a session involves visual decisions. It contains palette, typography, spacing, dark-mode behavior, and responsive breakpoints — the rules that govern *how the result looks*. Sessions about scales, joins, transitions, axis ticks do not load this file; loading it on every session would consume ~50 instruction slots on rules that don't apply.
-
-```markdown
-# DESIGN.md — Forced Displacement Visualization Project
-
-## Color palette
-- Primary: #8B0000 (dark red, accent for emphasis)
-- Secondary: #6B6B5E (mid gray, default)
-- Light: #9B957F (pale tan, low values)
-- Background light: #FFFFFF
-- Background dark: #0D0D0D
-
-## Sequential color scale
-- d3.scaleSequential with d3.interpolateRgb from "#9B957F" to "#8B0000"
-
-## Categorical color scale
-- d3.scaleOrdinal with #8B0000, #5C3317, #6B6B5E, #4A4A4A, #9B957F
-
-## Typography
-- Family: 'Inter', -apple-system, sans-serif
-- Title: 16px regular
-- Subtitle: 12px regular, fill #9B957F
-- Axis labels: 11px regular
-- Annotations: 11px regular
-
-## Spacing scale (8px base)
-- 0, 4, 8, 16, 24, 32, 48, 64, 96
-- Default chart margins: top 60, right 40, bottom 60, left 60
-
-## Dark mode
-- prefers-color-scheme media query.
-- Light/dark palette pair maintained for every chart.
-- Walnut accents stay visible in both modes; cream becomes near-black.
-
-## Responsive
-- Window resize triggers redraw.
-- Mobile breakpoint at 600px (consider mobile-specific layout).
-- Below 400px: drop legend, increase tooltip use.
-
-## Component rules
-- Cards: 1px border, no shadow, 0 corner radius.
-- Axis: tick density adapts to viewport width.
-- Annotations: leader lines walnut at 0.75 stroke-width.
-```
-
-### `PROJECT.md` — the project state
-
-```markdown
-# PROJECT.md — Forced Displacement Visualization Project
-
-## Designer layer
-
-### Communication questions
-
-1. Which countries of origin are producing the most refugees? How has
-   this changed across 2020-2024?
+1. Which countries of origin are producing the most refugees, and how has this changed across 2020 to 2024?
 2. Which countries are receiving the most refugees?
-3. What proportion of forced displacement is internal vs. international?
+3. What proportion of forced displacement is internal — within the same country — versus international?
 
-### Audience
+These questions are reader-focused. They are specific enough to be answerable by a single chart or small set of charts. They build: Question 1 establishes the source-country picture, Question 2 adds the destination picture, Question 3 adds the compositional dimension. Together they give a public-policy reader what they need to decide where to focus attention.
 
-Public-policy readers (think tank, government, journalism). High but
-not specialized graphicacy. Decisions about where to focus aid efforts
-or where to advocate for refugee protection.
+The data audit follows from the questions, not the other way around. The UNHCR dataset has roughly 5,000 rows: country of origin, country of asylum or displacement, year, type of displacement (refugee, asylum-seeker, internally displaced person), count. The data types are categorical (country names), temporal (year), and quantitative (count). The relationships the data supports are comparison, change over time, part-to-whole, and spatial. Each question maps to one of these relationships.
 
-### Tone
+The data audit also identifies limits. The dataset has origin-destination pair counts, which could support a flow map. But a flow map requires geographic coordinates, which means joining with a country-coordinates lookup that the raw UNHCR file doesn't contain. The honest move is to note this gap, scope the project to the three questions the data directly supports, and document the limitation in the project record.
 
-Informational, with explicit acknowledgment of uncertainty in some
-counts. Not advocacy.
+This is Phase A. It produces: three framed questions, a data audit, and a list of what the data can and cannot support. Nothing is drawn yet.
 
-### Constraints
-
-- No specific chart type can be assumed. Choose based on what answers
-  each question.
-- Each chart should stand alone (the project may publish each
-  separately).
-- Sequence the charts to build context: country origin → destination
-  → composition.
-
-## Technical layer
-
-### Dataset
-
-UNHCR forced displacement figures, 2020-2024. Source: UNHCR Global
-Trends report. ~5,000 rows. Columns: country_of_origin, country_of_asylum,
-year, type (refugee/asylum-seeker/internally-displaced), count.
-
-### Generation log
-
-[Updated as charts are built.]
-```
-
-The `PROJECT.md` is now ready for Phase C.
+<!-- → [FIGURE: The Phase A deliverable visualized as a structured document. Three panels: (1) "Three questions" — the three reader-focused questions listed as labeled cards, each with the audience named and the decision it informs. (2) "Data audit" — a column-type classification of the UNHCR dataset: country_of_origin (categorical), country_of_asylum (categorical), year (temporal), type (categorical), count (quantitative). Each column type mapped to a color-coded badge. (3) "Gaps identified" — one item: "Origin-destination flow map requires country coordinates not in the dataset." Caption: "Phase A produces documentation, not charts. The questions, the audit, and the gaps — in writing — before anything is drawn."] -->
 
 ---
 
-## Concept 3 — Phase C: generating the charts
+## Phase B: The Schema Before the Chart
 
-Walk through generating each of the three charts.
+Phase B builds the infrastructure the project needs before any chart is generated. Three files: `CLAUDE.md`, `DESIGN.md`, and `PROJECT.md`.
 
-### Chart 1: Top countries of origin, change over time
+### The split between CLAUDE.md and DESIGN.md
 
-**Question:** Which countries of origin are producing the most refugees? How has this changed across 2020-2024?
+This split was introduced in Chapter 00 and matters more in a project than in a single-chart session. The reason is the instruction budget: Claude Code's context window can hold only so many constraints reliably. Loading everything into one file — D3 version, palette, typography, responsive breakpoints, naming conventions, accessibility requirements — produces a file long enough that Claude Code will begin silently dropping constraints from the bottom of the list.
 
-**Selection:** Comparison + change over time. Two natural forms:
-- *Bar chart with trend lines* (sparkline-style) per country.
-- *Multi-series line chart* with the top 10 countries as lines.
-- *Heatmap* with countries on y-axis, years on x-axis, color encoding count.
+The split disciplines this. `CLAUDE.md` holds coding rules that apply to every session regardless of what is being built: D3 version, file structure, naming conventions, encoding requirements (zero baseline for bars, `d3.scaleSqrt` for bubbles, equal-area projection for choropleths), accessibility implementation. These are the rules that Claude Code might violate if not reminded, and they apply to every chart in the project.
 
-The reader-focused choice: the question implies ranking *and* trajectory. A bar chart of cumulative 2020-2024 totals shows ranking; line chart shows trajectory; heatmap shows both. Build the heatmap first.
+`DESIGN.md` holds visual rules that apply only when visual decisions are being made: the color palette with hex values, the typography, the spacing scale, the dark-mode inversion, the responsive breakpoints. These rules are not needed when the session is about joins, scales, or transitions. Loading them on every session wastes roughly fifty instruction slots on rules that have no effect on the session's output.
 
-**Channel decomposition:**
-- Marks: rectangles (cells in a heatmap grid).
-- y-position: country (categorical, sorted by 2024 count descending).
-- x-position: year (temporal, 2020-2024).
-- Color luminance: count (sequential pale-to-dark).
+The practical rule: if the session involves any visual decision — "should this line be this color?" or "what margin should I use?" — load both files. If the session is purely about data processing, scale construction, or layout logic, load only `CLAUDE.md`.
 
-**Claude Code prompt:**
+<!-- → [FIGURE: A session-loading decision diagram. Two columns: left "Every session" (always load CLAUDE.md), right "Visual-decision sessions only" (additionally load DESIGN.md). The left column lists: D3 version, encoding rules (zero baseline, scaleSqrt, equal-area projection), naming conventions, accessibility defaults. The right column lists: color palette, typography, spacing scale, dark-mode rules, responsive breakpoints. A dotted boundary between columns labeled: "The instruction budget split — ~60 lines reliably retained per file; combined loading risks silent constraint-dropping at the bottom of a long file." Caption: "Split the files because Claude Code's instruction budget is finite. Load only what the session needs."] -->
 
-```
-**Show what I have:**
-Refugee counts by country of origin, 2020-2024. Top 15 countries by
-2024 totals. Sample: [paste 15 rows × 5 years].
+### PROJECT.md: the decision record
 
-**Say what I want:**
-Heatmap in D3 v7. Single self-contained HTML file. Responsive.
+`PROJECT.md` has two layers. The designer layer holds the project's intent: the three communication questions, the audience, the tone, the constraints, the publication context. This layer is written before any chart is built and should not change unless the project scope changes.
 
-**Constrain it:**
-- Marks: rectangles (cells).
-- y-position: country (sorted by 2024 count descending).
-- x-position: year (2020 to 2024).
-- Color luminance: count, d3.scaleSequential with d3.interpolateRgb
-  from "#9B957F" to "#8B0000".
-- Cell labels: count (in millions if appropriate; in thousands
-  otherwise).
-- y-axis labels: country names, no rotation.
-- x-axis: years labeled at top.
-- Subtitle: "Refugee Counts by Country of Origin, 2020-2024 (millions)".
-- Legend: color scale at bottom-right.
-- Margins: top 60, right 80, bottom 40, left 200.
-- Dark mode support per CLAUDE.md.
+The technical layer is a living record. It grows through the project: one entry per chart, with the initial prompt, the first output's audit failures, each iteration's follow-up prompt, and the final accepted output. At the end of the project, anyone can read the technical layer and understand exactly what was built, why each choice was made, and what the iteration history looked like.
 
-**Verify:**
-Restate channel decomposition.
-```
+This documentation is not overhead. It is the thing that makes the project reproducible — by a colleague who inherits it, by a client who wants to extend it, by future you who needs to rebuild it on a new dataset.
 
-Iterate per Chapter 4.
+---
 
-### Chart 2: Top destination countries
+## Phase C: Generating the Charts
 
-**Question:** Which countries are receiving the most refugees?
+With the three questions framed and the schema files written, Phase C produces the charts. One chart at a time. Each chart prompt follows the four-move structure. Each chart gets the channel decomposition that the question demands.
 
-**Selection:** Comparison. The reader needs ranking. Bar chart with horizontal orientation (long country names).
+### Chart 1: Where Are Refugees Coming From?
 
-**Channel decomposition:**
-- Marks: rectangles, one per destination country.
-- y-position: country (sorted by 2024 totals descending).
-- x-position from zero baseline: refugee count (quantitative).
+Question 1 asks about both ranking (which countries) and change over time (how has this changed). A heatmap answers both simultaneously: countries on the y-axis, years on the x-axis, color luminance encoding the count. The reader can compare countries to each other (by scanning a row horizontally) and see change over time within one country (by reading across columns left to right).
+
+Channel decomposition:
+- Marks: rectangles (heatmap cells).
+- y-position: country of origin, sorted by total 2020–2024 count descending.
+- x-position: year (2020, 2021, 2022, 2023, 2024).
+- Color luminance: refugee count, sequential pale-to-dark.
+
+The color scale is sequential (single hue, varying luminance) because the data is unipolar — zero is the minimum, there are no negative refugee counts. The scale runs from the project's light palette value to the dark accent. The sort order is by total 2024 count, so the most urgent countries appear at the top.
+
+The Claude Code prompt specifies `CLAUDE.md` and `DESIGN.md`, the heatmap type, the channel decomposition, and the verification request. The first output typically needs one or two iterations: the color domain may auto-fit to the data range instead of starting at zero, or the country labels on the y-axis may overlap when the country list is long. Both are fixable with targeted follow-up prompts.
+
+### Chart 2: Where Are Refugees Going?
+
+Question 2 is a comparison. The reader needs to rank destination countries by incoming refugee count. Horizontal bar chart, sorted descending. This is Chapter 6's canonical form: the highest-accuracy channel for comparison, zero baseline, sort by value, direct labels.
+
+Channel decomposition:
+- Marks: rectangles.
+- y-position: destination country, sorted by count descending.
+- x-position from zero baseline: refugee count.
 - Color luminance: redundant encoding of count.
 
-The Claude Code prompt follows Chapter 5's pattern. Generate, audit, iterate.
+The prompt follows the bar-chart pattern from Chapter 6. Common first-output failures: alphabetical sort (override explicitly), non-zero baseline (prevent with the "zero baseline non-negotiable" specification), unlabeled bars (add direct value labels in the "Constrain it" block).
 
-### Chart 3: Internal vs. international displacement, 2024
+### Chart 3: Internal vs. International
 
-**Question:** What proportion is internal vs. international?
+Question 3 is a part-to-whole question with two categories. Two categories is the easiest part-to-whole: a single stacked bar, or two adjacent bars, or a large-number display. The cleanest form for a two-category proportion is a pair of bars or a normalized stacked bar where the proportions are labeled directly.
 
-**Selection:** Part-to-whole. Two categories. Stacked bar (single bar) is the cleanest form for two-category proportions.
+Channel decomposition:
+- Marks: two rectangles in a single horizontal bar.
+- Length: proportion of total (internal vs. international).
+- Color hue: type identity (two distinct hues from the project palette).
+- Direct labels: percentage values inside each segment.
 
-**Channel decomposition:**
-- Marks: two rectangles in a single bar.
-- x-position: type (internal vs. international).
-- Length-of-segment: count.
-- Color hue: type identity.
+This chart is the simplest of the three; Claude Code typically produces a good first output without iteration. Verify that the two segments sum to 100% and that the color hues match the `DESIGN.md` categorical palette.
 
-Claude Code prompt follows Chapter 9's pattern.
-
----
-
-## Concept 4 — Phase D: applying the Chapter 14 audit
-
-Each chart goes through the 22-point checklist. Failures get follow-up prompts; iterations land at publishable.
-
-For chart 1 (heatmap), common audit failures:
-- Cell labels too small at the deployment size. Fix: increase font, or add only on hover.
-- Color luminance scale doesn't match the dataset's range. Fix: explicit color domain.
-- y-axis country labels overlap. Fix: increase left margin, or filter to top 10 instead of top 15.
-
-For chart 2 (bar chart), common failures match Chapter 5's: zero baseline, sort order, label rotation. Verify each.
-
-For chart 3 (stacked bar), verify the two segments add to the total and the colors match the project palette.
-
-Document the iterations in `PROJECT.md`'s Generation Log.
+<!-- → [FIGURE: Three panels showing the Phase C deliverables side by side. Panel 1: the heatmap of top refugee-origin countries by year (2020–2024), countries on y-axis sorted by total count, years on x-axis, sequential luminance encoding count. Panel 2: the horizontal bar chart of top destination countries, sorted descending, zero baseline, direct value labels. Panel 3: the stacked bar showing internal vs. international proportion with labeled percentage segments. Below each panel: the question it answers (Q1, Q2, Q3), the chart family (heatmap, comparison, part-to-whole), and the primary channel (color luminance, position-from-baseline, length). Caption: "Three questions, three charts, three chart families. The sequence establishes context (Q1), answers the primary question (Q2), and adds a compositional dimension (Q3)."] -->
 
 ---
 
-## Concept 5 — Phase E: handoff
+## Phase D: The Audit
 
-The project is publishable when the audit passes. The handoff includes:
+Every chart goes through the Evergreen/Emery 22-point checklist before it is called publishable. Chapter 15 walks the full checklist. For the three charts in this project, the checklist is applied in order, and every failure gets a targeted follow-up prompt.
 
-### Per chart
+The audit is not a formality. It is the mechanism that finds the things the prompt specification missed. The label that is too small at deployment width. The color that looks fine on a calibrated monitor but fails the color-blind simulation. The legend that is technically present but positioned so far from the chart that the reader has to scan back and forth. These failures are invisible in the specification; they become visible in the rendered chart.
 
-- Final HTML file with inline CSS and D3.
-- Annotation: source ("Source: UNHCR Global Trends 2024").
-- Annotation: methodology note ("Counts are point-in-time totals as of December 31 of each year; some counts include estimates").
-- Annotation: data quality note ("Data quality varies by country; some figures are estimates").
-- Accessibility metadata (ARIA, screen-reader summaries).
+The iteration discipline from Chapter 5 applies here too: one failure at a time, targeted follow-up, structural before stylistic. Fix the wrong color scale type before fixing the font size. Fix the missing sort order before adding the subtitle.
 
-### Project-level
+Document every iteration in `PROJECT.md`'s technical layer. Not because documentation is virtuous but because the log is the institutional memory of the project. When the client asks why the heatmap sorts by 2024 count and not by alphabetical order, the answer is in the log.
 
-- The `PROJECT.md` documenting every decision.
-- The `CLAUDE.md` for any future iteration.
-- A README explaining how to re-run the prompts (and what data is required).
-- License notes (UNHCR data is publicly available; cite per their terms).
-
-### The publication
-
-The three charts can be published as:
-- A single article with all three charts embedded.
-- A dashboard where a user navigates between them.
-- A series of social-media-friendly individual charts.
-
-The choice depends on the publication context. The charts themselves are independent; the project is the integrated set.
+<!-- → [TABLE: A sample PROJECT.md technical layer entry for Chart 1 (the heatmap). Columns: Version, Date, Change, Audit failure addressed. Rows: v1 (first output — color domain auto-fit, y-axis labels overlapping), v2 (color domain set to [0, max]; left margin increased to 200px — two audit failures resolved), v3 (final — all 22 checklist items pass). The table shows the iteration as a structured record, not a narrative. Caption: "The technical layer is not a story. It is a log. The version, the date, the change, and the audit item it fixed. When a colleague inherits the project, this is what they read."] -->
 
 ---
 
-## Mid-chapter checkpoint
+## Phase E: Handoff
 
-Pick a real dataset of your own. Frame three reader-focused questions. Walk through Phase A (data audit) for each. The questions should be specific enough that, once answered, the audience would have something useful.
+A publishable chart is not a published chart. The handoff includes everything the reader needs to trust the chart and know where the data came from.
 
-You should be able to do this in 15 minutes.
+For each chart:
 
----
+- **Source citation:** "Data: UNHCR Refugee Statistics, 2024. Available at: unhcr.org/refugee-statistics." The reader must be able to verify the data.
+- **Methodology note:** "Counts are point-in-time totals as of December 31 of each year. Some counts include UNHCR estimates where national data is unavailable." The reader must know the data's limitations.
+- **Data quality note:** "Data quality varies by country. Some figures are provisional." The reader must know where the data is uncertain.
+- **Accessibility metadata:** ARIA role and label on every SVG, `<title>` and `<desc>` elements, keyboard accessibility for interactive elements, color-contrast verified against WCAG AA.
 
-## Extended worked example — the project as `PROJECT.md` evolves
+The project-level handoff includes the `PROJECT.md` with the full decision record, the `CLAUDE.md` for future iterations, and a README explaining how to re-run the prompts if the data is updated.
 
-Show what the final `PROJECT.md` looks like at the end of the project.
+This last point is more important than it appears. A visualization that cannot be reproduced is a visualization that becomes stale without remedy. The README ensures that when the UNHCR releases 2025 figures, the project can be updated in a day — not rebuilt from scratch.
 
-```markdown
-# PROJECT.md — Forced Displacement Visualization Project
-
-## Designer layer (final)
-
-### Communication questions
-[Same as initial spec.]
-
-### Audience
-[Same as initial spec.]
-
-## Technical layer (updated)
-
-### Generation log
-
-#### Chart 1 — Heatmap of countries of origin
-- Initial prompt: 2024-XX-XX (paste prompt).
-- First output: chart-01-heatmap-v1.html. Audit failures:
-  - Cell labels too small.
-  - Color domain didn't match data range.
-- Iteration 1 (2024-XX-XX): increased font; specified color domain
-  [0, 8000000].
-- Final: chart-01-heatmap-v2.html. All 22 audit items pass.
-
-#### Chart 2 — Bar chart of destination countries
-- Initial prompt: 2024-XX-XX.
-- First output: chart-02-bar-v1.html. Audit failures:
-  - Sort order alphabetical, not by value.
-  - Color was monotone gray (no luminance encoding).
-- Iteration 1 (2024-XX-XX): specified sort order; specified color
-  luminance encoding.
-- Final: chart-02-bar-v2.html. All 22 audit items pass.
-
-#### Chart 3 — Stacked bar of internal vs. international
-- Initial prompt: 2024-XX-XX.
-- First output: chart-03-stack-v1.html. Audit passed on first attempt.
-
-### Files in repository
-
-- charts/chart-01-heatmap.html
-- charts/chart-02-bar.html
-- charts/chart-03-stack.html
-- data/unhcr-2020-2024.csv
-- README.md
-- PROJECT.md (this file)
-- CLAUDE.md
-```
-
-This is what a finished `PROJECT.md` looks like. Every decision documented, every iteration logged, every file findable.
+<!-- → [FIGURE: The Phase E deliverable as a publication-packaged chart. One of the three project charts (the horizontal bar of destination countries) shown inside a publication container: title above, subtitle below, the chart, then a row of three text elements: source citation ("Data: UNHCR Refugee Statistics 2024"), methodology note ("Counts are point-in-time totals as of December 31 of each year"), and accessibility statement ("Alt text and ARIA labels provided; WCAG AA contrast verified"). Below those: a small file-manifest panel showing the project's five deliverable files (chart-01.html, chart-02.html, chart-03.html, CLAUDE.md, PROJECT.md, README.md). Caption: "A published chart is not just the SVG. It is the chart plus the provenance that lets the reader trust it and the README that lets future-you update it."] -->
 
 ---
 
-## Chapter summary
+## Cairo's Final Test
 
-You can now do five things you could not do before this chapter.
+The book has invoked Cairo's ethical frame throughout. This chapter is where it applies most directly to a completed project.
 
-You can produce a complete visualization project end to end, walking the entire pipeline this book has taught: data audit → chart selection → channel decomposition → Claude Code workflow → chart-family-specific design rules → design audit → publication.
+Cairo's criterion: the purpose of the graphic is to answer the question. A chart that is technically clean, perceptually accurate, well-annotated, and visually polished — but which does not answer the communication question it was supposed to answer — is a failed chart. The audit catches technical and perceptual failures. This test catches purpose failures.
 
-You can apply the MBTA project process model to your own work: start with the question, prototype on working code, iterate to publishable, document every decision in `PROJECT.md`.
+For the forced displacement project, the test is concrete. After building all three charts, return to the three communication questions:
 
-You can build the project's `CLAUDE.md` (coding constitution) and `PROJECT.md` (state) and use them as the persistent context that travels with the project.
+1. "Which countries of origin are producing the most refugees, and how has this changed across 2020 to 2024?" — Does the heatmap show a clear ranking and a clear temporal trend? Can a reader name the top three source countries after five seconds?
+2. "Which countries are receiving the most refugees?" — Does the bar chart show a clear ranking with readable values?
+3. "What proportion of forced displacement is internal versus international?" — Does the stacked bar show the split clearly, with labeled proportions?
 
-You can apply Cairo's success criterion at every stage: does this chart answer the communication question? If not, iterate. The chart's purpose is to answer the question; everything else is decoration.
+If the answer to any question is no, the chart hasn't done its job. The audit may have passed. The chart still failed.
 
-You have completed the book. The next thing to do is build a real project of your own.
-
----
-
-## Key terms
-
-- **The MBTA process model.** Question → data audit → prototype → select → build → audit → publish. The full pipeline.
-- **`CLAUDE.md`.** The project's coding constitution. D3 version, palette, accessibility, naming conventions.
-- **`PROJECT.md`.** The project state. Designer layer (intent) + technical layer (state, log).
-- **Phase A — AUDIT.** Data and question audit. Before generating anything.
-- **Phase B — SCHEMA.** `CLAUDE.md` + `PROJECT.md` populated.
-- **Phase C — GENERATE.** Claude Code produces charts.
-- **Phase D — VERIFY.** Charter audit per Chapter 14.
-- **Phase E — HANDOFF.** Publication with annotations and metadata.
+This test is the difference between a visualization project and a collection of charts. The charts serve the questions. The questions serve the audience. The audience is the reason the project exists. Cairo's criterion is not a philosophical position about visualization ethics — it is a practical standard for whether the work is done.
 
 ---
 
-## Discussion questions
+## What Completing This Project Teaches
 
-1. The MBTA project's reflection lesson — "nothing beat iterating on working code" — predates Claude Code. Why does it apply more strongly now?
-2. The book's argument is that the design layer is the hard layer and that Claude Code has dissolved the implementation barrier. Do the three charts you would have built before reading this book differ from the three you would build now?
-3. Cairo's "purpose is to answer the question" criterion is the project's success criterion. What would it look like to fail this criterion while passing the Chapter 14 audit? When does a chart pass technical audit and still fail the question?
-4. The Brutalist phase model (A through E) gives a process. Where in your professional workflow do you currently skip phases? What is the cost?
-5. *Closing the book.* The book's thesis: D3 visualization has been two problems; Claude Code solved one; the design problem remains and is teachable. After working through the book, where does the thesis land for you?
+The book's argument has been that D3 visualization was two problems. The first: implementation. Writing valid D3 code for a specific chart type on a specific dataset took hours; the barrier was technical. The second: design. Knowing what chart to build, which channel to use for which attribute, how to apply the relevant design rules, how to audit the output — these require judgment that cannot be automated.
+
+Claude Code dissolved the first problem. A chart that took a day to implement now takes twelve seconds. The iteration cycle that was expensive is now free. Every design decision can be tested against a working chart rather than imagined against a mockup.
+
+The second problem remains. Claude Code without design judgment produces charts that look like charts and communicate like noise. The familiarity bias that reaches for pie charts because percentages look like pie-chart data. The auto-fit y-axis that makes a 5% change look like a 50% change. The radius-encoded bubble chart that amplifies large values by a factor of four. The Mercator choropleth that makes Canada and Russia dominate regardless of their data values. None of these failures is a code error. They are design errors, and Claude Code cannot detect them without explicit instruction.
+
+This book is the instruction. The channel decomposition from Chapter 3, the chart selection from Chapter 4, the audit from Chapter 15, the form-specific rules from Chapters 6 through 14 — these are the design judgment that Claude Code needs to receive as specification. The book taught you to produce that specification.
+
+Feynman's test was whether you could figure out things you were never explicitly taught. The forced displacement project in this chapter was not taught explicitly — it was assembled from the parts the preceding chapters provided. The test is whether you can do the same with your own dataset, your own questions, your own audience.
+
+Build the project. Document the decisions. Publish the result. That is the course.
 
 ---
 
@@ -483,225 +198,135 @@ You have completed the book. The next thing to do is build a real project of you
 
 ### Warm-up
 
-**Exercise 15.1** — *Frame three questions.* Take a dataset you work with. Frame three reader-focused communication questions following the MBTA model.
+**Exercise 17.1 — Frame three questions.** Take a dataset you work with or have access to. Write three reader-focused communication questions following the MBTA model. Each question should name the audience, the specific thing they need to know, and the decision the answer informs. Test each question: can it be answered by a single chart or small set of charts? If not, narrow it.
 
-**Exercise 15.2** — *Build a CLAUDE.md.* Draft a `CLAUDE.md` for your domain. Include D3 version, palette, accessibility standards, naming conventions.
+**Exercise 17.2 — Build CLAUDE.md.** Draft a `CLAUDE.md` for a project in your domain. Include: D3 version, encoding requirements (list at least four: zero-baseline rule, scaleSqrt for bubbles, equal-area projection for choropleths, and at least one chart-family-specific rule from Chapters 6–14), naming conventions, accessibility defaults. Keep it under 60 lines — short enough that Claude Code retains it reliably.
 
-**Exercise 15.3** — *Phase A audit.* Apply the data audit (Chapter 3) to a project you're considering. Identify gaps.
+**Exercise 17.3 — Phase A gap analysis.** Apply the data audit to the dataset from Exercise 17.1. For each of the three questions, name: the data types involved, the analyst's question vs. the reader's question, the "compared with what?" denominator, and the chart family the question maps to. Then identify at least one gap: a question you'd want to answer that the data cannot directly support, and name what additional data would close the gap.
 
 ### Application
 
-**Exercise 15.4** — *Walk the full pipeline.* Take a real dataset. Walk all five Brutalist phases. Build the project. Document in `PROJECT.md`.
+**Exercise 17.4 — Phase B: schema files.** Write the full designer layer of `PROJECT.md` for the project from Exercise 17.1. Include: the three questions, the audience description (who they are and what decisions they make), the publication context (where this will appear and in what format), and at least two constraints (time, scope, audience graphicacy, etc.). Then write `DESIGN.md` with: a color palette (name the hex values), typography, and the session-loading rule (when do you load DESIGN.md vs. CLAUDE.md only?).
 
-**Exercise 15.5** — *Iteration log.* For one chart in your project, keep a complete iteration log. Note each follow-up prompt and the failure it targeted.
+**Exercise 17.5 — Phase C: generate all three charts.** Walk the full Phase C for the project from Exercise 17.1. For each question: write the channel decomposition, write the four-move Claude Code prompt, run it, apply the Evergreen/Emery five-category subset, and document each iteration in `PROJECT.md`'s technical layer. Submit: three charts, three channel decompositions, one populated PROJECT.md technical layer.
 
-**Exercise 15.6** — *Audit your project.* Apply the 22-point Chapter 14 audit to every chart in your project.
+**Exercise 17.6 — Cairo's purpose test.** After completing Exercise 17.5, return to the three questions from Exercise 17.1. For each chart, apply Cairo's purpose test: can a reader from your target audience answer the question the chart was supposed to answer after five seconds with the chart in front of them? If no, specify the gap between the chart and the question and write the redesign that closes it.
 
 ### Synthesis
 
-**Exercise 15.7** — *Publication preparation.* Take a project you've built. Write the publication-ready annotations (source, methodology, data quality notes, accessibility metadata). Test on a screen reader.
+**Exercise 17.7 — Full project: Phase A through E.** Complete all five phases for the project from Exercise 17.1. Phase A: questions and data audit. Phase B: `CLAUDE.md`, `DESIGN.md`, `PROJECT.md` designer layer. Phase C: three charts, each with prompt and iteration log. Phase D: 22-point audit per chart. Phase E: source citations, methodology notes, data quality notes, accessibility verification, and a README. Submit the full project directory.
 
-**Exercise 15.8** — *Project handoff to a colleague.* Hand your project to a colleague. Watch them try to re-run the prompts and rebuild the charts. Identify what's missing in the handoff documentation.
+**Exercise 17.8 — Handoff test.** Hand your completed project from Exercise 17.7 to a colleague who was not involved in building it. Ask them to: (a) read the three communication questions in `PROJECT.md`, (b) look at the three charts without any explanation from you, and (c) tell you whether each chart answers its question. Where it does not, diagnose whether the failure is a design failure (fixable by iteration) or a question-framing failure (fixable by reframing the question).
 
 ### Challenge
 
-**Exercise 15.9** — *Multi-chart project.* Build a project with 5+ related charts. Apply consistent visual language (same palette, same typography, same chart-family conventions). Document the visual language in `CLAUDE.md`.
+**Exercise 17.9 — Five-chart project.** Build a project with five related charts. The first two establish context; the third and fourth answer the primary questions; the fifth shows an unexpected dimension that the data revealed during the audit. Document in `PROJECT.md` how the fifth chart came to exist — it should be an emergent finding from Phase A or C, not something you planned before looking at the data.
 
-**Exercise 15.10** — *Replicate the MBTA project.* Following Barry & Card's structure, build a small replication of one of the MBTA visualizations (or an analogous transit/transportation system in your area). Walk the full process.
+**Exercise 17.10 — MBTA replication.** Following Barry and Card's structure, identify a transit or transportation system in your area (or any publicly available GTFS/transit dataset). Frame three reader-focused questions equivalent to the MBTA team's three. Build a project — at minimum two charts — that answers them. Compare your process to Barry and Card's published reflection. Where did your process resemble theirs? Where did having Claude Code change the workflow in ways they couldn't have anticipated in 2014?
 
 ---
 
-## LLM Exercise — Chapter 15: The Final Project
+## Key Terms
+
+**MBTA process model.** Question → data audit → prototype → select → build → audit → publish. Start with the question; let the data and the iteration reveal the chart.
+
+**`CLAUDE.md`.** The project's coding constitution. D3 version, encoding requirements, naming conventions, accessibility defaults. Loads every session. Short enough that Claude Code retains it reliably.
+
+**`DESIGN.md`.** The project's visual constitution. Palette, typography, spacing, dark-mode rules, responsive breakpoints. Loads only when visual decisions are in scope.
+
+**`PROJECT.md`.** The project's state document. Designer layer (intent, questions, audience) plus technical layer (generation log, iteration history, file manifest). The institutional memory of the project.
+
+**Phase A — Audit.** Frame the questions. Audit the data. Before generating anything.
+
+**Phase B — Schema.** Populate `CLAUDE.md`, `DESIGN.md`, `PROJECT.md`. Before generating anything.
+
+**Phase C — Generate.** Claude Code produces charts from four-move prompts. One chart at a time.
+
+**Phase D — Verify.** Apply the Evergreen/Emery 22-point audit. Iterate to publishable.
+
+**Phase E — Handoff.** Publish with source citation, methodology note, data quality note, accessibility metadata, and reproduction instructions.
+
+**Cairo's purpose test.** After the audit passes: does the chart answer the communication question it was supposed to answer? The audit catches technical failures; this test catches purpose failures.
+
+---
+
+## LLM Exercise — Chapter 17: The Final Project
+
+**Project:** Your choice — this is the final project of the book.
+
+**What you're building:** A complete visualization project from raw dataset to published output, walking all five phases of the Brutalist pipeline. Three charts minimum. One `CLAUDE.md`. One `PROJECT.md`. One published artifact.
+
+**Tool:** Claude Code (for the build) + Claude chat (for the audit, the schema, and the iteration).
+
+---
+
+**The Prompt (full project):**
 
 ```
-I am working on the final project for Brutalist d3 x Claude.
-The dataset is [DESCRIBE]. The audience is [DESCRIBE].
+I am working on the final project for Brutalist D3 × Claude.
+The dataset is [DESCRIBE: rows, columns, types, source].
+The audience is [DESCRIBE: who they are, what decisions they make].
 
-Walk me through the full Brutalist process:
+Walk me through all five Brutalist phases:
 
-1. Frame three reader-focused communication questions.
-2. Apply the data audit (data types, analyst-vs-reader, "compared with
-   what?", relationships supported).
-3. For each question, recommend a chart type and channel decomposition.
-4. Help me draft the project's CLAUDE.md (D3 version, palette,
-   accessibility, conventions).
-5. For each chart, write a four-move Claude Code prompt.
-6. After each chart is built, walk me through the 22-point audit.
-7. Document the project in PROJECT.md.
+Phase A — Audit:
+1. Help me frame three reader-focused communication questions.
+2. Apply the data audit: data types, analyst-vs-reader question,
+   "compared with what?" for each question, relationships the data
+   supports.
+3. Identify any gaps between the questions and what the data can
+   support.
 
-The output of this exercise is a complete project: three charts, a
-CLAUDE.md, a PROJECT.md, and a publication-ready artifact.
+Phase B — Schema:
+4. Draft a CLAUDE.md for this project. Include: D3 version, encoding
+   requirements (zero baseline, scaleSqrt, projection), naming
+   conventions, accessibility defaults.
+5. Draft a PROJECT.md designer layer: questions, audience, tone,
+   constraints, publication context.
+
+Phase C — Generate:
+6. For each question, recommend a chart type and channel decomposition.
+7. Write a four-move Claude Code prompt for each chart.
+8. After each chart is built, paste the first output (or describe it)
+   and walk through the audit.
+
+Phase D — Verify:
+9. Apply the Evergreen/Emery 22-point checklist to each chart.
+10. For each failure, write the targeted follow-up prompt.
+11. Document each iteration in PROJECT.md's technical layer.
+
+Phase E — Handoff:
+12. Write the source citation, methodology note, and data quality note
+    for each chart.
+13. Verify accessibility metadata in the code.
+14. Write a README explaining how to re-run the project.
+
+Apply Cairo's purpose test at the end: does each chart answer the
+question it was supposed to answer?
+
+The output of this exercise: three charts, CLAUDE.md, DESIGN.md,
+PROJECT.md, README.md, and a publication-ready artifact.
 ```
+
+---
 
 **This is the final exercise of the book.** Doing it is the test the book asks you to pass.
 
----
+**What this produces:** A complete project directory with all five phase deliverables. The directory is proof that you can produce a visualization project from raw data to published output using the framework the book teaches.
 
-## Visual suggestions
+**How to adapt this prompt:**
+- *For your own dataset:* Replace the description. The questions should be reader-focused and answerable by visualization.
+- *For ChatGPT / Gemini:* Works for the audit and schema phases; the chart generation still runs in Claude Code.
+- *For a Claude Project:* Save the Brutalist framework as system context; the per-project phases become the user message.
 
-The figures this chapter discusses, with Claude Code prompts to generate them. The chapter walks the full Brutalist pipeline end-to-end on the UNHCR humanitarian dataset; the focal figures are the deliverables of each phase.
-
-For chart-type references the chapter mentions in passing, see Part II directly: [Heatmap](39-heatmap.md), [Bar Chart](20-bar-chart.md), [Stacked Bar](67-stacked-bar.md), [Sankey Diagram](62-sankey-diagram.md), [Line Graph](43-line-graph.md), [Choropleth](29-choropleth.md), [Bubble Chart](24-bubble-chart.md), [Flow Map](37-flow-map.md). Each Part II chapter has its own prompt.
-
-### Figure 15.1 — Phase A: data audit visualization
-
-The chapter's Phase A deliverable. A summary visualization of the dataset structure: which attributes are categorical, ordered, quantitative, temporal, spatial; which combinations support which chart types. The figure is the channel-decomposition audit document made visible.
-
-```
-Generate a dataset-structure audit visualization in D3 v7. Two files:
-
-1. `chapter-15-fig-01.html` — full HTML with inline CSS and inline D3 v7. A multi-panel layout showing the dataset structure: a small data table preview, a column-type-classification chart, and a chart-type-feasibility matrix. Page subtitle: "Phase A deliverable — what the data has, what it supports."
-
-2. `chapter-15-fig-01/data.json` — the dataset metadata.
-
-Data shape:
-- `columns`: array of `{name, type (categorical|ordered|quantitative|temporal|spatial), n_unique, sample_values}`.
-- `rows_count`: total row count.
-- `chart_feasibility`: matrix of column-pair-to-chart-type viability.
-
-{DATA NEEDED} — The UNHCR refugee statistics dataset (https://www.unhcr.org/refugee-statistics/) or any structured humanitarian dataset with multiple column types. The audit visualization is structural; the specific dataset choice can be adjusted.
-
-Panel 1 — column-type bar chart: counts of categorical / ordered / quantitative / temporal / spatial columns.
-Panel 2 — chart-type-feasibility matrix: rows = column pairs, columns = chart types, cell color = viable (walnut), marginal (light gray), infeasible (white). The reader sees which charts the dataset can support.
-Panel 3 — small preview table: 5 rows × all columns, with type-color borders.
-
-Caption beneath: "The Phase A deliverable is not a pretty chart — it is a documented audit. The reader of this document is the future self designing the chart."
-
-Style: warm monochrome.
-
-Provide both files as separate code blocks.
-```
-
-### Figure 15.2 — Phase B: schema document rendered as a chart
-
-The chapter's Phase B deliverable. The `PROJECT.md` schema document for the worked-example chart, rendered as a structured visualization: chart type, data structure, channel decomposition, design constraints, color palette, sort order, accessibility decisions. The figure makes the schema concrete.
-
-```
-Generate a schema-document visualization in D3 v7. Two files:
-
-1. `chapter-15-fig-02.html` — full HTML with inline CSS and inline D3 v7. A structured layout rendering the PROJECT.md content as labeled panels. Page subtitle: "Phase B deliverable — the schema as the chart's blueprint."
-
-2. `chapter-15-fig-02/data.json` — the schema content.
-
-Data shape:
-- `chart_type`: string.
-- `data_structure`: object describing rows/columns.
-- `channels`: array of `{channel_name, attribute, type, justification}`.
-- `design_constraints`: array of strings.
-- `color_palette`: array of hex codes with usage notes.
-- `accessibility`: array of strings.
-
-{DATA NEEDED} — The PROJECT.md content for whichever chart is being built in the chapter's worked example. If the chapter uses a heatmap of refugee count by origin × destination, the schema is built for that.
-
-Render each schema element as a labeled panel:
-- "Chart type" — large label, brief description.
-- "Data structure" — table of columns with their types.
-- "Channels" — list of channel-attribute mappings with justifications.
-- "Design constraints" — bulleted list.
-- "Color palette" — swatches with usage labels.
-- "Accessibility" — bulleted list.
-
-The figure should look like a one-page reference document, not a decorative chart.
-
-Style: warm monochrome.
-
-Provide both files as separate code blocks.
-```
-
-### Figure 15.3 — Phase C: the final chart deliverable
-
-The chapter's Phase C deliverable — the actual chart the project produces. A heatmap (or whichever chart the worked-example schema specifies) of UNHCR refugee data, rendered to publication standard with all design decisions from Phases A and B applied. The figure is the project's output.
-
-See [Heatmap](39-heatmap.md) in Part II for the canonical reference.
-
-```
-Generate the final project chart in D3 v7 — a heatmap of refugee origin-destination counts. Two files:
-
-1. `chapter-15-fig-03.html` — full HTML with inline CSS and inline D3 v7. A heatmap with origin countries on one axis, destination countries on the other, color luminance encoding count. Responsive on resize. Page subtitle: "Phase C deliverable — the chart Phases A and B specified."
-
-2. `chapter-15-fig-03/data.json` — the dataset.
-
-Data shape:
-- `origin_destinations`: array of `{origin, destination, count}` for the top-N origin-destination pairs.
-
-{DATA NEEDED} — UNHCR refugee statistics, country-of-origin × country-of-asylum top pairs by count. https://www.unhcr.org/refugee-statistics/.
-
-Encoding:
-- Rows: origin countries, sorted by total outflow.
-- Columns: destination countries, sorted by total inflow.
-- Cell color luminance: count (sequential walnut palette).
-- Direct value labels in cells where count exceeds a readability threshold; tooltip otherwise.
-- Subtitle: "Top refugee origin–destination pairs, [year]. Color encodes count."
-
-Apply all design decisions from the chapter's worked-example schema: zero baseline (cell color from light-cream-zero to dark-walnut-max), categorical sort by row/column total, accessible color contrast, direct labels where space permits, alt text for screen readers.
-
-Style: warm monochrome — black, dark walnut, blood-red. Editorial register.
-
-Provide both files as separate code blocks.
-```
-
-### Figure 15.4 — Phase D: the audit checklist applied
-
-The chapter's Phase D deliverable. The Evergreen/Emery 22-point checklist applied to the project's chart, with each item marked pass/fail/partial. The figure makes the verification phase concrete.
-
-```
-Generate a checklist-audit visualization in D3 v7. Two files:
-
-1. `chapter-15-fig-04.html` — full HTML with inline CSS and inline D3 v7. A 22-row checklist with status indicators for each item. Page subtitle: "Phase D deliverable — the 22-point Evergreen/Emery audit applied."
-
-2. `chapter-15-fig-04/data.json` — the audit results.
-
-Data shape:
-- `audit`: array of 22 entries, each `{item_number, item_text, status (pass|fail|partial), notes}`.
-
-{DATA NEEDED} — The Evergreen/Emery checklist itself (published in Stephanie Evergreen's *Effective Data Visualization*; many free summaries online). For the per-item status, the audit is performed by the reader against the chart from Figure 15.3.
-
-Render as a structured checklist:
-- Each row: item number, item text, status indicator (filled circle for pass, half-filled for partial, empty for fail), brief notes.
-- Group items by category (Text, Arrangement, Color, Lines, Overall).
-- Summary at top: "X of 22 pass, Y partial, Z fail."
-
-Style: warm monochrome. The status indicators are the only graphical elements; everything else is text.
-
-Provide both files as separate code blocks.
-```
-
-### Figure 15.5 — Phase E: the published artifact
-
-The chapter's Phase E deliverable. The chart from Figure 15.3, packaged for publication: with caption, source citation, methodology note, accessibility statement, and link to the underlying data. The figure makes the handoff concrete.
-
-```
-Generate the publication-packaged chart in D3 v7. Two files:
-
-1. `chapter-15-fig-05.html` — full HTML with inline CSS and inline D3 v7. The chart from Figure 15.3 wrapped in a publication container with caption, source, methodology, and accessibility statement. Page subtitle: "Phase E deliverable — the chart, packaged for the reader who is not in the room."
-
-2. `chapter-15-fig-05/data.json` — same data as Figure 15.3.
-
-Layout:
-- The chart from Figure 15.3, full width.
-- Title above: "Top refugee origin–destination pairs, [year]."
-- Subtitle below title: a one-sentence claim the chart makes.
-- Caption below the chart: 2–3 sentences explaining what the reader should take away.
-- Source line: "Data: UNHCR Refugee Statistics, [date]. URL: https://www.unhcr.org/refugee-statistics/"
-- Methodology line: "Methodology: Top-N pairs by absolute count. Sort: row and column totals descending. Color: sequential luminance, cream-to-walnut, 5 quantile bins."
-- Accessibility statement: "Alt text and SVG `<title>`/`<desc>` provided. Color contrast meets WCAG AA. Tooltip values readable by screen reader."
-
-Style: warm monochrome. Editorial register, suitable for publication on a humanitarian-organization website or in a print report.
-
-Provide both files as separate code blocks.
-```
+**Connection to previous chapters:** This exercise integrates every chapter in the book. There is no chapter this exercise does not use. That is the point.
 
 ---
 
-## Further reading
+## Further Reading
 
-- **Barry, Mike, and Brian Card. (2014).** "Visualizing MBTA Data." Read the full project report.
-- **Cairo, Alberto. (2016).** *The Truthful Art* and (2019) *How Charts Lie*. The ethical frame from start to finish.
-- **The Brutalist system documentation** (forthcoming or in your own configuration). The architecture this book inherits.
-- **The book's pantry** — the full reference set you have used throughout.
-
----
-
-## Tags
-
-complete-project, MBTA-process-model, Brutalist-phase-model, CLAUDE.md, PROJECT.md, audit, publication, handoff, Cairo-purpose-answers-question, end-to-end-pipeline, D3, Claude-Code
+- **Barry, Mike, and Brian Card. (2014).** "Visualizing MBTA Data." Read the full project report and reflection. The process model this chapter follows is theirs.
+- **Cairo, Alberto. (2016).** *The Truthful Art.* and **(2019)** *How Charts Lie.* The ethical frame that governs the project's success criterion.
+- **Evergreen, Stephanie. (2019).** *Effective Data Visualization.* The 22-point checklist that Phase D applies.
+- **UNHCR Refugee Statistics.** unhcr.org/refugee-statistics. The dataset used in this chapter's worked example. Publicly available, updated annually.
+- **The book's pantry** — the complete reference set you have used throughout. Every pantry file is a Phase C resource.
