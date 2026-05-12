@@ -1,337 +1,209 @@
-# Chapter 2 — Chart Selection as Design Decision
+# Chapter 4 — Chart Selection as Design Decision
 *The Wrong Chart Feels Familiar; the Right One Takes Work.*
 
-## Three suggested titles
+---
 
-- Chart Selection as Design Decision
-- Cairo's Frame: Why Chart Choice Is a Moral Decision
-- The FT Visual Vocabulary as Navigation, Not Law
+Here is a chart that was published in a humanitarian report by a competent, experienced organization. It had a title: "Allocation of Emergency Response Funds, FY2021." It had fourteen slices. Each slice represented one funding category — food security, water and sanitation, shelter, health, protection, education, livelihoods, logistics, coordination, security, communications, transport, monitoring, and a residual "other." The slices ranged from 21% down to under 1%.
+
+I want you to imagine trying to answer one question from that chart: *which three categories received the most funding?*
+
+You cannot do it in under thirty seconds. The five smallest slices compress into indistinguishable slivers along one edge. Two slices at around 4–5% look identical. Three middle slices at 8–12% are also impossible to rank. The chart shows the data. It does not let you read it.
+
+Now imagine the same fourteen categories as a horizontal bar chart, sorted by funding amount, largest at the top. You answer my question in three seconds. Food security is more than twice the next bar. The ranking is unambiguous.
+
+The data is identical. The chart is not. This chapter is about what went wrong in the first version and how you make sure it does not happen in yours.
+
+<!-- → [FIGURE: Two side-by-side panels, identical 14-category humanitarian-funding dataset. Left: 14-slice pie chart with a cramped legend — intentionally hard to read, slivers at the bottom indistinguishable. Right: horizontal bar chart sorted descending, direct bar labels, zero baseline, single-hue palette. Caption: "Same data, two chart types. Left: reader cannot rank the top three categories in under 30 seconds. Right: 3 seconds. The difference is angle (Cleveland & McGill rank 4) vs. length from a common baseline (rank 1)."] -->
 
 ---
 
-## Chapter overview
+## Why the Pie Chart Was Chosen Anyway
 
-By the end of this chapter you will be able to choose the right chart type for a given dataset and communication goal — using a four-step decision framework grounded in Cairo's ethical frame and the FT Visual Vocabulary. You will know the eight functional categories that any chart request resolves to, the perceptual and ethical reasoning that supports the choice, and the failure modes that produce charts which look fine and read wrong. You will leave with the vocabulary to commit to a chart type before any Claude Code prompt is written — turning Chapter 4's workflow into a reliable pipeline rather than a guessing game.
+The fourteen-slice pie chart was not an accident. It was not the product of incompetence or indifference. It was produced by someone who looked at a budget allocation — parts of a whole, summing to 100% — and reached for the chart that *feels* appropriate for parts of a whole. Pie charts. Everyone knows pie charts. Pie charts are what you use when you have percentages.
 
----
+This is familiarity bias. It is the most common failure mode in chart selection, and it is invisible to the person committing it because the choice *feels* justified. Parts of a whole — that's a pie chart, right?
 
-## Learning objectives
+Not necessarily. What matters is not what the data *looks like* structurally. What matters is what the reader needs to *do* with it. The reader of the humanitarian report needed to rank. Which categories got the most? Which got the least? Where did most of the money go? Every one of those is a comparison task. And pie charts encode magnitude as **angle** — the fourth-ranked channel on Cleveland and McGill's accuracy hierarchy, behind position, position-on-non-aligned-scales, and length. For a ranking task, angle is a bad channel. Past five or six slices, the angle differences become too small to perceive reliably. At fourteen slices, you have stopped making a chart and started making a catalog.
 
-1. **(Understand)** Classify any chart request into one of eight functional categories — comparison, change over time, distribution, relationship, part-to-whole, hierarchy, flow, spatial — using the FT Visual Vocabulary as the framework.
-2. **(Apply)** Use Cairo's four-step decision framework (key message → data structure → functional category → specific form) to select a chart type for a specified dataset and communication goal.
-3. **(Evaluate)** Given two candidate chart types for the same data, justify the selection of one over the other using perceptual, historical, and ethical criteria — including Cairo's argument that an ineffective chart choice is a moral failure, not just an aesthetic one.
-4. **(Analyze)** Identify the failure mode in a poorly chosen chart and specify the correct alternative, citing the specific perceptual mechanism the poor choice violates.
+The bar chart encodes magnitude as **length from a common baseline** — the highest-accuracy channel available for quantitative comparison. Same data, different channel, reader can now rank in seconds.
 
----
-
-## Opening case — the 14-slice pie chart from a humanitarian report
-
-A 2022 humanitarian report from a major NGO included a pie chart titled "Allocation of Emergency Response Funds, FY2021." The chart had fourteen slices. Each slice represented one funding category — food security, water and sanitation, shelter, health, protection, education, livelihoods, logistics, coordination, security, communications, transport, monitoring, and a residual "other." The slices ranged from 21% (food security) to under 1% (communications, transport, monitoring).
-
-You can read the chart for thirty seconds and not be able to rank the categories from largest to smallest. The five smallest slices (each under 3%) compress into indistinguishable slivers along one edge. The two next-smallest slices (around 4–5%) look identical. The middle three slices (around 8–12%) are also nearly impossible to rank by angle.
-
-This chart is not a stylistic failure. It is a failure of chart choice. The communication question — "how were the funds allocated, and which categories received the most?" — is a comparison question. The data attribute being shown (funding amount per category) is quantitative. The most important task the chart needs to support is *ranking* — the reader needs to be able to see which categories received the most and which received the least.
-
-Pie charts encode magnitude as **angle**. Angle is fourth in the Cleveland & McGill perceptual ranking (Chapter 1), behind position-along-a-common-scale, position-along-non-aligned-scales, and length. For a comparison-and-ranking task, a chart that uses angle is using one of the worst available channels. Past five or six slices, the angle differences become too small to perceive reliably.
-
-The right chart for the same data is a horizontal bar chart, sorted by funding amount descending. The same fourteen categories, the same percentages, but encoded on **position-from-baseline** — the highest-accuracy magnitude channel. The reader can rank the categories at a glance. Food security at 21% is unambiguously twice the size of shelter at 10.5%. The smallest categories are still small but distinguishable.
-
-The pie chart was not a casual choice. The report was produced by a competent organization with experienced designers. The fourteen-slice pie chart appeared because pie charts are *familiar* — they are what people reach for when they have parts-of-a-whole data and want a chart. Familiarity is not a design criterion. It is a cognitive shortcut that produces predictable failures.
-
-This chapter is about how to make chart choices that are not cognitive shortcuts. The framework is Cairo's four-step decision tree, the navigation tool is the FT Visual Vocabulary, and the criterion at every step is whether the chart honestly answers the communication question. A chart that misleads the reader is not just a bad chart — Cairo's argument is that it is a *moral* failure. The chapter walks the framework and applies the Cairo frame to specific examples.
+The chart type is not a cosmetic choice. It is a channel choice. And channel choices, as Chapter 3 established, have perceptual consequences that are not a matter of opinion.
 
 ---
 
-## Theoretical grounding — Cairo, FT Visual Vocabulary, Friendly's history, Tufte's "show the data"
+## The Eight Categories That Contain Every Chart
 
-This chapter introduces four theoretical sources, each at the moment the reader has a problem the source solves.
+Before you can choose the right chart, you need to know what territory you are choosing from. The Financial Times Visual Vocabulary — a taxonomy the FT's data journalism team developed and has made publicly available — organizes every chart type into eight functional categories. The categories are defined not by what the chart looks like but by what it is trying to *show*.
 
-**Alberto Cairo's ethical frame.** Cairo's argument, set out in *The Truthful Art* (2016) and refined in *How Charts Lie* (2019), is rule-utilitarian. When a designer chooses a chart type that produces a misleading visual reading of the data, the designer has not just made a stylistic mistake. They have impeded the reader's understanding. Choosing an ineffective chart "just because she likes it, while ignoring evidence that may lead her to choose a more appropriate one" is, in Cairo's terms, *morally wrong*. This is not overclaiming. Cairo's argument is careful and specific: the designer has a professional responsibility to the reader, and abdicating that responsibility for aesthetic preference is a moral choice with consequences.
+**Comparison.** How do independent values or categories differ in magnitude? Bar charts, column charts, slope graphs, dot plots. The question is "how do these compare?"
 
-The frame applies throughout this book. It is introduced here because chart selection is the first decision where the designer's choices have the largest moral weight. A poorly executed chart of the right form can usually be fixed with iteration. A well-executed chart of the wrong form has communicated something other than what the data supports — and "fixing" it requires going back to the chart-type choice, not the implementation.
+**Change over time.** How does a value evolve across a continuous temporal dimension? Line charts, area charts, stream graphs, candlesticks. Time on the x-axis; the quantity on the y-axis. The question is "how is this changing?"
 
-**The Financial Times Visual Vocabulary.** The FT's data journalism team produced an internal taxonomy that organizes chart types into eight functional categories: comparison, change over time, distribution, relationship, part-to-whole, hierarchy, flow, spatial. (Some versions split or merge slightly — adding *deviation* as a separate category, or merging *flow* into *spatial*. The eight-category version is the standard.) The vocabulary is a navigation tool: it lets a designer locate the right region of the chart taxonomy before drilling down to a specific form.
+**Distribution.** How are values spread? What is the shape of the distribution — its center, its spread, its skew, its outliers? Histograms, density plots, box plots, violin plots. The question is "what does the full spread of this variable look like?"
 
-The FT Visual Vocabulary is in this book's pantry (`pantry/Visual-vocabulary.txt`). Read it; print it; pin it to a wall. It is the working reference for Chapter 2 and recurs throughout Part II. The vocabulary is *navigation*, not *law*. It tells you where to look. The choice of specific form within a category — which kind of comparison chart, which kind of distribution chart — depends on the perceptual and ethical considerations the rest of this chapter walks.
+**Relationship.** How do two or more variables relate? Scatterplots, bubble charts, heatmaps, parallel coordinates. The question is "are these variables connected, and how?"
 
-**Michael Friendly's history of data visualization.** Every chart type in the standard taxonomy has an origin story. Playfair invented the bar chart and line graph (1786) to argue about British trade policy. Florence Nightingale invented the polar area chart (1858) to argue about preventable deaths in the Crimean War. Charles Joseph Minard invented the flow map (1869) for Napoleon's Russian campaign. John Snow invented the dot map (1854) to find the source of London's cholera outbreak. Baron Charles Dupin invented the choropleth (1826) to map French illiteracy. Ben Shneiderman invented the treemap (1991) to visualize disk usage with nested directories.
+**Part-to-whole.** How do components contribute to a single total? Pie charts, donut charts, waffle charts, treemaps, stacked bars. The question is "what makes up this total?"
 
-Each chart type was a *solution to a specific communication problem*. Knowing the original problem clarifies when the chart works. The choropleth was made for ratio data on bounded geographic units (illiteracy *rate* per French department, not absolute illiterate count). Use it for absolute counts and you produce the area-size distortion that Chapter 12 will name. The bar chart was made for comparison of independent categories (Playfair was comparing trade values across years and regions). Use it for parts of an unrelated whole and you import a comparison frame the data doesn't support.
+**Hierarchy.** How is something organized into nested levels? Treemaps, sunburst diagrams, circle packing, dendrograms. The question is "how is this structured?"
 
-Friendly's history (`pantry/Handbook of Data Visualization 2008 Friendly.txt`) is the comprehensive reference. The point for this chapter: chart selection is intellectual history, not menu navigation. Every chart type carries its origin's design intent forward, and using a chart against its original intent is the most common path to a chart that fails.
+**Flow.** How does something move or transform between states? Sankey diagrams, alluvial diagrams, chord diagrams. The question is "how does this get from A to B?"
 
-**Tufte's basic principle: "show the data."** This is the precondition for any chart-selection question. Before you choose a chart type, the chart has to *show* the underlying data — not summary statistics that hide the distribution, not a visual that obscures the values. Tufte's principle is introduced here because Chapter 5's bar-chart-of-means failure (showing only the mean of a bimodal distribution, hiding the bimodality) is a chart-selection failure: the wrong form was chosen, not just the wrong design within the right form. Tufte's principle returns in Chapter 14 as the foundation of the design audit.
+**Spatial.** Where is something happening? Choropleth maps, dot maps, bubble maps, cartograms. The question is "where?"
 
----
+Eight categories. Sixty-plus chart types distributed across them. The categories are the navigation tool. They take the chart-type space from "any of 60+" to "any of 5–10 within this category."
 
-## Concept 1 — The eight functional categories (FT Visual Vocabulary)
+<!-- → [INFOGRAPHIC: 8-panel grid, one panel per FT Visual Vocabulary functional category. Each panel: category name (large, uppercase), the defining reader question in italics, and 3–4 canonical chart types listed. Layout 4×2 or 2×4. This is the navigation reference the reader will return to throughout the book; it should be clean enough to screenshot or print. Warm monochrome, JetBrains Mono for labels.] -->
 
-The first move in any chart-selection question is to identify the *functional category*. The FT Visual Vocabulary names eight, each defined by what the chart is trying to *show*. A chart request that doesn't fit any category is usually a chart request that hasn't been properly framed yet.
-
-**1. Comparison.** Show how independent values or categories differ in magnitude. Bar charts, column charts, slope graphs, dot plots, radial bars (with reservations from Chapter 5). The defining question: "how do these compare?" The HAI AI capability bar chart (Chapter 5's worked example) is a canonical comparison chart.
-
-**2. Change over time.** Show how a value or set of values evolves across a continuous temporal dimension. Line charts, area charts, stream graphs, Gantt charts, spiral plots, candlesticks. The defining question: "how is this changing?" Time on the x-axis (almost always); the quantitative variable on the y-axis.
-
-**3. Distribution.** Show how values are spread, including frequency, central tendency, and skew. Histograms, density plots (KDE), box and whisker plots, violin plots, stem-and-leaf, strip plots. The defining question: "what does the distribution of this variable look like?"
-
-**4. Relationship (correlation).** Show how two or more variables relate to each other. Scatterplots, bubble charts, parallel coordinates, heatmaps, connected scatterplots. The defining question: "are these variables related, and how?"
-
-**5. Part-to-whole.** Show how components contribute to a single total. Pie charts (with restrictions), donut charts, waffle charts, Marimekko (mosaic) charts, treemaps, stacked bars (single bar with sub-segments). The defining question: "what makes up this total?"
-
-**6. Hierarchy.** Show nested or layered structure. Treemaps, sunburst diagrams, circle packing, dendrograms, tree diagrams, icicle plots. The defining question: "how is this organized into levels?"
-
-**7. Flow.** Show movement, transition, or transformation between states. Sankey diagrams, alluvial diagrams, chord diagrams, arc diagrams, flow maps. The defining question: "how does this move from A to B?"
-
-**8. Spatial.** Show patterns tied to geographic location. Choropleth maps, dot maps, bubble maps, connection maps, flow maps (overlapping with category 7), cartograms. The defining question: "where is this happening?"
-
-Some chart types appear in multiple categories. A flow map is both spatial and flow. A heatmap can be relationship (two categorical variables + intensity) or distribution (a 2D density). The categories overlap because the underlying data sometimes does. The point is not exclusive classification; the point is that locating your dataset in a category narrows the chart-type space from "any of 60+ options" to "any of 5–10 options within this category."
-
-### How to identify the right category
-
-The category is a function of the *communication question*, not of the data alone. The same dataset can support different categories depending on what you are trying to show.
-
-Take a dataset of monthly humanitarian funding across five sectors over three years. The data attributes: month (temporal), sector (categorical), funding amount (quantitative). Three different communication questions, three different categories:
-
-- "How has total monthly funding changed over the three years?" → **change over time**. A line chart of monthly totals.
-- "Which sector received the most funding overall?" → **comparison**. A bar chart of cumulative funding per sector.
-- "How is each year's total split across sectors?" → **part-to-whole**. A stacked bar chart, one bar per year, segmented by sector.
-
-Same data, three categories, three charts. The chart type follows the question, not the table. This is why Chapter 3 (Reading a Dataset) emphasizes formulating the communication question *before* choosing a chart type — and why a dataset arriving without a framed question is the first thing to fix.
-
-> ### ↳ Dig Deeper — The functional categories applied to your domain
->
-> **Prompt:**
->
-> > List five datasets typical of [my domain — e.g., epidemiology, financial analytics, customer behavior, climate science]. For each, identify which of the eight functional categories it most naturally fits. Note any datasets that fit two or three categories — and for those, name the communication question that resolves the choice. Use the FT Visual Vocabulary as the navigation tool.
->
-> **What to do with the output:** Save the mapping. The functional category is the entry point to every later chapter; this exercise builds the muscle memory of locating any dataset in the taxonomy quickly.
+Notice that the categories are defined by the *reader's question*, not by the data's structure. A budget allocation is data with a part-to-whole structure. But if the reader's question is "which category got the most?" — that is a comparison question. The message dominates the structure. This is the error the humanitarian report made: the data *looks* like parts of a whole, so the designer went to part-to-whole, selected pie chart, and called it done. The message was a comparison question. The message should have won.
 
 ---
 
-## Concept 2 — Cairo's four-step decision framework
+## Cairo's Four Steps
 
-Cairo's decision framework moves from the abstract to the concrete in four steps. Each step closes off a class of bad choices. By step 4, the chart type is named.
+Alberto Cairo is a data journalist and visualization researcher whose books — *The Truthful Art* (2016) and *How Charts Lie* (2019) — are the best available treatments of chart selection as an ethical practice. His four-step decision framework is the explicit version of the thinking the FT Visual Vocabulary assumes.
 
-**Step 1: Key message.** What does the reader need to understand in 5 seconds? Write it as a single sentence. "Funding for food security is twice the next-largest category." "Refugee flows from Country X have shifted from Country Y to Country Z over five years." "Hospital admissions cluster in three age groups, not a smooth distribution." If you cannot write this sentence, you do not yet have a chart — you have a dataset and a hope.
+**Step 1: Write the key message.** In one sentence: what does the reader need to understand in five seconds? Not "here is the data." A claim. "Food security received more than twice the funding of the next-largest category." "Refugee flows shifted from eastern to western corridors between 2020 and 2023." "Hospital admissions cluster in two age groups, not the smooth distribution the national average implies."
 
-**Step 2: Data structure.** What kind of data do you have? Categorical, ordinal, quantitative, temporal, geographic. How many variables? How many observations per category? Is there a hierarchy? Is there a flow between states? Step 2 is the descriptive audit Chapter 3 will walk in detail.
+If you cannot write this sentence, you do not yet have a chart. You have a dataset and a hope.
 
-**Step 3: Functional category.** Given the message and the structure, which of the eight functional categories applies? This is the FT Visual Vocabulary lookup. If the message is comparative and the data is categorical with one quantitative variable, the category is comparison. If the message is about composition and the data sums to a meaningful total, the category is part-to-whole. The category narrows the chart space.
+This is the load-bearing step. Every subsequent step follows from it. The reason most chart-selection failures happen is that step 1 was skipped — the designer moved from "I have data" to "I need a chart" without passing through "here is what the chart is for."
 
-**Step 4: Specific form.** Within the category, which specific chart? Comparison gives you bar/column/multiset/stacked/radial. Part-to-whole gives you pie/donut/waffle/treemap/Marimekko. The choice depends on perceptual and design criteria the rest of Part II walks. For chart selection at this stage, the reasonable defaults are:
+**Step 2: Describe the data structure.** What kind of data do you have? How many variables? How many observations per category? Is there a temporal dimension? A geographic dimension? A hierarchy? A before-and-after structure? The data description is not the chart; it is the input to the chart decision.
 
-- Comparison → bar (long labels) or column (short labels), with sort by value.
-- Change over time → line (multi-series) or area (single cumulative measure).
+**Step 3: Locate the category.** Given the message and the structure, which of the eight functional categories does this belong to? If the message is about ranking — comparison. If the message is about change through time — change over time. If the message is about the shape of a distribution — distribution. The FT Visual Vocabulary is the lookup table.
+
+**Step 4: Choose the specific form.** Within the category, which chart? Comparison gives you bar, column, multiset, slope graph, dot plot, radial bar. Part-to-whole gives you pie, donut, waffle, treemap, Marimekko, stacked bar. The specific form depends on the perceptual considerations the rest of this book walks, but the reasonable defaults are:
+
+- Comparison → horizontal bar (long labels) or column chart (short labels), sorted by value.
+- Change over time → line chart (multi-series) or area chart (single cumulative measure).
 - Distribution → histogram (n > 50, single variable) or box plot (cross-group comparison).
-- Relationship → scatterplot (two quantitative variables) or heatmap (two categorical + intensity).
-- Part-to-whole → bar chart (single bar, segmented) or waffle chart (≤5 categories) before pie chart.
+- Relationship → scatterplot (two quantitative variables) or heatmap (two categorical variables and an intensity).
+- Part-to-whole → stacked bar or waffle chart before pie chart, unless the number of segments is two or three.
 - Hierarchy → treemap (regular depth) or circle packing (irregular depth).
-- Flow → Sankey (proportional flow) or chord (inter-entity).
-- Spatial → choropleth (rate/ratio data) or bubble map (absolute values).
+- Flow → Sankey (proportional) or chord (inter-entity).
+- Spatial → choropleth (rate or ratio data) or bubble map (absolute values).
 
-These defaults are not absolute. Specific forms get their full treatment in Chapters 5–13. The point of step 4 at this stage is to land on a candidate; the candidate gets refined through the design considerations of the relevant chapter.
+These defaults are not laws. Part II of this book applies the framework to each chart family in detail. The point of step 4 here is to *name a candidate* — something to build and test. Named candidates are revisable. "I don't know, just make something" produces whatever the software defaults to, which is often wrong for reasons that take a chapter to undo.
 
-### Worked example — the humanitarian funding dataset
-
-Apply the four steps to the opening case.
-
-**Step 1 — Key message.** "Of the fourteen funding categories, food security received the largest share at 21%, more than twice the next-largest category."
-
-**Step 2 — Data structure.** Categorical variable (funding category, 14 values, no inherent order). Quantitative variable (funding amount, 0–100% as percentage). One observation per category.
-
-**Step 3 — Functional category.** The data sums to 100% (it's a budget allocation). The natural category is part-to-whole. *But:* the message is comparative — the reader needs to rank categories by size. When part-to-whole and comparison overlap in the message, the comparison structure dominates if ranking is what the reader needs to do. The de facto category is **comparison**.
-
-**Step 4 — Specific form.** Comparison + 14 categories + long-ish labels (8–17 characters) → horizontal bar chart, sorted by funding amount descending. The bar lengths use position-from-baseline (the highest-accuracy channel). The 14 categories fit comfortably as horizontal bars. Adding the percentage values as annotations supports precise reading where the bar length doesn't (the smallest categories are visible but their exact values matter).
-
-The pie chart in the original report fails at step 3 — the message dominates over the part-to-whole frame, and the comparison structure should have led to a bar chart. Cairo's frame applies: the pie chart was chosen for familiarity, not for the message. The choice impeded the reader's understanding. The choice was, in Cairo's terms, morally wrong.
-
-> ### ↳ Dig Deeper — Apply Cairo's four steps to a chart you produced
->
-> **Prompt:**
->
-> > Take a chart I produced recently and walk it backward through Cairo's four-step decision framework. Did I have a key message? Did I read my data structure? Did I correctly identify the functional category? Did I choose the right specific form within it? Where my chart fails one of these steps, name the failure and specify the redesign. Apply the Cairo ethical frame: was my choice driven by the message, by familiarity, or by the software's defaults?
->
-> **What to do with the output:** Save the audit. The pattern reapplies to every chart you produce.
+<!-- → [FIGURE: Cairo's four-step framework as a left-to-right flow diagram. Four labeled boxes: (1) Key Message → single sentence, (2) Data Structure → attribute types and counts, (3) Functional Category → FT Visual Vocabulary lookup, (4) Specific Form → chart type named. Arrows between boxes; decision branches shown at step 3 (one branch per category) converging into step 4 defaults. Annotate the humanitarian-funding example's path through the diagram in blood-red so the reader sees the worked case.] -->
 
 ---
 
-## Concept 3 — Common chart-selection failures
+## The Mechanism Behind Each Chart Type
 
-Three failure modes recur in chart selection. Each fails one of Cairo's four steps. Each has a specific corrective.
+Every chart type in the standard taxonomy has an origin story. The bar chart was invented by William Playfair in 1786 to argue about British trade deficits with specific countries. The line chart was Playfair too — he needed to show how trade values *changed over time*, which required a different form than cross-sectional comparison. Florence Nightingale invented the polar area chart in 1858 to argue about preventable deaths in the Crimean War; she needed the seasonal pattern to be preattentively obvious, and she accepted a perceptual distortion to make the argument visible. John Snow invented the dot map in 1854 to find the source of London's cholera outbreak. Benjamin Shneiderman invented the treemap in 1991 to visualize nested directory structures on a constrained screen.
 
-### Familiarity bias
+Each chart type is a solution to a specific communication problem. Knowing the original problem clarifies when the chart works and — more important — when it does not.
 
-The designer reaches for the chart they always use, regardless of whether it fits the question. Pie charts because pie charts are familiar. Bar charts because bar charts work. Line charts because line charts are what the dashboard tool offers.
+<!-- → [INFOGRAPHIC: Horizontal timeline of chart-type inventions, 1786 to 1991. Entries: Playfair bar chart (1786, "trade deficits by country"), Playfair line chart (1786, "trade values over time"), Dupin choropleth (1826, "illiteracy rate per department"), Snow dot map (1854, "cholera deaths by address"), Nightingale polar area (1858, "preventable deaths by month"), Minard flow map (1869, "army depletion on the march"), Shneiderman treemap (1991, "disk usage in nested directories"). Each entry: chart name, inventor, year, and one-phrase original problem. Caption: "Every chart type is an answer to a question. The question clarifies when the chart works."] -->
 
-The corrective is step 3: locate the dataset in the FT Visual Vocabulary. The familiar chart is sometimes still right — but if it is right, it is right because it fits the category, not because it is familiar. The 14-slice pie chart from the opening case is the familiarity-bias failure: pie charts are part-to-whole, but the message dominates and the right form is comparison.
+The choropleth was invented to show *rates* per bounded geographic unit. Charles Dupin's 1826 map of French illiteracy used shading per department to show the *rate* of illiteracy, not the absolute count. Use the choropleth for absolute counts and you produce the area-size distortion: large geographic units look dark even when their rates are low, because they contain more area, not more incidence. Chapter 12 names this failure explicitly. The mechanism is already latent in the origin: the chart was designed for rates.
 
-### Aesthetic-first choice
+The bar chart was designed for comparison of independent categories. Use it for parts of an unrelated whole and you import a comparison frame the data does not support. Use a bar chart to show quarterly budget allocation across departments and the reader will compare departments to each other — which may or may not be what the chart is for. The question "compared with what?" applies: is the comparison departments-to-each-other, or departments-to-their-own-target, or departments-to-last-year? Each is a different chart.
 
-The designer reaches for the chart that looks impressive — radial bars instead of linear, 3D perspective instead of flat, animated transitions instead of static. The aesthetic choice has nothing to do with whether the chart answers the question.
+Cairo calls "compared with what?" a mandatory check before any chart is finalized. The phrase is borrowed from social science — Stanley Lieberson used it to argue that causal claims without counterfactuals are incomplete — and applied to visual design. Every quantitative claim a chart makes must be set against a reference that gives the claim meaning. "Food security received 21% of the total" compared with: the other thirteen categories (within-chart comparison), last year's allocation (temporal comparison), the international standard for emergency response (benchmark comparison). Each of these is a different message and, sometimes, a different chart.
 
-The corrective is step 1: write the key message. If the chart cannot serve the message because the aesthetic obscures the data, the aesthetic is wrong. Tufte's "show the data" principle applies: any visual element that does not serve the data is by default a candidate for removal. (This is the strict reading. Few's resolution from Chapter 5 — that embellishments which support the message can earn their place — applies; the test is whether the aesthetic *serves* or *obscures*.)
-
-### Software-default choice
-
-The designer accepts whatever the charting tool produces by default. PowerPoint's default chart, the Excel SmartArt template, the Tableau auto-suggestion, the BI dashboard template. Each of these has implicit choices baked in (truncated y-axes for emphasis, gradient fills for visual interest, default rainbow palettes for categorical encoding) that a real chart-selection process would override.
-
-The corrective is to override the defaults consciously. The four-step framework is the override discipline. Do the steps before the chart is built; the chart will then differ from the default in specific, defensible ways.
-
-### Cairo's ethical frame applied
-
-Each failure mode has an ethical dimension in Cairo's reading. The familiarity-bias designer impedes understanding because they did not engage with the message. The aesthetic-first designer impedes understanding because they prioritized their preferences over the reader's needs. The software-default designer impedes understanding because they did not exercise judgment.
-
-Cairo's frame is not "every bad chart is morally wrong." It is "when a designer chooses an ineffective chart while a more appropriate one is available, the choice is morally significant." The book adopts this frame. It does not produce moral panic about every imperfect chart. It produces *responsibility* — the designer's professional obligation to the reader is to make the chart-choice that the message and data support.
-
-> ### ↳ Dig Deeper — When familiarity is right
->
-> **Prompt:**
->
-> > Argue both sides of the question: when is reaching for a familiar chart type (bar chart, line chart, pie chart) the right choice, and when is it the failure mode of familiarity bias? Cite Cairo's frame on both sides. Identify two or three contexts in which familiarity is the *correct* design criterion (audience graphicacy, time pressure, established convention) and the perceptual cost is worth paying.
->
-> **What to do with the output:** Save the analysis. The chartjunk debate (Chapter 14) will revisit the same trade-off in design-element terms.
+The "compared with what?" check forces the designer to name the comparison the chart actually makes. A chart that fails the check makes a claim without a reference and produces a meaningless reading. The failure is invisible when you are building the chart because you know the context. It becomes visible the moment a reader who lacks your context looks at the chart and asks: "so what?"
 
 ---
 
-## Concept 4 — The "compared with what?" check
+## The Three Failure Modes
 
-Cairo introduced "compared with what?" as a mandatory check before any chart is finalized. The phrase is borrowed from social science (Stanley Lieberson) and from W. Edwards Deming (the question every quality-control analyst should ask). For chart design, it means: every quantitative claim a chart makes must be set against a reference — explicit or implicit — that gives the claim meaning.
+Three patterns produce most chart-selection failures. They are worth naming because naming them makes them recognizable.
 
-A bar chart of "Q4 revenue per region" makes a quantitative claim about each region. *Compared with what?* The other regions, comparing them to each other (within-chart comparison). Q3 revenue (year-on-quarter comparison). The same quarter last year (year-on-year comparison). The annual target (target comparison). Each of these is a different chart, because each is a different "compared with what" answer.
+**Familiarity bias.** The designer reaches for the chart they always use, or the chart that *feels* right for the data's structure. Pie charts for percentages. Bar charts for comparisons. Line charts for anything with time in it. The choice feels justified because the chart type is not wrong in a category sense — but the specific form within the category is not the best fit for the message.
 
-The check forces the designer to name the comparison the chart actually makes. A chart that fails the check makes a claim without a reference and produces a meaningless reading.
+The corrective is step 1. Write the key message. Then ask: is the chart I am reaching for the one that best communicates this message, or is it the one I would have used regardless of the message? If the answer is "regardless," step 3 has been skipped.
 
-### Common failures of "compared with what?"
+**Aesthetic-first selection.** The designer reaches for the chart that looks impressive. Radial bars instead of horizontal bars. A circular pack instead of a treemap. A 3D surface instead of a heatmap. Animated transitions where static would do. The aesthetic choice is made before the message is written, which means the chart will serve the designer's eye before it serves the reader's need.
 
-**Absolute counts where ratios are needed.** A choropleth of "absolute kidnappings per state" has no comparison built in — large states automatically have higher counts, and the visual color gradient tracks population, not crime rate. The fix: rate per capita (kidnappings per 100,000 residents), or kidnappings as a percentage change from the national average. The comparison is now explicit.
+The corrective is Tufte's principle: *show the data.* Any visual element that does not serve the communication goal is a candidate for removal. This is the strict reading; Few's resolution — that embellishments which genuinely support the message can earn their place — is the pragmatic version. The test is not "does this look good?" but "does this serve the message, or does it compete with it?"
 
-**Time series without baseline.** A line chart of "stock price over five years" makes a claim about price change, but compared with what? The market average (S&P 500 in the same period). The sector average. Inflation-adjusted. Each comparison reveals different information and is sometimes the right one.
+**Software-default selection.** The designer accepts whatever the charting tool produces. PowerPoint's default chart. Excel's auto-suggestion. Tableau's recommended visualization. Each of these has implicit choices baked in: truncated y-axes for emphasis, gradient fills for visual interest, rainbow palettes for categorical encoding. None of these defaults was made for your specific message. They were made for the average request, which is probably not yours.
 
-**Cross-sectional comparison without controls.** A bar chart of "average income by region" makes a claim about income, but compared with what? Cost of living. Education levels. Industry composition. Without the right control, the chart shows differences that may be artifacts of the missing comparison.
+The corrective is to override the defaults consciously. The four-step framework is the discipline that produces overrides. Do the four steps before any code is written or any tool is opened; the chart will then differ from the default in ways you can defend.
 
-The check is part of step 1 (key message). The key message is incomplete if it does not name the comparison. "Funding for food security is highest" is incomplete; "funding for food security is highest, more than twice the next-largest category" makes the comparison explicit. The chart then encodes the comparison the message demands.
-
----
-
-## Mid-chapter checkpoint
-
-Pick a chart you have produced or seen recently. Walk it through Cairo's four-step framework. (1) Can you write its key message in one sentence? (2) What data structure does it have? (3) Which functional category does the message fit? (4) Is the specific form within that category the best fit, or could a different form within the same category serve better?
-
-Then apply the "compared with what?" check. Is the comparison the chart makes explicit? If you change the comparison frame (rate instead of count, year-on-year instead of within-period), does the chart change?
-
-If the chart fails any step, sketch the redesign.
+<!-- → [FIGURE: Three-row before/after triptych. Row 1 — Familiarity bias: 8-category pie chart (before) → sorted horizontal bar chart (after). Row 2 — Aesthetic-first: 3D exploded donut chart (before) → flat stacked bar (after). Row 3 — Software-default: 7-series overlapping line chart in Excel default rainbow palette (before) → small multiples, one panel per series, muted palette (after). Each row labeled with the failure mode name and one-sentence diagnosis. The "before" charts are intentionally bad; do not soften them.] -->
 
 ---
 
-## Extended worked example — selecting a chart for the humanitarian funding dataset
+## Cairo's Ethical Frame
 
-The dataset: monthly humanitarian funding amounts across five sectors (food, shelter, water, health, protection) for one country across three years (2022–2024).
+Cairo's argument about these failures is stronger than the usual design-criticism vocabulary suggests. He does not say bad chart choices are mistakes or aesthetic misjudgments. He says that choosing an ineffective chart while a more appropriate one is available — choosing it because it is familiar, or beautiful, or the software's default — is morally wrong.
 
-### Three communication questions, three charts
+This sounds like overclaiming. It is not. Cairo's argument is careful and specific: the designer has a professional responsibility to the reader. A chart that impedes the reader's understanding — that asks them to rank fourteen categories by angle when length is available; that shows a rate as an absolute count, inflating the appearance of large geographic areas; that hides a bimodal distribution behind a mean — has failed that responsibility. When the failure results from the designer's preference rather than from unavoidable trade-offs, the failure is a moral choice.
 
-**Question 1: "How has total monthly funding changed across the three years?"**
+The frame is not moralistic in the sense of finding sin everywhere. It is rule-utilitarian: a designer who consistently makes chart choices that maximize the reader's understanding is fulfilling their professional function. A designer who makes chart choices that serve their preferences at the reader's expense is not. The practical difference is in what question the designer asks before finalizing the chart. "Does this look right?" is an aesthetic question. "Does this let the reader answer the question I wrote in step 1?" is a moral one.
 
-- Step 1 — Key message: "Total monthly funding peaked in mid-2023 and has declined through 2024."
-- Step 2 — Data structure: Aggregate the dataset to monthly totals. One quantitative variable (total funding) over time (36 months).
-- Step 3 — Functional category: change over time.
-- Step 4 — Specific form: line chart. Single line. Months on the x-axis (continuous), funding on the y-axis (quantitative, zero baseline if the variation is large enough; otherwise non-zero is acceptable for line charts because the channel is point position, not bar length).
+The frame applies throughout this book. It is introduced here because chart selection is the earliest and largest leverage point. A poorly executed chart of the right form can be fixed in iteration. A well-executed chart of the wrong form has communicated something other than what the data supports — and fixing it means going back to the chart-type decision, not the implementation.
 
-**Question 2: "Which sector received the most funding cumulatively?"**
+---
 
-- Step 1 — Key message: "Food security received the largest share of cumulative funding (38%), more than the next two sectors combined."
-- Step 2 — Data structure: Aggregate to total funding per sector (5 values).
-- Step 3 — Functional category: comparison.
-- Step 4 — Specific form: horizontal bar chart, sorted by cumulative funding descending. Sector names on the y-axis, funding on the x-axis (zero baseline).
+## The Same Dataset, Three Different Charts
 
-**Question 3: "How does each year's total split across sectors?"**
+Here is the application. A dataset: monthly humanitarian funding amounts across five sectors — food, shelter, water, health, protection — for one country, across three years (2022–2024). The data is a table with 180 rows.
 
-- Step 1 — Key message: "Food security's share has grown from 32% in 2022 to 41% in 2024 at the expense of protection and water."
-- Step 2 — Data structure: 5 sectors × 3 years = 15 values, with totals per year.
-- Step 3 — Functional category: part-to-whole, with a temporal dimension.
-- Step 4 — Specific form: stacked column chart, one column per year, segmented by sector. Or, equivalently, a 100% stacked column chart if the message is about *proportion* rather than absolute levels. The latter normalizes the totals to 100%, making proportions directly comparable across years.
+Three communication questions. Three different steps-1 through steps-4. Three different charts.
 
-The same dataset has produced three different charts because three different questions have been asked. None of the three charts is the "right chart for this data." All three are right for their respective questions; none is right for the others. The chart is the answer to the question.
+**"How has total monthly funding changed across the three years?"** The message is temporal — a trend, a peak, a decline. Step 3 locates this in change over time. Step 4 produces a line chart: months on the x-axis, total funding on the y-axis, a single line. The five sectors disappear; this is the aggregate story.
 
-### Where Claude Code enters
+**"Which sector received the most funding cumulatively?"** The message is comparative — a ranking across sectors. Step 3 locates this in comparison. Step 4 produces a horizontal bar chart sorted descending: sectors on the y-axis, cumulative funding on the x-axis from a zero baseline. The temporal dimension disappears; this is the cumulative story.
 
-Once the chart type is named (the four steps complete), the chart specification follows the Chapter 1 framework: marks, channels, design constraints. The Claude Code prompt follows the Chapter 00 four-move structure. A worked prompt for Question 2:
+**"How does each year's allocation split across sectors, and has the split changed?"** The message is compositional with a temporal sub-message — how the parts move year to year. Step 3 locates this in part-to-whole with a temporal dimension. Step 4 produces a 100% stacked column chart: one column per year, each segmented by sector. The proportions are directly comparable across years; the absolute amounts disappear.
+
+Three charts, none of them the "right chart for this data." All three are right for their respective questions. None is right for the others. The dataset is the same. The charts are answers to different questions. The chart type follows the question, not the table.
+
+This is the thing the fourteen-slice pie chart got wrong. Its designers had the data and a chart type that *fit the data's structure*. They did not have a message. If they had written step 1 — "food security received more than twice the funding of the next-largest category, and this is what the reader needs to know" — they would have arrived at comparison as the functional category and horizontal bar as the specific form. The pie chart's inadequacy would have been visible before it was built.
+
+Write the message first. The chart follows.
+
+<!-- → [FIGURE: Three-panel comparison using the same humanitarian-funding dataset. Left panel: line chart of monthly totals (change over time question). Center panel: horizontal bar chart of cumulative funding by sector, sorted descending (comparison question). Right panel: 100% stacked column chart with one column per year segmented by sector (part-to-whole with temporal sub-message). Caption: "One dataset, three questions, three charts. None is the 'right chart for this data.' All three are right for their respective questions. The chart follows the message."] -->
+
+---
+
+## How This Changes the Claude Code Prompt
+
+The four-step framework is not only a design discipline. It is a prompt-writing discipline. When you specify a chart in a Claude Code prompt without having done the four steps, you are asking the model to guess at your message and your functional category. It will produce something that looks like a chart. Whether it answers the right question is uncertain.
+
+When you have done the four steps, the Claude Code prompt becomes a specification:
 
 ```
-**Show what I have:**
-5 rows. Each row has `sector` (string) and `cumulative_funding`
-(number, USD millions). Sample:
-  Food Security, 380.2
-  Shelter, 142.7
-  Water, 98.4
-  Health, 87.3
-  Protection, 64.1
+Show what I have:
+5 sectors (categorical). Cumulative funding per sector (quantitative,
+USD millions). 5 rows.
 
-**Say what I want:**
-Horizontal bar chart in D3 v7. Single HTML file with inline CSS and
-inline D3 (loaded via CDN). Responsive to window resize.
+Say what I want:
+Horizontal bar chart in D3 v7. Single HTML file, inline D3 via CDN.
+Responsive to window resize.
 
-**Constrain it:**
-- Marks: rectangles, one per sector.
-- y-position: sector (categorical, sorted by cumulative_funding
-  descending).
-- x-position from zero baseline: cumulative_funding (quantitative).
-  Zero baseline non-negotiable.
-- Color luminance redundantly encoding cumulative_funding (sequential
-  pale-to-dark).
-- x-axis ticks at $0, $100M, $200M, $300M, $400M.
-- Cumulative funding values labeled at the right of each bar.
-- Subtitle: "FY2022-2024 Cumulative Humanitarian Funding by Sector
-  (USD millions)".
-- Margins: top 60, right 80, bottom 40, left 140 (left margin
-  accommodates sector labels).
-- Dark mode support via prefers-color-scheme.
+Constrain it:
+- Mark: rectangle per sector.
+- y-position: sector, sorted by cumulative_funding descending.
+- x-length from zero baseline: cumulative_funding.
+- Color luminance: redundant encoding of cumulative_funding,
+  sequential pale-to-dark.
+- Bar labels: value in USD millions at the right of each bar.
+- Zero baseline: non-negotiable.
 
-**Verify:**
-Before writing the code, restate the channel decomposition. Then write
-D3 v7 with comments showing which line implements which channel. Flag
-any decisions not specified.
+Verify:
+Before writing code, restate the channel decomposition. Flag any
+decisions not specified above.
 ```
 
-The prompt is precise because the four steps were done first. Without the four steps, the prompt is "show this data as a chart" — and Claude Code will choose, often badly. The four-step framework is what turns chart selection into a designer skill rather than a generator's guess.
+The specification is tight because the four steps were done first. Step 1 produced the message (ranking sectors by cumulative funding). Step 3 produced the category (comparison). Step 4 produced the form (horizontal bar, sorted, zero baseline). The Claude Code prompt is the implementation of a decision already made.
+
+Without the four steps, the prompt is: "show this funding data as a chart." Claude Code will choose. Often it will choose a pie chart, because the data sums to a total and pie charts are the familiar default for totals. And you will be back at the fourteen-slice problem.
 
 ---
 
-## Chapter summary
+## The Feynman Test
 
-You can now do four things you could not do before this chapter.
+Here is the chapter's test. The next chart you produce — open a blank document and write one sentence before you touch any software. The sentence is: "After looking at this chart, the reader will be able to [specific action — rank, compare, identify, track] [specific thing] in five seconds."
 
-You can locate any chart request in the FT Visual Vocabulary's eight functional categories — comparison, change over time, distribution, relationship, part-to-whole, hierarchy, flow, spatial — and use the location to narrow the chart-type space from "any of 60+" to "any of 5–10."
+If you cannot write the sentence, do not build the chart. If you can write it, check whether the chart type you were about to reach for serves the action you named. If it serves it, proceed. If it does not — if you were about to build a pie chart for a ranking task, a 3D chart for a magnitude comparison, a default Excel output for a distribution question — stop, do steps 1 through 4, and build the chart the message demands.
 
-You can apply Cairo's four-step decision framework (key message → data structure → functional category → specific form) to land on a chart type that is defensible, not merely familiar. You know that step 1 (key message) is the load-bearing step; without it, the rest of the framework fails.
-
-You can diagnose three common chart-selection failures — familiarity bias, aesthetic-first choice, software-default choice — and you know each is fixable by re-engaging the four-step framework rather than by retroactively fixing the chart.
-
-You can apply Cairo's "compared with what?" check to ensure that every chart makes its comparison explicit. You know that absolute counts where ratios are needed, time series without baselines, and cross-sectional comparisons without controls are the recurring failures of this check.
-
-The thing to watch for, going forward, is the temptation to skip the four steps. Most charts you produce will be variations of bar charts, line charts, or scatterplots — the forms are familiar. The four-step framework is most valuable on the charts you do not immediately know how to do, and on the charts you think you know how to do. Every later chapter applies the framework to its specific chart family; the discipline starts here.
-
----
-
-## Key terms
-
-- **Functional category.** One of eight (FT Visual Vocabulary): comparison, change over time, distribution, relationship, part-to-whole, hierarchy, flow, spatial. The first move in chart selection.
-- **Cairo's four-step decision framework.** Key message → data structure → functional category → specific form. The decision tree this chapter teaches.
-- **Cairo's ethical frame.** When a designer chooses an ineffective chart while a more appropriate one is available, the choice is morally significant — not just aesthetically.
-- **"Compared with what?"** Cairo's mandatory check before finalizing any chart. Every quantitative claim must be set against an explicit reference.
-- **Familiarity bias.** Reaching for a familiar chart type regardless of fit. The most common chart-selection failure.
-- **The FT Visual Vocabulary.** The Financial Times' chart taxonomy, used here as the navigation tool. Available in the book's pantry as `Visual-vocabulary.txt`.
-- **Friendly's history.** Michael Friendly's history of data visualization, used to ground every chart type in its origin and original communication problem. In the pantry as `Handbook of Data Visualization 2008 Friendly.txt`.
-- **Tufte's "show the data" principle.** The first test any chart must pass: it must let the reader see the underlying values, not summary statistics that hide the distribution.
-
----
-
-## Discussion questions
-
-1. The 14-slice pie chart from the opening case was produced by a competent designer. Why? Apply the three failure modes from Concept 3 to predict which one drove the choice.
-2. Cairo's "morally wrong" framing of bad chart choices is stronger than most contemporary writing on visualization. Make the case for and against the strength of this frame. Where does it land you?
-3. The FT Visual Vocabulary names eight categories. Some chart types (heatmaps, flow maps, candlesticks) appear in multiple categories. Why do they overlap, and what does the overlap suggest about the limits of category-based chart selection?
-4. Pick a published dashboard or report that uses many charts (corporate annual report, government statistical release). Audit five charts using the four-step framework. How many pass step 1 (key message) cleanly, and how many appear to have skipped it?
-5. *Cross-chapter synthesis.* Chapter 14 will introduce the Tufte/Few/Cairo synthesis as the design-audit framework. Frame the relationship between this chapter's chart-selection framework and Chapter 14's design audit: where do they overlap, and where does each do work the other does not?
+The key message sentence is the test. Everything else in this chapter is the machinery that supports it.
 
 ---
 
@@ -339,39 +211,63 @@ The thing to watch for, going forward, is the temptation to skip the four steps.
 
 ### Warm-up
 
-**Exercise 2.1** — *Functional category lookup.* For each of the following datasets, name the most likely functional category from the FT Visual Vocabulary. Where multiple categories could apply, name the communication question that would resolve the choice.
-- Monthly visitors to a website over two years.
-- Distribution of household incomes in a single ZIP code.
-- The relationship between hours studied and test score for 200 students.
-- The breakdown of a city's annual budget into 9 departments.
+**Exercise 4.1 — Functional category lookup.** For each of the following datasets, name the FT Visual Vocabulary category that the stated communication question places it in. Where two categories could apply, name the question that resolves the choice.
 
-**Exercise 2.2** — *Apply the four-step framework.* Walk a recent dataset of yours through the four steps. Write down each step's output: key message, data structure, functional category, specific form. Submit as a short markdown document.
+- Monthly website visitors over two years. Question: "How has traffic changed since the redesign?"
+- Household income distribution for one ZIP code. Question: "Is income in this neighborhood concentrated in one bracket or spread across many?"
+- Budget allocation across nine city departments. Question: "Which department receives the largest share?"
+- Refugee arrivals from five origin countries to three host countries. Question: "Which corridor carries the most movement?"
 
-**Exercise 2.3** — *"Compared with what?" diagnosis.* Find a chart in a recent newspaper or report that fails the "compared with what?" check (absolute counts, no baseline, missing control). Specify the redesign that fixes the failure.
+**Exercise 4.2 — Step 1 stress test.** For each of the following, decide whether it is a key message (Cairo's step 1) or merely a data description. For each that is only a description, rewrite it as a key message.
+
+- "This chart shows quarterly revenue by region for FY2023."
+- "The eastern region outperformed every other region in Q3, accounting for 41% of total revenue."
+- "Here are the five countries with the highest life expectancy."
+- "Switzerland, Japan, and Singapore have each sustained life expectancy above 83 years for the past decade, while the global average has risen by only 2.1 years."
+
+**Exercise 4.3 — "Compared with what?" applied.** Find a chart in a recent report or dashboard that passes the familiarity-bias test (the chart type fits the functional category) but fails the "compared with what?" check — the comparison is implicit rather than explicit. Name the missing reference. Specify the redesign that makes the comparison visible in the chart itself.
 
 ### Application
 
-**Exercise 2.4** — *Three charts from one dataset.* Take a dataset with at least three meaningful communication questions (the humanitarian funding example in this chapter is a model). Walk each question through the four-step framework. Produce three different chart specifications. Build the charts with Claude Code. Compare them.
+**Exercise 4.4 — Walk the four steps.** Take a dataset from your own work or a public repository. Write Cairo's four steps explicitly as a markdown document: (1) key message in one sentence, (2) data structure described, (3) functional category named with justification, (4) specific form named with perceptual justification. Submit the document; the chart specification follows from it.
 
-**Exercise 2.5** — *Audit a dashboard.* Find a public dashboard (city open-data portal, public health dashboard, financial market visualization). Audit ten charts using the four-step framework. Categorize each by which step (if any) was skipped. Rank the dashboard's overall chart-selection discipline.
+**Exercise 4.5 — Three questions, three charts.** Take a single dataset with at least two categorical variables and one quantitative variable measured over time. Identify three different communication questions the dataset can answer. Walk each through the four steps. Produce three different chart specifications. Build all three with Claude Code. Compare the results: do they look like they came from the same data?
 
-**Exercise 2.6** — *The familiarity-bias rewrite.* Find a pie chart with more than five slices (these are abundant in corporate reports). Apply Cairo's framework. Rewrite as a horizontal bar chart with sort by value. Build both with Claude Code. Compare reading speed and accuracy with two colleagues.
+**Exercise 4.6 — The familiarity-bias rewrite.** Find a pie chart with more than five slices in a published report (corporate annual report, NGO accountability document, government statistical release). Apply the four-step framework. Rewrite it as the chart the key message demands. Build both with Claude Code. Test reading speed on two or three colleagues for the specific task "rank the top three categories."
 
 ### Synthesis
 
-**Exercise 2.7** — *Cairo's ethical frame applied.* Take a chart from a recent published report whose chart choice you suspect is wrong. Apply the four-step framework to identify what should have been chosen. Write a one-page "ethics audit" applying Cairo's frame: was the choice driven by the message, by familiarity, or by the software's defaults? What did the designer's choice impede in the reader's understanding?
+**Exercise 4.7 — Cairo's ethics audit.** Take a chart from a published report whose chart-type choice you suspect is wrong. Apply the four steps to identify what the correct form would have been. Write a one-page audit: which failure mode drove the incorrect choice (familiarity bias, aesthetic-first, software-default)? What did the choice cost the reader specifically — which task became harder or impossible? Apply Cairo's ethical frame: was this a defensible trade-off or an abdication of professional responsibility?
 
-**Exercise 2.8** — *FT Visual Vocabulary in your domain.* Take five datasets typical of your professional work. For each, identify the functional category and the recommended specific form. Build a one-page reference card you can pin to your wall. Cite the perceptual reasoning for each form choice.
+**Exercise 4.8 — When familiarity is right.** Make the affirmative case for familiarity as a legitimate design criterion. Identify three scenarios where choosing the familiar chart type is the correct decision — audience graphicacy constraints, time pressure, established convention. For each, name the perceptual cost the familiarity choice accepts and argue that the cost is worth paying. Then name the line: at what point does the same argument fail?
 
 ### Challenge
 
-**Exercise 2.9** — *Friendly's history applied.* Pick a chart type that you use frequently. Look up its origin (when invented, by whom, for what original communication problem). Compare your typical use to the original use. Where are you using the chart against its original intent? Where does the original intent illuminate why your chart sometimes fails?
+**Exercise 4.9 — Multi-LLM chart selection.** Submit the four-step framework prompt for a contestable dataset to Claude, ChatGPT, and Gemini. Use the same dataset and the same communication goal for all three. Compare the chart-type recommendations. Where do they agree? Where do they disagree, and what does the disagreement reveal about which design decisions are genuinely ambiguous versus which represent one model defaulting to familiarity bias?
 
-**Exercise 2.10** — *Multi-LLM chart selection.* Submit the four-step framework prompt for a contestable dataset to Claude, ChatGPT, and Gemini. Compare the chart-type recommendations. Where do they agree? Where do they disagree? What does the disagreement reveal about which design decisions are genuinely contestable in your domain?
+**Exercise 4.10 — Friendly's history applied.** Pick a chart type you use frequently. Research its origin: when was it invented, by whom, for what specific communication problem? Compare your typical use to the original use case. Where are you using the chart against its original intent? Where does the origin clarify why your chart sometimes fails to communicate what you intend? Write up the analysis as a one-page note to your future self.
 
 ---
 
-## LLM Exercise — Chapter 2: Chart Selection
+## Key Terms
+
+**Functional category.** One of eight (FT Visual Vocabulary): comparison, change over time, distribution, relationship, part-to-whole, hierarchy, flow, spatial. The first navigation move in chart selection.
+
+**Cairo's four-step framework.** Key message → data structure → functional category → specific form. The decision path that makes chart choice defensible, not habitual.
+
+**Cairo's ethical frame.** Choosing an ineffective chart while a more appropriate one is available — choosing it for familiarity, aesthetics, or software default — is a moral choice with consequences for the reader's understanding, not merely an aesthetic one.
+
+**"Compared with what?"** Cairo's mandatory check. Every quantitative claim a chart makes must be set against an explicit reference. Charts that fail this check make claims without meaning.
+
+**Familiarity bias.** Reaching for the chart type that feels right for the data's structure, independent of the message. The most common chart-selection failure.
+
+**FT Visual Vocabulary.** The Financial Times' chart taxonomy. Available in the book's pantry as `Visual-vocabulary.txt`. The navigation tool for step 3.
+
+**Tufte's "show the data" principle.** Any visual element that does not serve the data's communication goal is a candidate for removal. The precondition for any chart-selection question.
+
+---
+
+## LLM Exercise — Chapter 4: Chart Selection
 
 **Project:** [TBD — selected after Chapter 00]
 
@@ -402,24 +298,24 @@ Walk me through Cairo's four-step chart-selection framework:
 
 4. Specific form: recommend a specific chart type within the category.
    Cite the perceptual reasoning (Cleveland & McGill ranking from
-   Chapter 1) and any chart-family-specific design considerations.
+   Chapter 3) and any chart-family-specific design considerations.
 
 Then apply the "compared with what?" check: name the comparison the
 chart will make explicit. If the comparison is missing, name it.
 
 Then identify whether the recommendation is at risk of any of the three
-failure modes from Chapter 2 — familiarity bias, aesthetic-first choice,
-software-default choice. Audit yourself: am I recommending this chart
-because the message demands it, or because it's familiar?
+failure modes — familiarity bias, aesthetic-first choice, software-default
+choice. Audit yourself: am I recommending this chart because the message
+demands it, or because it's familiar?
 
-Save the audit as chapter-02-selection-audit.md. Then write a four-move
+Save the audit as chapter-04-selection-audit.md. Then write a four-move
 Claude Code prompt for the recommended chart, following the Chapter 00
 prompt structure.
 ```
 
 ---
 
-**What this produces:** A markdown audit document with Cairo's four steps walked through, the "compared with what?" check applied, and a four-move Claude Code prompt ready to run. Save as `chapter-02-selection-audit.md`.
+**What this produces:** A markdown audit document with Cairo's four steps walked through, the "compared with what?" check applied, and a four-move Claude Code prompt ready to run. Save as `chapter-04-selection-audit.md`.
 
 **How to adapt this prompt:**
 - *For your own domain:* Replace the dataset and communication goal.
@@ -427,152 +323,17 @@ prompt structure.
 - *For a Claude Project:* Save Cairo's four-step framework and the FT Visual Vocabulary as system-prompt context; the per-chart audit becomes the user message.
 - *For Cowork:* Use Cowork to read the dataset file directly, then run the audit; saves a paste step.
 
-**Connection to previous chapters:** Builds on Chapter 1 (channel ranking grounds the perceptual reasoning at step 4). Chapter 00's four-move prompt structure is what the audit's final output is. Future chapters' LLM Exercises assume this audit has happened first.
+**Connection to previous chapters:** Builds on Chapter 3's channel ranking — the perceptual reasoning at step 4 is the Cleveland & McGill hierarchy applied to the candidate chart's encoding. Chapter 00's four-move prompt structure is what the audit's final output produces. Future chapters' LLM Exercises assume this audit has happened first.
 
-**Preview of next chapter:** Chapter 3 zooms in on step 2 (data structure) and step 1 (key message). The pre-chart-type work — distinguishing the analyst's question from the reader's question, framing "compared with what?" against the actual data — is the focus.
-
----
-
-## Visual suggestions
-
-The figures this chapter discusses, with Claude Code prompts to generate them. Where a figure also appears in Part II as a stand-alone reference chapter, the link is provided; the prompt below is tuned to the chart-selection pedagogy this chapter introduces.
-
-For chart-type references the chapter mentions in passing, see Part II directly: [Bar Chart](20-bar-chart.md), [Pie Chart](53-pie-chart.md), [Line Graph](43-line-graph.md), [Treemap](75-treemap.md), [Choropleth](29-choropleth.md), [Heatmap](39-heatmap.md), [Sankey Diagram](62-sankey-diagram.md), [Stacked Bar](67-stacked-bar.md), [Donut Chart](33-donut-chart.md), [Bubble Map](25-bubble-map.md), [Marimekko Chart](44-marimekko-chart.md), [Chord Diagram](28-chord-diagram.md), [Circle Packing](30-circle-packing.md), [Nightingale](48-nightingale.md), [Candlestick Chart](27-candlestick-chart.md). Each Part II chapter has its own prompt.
-
-### Figure 2.1 — The 14-slice pie chart and its bar-chart fix
-
-The opening-case figure. Two panels side by side: a 14-slice pie chart from a humanitarian funding report (the failure case) and the same data redrawn as a sorted horizontal bar chart (the fix). The chapter's argument made visible — same data, perceptually different chart, dramatically different reading speed.
-
-```
-Generate a single HTML page in D3 v7 with two side-by-side panels. Two files:
-
-1. `chapter-02-fig-01.html` — full HTML with inline CSS and inline D3 v7 (loaded from `https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js`). Two SVG panels in a flex layout, responsive on resize. Page subtitle: "Same data, two encodings — angle vs. length."
-
-2. `chapter-02-fig-01/data.json` — the dataset.
-
-Data shape:
-- 14 humanitarian-funding categories with one quantitative attribute each.
-  - `category`: string — sector name (Food Security, Shelter, WASH, Protection, Health, Education, Logistics, etc.)
-  - `value`: number — percentage of total funding (sums to 100)
-
-{DATA NEEDED} — A real or representative humanitarian-funding breakdown by sector, 14 categories. Sources include OCHA Financial Tracking Service (FTS), UNHCR funding reports, or any published humanitarian appeal sector breakdown.
-
-Left panel — pie chart (failure case):
-- 14 slices, angle encodes value.
-- Default rainbow color palette across the 14 slices.
-- Tiny detached legend with 14 entries.
-- This panel is intentionally hard to read; do not "fix" the encoding.
-
-Right panel — sorted horizontal bar chart (fix):
-- 14 bars, length encodes value, sorted descending.
-- Single-hue walnut palette (no per-category color).
-- Direct labels on each bar with the value.
-- Same total chart area as the pie panel.
-
-Both panels labeled with the channel decomposition in a small caption box. Annotate the page with the 5-second reading test: which panel can the reader rank top-3 sectors faster?
-
-Style: warm monochrome — black, dark walnut, blood-red accents. Serif body, JetBrains Mono for labels.
-
-Provide both files as separate code blocks.
-```
-
-### Figure 2.2 — The FT Visual Vocabulary 8-category matrix
-
-A reference figure showing the eight functional categories from the Financial Times Visual Vocabulary (Comparison, Composition, Distribution, Relationship, Hierarchy, Flow, Spatial, Change-over-time) with one canonical chart per category. The figure is the navigation tool the chapter teaches.
-
-```
-Generate an 8-panel grid in D3 v7 showing one canonical chart per FT Visual Vocabulary functional category. Two files:
-
-1. `chapter-02-fig-02.html` — full HTML with inline CSS and inline D3 v7. A 4×2 grid of small SVG panels, each ~200×150 px, each rendering one canonical chart of its category. Page subtitle: "FT Visual Vocabulary — eight functional categories."
-
-2. `chapter-02-fig-02/data.json` — eight small datasets, one per panel.
-
-Data shape (one per category):
-- `comparison`: 6 bar values
-- `composition`: 5 stacked-bar values summing to 100
-- `distribution`: 80 simulated values for a histogram
-- `relationship`: 30 (x,y) scatterplot points
-- `hierarchy`: nested tree of 12 nodes for a small treemap
-- `flow`: 4-node Sankey with 5 links
-- `spatial`: 8 (lat, lon) points for a tiny world dot map
-- `change_over_time`: 24 monthly line-chart values
-
-{DATA NEEDED} — Themed humanitarian-data examples for each panel work well: comparison (sector funding), composition (refugee origin breakdown), distribution (response times), relationship (GDP vs. life expectancy), hierarchy (UN agency org chart), flow (aid corridor volumes), spatial (delivery hubs), change-over-time (monthly displacement).
-
-Each panel:
-- Title above (10pt, JetBrains Mono, uppercase).
-- Mini chart with axes if appropriate; no decoration beyond the chart itself.
-- Caption below naming the category.
-- One example annotation per panel ("compares values across categories", "shows joint distribution", etc.).
-
-Style: warm monochrome. Each chart uses the same walnut palette so the matrix reads as a unified reference, not eight different visual styles.
-
-Provide both files as separate code blocks.
-```
-
-### Figure 2.3 — Three failure modes diagrammed
-
-A three-panel illustration of the chapter's named failure modes: familiarity bias (defaulting to pie/bar), aesthetic-first selection (3D rendering or "look pretty" defaults), and software-default selection (whatever Excel produces). Each panel shows a real chart-selection failure followed by the correction.
-
-```
-Generate a 3-panel before/after illustration in D3 v7. Two files:
-
-1. `chapter-02-fig-03.html` — full HTML with inline CSS and inline D3 v7. Three rows; each row has a "before" chart on the left and an "after" chart on the right. Page subtitle: "Three failure modes — familiarity bias, aesthetic-first, software-default."
-
-2. `chapter-02-fig-03/data.json` — three datasets.
-
-Data shape:
-- `familiarity`: 8 categories with values; the "before" is a 3D pie, "after" is a sorted bar chart.
-- `aesthetic`: 12 categories with values; the "before" is a radial bar (decorative), "after" is a sorted horizontal bar.
-- `software_default`: a time series with 7 series; the "before" is a line chart with all 7 series at once (default Excel behavior), "after" is small multiples (one panel per series).
-
-{DATA NEEDED} — Any three datasets that fit the three failure-mode patterns. The chapter's humanitarian-funding example serves the familiarity case; a 12-month delivery dataset serves the aesthetic case; a 7-series operational-metric dataset serves the software-default case.
-
-Each row's caption names the failure mode and the perceptual mechanism that corrects it.
-
-Style: warm monochrome. The "before" charts are intentionally compromised; do not improve them.
-
-Provide both files as separate code blocks.
-```
-
-### Figure 2.4 — Cairo's four-step framework as a flow diagram
-
-A single panel rendering Cairo's four-step decision framework as a labeled flow with branches: data attributes → communication question → chart-type candidates → channel decomposition. The figure is the chapter's framework made literal.
-
-```
-Generate a single-panel decision-flow diagram in D3 v7. Two files:
-
-1. `chapter-02-fig-04.html` — full HTML with inline CSS and inline D3 v7. The panel is a labeled flow with 4 stages, each with branches. Page subtitle: "Cairo's four-step framework — what the data has, what the reader needs, which charts qualify, which channels carry the weight."
-
-2. `chapter-02-fig-04/data.json` — the framework's 4 stages with branches.
-
-Data shape:
-- Four stages, each with name, description, and 3–5 branch options.
-- Stage 1: "Data attributes" — branches: categorical / ordered / quantitative / spatial / temporal.
-- Stage 2: "Communication question" — branches: comparison / composition / distribution / relationship / change-over-time / hierarchy / flow / spatial.
-- Stage 3: "Candidate chart types" — branches: bar / line / pie / scatter / treemap / choropleth / sankey / etc.
-- Stage 4: "Channel decomposition" — branches: position / length / area / hue / luminance.
-
-The diagram is rendered as labeled boxes with arrows. Layout left-to-right; branches stack vertically within each stage. Use `d3.tree()` or manual placement; the geometry is not the teaching point — the labels and the flow are.
-
-Style: warm monochrome. Boxes have walnut borders with light cream fill. Arrows blood-red where they show the worked example's path through the framework.
-
-Provide both files as separate code blocks.
-```
+**Preview of next chapter:** Chapter 5 zooms in on one functional category — comparison — and works the bar chart family in depth. The zero-baseline rule, the sort-by-value convention, and the failure modes specific to bar charts (truncated axes, multiset encoding clutter) are the subject.
 
 ---
 
-## Further reading
+## Further Reading
 
-- **Cairo, Alberto. (2016).** *The Truthful Art: Data, Charts, and Maps for Communication.* New Riders. Read Chapters 1–3 for the ethical frame; Chapter 5 for chart selection in depth.
-- **Cairo, Alberto. (2019).** *How Charts Lie: Getting Smarter About Visual Information.* W. W. Norton. The accessible companion to *The Truthful Art*. Chapter 2 ("Charts That Lie by Showing Too Little") is most relevant here.
-- **The Financial Times Visual Vocabulary.** Available in the book's pantry (`pantry/Visual-vocabulary.txt`) and online at ft.com/visual-vocabulary. Print it. Pin it.
+- **Cairo, Alberto. (2016).** *The Truthful Art: Data, Charts, and Maps for Communication.* New Riders. Chapters 1–3 for the ethical frame; Chapter 5 for chart selection.
+- **Cairo, Alberto. (2019).** *How Charts Lie: Getting Smarter About Visual Information.* W. W. Norton. Chapter 2 ("Charts That Lie by Showing Too Little") is the most relevant.
+- **The Financial Times Visual Vocabulary.** In the book's pantry as `Visual-vocabulary.txt`. Print it.
 - **Friendly, Michael. (2008).** "A Brief History of Data Visualization." In *Handbook of Data Visualization*, edited by C. Chen, W. Härdle, and A. Unwin. Springer. The origin stories that ground chart-type choice.
-- **Tufte, Edward R. (1983, 2nd ed. 2001).** *The Visual Display of Quantitative Information.* Chapter 1 establishes "show the data" as the foundational principle.
-- **Few, Stephen.** *Show Me the Numbers: Designing Tables and Graphs to Enlighten.* The most rigorous practical chart-selection reference. Few's chapter on selecting the right chart is the deepest treatment of the four-step decision in book form.
-
----
-
-## Tags
-
-chart-selection, Cairo, ethical-frame, FT-visual-vocabulary, eight-functional-categories, four-step-framework, compared-with-what, Tufte-show-the-data, Friendly-history, familiarity-bias, aesthetic-first-choice, software-default, D3, Claude-Code, chart-taxonomy
+- **Tufte, Edward R. (1983, 2nd ed. 2001).** *The Visual Display of Quantitative Information.* Chapter 1 establishes "show the data."
+- **Few, Stephen.** *Show Me the Numbers: Designing Tables and Graphs to Enlighten.* The most rigorous practical chart-selection reference; Few's chapter on selecting the right chart is the deepest treatment of the four-step decision in book form.
