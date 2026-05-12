@@ -1,293 +1,163 @@
-# Chapter 12 — Spatial and Geographic Charts
+# Chapter 14 — Spatial and Geographic Charts
 *Position on the Earth Is the Story.*
 
-## Three suggested titles
+---
 
-- Spatial and Geographic Charts: The Area-Size Distortion Problem
-- Choropleth, Dot Map, Bubble Map, Connection Map
-- Why Snow's Map Worked and Why Yours Might Not
+Here is a map of the United States. Each state is shaded by the number of uninsured people. Texas is very dark — it has the highest absolute count. California is nearly as dark. New York and Florida are in the middle. Wyoming, Vermont, and Rhode Island are pale.
+
+Now here is the same map shaded by the *uninsured rate* — the percentage of residents without health insurance. Texas is still dark. But California is now much lighter. Wyoming, which looked pale before, is now darker than California. Rhode Island, invisible in the first map, turns out to have a lower rate than the national average. The entire visual story has changed.
+
+Same states. Same underlying health data. Different question.
+
+The first map answers: where do the most uninsured people live? The answer is where the most people live — California, Texas, New York, Florida. The map is mostly showing you population density wearing the costume of a health-care visualization. The second map answers: in which states are residents most likely to be uninsured? The answer is genuinely geographic — a pattern tied to state-level policy, not just to where people live.
+
+This is the core problem of geographic charts. Every spatial form carries a distortion risk that does not exist in bar charts or scatterplots: the size of the geographic unit competes with the data encoded in it. A large region draws the eye regardless of what color it is. Absolute counts in a choropleth mostly track population, which mostly tracks area. The map shows what you drew, but the reader sees what's big.
+
+Fixing this is not a stylistic choice. It is a claim about what the chart is actually answering.
+
+<!-- → [FIGURE: Two US state choropleth maps side by side, same underlying health dataset. Left: "Total uninsured people by state" — Texas and California are very dark; Wyoming, Vermont, Rhode Island are pale. The visual story is population density. Right: "Uninsured rate (%) by state" — Texas remains dark; California is now notably lighter; Wyoming is darker than California; Rhode Island is near the national average. Caption: "Same states. Same underlying data. Different question. Left: where do uninsured people live? Right: in which states are residents most likely to be uninsured? The map shows what you drew; the reader sees what's big." Annotate 2–3 specific states that flip dramatically between the two maps.] -->
 
 ---
 
-## Chapter overview
+## What Geographic Visualization Is For
 
-By the end of this chapter you will be able to build the family of geographic charts — choropleth, dot density map, bubble map (proportional symbol), connection/flow map — and you will know the area-size distortion problem that haunts all of them. You will know why choropleths must show *rates* not absolute counts (the Cairo "compared with what?" check applied geographically), why dot density maps work when choropleths don't, and how Friendly's history of Dupin's 1826 choropleth and Snow's 1854 dot map illuminates when each form is the right choice.
+Before choosing a form, name what is actually spatial about the data. Not all data that has a place-name dimension is genuinely spatial. Employees by office location is a ranked comparison that happens to have city names. A bar chart answers that question better than a map, because comparison is the relationship — not spatial proximity, not geographic clustering, not the question "where?"
 
----
+Geographic visualization earns its complexity when the *location itself* is the answer. When the pattern is legible only in the geographic context — when knowing that these cases cluster in the northeast corner of the city, or that these flows move consistently from east to west, is what the reader needs — then a map is the right tool. When the question is just "which of these is largest?", a bar chart is right and the map is an expensive decoration.
 
-## Learning objectives
-
-1. **(Apply)** Build a choropleth map and a bubble map for the same geographic dataset; identify the perceptual difference between encoding ratios (choropleth) vs. absolute values (bubble map).
-2. **(Analyze)** Diagnose the area-size distortion in a choropleth, explaining why large-area units dominate perceptually regardless of their data value — the specific mechanism Friendly's history traces to Dupin's 1826 choropleth invention.
-3. **(Evaluate)** Select between choropleth and dot density map for a given spatial dataset, applying Cairo's "compared with what?" criterion to population-based vs. absolute geographic data.
+The diagnostic question: would the reader need to know the geographic positions of the values to answer their question, or would a ranked list suffice? If the geographic pattern matters, map it. If not, use the form from Chapter 8.
 
 ---
 
-## Opening case — the HAI choropleth of GDP per capita
+## The Four Spatial Forms
 
-Open `pantry/visualization/bubble-map.html` (and any choropleth example in the pantry) in a browser. The choropleth shades countries by GDP per capita. Color luminance encodes the value: pale for low GDP, dark for high. The viewer's eye moves first to the largest visible regions: the United States, Russia, Canada, China, Brazil, Australia. These are the countries that dominate the visual.
+**Choropleth.** Geographic regions shaded by a value. The mark is the region polygon; the channel is color luminance. The choropleth is the default spatial form in data journalism, public health, and policy work. It works when the data is a rate (a ratio per population or per unit), the regions are roughly comparable in area, and the reader's question is geographic pattern rather than precise value.
 
-The data, however, does not match the visual dominance. The United States is high GDP. Russia is middle-to-low. Canada is high. China is middle-low. Brazil is middle. Australia is high. The colors should distinguish them — and they do, in principle — but the visual prominence is driven by *land area*, not by GDP per capita.
+**Dot density map.** Dots placed within regions, one dot per N units. No area encoding — the mark is a point, the channel is point count per region. The form works for absolute counts where the spatial distribution within a region matters, not just the regional total. John Snow's 1854 cholera map was a dot-per-case map of Soho. The cluster around the Broad Street pump was visible immediately. No choropleth could have shown this: the geographic units (parishes, wards) were too coarse to reveal the cluster.
 
-This is the **area-size distortion**. Choropleth maps encode the data through color luminance applied to geographic regions. The reader's eye, however, processes the *area* of each region first. Large countries, regardless of their data value, attract attention. Small countries — even with extreme data values — recede. The country at the data extreme can be invisible if it's geographically tiny.
+**Bubble map (proportional symbol).** Circles at region centroids, sized by value. The mark is a circle; the channels are x-position, y-position (geographic), and area (magnitude). The bubble map handles absolute values honestly because the bubble's size encodes the count directly — it doesn't depend on the region's area. Stevens' power law applies: the bubble's *area* must be proportional to the value, not the radius. The same `d3.scaleSqrt` rule from Chapter 10.
 
-Friendly's history (`pantry/Handbook of Data Visualization 2008 Friendly.txt`) traces the choropleth to Baron Charles Dupin, 1826. Dupin used the form to map French illiteracy: each French department shaded according to its illiteracy rate. The form worked because French departments are roughly comparable in area (the visual area didn't dominate); it also worked because Dupin used a *rate* (illiteracy per population), not an absolute count (number of illiterate people). The two design decisions — comparable-area regions and rates not counts — are what make a choropleth honest.
+**Connection map / flow map.** Lines drawn between geographic locations, encoding the existence or magnitude of a connection. The mark is a line; the channels are the start and end positions (both geographic) and, for flow maps, line width (magnitude). Origin-destination data — migrations, trade routes, flight networks — is the right home for this form. The failure mode is the spaghetti problem: too many routes produces an unreadable tangle. The mitigation is to show only the top N flows, or to aggregate at a coarser geographic level.
 
-The contemporary choropleth often violates both decisions. A US-state choropleth shades all 50 states the same color luminance scale, despite vast differences in area. A choropleth of "absolute number of cancer cases by state" makes California and Texas look like cancer hotspots, when the reality is that they have many more people. The "compared with what?" check (Chapter 3) catches this: cancer *rate* per capita is what should be encoded; absolute cases are misleading.
+Four forms, each right for a specific combination of data type and question. The choice is not decoration.
 
-This chapter is about the distinct failure modes of geographic visualization, the four major forms (choropleth, dot density, bubble, connection map), and the design rules that prevent each form's specific failures.
-
----
-
-## Theoretical grounding — Friendly on Dupin (1826), Tufte on Snow (1854), Cairo on ratio-vs-absolute
-
-**Dupin's 1826 choropleth.** Charles Dupin, a French mathematician and statistician, published in 1826 the first known choropleth map: a map of France with each department shaded by literacy rate (lighter shading meant lower literacy). The map was published in *Forces productives et commerciales de la France*. The form was new; the underlying rationale (geographic visualization of statistical data) was new; the success was immediate. Dupin's specific choices — French departments (relatively uniform in area) and rates (literacy *per* population) — were the right choices for the data and for the perceptual mechanism. Subsequent choropleths often violated these choices and produced area-size distortion failures.
-
-**Snow's 1854 dot map of cholera.** John Snow's map of the 1854 London cholera outbreak — a dot per case, plotted on a street map of Soho — is the canonical case for dot density mapping. The map made the cluster around the Broad Street pump immediately visible. No choropleth could have shown this; the geographic units (parishes, wards) were too coarse. Tufte (1983) treats Snow's map as the foundational example of how visualization can reveal causal patterns. Friendly (2008) and Cairo (2016) trace its lineage and influence.
-
-**Cairo's ratio-vs-absolute rule.** Choropleths should show rates (rates per population, ratios, percentages), not absolute counts. The reason is the area-size distortion: absolute counts on a choropleth mostly track population, which mostly tracks geographic area. The chart's color signal becomes redundant with the area signal. Rates control for population; the color signal becomes informative. Cairo's "compared with what?" check (Chapter 3) operationalizes this: every geographic claim must specify the comparison it makes, and absolute counts on a choropleth almost always make the wrong comparison.
+<!-- → [INFOGRAPHIC: Four-panel reference grid, one panel per geographic form. Each panel: form name (uppercase, JetBrains Mono), a thumbnail of the form's visual structure, the primary channel, and the "use when" condition. Panels: Choropleth (shaded polygons, "color luminance encodes rate," "rate data, comparable regions"), Dot density (dots within regions, "point count encodes magnitude," "absolute count, spatial pattern at sub-regional resolution"), Bubble map (circles at centroids, "circle area encodes absolute value," "absolute magnitude, severs area-size distortion"), Connection/flow map (lines between locations, "line width encodes flow magnitude," "origin-destination data"). This is the navigation reference.] -->
 
 ---
 
-## Concept 1 — Choropleths: when the area-size distortion is acceptable
+## The Area-Size Distortion
 
-A choropleth map shades geographic regions according to a value. The mark is a region (the geographic polygon); the channel is color luminance.
+The choropleth is the most common spatial form and the most commonly misused. Its failure mode is structural, not just a matter of poor implementation.
 
-### When choropleths work
+The problem: the reader's eye processes the *area* of each region before it processes the color. Large regions attract attention. Small regions recede. This happens regardless of what color is encoded. A choropleth of "quality of life" shading Luxembourg alongside France will always make France visually dominant, even if Luxembourg has the highest quality of life by a factor of two. Luxembourg is, roughly, 1/500th the area of France.
 
-- **Geographic units are roughly comparable in area.** Census tracts, ZIP codes, and similar fine-grained units (within a country) often work. Countries (varying by orders of magnitude in area) often don't.
-- **The data is a rate, not an absolute count.** Per-capita measures, percentages, ratios.
-- **The reader's question is "where in this map are the high values?" or "what's the geographic pattern?"** The chart's strength is showing patterns at the level of the regional unit.
+This is not a design error you can fix by choosing a better color scale. It is a perceptual fact about how the eye processes images. Area is a preattentive feature — processed before conscious attention is applied. The choropleth asks color luminance to override that preattentive impression. When the regions differ vastly in size, color does not win.
 
-### When choropleths fail
+Charles Dupin understood this when he invented the choropleth in 1826. His map of French illiteracy used French departments — roughly comparable in area (most are between 5,000 and 9,000 km²). He also used a rate (illiteracy per population), not an absolute count. Both choices were deliberate. The roughly-equal areas reduced the area-size distortion. The rate removed the confound between population density and the phenomenon he was measuring.
 
-- **Vastly different region sizes.** A US-state choropleth has Wyoming (area 254,000 km², population 580k) and Rhode Island (4,000 km², population 1.1M) at the same color luminance scale. Wyoming dominates the visual; Rhode Island is invisible. Population, not state-level data, drives perception.
-- **Absolute counts.** A choropleth of "absolute COVID cases by state" mostly shows where the population is.
-- **Sub-national units that are geographically tiny.** A choropleth of European countries makes Luxembourg invisible regardless of its data value.
+Modern choropleths routinely violate both of Dupin's choices. US state choropleths have Wyoming (254,000 km²) alongside Rhode Island (4,000 km²) — a 63:1 area ratio. Country-level choropleths have Russia (17 million km²) alongside Luxembourg (2,600 km²) — a 6,500:1 ratio. The color luminance encoding is technically present, but the area-size distortion overwhelms it. The reader sees a picture mostly shaped by land mass.
 
-### Design decisions
-
-**Color scale type.** Sequential (single hue, varying luminance) for unipolar quantitative data. Diverging (two-hue, midpoint at zero or at a meaningful baseline) for data with positive and negative values. Categorical hue is wrong — choropleths are quantitative encoding.
-
-**Bin count.** Most choropleths use 5–7 luminance levels (the human eye distinguishes 7–10 levels reliably). The choice of bin boundaries (quantile bins, equal-interval bins, manually-set bins) substantially changes which patterns are visible.
-
-**Projection.** The Mercator projection distorts area at high latitudes (Greenland looks much larger than Africa, when actually Africa is 14× larger). For choropleths, projections that preserve area (Mollweide, Equal Earth) are better. D3's `d3-geo` library provides many projection options; specify in the prompt.
-
-For Claude Code work: specify the projection explicitly. "Use d3.geoEqualEarth() for the projection" prevents Mercator's area distortion from compounding the choropleth's own distortion.
-
-> ### ↳ Dig Deeper — Choropleth design choices
->
-> **Prompt:**
->
-> > Walk me through the design decisions for a choropleth: bin count (5-7 levels), bin boundaries (quantile vs. equal-interval), color scale (sequential vs. diverging vs. classified), and projection. For each, name the trade-off. Cite Cairo's "compared with what?" check and the Stevens-power-law mechanism behind luminance perception.
->
-> **What to do with the output:** Save the analysis. Reuse for every choropleth project.
+<!-- → [FIGURE: A world choropleth on Equal Earth projection where all countries have the same value encoded — a mid-range luminance. Every country is the same color. The only variable is geographic area. Caption: "Every country has the same value. The reader's eye still moves to Russia, Canada, and Australia — not because their values are different, but because their areas are. This is the area-size distortion: preattentive area processing precedes color reading regardless of what the color encodes." Annotate Greenland (appears large on Mercator) and Luxembourg (invisible on both projections).] -->
 
 ---
 
-## Concept 2 — Dot density maps: where Snow's form works
+## Rates, Not Counts
 
-A dot density map places dots (one per N units of the variable) at locations distributed across each geographic region. The pattern of dot density encodes the spatial distribution.
+The ratio-vs-absolute rule is Cairo's "compared with what?" check applied geographically.
 
-### When dot density maps work
+A choropleth of absolute counts answers a different question than the designer usually intends. "Number of COVID cases by state" mostly shows "where do people live?" — because the number of COVID cases in a large state is mostly a function of its population, not of anything specific about how the state managed the pandemic. The chart's signal is dominated by the confound.
 
-- The data is a count or absolute value where dot-per-unit makes sense (cases of a disease, instances of a behavior).
-- Spatial pattern matters more than precise value reading.
-- The geographic unit is large enough that dots don't all overlap (sub-state, city-level, etc.).
+The fix is simple: divide by population. Cases per 100,000 residents removes the population confound. The chart now shows the per-capita disease burden — how likely a resident of each state was to contract COVID — which is the question the designer usually intended to answer.
 
-### Why they're more honest for density data
+The rule generalizes. Any time an absolute geographic count is dominated by population (and it almost always is), the honest encoding is a rate. Number of hospitals → hospitals per 100,000 residents. Total aid received → aid per displaced person. Absolute exports → exports as a percentage of GDP.
 
-Dot density maps don't have the area-size distortion problem. The dot count is the data; the regional area is just the canvas. A region with many dots has many cases; a region with few dots has few. The visual prominence tracks the count, not the area.
-
-The trade-off: dot density maps are imprecise about exact values. The reader can estimate "many" or "few" but can't read off counts. Add hover tooltips or callouts for precise values.
-
-### Design decisions
-
-**Dot-per-N.** Each dot represents N units. The choice of N is like the bin width in histograms — too few dots loses pattern; too many dots merges into a uniform mass. Adjust based on the dataset's range.
-
-**Dot placement within regions.** D3 doesn't have a built-in dot-density layout; positions are typically generated as random distributions within each region's polygon. The randomness should be deterministic (seeded) so the chart is reproducible.
-
-**Categorical encoding.** Different dot colors can encode different categories (each dot color = a different cause of death; the spatial mixing pattern shows where each cause concentrates).
-
-The pantry's bubble-map.html is a closely related form (proportional symbol map); the dot density variant adapts the same code with multiple dots per region rather than one symbol.
+Exceptions exist. Total refugee count is sometimes legitimately the question: "which countries are hosting the largest absolute number of displaced people?" is not the same as "which countries are hosting the most displaced people relative to their own population?" Both questions are valid. The designer's job is to name which one the chart answers and make that choice visible — in the title, in the legend, in the axis labels.
 
 ---
 
-## Concept 3 — Bubble maps: proportional symbols at locations
+## Snow's Dot Map and Why It Worked
 
-A bubble map (proportional symbol map) places a circle (or other shape) at the centroid of each region. The size of the circle encodes the value.
+John Snow's 1854 cholera map of the Soho neighborhood in London is the canonical example of geographic visualization enabling causal reasoning. It is also the best argument for the dot density form over the choropleth.
 
-### When bubble maps work
+Snow's question was: where in Soho are the cholera deaths concentrated? He had a list of addresses — every household that reported a death during the 1854 outbreak. He placed a dot at each address on a detailed street map. The dots were distributed across the neighborhood at low density most places, but clustered visibly around the corner of Broad Street and Cambridge Street. The Broad Street water pump stood at that corner.
 
-- Absolute values (where dot density would be too dense).
-- A small number of regions (countries, US states, counties).
-- The reader's question is about magnitude, not pattern.
+A choropleth of the same data — shading each parish by total deaths — would have been useless. The parishes are large; the cluster was sub-block. The geographic resolution that made the pattern visible was street-level, not parish-level. The dot map was the right form because the spatial pattern was the answer and the resolution required was finer than any administrative boundary.
 
-### Stevens' power law applied geographically
+The dot map's strength is that it doesn't impose a geographic aggregation unit. Every case plots at its actual location. The pattern emerges from the data, not from the boundary definitions that a choropleth must use. When the relevant pattern is finer-grained than the available administrative units, dot maps are the only form that can show it.
 
-The same area-perception issue from bubble charts (Chapter 8) applies here. Encode the bubble's *area* proportional to the value, not the radius. Use `d3.scaleSqrt()` for the radius scale.
+The cost: dot density maps require point-level data, which is often unavailable due to privacy restrictions, aggregation in the source, or simply because the data was collected at the regional level. When the data is already aggregated (cases per county), the dot placement within the county is artificial. The dots encode "this region has many cases" in a way that looks like geographic precision but is actually a distribution algorithm applied to a regional count.
 
-### Design decisions
+For Claude Code work: dot density maps with truly random dot placement are reproducible if you seed the random number generator. Specify this in the prompt: "use a deterministic seeded random placement within each polygon so the chart is reproducible."
 
-**Area encoding.** As above — `d3.scaleSqrt()` for radius scaling.
-
-**Centroid placement.** The bubble's center should be at the region's geographic centroid (computed via `d3.geoCentroid()` for each polygon).
-
-**Color hue.** Categorical encoding (one hue per category) layered on top of the size encoding. The reader sees both magnitude (size) and category (color).
-
-**Overlap.** When bubbles overlap (dense regions of small countries), use alpha transparency. Dense overlap may indicate switching to a small-multiples regional view.
-
-The pantry's bubble-map.html shows this form for US food-assistance data.
+<!-- → [FIGURE: Two panels of the same Soho neighborhood, same cholera dataset. Left: choropleth — each parish shaded by total deaths; the cluster is hidden within the parish boundaries; Saint James parish appears moderately affected. Right: Snow-style dot map — one dot per death at its street address; the cluster around the Broad Street pump is immediately visible as a dense concentration in a single block. Caption: "Same data, two resolutions. The choropleth aggregates to parishes — too coarse to reveal the cluster. The dot map plots every case at its address — the pump stands at the cluster's center. The form that can answer the question is determined by the resolution the question requires."] -->
 
 ---
 
-## Concept 4 — Connection maps and flow maps
+## Projections and Why They Matter
 
-Connection maps draw lines between geographic locations to indicate connections, paths, or flows.
+Every geographic visualization involves a projection — a mathematical transformation from the sphere of the Earth to a flat surface. All projections distort something: area, shape, distance, or angle. There is no perfect projection.
 
-### When connection maps work
+The choice of projection matters for geographic charts because different distortions interact differently with different encodings.
 
-- Origin-destination data (flights, migration, trade routes).
-- Spatial patterns of connection matter (where do flights go from O'Hare?).
-- Audiences who can read networks at geographic scale.
+**Mercator projection.** Preserves angle (conformal). Used for navigation, which is why it persists. Distorts area dramatically at high latitudes: Greenland appears roughly the size of Africa, but Africa is actually fourteen times larger. For choropleths and bubble maps, Mercator compounds the area-size distortion. Greenland's shading looks visually important whether or not Greenland is important in the data.
 
-### Two variants
+**Equal-area projections (Mollweide, Equal Earth, Albers).** Preserve area; every region's map area is proportional to its real land area. For choropleths, this is the right choice. The area-size distortion already exists as a perceptual problem; equal-area projections at least ensure the map areas are honest representations of real land area, not additional distortions layered on top.
 
-**Existence connection maps** show that A connects to B without encoding magnitude. Useful for "every flight route in our network."
+**Albers USA.** A specific equal-area conic projection designed for the contiguous United States. Inset panels move Alaska and Hawaii to visible positions. Standard for US state choropleths and bubble maps. Specify `d3.geoAlbersUsa()` in every US geographic chart prompt.
 
-**Flow maps** add line width as the magnitude channel. Wider lines = more flow. Useful for "traffic volume along major routes."
+For Claude Code work: Claude Code defaults to Mercator because Mercator is familiar. Specify the projection explicitly. "Use `d3.geoEqualEarth()` for a world-level map" or "use `d3.geoAlbersUsa()` for a US-state map." The follow-up when Mercator appears:
 
-The pantry's `pantry/Visualizing Origin to Destination Flows.txt` discusses several variants in detail.
+> "The projection is Mercator. Replace with `d3.geoEqualEarth()`. Mercator distorts country areas at high latitudes, which compounds the choropleth's area-size distortion. Regenerate."
 
-### Design decisions
-
-**Great-circle paths vs. straight lines.** Long-distance routes are typically drawn as great-circle paths (the shortest path on the globe), which look curved on a Mercator projection. Short routes can be straight lines.
-
-**Line width encoding (for flow maps).** Stevens' power law applies to line width as a magnitude channel; ensure proportionality.
-
-**Spaghetti.** Dense connection maps become spaghetti. Mitigation: filter to top routes, aggregate at higher level, or switch to a non-spatial flow chart (Chapter 11).
+<!-- → [FIGURE: Two world maps showing the same choropleth data side by side. Left: Mercator — Greenland appears roughly the same size as Africa (annotated with actual ratio: "Africa is 14× larger"). Russia visually dominates the northern hemisphere. Right: Equal Earth — Africa's actual dominance is visible; Greenland is a small island; Russia is large but proportional to its actual area. Caption: "Mercator compounds the area-size distortion by adding another layer of area inaccuracy. Equal Earth preserves actual land areas so the choropleth's perceptual distortion is at least bounded by geographic reality."] -->
 
 ---
 
-## Concept 5 — When spatial isn't the right family
+## When Bubble Maps Outperform Choropleths
 
-Sometimes data has geographic structure but the geographic dimension isn't the question.
+The bubble map beats the choropleth when the data is an absolute value and the visual priority is magnitude rather than geographic pattern.
 
-A dataset of "employees by office location" can be visualized geographically (a bubble map of office locations sized by employee count) or non-geographically (a horizontal bar chart of offices sorted by employee count). If the question is "which offices have the most employees?", the bar chart wins — comparison is the relationship, not spatial pattern. If the question is "where in the country are our employees concentrated?", the bubble map wins.
+A choropleth of absolute refugee counts shades large countries darkly because they contain more people — Syria, Afghanistan, and South Sudan generate large refugee flows. But the visual result favors the areas (Russia, Canada, Australia) that have few refugees but large land masses. The map does not show what the data says.
 
-The diagnostic: when the answer benefits from geographic context, use a spatial chart. When the answer is just a ranking that happens to have place names, use a comparison chart.
+A bubble map places a circle at each country's centroid sized by the absolute refugee count. Syria, Afghanistan, and South Sudan produce large bubbles. Russia, Canada, and Australia produce small or invisible ones. The map shows what the data says. The area-size distortion is severed because the bubble's area is independent of the country's area.
 
----
+The trade-off: bubble maps work less well when the bubbles need to overlap to show the data. Dense regions of small countries — the Sahel, the Balkans, Central America — produce bubbles that pile on top of each other. Mitigations include alpha transparency, offset positioning, or aggregating to a coarser level.
 
-## Mid-chapter checkpoint
+Stevens' power law applies to bubble maps identically to bubble charts. Encode the bubble area proportional to the value, not the radius. Specify `d3.scaleSqrt` for the radius scale. The follow-up when radius encoding appears:
 
-Pick a geographic dataset from your work. Apply the form selection: choropleth (rate data, comparable regions), dot density (absolute counts, spatial pattern), bubble map (small number of locations, magnitude), connection map (origin-destination data).
+> "The bubble radius is scaled linearly. This makes visual area scale as value squared, compounding Stevens' area perception distortion. Replace with `d3.scaleSqrt` for the radius scale. Regenerate."
 
-Apply the area-size distortion check: are your regions comparable in area, or will large regions dominate? Apply the ratio-vs-absolute check: is your encoding a rate, or an absolute count?
-
-You should be able to do this in 90 seconds.
+<!-- → [FIGURE: Two world maps side by side, same absolute refugee-count dataset. Left: choropleth (Equal Earth) — large countries like Turkey, Pakistan, and Uganda (which host many refugees) are moderately dark, but Russia, Canada, and Australia (few refugees, large areas) are visually prominent. The chart misleads because large land masses dominate. Right: bubble map (Equal Earth, d3.scaleSqrt radius encoding) — Turkey, Pakistan, and Uganda have large visible bubbles; Russia, Canada, and Australia have small or absent bubbles. The visual story matches the data. Caption: "Same data, two forms. Choropleth: large areas dominate regardless of refugee count. Bubble map: the bubble area is independent of the country's area. The form that severs the distortion is the honest one for absolute counts."] -->
 
 ---
 
-## Extended worked example — building a choropleth with Claude Code
+## How This Changes the Prompt
 
-Build a choropleth of US state-level health-insurance uninsured rate for 2024. Data: 50 states + DC, with a percentage value per state.
+Geographic charts have form-specific specifications that belong in every prompt.
 
-### Channel decomposition
+**For choropleths:** the projection (`d3.geoEqualEarth()` or `d3.geoAlbersUsa()`); the encoding explicitly stated as rate or ratio ("encoding is uninsured *rate*, not absolute uninsured count"); the color scale type (sequential for unipolar data; diverging for data with a meaningful zero); the bin count (5–7) and bin method (quantile or equal-interval); the legend.
 
-- Marks: state polygons.
-- Channel: color luminance (sequential, pale-to-dark, where dark = higher uninsured rate).
-- Projection: equal-area (Albers USA) — preserves area for fair comparison.
-- Annotations: legend showing the color scale; quantitative tooltip on hover.
+**For bubble maps:** the projection; `d3.scaleSqrt` for the radius scale; `d3.geoCentroid()` for centroid computation; alpha transparency for overlapping bubbles.
 
-### The four-move prompt
+**For dot density maps:** the dots-per-N specification; the seeded random placement for reproducibility; the categorical color encoding if multiple categories need distinguishing.
 
-```
-**Show what I have:**
-US state uninsured rates for 2024. 51 records (50 states + DC), each
-with state abbreviation and percentage. Sample:
-  TX, 18.4
-  FL, 13.2
-  NY, 5.7
-  MA, 2.5
-  ...
+**For connection/flow maps:** great-circle paths for long-distance routes (`d3.geoGraticule` + `d3.geoPath`); line width proportional to flow magnitude (with `d3.scaleSqrt` for the same reason as bubbles); the top-N filter if the dataset risks spaghetti.
 
-US states GeoJSON file: data/us-states.geojson
-
-**Say what I want:**
-Choropleth in D3 v7. Single self-contained HTML file with inline CSS
-and inline D3 (loaded via CDN). Responsive to window resize.
-
-**Constrain it:**
-- Marks: state polygons.
-- Projection: d3.geoAlbersUsa() (equal-area; standard for US choropleths).
-- Color encoding: d3.scaleSequential with d3.interpolateReds. Color
-  domain: 0 to 25 (typical range for uninsured rates).
-- 7 luminance bins (the human eye distinguishes 7-10 levels reliably).
-- Bin boundaries: quantile-based (use d3.scaleQuantize or
-  d3.scaleQuantile based on data distribution).
-- Legend: horizontal color bar at bottom-right with bin boundary labels.
-- Subtitle: "Uninsured Rate by US State, 2024 (%)".
-- Tooltip on hover: state name + exact percentage.
-- Margins: top 60, right 40, bottom 80, left 40.
-- Dark mode support.
-
-**Verify:**
-Restate the channel decomposition. Then write D3 v7 code with comments
-showing which line implements which channel. Confirm projection is
-equal-area (preserves visual fairness for area). Confirm encoding is
-percentage (not absolute count of uninsured persons).
-```
-
-### Audit
-
-Standard Evergreen/Emery plus:
-
-- Projection is equal-area (d3.geoAlbersUsa, not Mercator).
-- Encoding is rate (percentage), not absolute count.
-- 5–7 luminance bins.
-- Color scale is sequential (one hue, varying luminance), not categorical or diverging.
-- Legend interpretable.
-
-The most common failure: Claude Code uses Mercator projection by default (which distorts US states' relative areas). Specify `d3.geoAlbersUsa()` explicitly.
+The most common Claude Code failure for geographic charts is the projection default. Specify the projection by name in every geographic prompt. The second most common failure is absolute-count encoding for a choropleth that should show rates. State the encoding choice explicitly and include it in the "Verify" move: "Confirm that the encoding is [rate], not [absolute count]."
 
 ---
 
-## Chapter summary
+## The Feynman Test
 
-You can now do four things you could not do before this chapter.
+The test for this chapter: given any geographic dataset, answer three questions before touching Claude Code.
 
-You can build choropleth maps, dot density maps, bubble maps, and connection/flow maps — choosing the form based on whether the data is rate (choropleth), absolute count with spatial pattern (dot density), absolute count with magnitude (bubble), or origin-destination flow (connection).
+First: is geography the right family, or is a ranked comparison chart the honest answer? If the question is "which state has the highest uninsured rate?", a bar chart answers it faster and more accurately than a choropleth. If the question is "what is the geographic pattern of uninsured rates?", the choropleth answers it. The word "pattern" is the signal.
 
-You can apply the area-size distortion diagnostic: if regions vary widely in area, the choropleth's color signal will be dominated by the area signal. Mitigations: switch forms, use comparable regions, or accept the distortion (advocacy contexts) with explicit disclosure.
+Second: is the encoding a rate or an absolute count? Absolute counts in choropleths mostly show where people live. Rates show the phenomenon per person. Apply Cairo's "compared with what?" check: what is the denominator, and is it the right one?
 
-You can apply Cairo's ratio-vs-absolute rule: choropleths should show rates, not absolute counts. The "compared with what?" check operationalizes this for every geographic claim.
+Third: do the regions vary widely in area? If yes, either use a bubble map (the bubbles' area is independent of the region's area) or accept the area-size distortion explicitly and disclose it. Equal-area projections mitigate the problem without solving it.
 
-You can specify a geographic chart for Claude Code with the right projection (equal-area for choropleths and bubble maps) and the right encoding (sequential luminance for choropleths; sqrt-scaled radius for bubble maps; line width for flow maps).
-
----
-
-## Key terms
-
-- **Choropleth.** Region-shaded map; color luminance encodes value.
-- **Dot density map.** Dots placed within regions; count-per-region encodes data.
-- **Bubble map (proportional symbol).** Circles at region centroids; size encodes value.
-- **Connection map / flow map.** Lines between locations; existence or width encodes connection or flow.
-- **Area-size distortion.** Choropleths visually weighted by region area regardless of data value.
-- **Equal-area projection.** Projection that preserves area (Albers, Equal Earth, Mollweide). Essential for choropleths and bubble maps.
-- **Ratio-vs-absolute rule.** Choropleths must show rates, not absolute counts. Cairo's "compared with what?" check.
-- **Dupin (1826).** First known choropleth — French illiteracy by department.
-- **Snow (1854).** Canonical dot map — cholera deaths in Soho.
-
----
-
-## Discussion questions
-
-1. The area-size distortion is structural — it can't be designed away within the choropleth form. What does this say about choropleth use in publications about countries with vastly different areas?
-2. Snow's dot map is celebrated. Replicating it requires fine-grained data (point-level cases) and willingness to forgo precise statistics. When is this trade-off available in modern contexts?
-3. Bubble maps and choropleths can show the same data. When does each win?
-4. Connection maps risk spaghetti. What about the data structure or the rendering tells you when to switch to a non-spatial flow chart?
-5. *Cross-chapter synthesis.* Chapter 11 (flow charts) and Chapter 12 both encounter the spaghetti problem. Frame the unified principle.
+If you can answer all three questions in sixty seconds, you know the chapter. The forms, their distortion mechanisms, and the corrections are compact enough to hold in working memory. The geographic dimension adds one problem that bar charts and scatterplots don't have — the competition between area and data. Everything else is the same channel-theory framework you have been using since Chapter 3.
 
 ---
 
@@ -295,117 +165,135 @@ You can specify a geographic chart for Claude Code with the right projection (eq
 
 ### Warm-up
 
-**Exercise 12.1** — *Form selection.* For each, choose the right geographic form:
-- Per-capita income by US state.
-- Total cancer cases by US state (absolute count).
-- Locations of all 7-Eleven stores in a city.
-- Migration flows between countries.
-- Earthquakes globally with magnitude.
+**Exercise 14.1 — Form selection.** For each of the following, name the right geographic form (choropleth, dot density, bubble map, or connection/flow map) and justify the choice in one sentence:
 
-**Exercise 12.2** — *Distortion audit.* Find a choropleth of European countries colored by total population. Identify the area-size distortion. Specify the redesign.
+- Per-capita income by US county (rate, roughly comparable-area units).
+- Total cancer cases by US state (absolute count, large region area variation).
+- Locations of every reported opioid overdose in a single city over one year.
+- Volume of container shipping between the top 20 port pairs globally.
+- Refugee population hosted by each country (you want to show absolute numbers, not per-capita rate).
 
-**Exercise 12.3** — *Ratio diagnosis.* Take a choropleth of "absolute" data (any kind). Convert to a rate or ratio that respects Cairo's check. Build with Claude Code.
+**Exercise 14.2 — Rate conversion.** You are given a choropleth showing "total COVID deaths by country." (a) Name the population confound: what does this map mostly show instead of the pandemic's severity? (b) Specify the rate that would remove the confound. (c) Name one scenario where the absolute count is legitimately the right encoding and explain why.
+
+**Exercise 14.3 — Projection audit.** Find a published world choropleth that uses Mercator projection. (a) Identify two countries where the area-size distortion is most severe (name them and give approximate real-area vs. Mercator-area ratios). (b) Specify the redesign projection and explain in one sentence why it is better for a choropleth.
 
 ### Application
 
-**Exercise 12.4** — *Build a US choropleth with Albers projection.* Take state-level rate data. Build using d3.geoAlbersUsa(). Audit.
+**Exercise 14.4 — Build a US choropleth with Albers projection.** Take a state-level rate dataset (uninsured rate, unemployment rate, any per-capita measure). Write the four-move prompt specifying `d3.geoAlbersUsa()`, a sequential color scale, quantile binning with 7 levels, and a legend. Verify in the code that the projection is not Mercator and the encoding is a rate. Iterate to publishable.
 
-**Exercise 12.5** — *Bubble map vs. choropleth comparison.* Take the same dataset. Build both forms. Identify what each reveals.
+**Exercise 14.5 — Choropleth vs. bubble map comparison.** Take the same dataset with both a rate version and an absolute-count version. Build the rate version as a choropleth (`d3.geoAlbersUsa()`, sequential color) and the absolute version as a bubble map (`d3.scaleSqrt`). Compare what each reveals. Name one question each form answers better than the other.
 
-**Exercise 12.6** — *Audit a published map.* Find a map in a recent publication. Audit using Evergreen/Emery + spatial-specific (projection, ratio-vs-absolute, color scale).
+**Exercise 14.6 — Ratio-vs-absolute toggle.** Build a world choropleth with a toggle that switches between absolute count encoding and per-capita rate encoding for the same dataset. This is the opening hook of the chapter made interactive. Document in the iteration log how the visual story changes when you switch modes.
 
 ### Synthesis
 
-**Exercise 12.7** — *Snow-style dot density map.* Take a dataset of geographic events. Build a dot density map. Compare to the choropleth alternative.
+**Exercise 14.7 — Snow-style dot density map.** Take a dataset of geographic events at the point level (crime incidents, disease cases, service requests, restaurant inspections). Build a dot density map. Then build a choropleth of the same data aggregated to administrative units (ZIP codes, census tracts). Compare: what does the dot map reveal that the choropleth cannot? Where does the choropleth's coarser resolution hide a pattern?
 
-**Exercise 12.8** — *Flow map of origin-destination data.* Take a dataset of flows between locations. Build a flow map with width encoding flow magnitude.
+**Exercise 14.8 — Flow map with spaghetti mitigation.** Take an origin-destination dataset (migration flows, flight routes, trade volumes). Build a connection map showing all routes. Identify when the chart becomes unreadable (how many routes before spaghetti?). Then apply the top-N filter — show only the routes above a magnitude threshold. Compare the two charts and specify the threshold that preserves the key story while eliminating the noise.
 
 ### Challenge
 
-**Exercise 12.9** — *Multi-projection comparison.* Build a world choropleth using Mercator, Equal Earth, and Albers. Compare what each makes visible.
+**Exercise 14.9 — Multi-projection comparison.** Build a world choropleth three times using Mercator, Equal Earth, and Mollweide projections. For each, measure the visual area of Greenland and Africa on the rendered chart and compute the ratio. Compare to the actual area ratio (Africa ≈ 14× Greenland). Which projection introduces the least distortion for a humanitarian-data choropleth?
 
-**Exercise 12.10** — *Spatial-temporal animation.* Build a choropleth that animates across time (annual changes in a rate). Use D3 transitions.
+**Exercise 14.10 — Spatial-temporal animation.** Build a choropleth that animates across time — annual changes in a state-level rate variable over five or more years. Use D3 transitions. Audit the animation: does the color scale remain consistent across frames (it must, or the reader cannot compare years), and are the transitions smooth enough to read the directional change without losing individual state positions?
 
 ---
 
-## LLM Exercise — Chapter 12: Spatial Charts
+## Key Terms
+
+**Choropleth.** Region-shaded map; color luminance encodes value. Invented by Dupin (1826) for French illiteracy by department. Requires rate encoding and comparable-area regions.
+
+**Area-size distortion.** Choropleths are perceptually dominated by the size of geographic regions regardless of the data value encoded. Structural to the form; mitigated by equal-area projections and comparable-area regions; eliminated by switching to bubble maps or dot density maps.
+
+**Dot density map.** Dots placed within regions at one dot per N units. No area encoding; count encodes data. Canonical example: Snow (1854), cholera deaths in Soho.
+
+**Bubble map (proportional symbol).** Circles at region centroids sized by value. Area encoding required (`d3.scaleSqrt`). Severs the area-size distortion.
+
+**Connection map / flow map.** Lines between locations encoding connection (existence) or flow magnitude (line width). Great-circle paths for long distances. Spaghetti mitigation: top-N filter.
+
+**Ratio-vs-absolute rule.** Choropleths should encode rates, not absolute counts. Cairo's "compared with what?" applied geographically.
+
+**Equal-area projection.** Projection preserving area relationships between regions. Essential for choropleths. `d3.geoEqualEarth()` for world maps; `d3.geoAlbersUsa()` for US state maps.
+
+**Dupin (1826).** First known choropleth. French illiteracy by department. Used comparable-area regions and a rate.
+
+**Snow (1854).** Canonical dot map. Cholera deaths by address in Soho. Pattern visible at sub-parish resolution unavailable to choropleths.
+
+---
+
+## LLM Exercise — Chapter 14: Spatial Charts
+
+**Project:** [TBD — selected after Chapter 00]
+
+**What you're building this chapter:** A geographic chart with explicit form selection and an audit document confirming the ratio-vs-absolute encoding, the projection choice, and the area-size distortion mitigation.
+
+**Tool:** Claude Code (for the build) + Claude chat (for the audit and iteration).
+
+---
+
+**The Prompt (audit + build):**
 
 ```
 I have geographic data of [DESCRIBE: regions, locations, or origin-
-destination pairs; values; what each represents]. The communication
-goal is [DESCRIBE].
+destination pairs; values and what each represents]. The communication
+goal is [DESCRIBE: what the reader needs to know in 5 seconds].
 
-Walk me through:
-1. Identify type of geographic data: regional values, point locations,
-   flow/connection data.
-2. Apply the ratio-vs-absolute check (Cairo). If absolute, recommend
-   conversion to rate.
-3. Apply the area-size distortion check. If regions vary widely,
-   recommend dot density or bubble map over choropleth.
-4. Choose form: choropleth / dot density / bubble / connection-flow.
-5. Specify projection (equal-area for choropleths; standard for others).
-6. Specify channels.
-7. Write four-move Claude Code prompt.
+Walk me through the spatial-chart design:
 
-Audit using Evergreen/Emery + spatial-specific (projection, ratio-vs-
-absolute, color scale type, legend).
-```
+1. Confirm the geographic family is appropriate. If the question is
+   a comparison (which region is largest?) rather than a spatial
+   pattern (where does this concentrate?), flag the mismatch and
+   recommend a comparison chart instead.
 
-**Connection to previous chapters:** Chapter 1 (Stevens' power law on area; luminance accuracy), Chapter 3 (Cairo's "compared with what?"), Chapter 8 (bubble chart's d3.scaleSqrt for area-not-radius), Chapter 11 (flow charts overlap).
+2. Apply the ratio-vs-absolute check (Cairo's "compared with what?").
+   If the data is an absolute count, recommend converting to a rate.
+   Name the denominator.
 
-**Preview of next chapter:** Chapter 13 covers specialized and financial charts — candlestick, Kagi, Point & Figure, bullet graph, radar. Domain-specific conventions earn their own forms.
+3. Apply the area-size distortion check. If regions vary widely in
+   area (e.g., country-level or US-state-level), recommend bubble
+   map over choropleth for absolute values, or equal-area projection
+   for rates.
 
----
+4. Choose form: choropleth (rate, comparable areas), dot density
+   (absolute count, fine spatial pattern), bubble map (absolute
+   magnitude, independent of region area), or connection/flow
+   (origin-destination).
 
-## Visual suggestions
+5. Specify projection. For world maps: d3.geoEqualEarth(). For US
+   state maps: d3.geoAlbersUsa(). Do not use Mercator.
 
-This chapter is about spatial chart selection. Each chart family it discusses has a Part II reference; the focal figure here is the chapter's central worked example.
+6. Specify channels. For choropleths: sequential or diverging color
+   scale matched to data bipolarity; 5–7 bins; quantile or equal-
+   interval bin method. For bubble maps: d3.scaleSqrt for radius.
 
-Part II references for spatial charts: [Choropleth](29-choropleth.md), [Dot Map](34-dot-map.md), [Bubble Map](25-bubble-map.md), [Connection Map](31-connection-map.md), [Flow Map](37-flow-map.md). Each Part II chapter has its own prompt.
+7. Write a four-move Claude Code prompt that produces the chart.
 
-### Figure 12.1 — Choropleth with ratio-vs-absolute toggle
-
-The chapter's central worked example. A world choropleth of a humanitarian metric, with a toggle that switches between absolute counts (the common error — large countries dominate the visual encoding regardless of per-capita reality) and ratios (per-capita normalization, which reveals the actual distribution). The figure is the chapter's ratio-vs-absolute argument made visible.
-
-See [Choropleth](29-choropleth.md) in Part II for the canonical reference.
-
-```
-Generate a world choropleth in D3 v7 with a ratio/absolute toggle. Two files:
-
-1. `chapter-12-fig-01.html` — full HTML with inline CSS and inline D3 v7. A world map with a sequential-luminance choropleth and a toggle. Page subtitle: "Ratio vs. absolute — the choropleth's most common failure made visible."
-
-2. `chapter-12-fig-01/data.json` — the dataset and population lookup.
-
-Data shape:
-- `metric`: per-country absolute value of a humanitarian metric (e.g., refugee count, aid received, COVID cases).
-- `population`: per-country population.
-
-{DATA NEEDED} — Refugee count by host country (UNHCR), aid received by country (OCHA), or any per-country humanitarian indicator. World Bank population for the ratio normalization.
-
-Encoding:
-- Base map: world countries in equal-area projection (`d3.geoEqualEarth()` or `d3.geoMollweide()`).
-- Color luminance: absolute or per-capita value, sequential walnut palette.
-- Toggle: "Absolute (raw count)" vs. "Per capita (count / population)".
-- Quintile or quantile classification (5 bins) so the legend is readable.
-
-Caption beneath the toggle reads: "Absolute counts make large countries dominate the encoding. Per-capita ratios reveal the per-person experience. Neither is wrong; each answers a different question. Make the choice explicit; do not let the default obscure it."
-
-Style: warm monochrome. Equal-area projection, not Mercator (Mercator distorts country areas, compounding the choropleth's existing area-perception issues).
-
-Provide both files as separate code blocks.
+After Claude Code returns, audit using the Evergreen/Emery subset plus
+spatial-specific checks: projection is equal-area (confirm in code),
+encoding is rate not absolute count (confirm in data join), color
+scale type matches data bipolarity, legend interpretable, bubble size
+uses d3.scaleSqrt if applicable.
 ```
 
 ---
 
-## Further reading
+**What this produces:** Audit document plus working geographic chart. Save as `chapter-14-spatial-audit.md` and `chapter-14-spatial.html`.
 
-- **Friendly, Michael. (2008).** "A Brief History of Data Visualization." Includes Dupin's 1826 choropleth.
-- **Tufte, Edward. (1983).** *The Visual Display of Quantitative Information.* The Snow analysis.
-- **Cairo, Alberto. (2019).** *How Charts Lie.* Chapter 5 on map distortions.
-- **The book's pantry** — `bubble-map.html`; the Visualizing Origin to Destination Flows reference.
+**How to adapt this prompt:**
+- *For your own dataset:* Replace the description and communication goal.
+- *For ChatGPT / Gemini:* Works as-is.
+- *For a Claude Project:* Save the spatial-chart framework as system context.
+- *For Cowork:* Use Cowork to read the GeoJSON and data files directly.
+
+**Connection to previous chapters:** Builds on Chapter 3 (Stevens' power law on area and luminance — both apply here), Chapter 4 (Cairo's "compared with what?" — the ratio-vs-absolute rule is this check applied geographically), Chapter 10 (bubble charts — the `d3.scaleSqrt` rule for area encoding applies identically to bubble maps). The area-size distortion is a new problem specific to geographic forms; everything else is the channel-theory framework from Part I.
+
+**Preview of next chapter:** Chapter 15 covers the design audit — walking the full Evergreen/Emery 22-point checklist on a completed project, plus the Tufte/Few/Cairo synthesis as the governing framework. Where previous chapters applied the per-chart audit, Chapter 15 applies the project-level audit: do all the charts in this project form a coherent visual language?
 
 ---
 
-## Tags
+## Further Reading
 
-spatial-charts, geographic-charts, choropleth, dot-density, bubble-map, proportional-symbol, connection-map, flow-map, Dupin, Snow, area-size-distortion, ratio-vs-absolute, Cairo, equal-area-projection, D3-geo, d3.geoAlbersUsa, D3, Claude-Code
+- **Friendly, Michael. (2008).** "A Brief History of Data Visualization." In *Handbook of Data Visualization*, edited by C. Chen, W. Härdle, and A. Unwin. Springer. Includes Dupin's 1826 choropleth and its lineage. In the book's pantry.
+- **Tufte, Edward R. (1983, 2nd ed. 2001).** *The Visual Display of Quantitative Information.* The Snow analysis is Tufte's canonical case for how visualization reveals causal structure.
+- **Cairo, Alberto. (2019).** *How Charts Lie: Getting Smarter About Visual Information.* Chapter 5 on map distortions and the ratio-vs-absolute rule.
+- **The book's pantry** — `bubble-map.html` for the proportional symbol map; the Visualizing Origin to Destination Flows reference for connection/flow maps.
