@@ -1,481 +1,223 @@
-# Chapter 4 — Working with Claude Code
+# Chapter 6 — Working with Claude Code
 *You Decide, the Machine Renders, You Review.*
 
-## Three suggested titles
-
-- Working with Claude Code: From Specification to Working D3
-- The MBTA Process Model Applied to Chart Generation
-- Iterate on Working Code, Not on Mockups
-
 ---
 
-## Chapter overview
+Here is an experiment. Same dataset, two prompts, twelve seconds each.
 
-By the end of this chapter you will know how to take the outputs of Chapters 1–3 (channel decomposition, chart-type selection, data audit) and turn them into a working D3 chart through Claude Code, with disciplined iteration that reaches a publishable output without burning hours. You will know the prompt anatomy that makes Claude Code reliable, the evaluation criteria (Few/Evergreen/Emery) that determine whether the output is acceptable, and the iteration workflow modeled on the MBTA project's "nothing beat iterating on working code" lesson. You will see the full pipeline walked end to end on a humanitarian dataset.
+The dataset: humanitarian funding by sector for one country in fiscal year 2024. Five sectors. One number per sector. Communication goal: which sectors received the most?
 
----
+**Prompt one:** "Make a bar chart of humanitarian funding by sector."
 
-## Learning objectives
+The chart that comes back is technically correct. Five bars. The right heights. The y-axis starts at $40 million, not zero — auto-fit to the data range. The bars are the same color. Three of the sector names are twelve to seventeen characters long and they crowd the x-axis unrotated. There are no value labels, so reading the exact amounts requires counting tick marks.
 
-1. **(Apply)** Write a Claude Code prompt that specifies chart type, data structure, channel-to-attribute mappings (from Chapter 1), and design constraints precisely enough to produce a usable D3 v7 output on the first attempt.
-2. **(Analyze)** Evaluate a Claude Code–generated D3 visualization against the design specifications in the prompt, identifying gaps using the marks-and-channels vocabulary.
-3. **(Create)** Iterate on a Claude Code output through at least two revision cycles, each targeting a specific design failure identified by applying Chapters 1–3 frameworks. Apply the MBTA project lesson: nothing beats iterating on working code.
-
----
-
-## Opening case — two prompts for the same chart
-
-You have a dataset: humanitarian funding allocation by sector for one country in fiscal year 2024. Five sectors, one quantitative value per sector. Communication goal: which sectors received the most funding?
-
-You write a prompt for Claude Code:
-
-> "Make a bar chart of humanitarian funding by sector."
-
-Claude Code returns a working chart in 12 seconds. It is a column chart with five sectors on the x-axis and funding on the y-axis. The bars are roughly the right heights. The y-axis is auto-fit to the data range (starts around $40M, ends around $400M). The bars are the same color (default D3 steelblue). The x-axis labels are unrotated and crowded because three of the sector names are 12+ characters. There are no annotations.
-
-The chart is technically correct. It is also unfit for the purpose. The truncated y-axis violates the proportional ink principle (Chapter 5). The unrotated long labels overlap. The single color does nothing — there's no redundant encoding of magnitude. The reader has to count tick marks to read approximate values.
-
-You write a different prompt:
-
-> "**Show what I have:**
-> 5 rows. Each row has `sector` (string, 8–17 characters) and `funding_usd_millions` (number). Sample: Food Security, 380.2 / Shelter, 142.7 / Water and Sanitation, 98.4 / Health, 87.3 / Protection, 64.1.
->
-> **Say what I want:**
-> Horizontal bar chart in D3 v7. Single HTML file with inline CSS and inline D3 (loaded via CDN). Responsive to window resize.
->
-> **Constrain it:**
-> - Marks: rectangles, one per sector.
-> - y-position: sector (categorical, sorted by `funding_usd_millions` descending for ranking readability).
-> - x-position from zero baseline: `funding_usd_millions` (quantitative, range from 0 to ~$400M). Zero baseline non-negotiable.
-> - Color luminance redundantly encoding `funding_usd_millions` (sequential pale-to-dark). Use d3.scaleSequential with d3.interpolateRgb from "#9B957F" to "#8B0000".
-> - x-axis ticks at $0, $100M, $200M, $300M, $400M. Format as currency with M suffix.
-> - Funding values labeled at the right end of each bar.
-> - Subtitle: "FY2024 Humanitarian Funding by Sector (USD millions)".
-> - Margins: top 60, right 80, bottom 40, left 160 (left margin accommodates sector labels).
-> - Dark mode support via prefers-color-scheme media query.
->
-> **Verify:**
-> Restate the channel decomposition in your own words first. Then write D3 v7 code with comments showing which line implements which channel. List any decisions you made not specified above (font choice, exact tick label format)."
-
-Claude Code returns a chart that matches the specification. Five horizontal bars, sorted by funding descending, on a zero baseline, with redundant color luminance, with currency labels, with rotated nothing because horizontal bars don't need rotation. The reader can rank the sectors at a glance and read approximate values without counting ticks.
-
-The difference between the two prompts is not effort. The second is roughly 250 words; the first is 9. The difference is that the second prompt encodes the outputs of Chapters 1, 2, and 3:
-
-- **Chapter 3 output (data audit):** column types and sample values are stated in "Show what I have."
-- **Chapter 2 output (chart selection):** chart type and orientation are stated in "Say what I want," with the implicit Cairo justification (the message demands ranking; bar charts win for ranking).
-- **Chapter 1 output (channel decomposition):** every channel-to-attribute mapping is named in "Constrain it."
-- **Chapter 00 output (verification request):** the four-move structure ends with the "Verify" step.
-
-This is the workflow this chapter teaches. Claude Code becomes reliable when it receives the outputs of the prior chapters. Without those outputs, Claude Code is guessing. With them, Claude Code is executing.
-
----
-
-## Theoretical grounding — the MBTA project, Few's criteria, the Evergreen/Emery checklist
-
-Three sources ground this chapter, each at the moment its specific contribution is needed.
-
-**The MBTA project's iteration model (Barry & Card, 2014).** Mike Barry and Brian Card built a complete D3-based visualization of Boston's MBTA system as a master's thesis project. Their published reflection includes a sentence that has become canonical for the AI-assisted-coding era: *"Mockups and prototypes helped us formulate ideas, but nothing beat iterating on working code."* The lesson generalizes. When the implementation barrier is low (which it is now, thanks to Claude Code), the right workflow is to produce a working chart fast and then iterate on it, rather than to spend time on mockups that may or may not survive contact with the data. This chapter adopts the model: prompt → working chart → audit → follow-up prompt → improved chart → repeat. The first chart should land in 90 seconds. The iterations move you from working to publishable.
-
-**Stephen Few's clarity-over-minimization criterion.** The book's stance on chartjunk (named in the Preface and developed in Chapter 5) governs the audit step. The criterion for any visual element in a Claude Code output is "does this support the message?" — not "is this strictly data ink?" Functional color encoding stays. Light gridlines that aid value reading stay. Redundant labels that aid scanning stay. Decoration that does not serve the message goes. Few's frame is what Chapter 5 uses to defend the bar chart's color luminance redundancy; it is what Chapter 14 develops as the full design audit; it is what this chapter applies pragmatically to Claude Code output evaluation.
-
-**The Evergreen/Emery 22-point design checklist.** Stephanie Evergreen and Ann Emery's checklist (`pantry/EvergreenDataVizChecklist.txt`) operationalizes Few/Tufte/Cairo into 22 yes-or-no items grouped into five categories: text, arrangement, color, lines, overall. The checklist is the audit instrument. Chapter 14 walks the full version; this chapter introduces the chart-family-applicable subset for use during Claude Code iteration. The five-category structure is the muscle memory the rest of the book builds.
-
----
-
-## Concept 1 — The Claude Code + D3 pipeline
-
-Before any prompt: the environment.
-
-### Where D3 runs
-
-D3 runs in any environment that can render an HTML/SVG canvas. The four common targets:
-
-**Standalone HTML file.** A single self-contained HTML file with inline CSS and inline D3 loaded via CDN. The simplest target. Open in any browser. Useful for one-off charts, course exercises, embeds. The pantry's chart examples are all this format.
-
-**Observable notebook.** Observable (observablehq.com) is a JavaScript notebook environment optimized for D3 work. Cells re-run on data change; the chart redraws automatically. Useful for exploratory work and for charts that need to be edited collaboratively. Many of the canonical D3 examples are Observable notebooks.
-
-**ES module in a bundler.** D3 imported as `import * as d3 from "d3"` in a Webpack/Vite/Rollup project. Useful when the chart is part of a larger application. The chart code is JavaScript; the rendering happens at runtime.
-
-**React (or Vue, Svelte) component.** D3 inside a component framework. Useful for charts that are part of a React app. The pattern: D3 builds the SVG; React manages the component lifecycle. Several conventions exist for the boundary; the most common is "React renders the SVG, D3 computes the layout."
-
-For most LLM Exercises in this book, the standalone HTML file is the right target. It runs anywhere. It can be opened in a browser without setup. It can be saved as a deliverable. Specify it in the "Say what I want" move of every prompt.
-
-### What Claude Code can see
-
-Claude Code can read files in your project directory. The relevant files for D3 work:
-
-- **The data file.** CSV, JSON, or inlined data. If the data is in a file, name it in the prompt: "data is in `data.csv`."
-- **Reference charts in the pantry.** The pantry's HAI chart examples. Naming a pantry file in the prompt ("see `pantry/visualization/bar-chart.html` for the design pattern") gives Claude Code a concrete reference.
-- **Your `CLAUDE.md`.** The coding constitution from Chapter 00. Reference it at the start of every session: "follow the conventions in `CLAUDE.md`."
-- **Your `DESIGN.md`.** The visual constitution from Chapter 00. Reference it only when the session involves visual decisions — palette choice, dark-mode behavior, typography, responsive breakpoints, component rules. Loading it on routine code-only sessions wastes instructions on rules that don't apply.
-- **Prior chart files from your project.** If you've built related charts, naming them maintains visual consistency.
-
-Claude Code cannot see what is not in the project directory. If the data lives in a remote API, you need to specify the API call (or paste the data). If the design pattern lives in your head, you need to specify it explicitly.
-
-### What Claude Code does well in this pipeline
-
-- **Writes valid D3 v7 syntax** with high reliability.
-- **Computes layouts** for non-trivial chart types (Sankey, treemap, force-directed) via D3's layout primitives.
-- **Generates accessibility metadata** (ARIA labels, focus states, screen-reader-friendly summaries).
-- **Handles responsive resize** via window event listeners and re-rendering.
-- **Implements design constraints** when they are named (zero baseline, sort order, label rotation).
-- **Generates color scales** (sequential, categorical, diverging) using D3's built-in interpolators.
-
-### What Claude Code does badly
-
-- **Chart selection** when the prompt is vague. (Chapter 2 is the fix.)
-- **Channel decomposition** when the prompt doesn't specify it. (Chapter 1 is the fix.)
-- **Domain-specific defaults** (e.g., financial chart conventions, scientific publication norms) without explicit instruction.
-- **Chart aesthetics** that match a specific brand or publication style without reference examples.
-- **Performance optimization** beyond the basics. For very large datasets, hand-tuning is sometimes required.
-
-The labor separation: Claude Code handles syntax and computation; you handle decisions and aesthetic judgment.
-
----
-
-## Concept 2 — Prompt anatomy applied to D3
-
-The four-move prompt structure (Chapter 00) applies directly. For D3 work specifically, each move has a chart-specific shape.
-
-### Move 1: Show what you have
-
-For D3, "what you have" includes:
-
-**The dataset.** Number of rows, column names, column types, a sample of 3–5 rows. If the data is large, an aggregated or filtered version. If the data is in a file Claude Code can read, name the file path.
-
-**The reference design (optional but powerful).** "See `pantry/visualization/bar-chart.html` for the visual pattern" gives Claude Code a concrete reference. The output will follow the reference's design conventions (typography, color palette, margins) where the prompt doesn't override.
-
-**The `CLAUDE.md` (always for code work) and `DESIGN.md` (when visual decisions are in scope).** "Follow the conventions in `CLAUDE.md`" delegates coding standards to the persistent file. "Apply `DESIGN.md` for palette, typography, and dark-mode behavior" delegates the visual specifications. The split matters because of the instruction budget Chapter 00 names — loading `DESIGN.md` on routine code-only sessions wastes ~50 instruction slots on rules that don't apply to the task at hand.
-
-### Move 2: Say what you want
-
-For D3, "what you want" includes:
-
-**Chart type.** Named explicitly — "horizontal bar chart," "line chart with multiple series," "Sankey diagram." Don't say "comparison chart"; the genre is too broad. The output of Chapter 2's selection framework belongs here.
-
-**Output format.** "Single HTML file with inline CSS and inline D3 (loaded via CDN)" for standalone work. Or "Observable notebook cell," "ES module," "React functional component," depending on target.
-
-**D3 version.** "D3 v7" by default. Specify if working in a project pinned to an older version.
-
-**Responsive behavior.** "Responsive to window resize" or "fixed dimensions: 800×500" depending on deployment context.
-
-### Move 3: Constrain it
-
-This is the longest move. The constraints come from Chapter 1 (channels), Chapter 2 (chart-family-specific design rules), Chapter 3 (data structure decisions), the active `CLAUDE.md` (project-wide coding standards), and — when visual decisions are in scope — the active `DESIGN.md` (project-wide visual standards).
-
-A typical "Constrain it" block for a single chart includes:
-
-- **Marks.** "Rectangles, one per category." "Path with circular markers at data points."
-- **Channel-to-attribute mappings.** "y-position encodes [attribute] (data type, with constraint)." Repeat for each channel in use.
-- **Sort order.** "Categories sorted by [attribute] descending." If the order matters and is non-default, name it.
-- **Axis configuration.** Tick locations, label format, label rotation.
-- **Color decision.** Sequential / categorical / diverging; palette endpoints; the function used (`d3.scaleSequential`, `d3.scaleOrdinal`, etc.).
-- **Annotations.** Subtitle, value labels, callouts.
-- **Layout.** Margins, padding, corner radius, line widths.
-- **Accessibility.** ARIA labels, focus states, keyboard interaction (where applicable).
-- **Dark-mode behavior.** prefers-color-scheme handling, color inversions.
-
-The "Constrain it" move is where the work is. A two-line "Constrain it" produces a chart that runs on Claude Code's defaults; a 20-line "Constrain it" produces the chart you specified.
-
-### Move 4: Ask for verification
-
-For D3, the verification request has a standard form:
-
-> "Before writing the code, restate the channel decomposition in your own words to confirm. Then write the D3 v7 code with comments showing which line implements which channel. After the code, list any decisions you made that are not specified above so I can confirm or override them."
-
-The restatement catches misinterpretation early (before code is written). The line-by-line comments make the channel decomposition auditable in the code itself. The unspecified-decisions list flags where Claude Code chose for you — useful for catching defaults that don't match your intent.
-
-> ### ↳ Dig Deeper — Build your prompt template
->
-> **Prompt:**
->
-> > Help me draft a reusable prompt template for D3 chart generation, following the four-move structure adapted to my workflow. Include placeholders for the variable parts (dataset description, chart type, channel mappings) and concrete examples for the parts I want to standardize (output format, D3 version, dark-mode handling, accessibility defaults). The template should fit on one page and be the prompt I copy and adapt for every chart in this book.
->
-> **What to do with the output:** Save as `claude-code-prompt-template.md`. Use it for every LLM Exercise. Refine it as you discover what your work consistently needs.
-
----
-
-## Concept 3 — The MBTA iteration model
-
-"Mockups and prototypes helped us formulate ideas, but nothing beat iterating on working code." — Mike Barry and Brian Card, MBTA Visualization, 2014.
-
-The MBTA team's process model has four practical implications for Claude Code work.
-
-### Get a working chart fast
-
-The first prompt should produce a chart that runs. Not a perfect chart. A chart that opens in a browser and shows the data. The 250-word prompt from this chapter's opening case is the model: enough detail to land near the target on the first attempt, not enough to perfectly nail it.
-
-The first chart almost always has issues. That's expected. The next step is iteration on working code, not on the prompt-in-isolation.
-
-### Iterate on the artifact, not the spec
-
-Once the chart exists, the iteration target is the chart, not the prompt. You read the chart against the audit checklist (Concept 4), identify what's wrong, and write a follow-up prompt that names the specific failure.
-
-A good follow-up prompt is small:
-
-> "The y-axis is starting at $40M instead of $0. Reset to a zero baseline. The Cleveland-McGill argument and proportional ink principle apply: bar charts use length-from-axis as the magnitude channel, and a non-zero baseline distorts the channel. Regenerate."
-
-A bad follow-up prompt re-specifies everything:
-
-> "Change the chart so it has a zero baseline, sorted bars descending, color luminance, currency labels..."
-
-The bad version is restating the original prompt rather than fixing the specific failure. Claude Code's response will be a wholesale regeneration that may introduce new failures. The good version is targeted; the response should be a small change.
-
-### One concern per iteration
-
-When multiple things are wrong, fix them one at a time. Two simultaneous changes in a follow-up prompt introduce ambiguity about which fix produced which effect. The iteration becomes harder to debug.
-
-The order of iterations matters. Fix structural issues (zero baseline, chart type, channel mapping) before stylistic issues (color palette, font size, label positioning). A chart with the wrong channel mapping cannot be fixed by changing colors.
-
-### Working code is the truth
-
-The most important MBTA lesson: a working chart shows you things that mockups don't. The data clusters in unexpected ways. The labels overlap at small browser sizes. The color you chose looks fine in light mode and bad in dark mode. None of these are visible in a sketch or a written specification. They are visible in the rendered chart.
-
-This is why Chapter 00's verification stack is non-negotiable: open the chart in a browser, resize it, switch to dark mode, run a color-blind simulator. The artifact is the truth. The prompt was the hypothesis.
-
----
-
-## Concept 4 — Evaluating Claude Code output (the Evergreen/Emery subset)
-
-Stephanie Evergreen and Ann Emery's data visualization checklist has 22 items grouped into five categories. The full checklist is Chapter 14's territory; the per-chart subset for Claude Code iteration covers the items that are most likely to fail and are easy to fix.
-
-### The five-category structure
-
-**Text.** Title clear and informative. Axis labels and units. Annotations support understanding. Body text legible at deployment size.
-
-**Arrangement.** Sort order meaningful. Layout uses space efficiently. Related elements grouped (Gestalt proximity). Visual flow matches reading order.
-
-**Color.** Used purposefully (no decoration). Sequential / categorical / diverging matched to data type. Color-blind safe (test with simulator). Sufficient contrast with background.
-
-**Lines.** Gridlines support reading without distracting. Axis lines visible but unobtrusive. Stroke widths consistent. No 3D effects or perspective.
-
-**Overall.** No chartjunk that doesn't support the message. Proportional ink (zero baselines where required). Data shown without distortion. Accessibility metadata present.
-
-### Per-chart audit during iteration
-
-For every Claude Code output, walk the five categories. For each, ask: did the output get this right? If not, what's the specific failure and what's the follow-up prompt?
-
-The audit takes 90 seconds for a static chart. It is the discipline that distinguishes "I got Claude Code to produce a chart" from "I produced a publishable chart with Claude Code's help."
-
-### Common failures and follow-up prompts
-
-A few patterns recur:
-
-**Failure: Y-axis auto-fit instead of zero baseline.**
-- Follow-up: "Reset y-axis to start at 0. The proportional ink rule (Tufte, grounded in Stevens' power law on area perception) requires this for bar charts. Regenerate the y-scale and the gridline positions."
-
-**Failure: Wrong channel for the data type.**
-- Follow-up: "The chart uses color hue to encode score (a quantitative variable). Hue is an identity channel, not a magnitude channel. Replace with sequential color luminance (pale-to-dark) using d3.scaleSequential. Position-y already encodes score; this is a redundant encoding."
-
-**Failure: Sort order missing or wrong.**
-- Follow-up: "Sort the categories by score descending so the highest-scoring category appears at the top of the chart. The categorical x-axis has no inherent order; the sort gives the reader a ranking the data does not impose."
-
-**Failure: Labels rotated when they don't need to be.**
-- Follow-up: "The y-axis labels are rotated -30°. With horizontal bars, labels go on the left and don't need rotation. Set rotation to 0 and right-align."
-
-**Failure: Color palette doesn't match brand or reference.**
-- Follow-up: "Use the HAI palette from `pantry/visualization/bar-chart.html`: foreground `#0D0D0D` (light mode) / `#FFFFFF` (dark mode); muted `#9B957F`; accent `#8B0000`. Replace the current palette."
-
-**Failure: No accessibility metadata.**
-- Follow-up: "Add ARIA labels: the SVG should have `role='img'` and `aria-label` describing the chart. Each bar should have a `<title>` element with the category name and value for screen-reader access."
-
-The follow-ups are short, specific, and grounded in the chapter's vocabulary. The pattern repeats for every chart in Part II.
-
-> ### ↳ Dig Deeper — Build your iteration log
->
-> **Prompt:**
->
-> > For the next three charts I build with Claude Code, help me set up an iteration log: a markdown file per chart that captures the initial prompt, the first output (or a description of it), each iteration's follow-up prompt with the failure it targeted, and the final accepted output. The log makes the workflow auditable and surfaces patterns in what fails consistently.
->
-> **What to do with the output:** Save the iteration log template. Use it for every LLM Exercise from this point forward. After ten charts, you will know what your typical failures are and which prompt patterns prevent them.
-
----
-
-## Concept 5 — When Claude Code is not the right tool
-
-Claude Code is the right tool for most chart work in this book. Three contexts where it isn't:
-
-**Highly performant data-driven charts at scale.** Tens of thousands of points, real-time updates, server-side rendering for Twitter-card OG images. Claude Code can produce the chart, but the performance optimization (canvas instead of SVG, virtual scrolling, deck.gl for 3D scenes) often needs hand-tuning. The chart specification still uses the framework from this book; the implementation may need a developer.
-
-**Charts that depend on a custom interaction language.** A research dashboard with a specific brushing-and-linking pattern, a custom hover tooltip, a tightly-coupled visualization-and-data-table combination. Claude Code can produce the components; integrating them into the custom interaction usually needs code review.
-
-**Domain-specific scientific visualizations.** Phylogenetic trees with specific layout algorithms, molecular structure visualization, neuroimaging overlays. The standard D3 layouts don't cover these; specialized libraries or hand-coded algorithms do. Claude Code can produce a starting point; domain expertise is needed to finish.
-
-For these cases, the chapter's framework still applies — channel decomposition, chart selection, audit, iteration. The iteration may include hand-coded sections that Claude Code didn't produce. The Brutalist labor separation is unchanged: the human owns the design judgment; the tooling (whatever it is) executes.
-
----
-
-## Mid-chapter checkpoint
-
-Pick a chart specification from your work — even a hypothetical one. Walk it through the four-move structure. Write the prompt. Estimate how long the first output will take and how many iterations you expect.
-
-If you cannot write the prompt without going back to Chapters 1, 2, or 3, the prompt is missing prerequisites. Identify which.
-
----
-
-## Extended worked example — the full pipeline on the humanitarian funding dataset
-
-Walk the complete pipeline end to end. Same dataset as the opening case: humanitarian funding by sector for one country in fiscal year 2024.
-
-### Step 1 — Apply Chapter 3 (read the dataset)
-
-Five rows. Sector (categorical, 5 values, no inherent order). Funding (quantitative, ratio scale, USD millions). One observation per category.
-
-Analyst's question: "How are funds distributed across sectors?"
-
-Reader's question (audience: a humanitarian-program officer): "Which sectors are receiving the most funding and which the least?"
-
-The two questions overlap; the reader's version is more specific (it's about the ranking, not just the distribution). The chart must answer the reader's version.
-
-"Compared with what?" The categories are compared with each other. The within-period comparison is the point.
-
-Relationship type: comparison.
-
-### Step 2 — Apply Chapter 2 (select the chart)
-
-Cairo's four steps:
-
-1. Key message: "Food security received 56% of total funding, more than the next four sectors combined."
-2. Data structure: 5 categorical + 1 quantitative.
-3. Functional category: comparison.
-4. Specific form: bar chart, with sort by funding descending. Long sector labels suggest horizontal orientation.
-
-### Step 3 — Apply Chapter 1 (decompose the channels)
-
-- Marks: rectangles, one per sector.
-- y-position (categorical axis): sector. Sorted by funding descending.
-- x-position from zero baseline (quantitative axis): funding. Range 0 to ~$400M.
-- Color luminance: funding (redundant encoding, sequential pale-to-dark).
-- Annotations: funding value at the right end of each bar; subtitle naming the period and units.
-
-### Step 4 — Write the four-move prompt (this chapter)
+**Prompt two:**
 
 ```
-**Show what I have:**
-5 rows. Each row has `sector` (string, 8-17 characters) and
-`funding_usd_millions` (number). Sample:
-  Food Security, 380.2
-  Shelter, 142.7
-  Water and Sanitation, 98.4
-  Health, 87.3
-  Protection, 64.1
+Show what I have:
+5 rows. Columns: sector (string, 8-17 chars), funding_usd_millions
+(number). Sample: Food Security 380.2 / Shelter 142.7 /
+Water and Sanitation 98.4 / Health 87.3 / Protection 64.1.
 
-See pantry/visualization/bar-chart.html for the visual pattern (HAI
-palette, dark-mode support, responsive resize). Follow CLAUDE.md
-for coding conventions; apply DESIGN.md for palette, typography,
-and dark-mode behavior. Follow these for any decision not specified
-below.
+Say what I want:
+Horizontal bar chart in D3 v7. Single HTML file, inline D3 via CDN.
+Responsive.
 
-**Say what I want:**
-Horizontal bar chart in D3 v7. Single self-contained HTML file with
-inline CSS and inline D3 (loaded via CDN). Responsive to window
-resize.
-
-**Constrain it:**
+Constrain it:
 - Marks: rectangles, one per sector.
-- y-position: sector (categorical, sorted by `funding_usd_millions`
-  descending).
-- x-position from zero baseline: `funding_usd_millions` (quantitative,
-  range 0 to ~$400M). Zero baseline non-negotiable.
-- Color luminance redundantly encoding `funding_usd_millions`
-  (sequential pale-to-dark). Use d3.scaleSequential with
-  d3.interpolateRgb from "#9B957F" to "#8B0000". Color domain: 0 to 400.
-- x-axis ticks at $0, $100M, $200M, $300M, $400M. Format as currency.
-- Funding values labeled at the right end of each bar.
-- Subtitle: "FY2024 Humanitarian Funding by Sector (USD millions)".
-- Margins: top 60, right 80, bottom 40, left 160 (left margin
-  accommodates sector labels).
-- Dark mode support via prefers-color-scheme media query.
-- ARIA: SVG role="img", aria-label describing the chart; each bar has
-  a <title> element for screen readers.
+- y-position: sector, sorted by funding descending.
+- x-position from zero baseline: funding. Zero baseline non-negotiable.
+- Color luminance redundantly encoding funding, sequential pale-to-dark.
+- x-axis ticks at $0, $100M, $200M, $300M, $400M.
+- Value labels at the right end of each bar.
+- Margins: top 60, right 80, bottom 40, left 160.
+- Dark mode via prefers-color-scheme.
 
-**Verify:**
-Restate the channel decomposition in your own words first. Then write
-D3 v7 code with comments showing which line implements which channel.
-After the code, list any decisions you made that are not specified
-above so I can confirm or override them.
+Verify:
+Restate the channel decomposition first. Then write D3 v7 with comments
+showing which line implements which channel. List any unspecified
+decisions.
 ```
 
-### Step 5 — Read Claude Code's first output
+The chart that comes back is right on the first attempt. Five horizontal bars sorted by funding, on a zero baseline, pale-to-dark encoding reinforcing the ranking, direct value labels, sector names on the left with room to breathe. The reader ranks the sectors in three seconds.
 
-Claude Code returns:
+<!-- → [FIGURE: Two side-by-side bar charts, same dataset. Left: vague-prompt output — column chart, auto-fit y-axis starting at $40M, uniform steelblue bars, crowded x-axis labels unrotated, no value labels. Right: four-move-prompt output — horizontal bars sorted descending, zero baseline, sequential pale-to-dark luminance, direct value labels, left-aligned sector names with generous margin. Caption labels each panel with the prompt that produced it (truncated to one line each). The reader should see, at a glance, what 9 words vs. 200 words buys.] -->
 
-1. A specification restatement (good — confirms understanding).
-2. An HTML file with inline D3 (the chart).
-3. A list of decisions: "I chose Inter as the font (consistent with the pantry reference). I used 12px for axis labels and 14px for the subtitle. I rounded bar corner radius to 3px to match the pantry."
+The difference between the two prompts is not intelligence applied. It is discipline applied. The second prompt is 200 words; the first is 9. But the second encodes the outputs of the previous three chapters — the channel decomposition from Chapter 3, the chart-type selection from Chapter 4, the data structure description that Chapter 3 teaches. Without that upstream work in the prompt, Claude Code is guessing. With it, Claude Code is executing.
 
-Open the HTML in a browser.
-
-### Step 6 — Audit (Evergreen/Emery subset)
-
-| Item | Pass/Fail | Notes |
-|---|---|---|
-| Title clear and informative | ✓ | Subtitle names period and units |
-| Axes labeled, units clear | ✓ | x-axis has $ M format |
-| Sort order meaningful | ✓ | Descending by funding |
-| Data shown without distortion | ✓ | Zero baseline; bar lengths match values |
-| Color used purposefully | ✓ | Luminance redundantly encodes funding |
-| Color-blind safe | ✓ (sequential luminance) | Verified with Sim Daltonism |
-| No chartjunk | ✓ | No decoration; no 3D |
-| Accessibility metadata | ✓ | ARIA labels and titles present |
-| Responsive | ✓ | Resize works in browser |
-| Dark mode | ✓ | Tested |
-
-All items pass. The chart is publishable as-is.
-
-### Step 7 — When iteration is needed
-
-Suppose one item failed. Suppose the color domain Claude Code used was `d3.extent(data)` (auto-fit to data), so the lightest bar at $64M is mapped to the palest color and the darkest at $380M to the darkest — but the relative-magnitude differences feel compressed.
-
-Follow-up prompt:
-
-> "The color luminance scale is auto-fit to the data range, which compresses the magnitude differences visually. Reset the color domain to [0, 400] (the full range from zero to the maximum). The luminance redundantly encodes the absolute magnitude, not the within-data range. Regenerate the d3.scaleSequential with this domain."
-
-Claude Code returns the corrected version. Audit. Pass.
-
-### What this teaches
-
-The full pipeline — Chapter 3 (data audit) → Chapter 2 (selection) → Chapter 1 (channels) → Chapter 4 (prompt + iterate) → ready output — is the model for every chart in Part II. Each chapter's contribution is a section of the audit/specification that funnels into the prompt. Without any one of them, the prompt is incomplete and the iteration is longer.
-
-This is the load-bearing claim of Part I: do the work upstream, and the chart almost mechanically follows. Skip the work upstream, and you spend the time downstream in iteration.
+This chapter is about the four-move structure, the iteration model, and the audit discipline that takes "working chart" to "publishable chart." The pipeline is the subject.
 
 ---
 
-## Chapter summary
+## What the Pipeline Actually Is
 
-You can now do five things you could not do before this chapter.
+The pipeline has five stages. Each one is the output of a chapter.
 
-You can write a Claude Code prompt for a D3 chart that integrates the outputs of Chapters 1, 2, and 3 — channel decomposition, chart-type selection, data audit — into a single specification that lands near the target on the first attempt.
+Chapter 3 read the dataset. You now know the attribute types, the number of observations, the analyst's question versus the reader's question, and the comparison the chart needs to make explicit.
 
-You can apply the MBTA iteration model: get a working chart fast, iterate on the artifact (not the spec), one concern per iteration, and trust the rendered chart over the imagined one. The first chart in 90 seconds; the iterations move you to publishable.
+Chapter 4 selected the chart. You now have Cairo's key message in one sentence, the functional category from the FT Visual Vocabulary, and the specific form — horizontal bar, line chart, scatterplot, whatever the message demands.
 
-You can audit any Claude Code output using the Evergreen/Emery five-category subset (text, arrangement, color, lines, overall) and write follow-up prompts that target specific failures with the chapter's vocabulary.
+Chapter 3 decomposed the channels. You now have the marks named, every channel-to-attribute mapping specified, and every design constraint that flows from Chapters 3 and 4.
 
-You can recognize when Claude Code is not the right tool — high-performance scenarios, custom interaction languages, domain-specific scientific visualizations — and adjust the workflow without abandoning the chapter's framework.
+This chapter writes the prompt, runs it, audits the output, and iterates to publishable. That is the whole job.
 
-You can sequence the upstream chapters' contributions into a reproducible pipeline: every chart you build for the rest of the book follows the same arc, with chart-family-specific design rules supplied by Chapters 5–13.
-
-The thing to watch for, going forward, is the temptation to skip the upstream work and produce the chart from a vague prompt. The opening case of this chapter is the lesson in miniature: 9 words of prompt produce 12 seconds of work and a chart that is wrong in five ways; 250 words of prompt produce 12 seconds of work and a chart that is right. The work scales with specificity. Specificity scales with upstream discipline.
+Nothing in this chapter produces knowledge that overrides Chapters 3, 4, or 3. If the channel decomposition is wrong, the prompt will be wrong. If the chart type is wrong, the best iteration discipline in the world will not save you — you will iterate to a beautifully executed wrong chart. The upstream work is not optional. This chapter assumes it has been done.
 
 ---
 
-## Key terms
+## The Four-Move Structure
 
-- **The MBTA iteration model.** Get a working chart fast; iterate on the artifact, not the spec; one concern per iteration; trust the rendered chart over the imagined one.
-- **Evergreen/Emery 22-point checklist.** The audit instrument used during iteration. Five categories: text, arrangement, color, lines, overall. The full checklist is Chapter 14's territory; the per-chart subset is this chapter's tool.
-- **Few's clarity-over-minimization.** The criterion for any visual element: does this support the message? — not "is this strictly data ink?"
-- **Working chart vs. publishable chart.** A working chart runs. A publishable chart has been audited and iterated to remove the failures the audit caught.
-- **Targeted follow-up prompt.** A short prompt that names a specific failure and the perceptual or design rule it violates. Distinguished from re-specifying the original prompt.
+Every D3 prompt Claude Code receives has the same four moves. The moves come from Chapter 00. They are not a style; they are a protocol.
+
+**Move 1: Show what you have.** The dataset. Number of rows, column names, types, a sample of three to five rows. If the data is in a file Claude Code can read, name the path. If you have a pantry reference chart whose visual conventions match what you want, name that too — "see `pantry/visualization/bar-chart.html` for the design pattern" gives Claude Code a concrete reference and delegates all the visual decisions the prompt does not override.
+
+**Move 2: Say what you want.** The chart type, named explicitly. "Horizontal bar chart." Not "comparison chart" — that is a category, not a form. The output format: "Single HTML file with inline CSS and inline D3 v7 loaded via CDN, responsive to window resize." D3 version number. That is the whole move.
+
+**Move 3: Constrain it.** This is where the work goes. Every mark, every channel-to-attribute mapping, every design constraint from the channel decomposition. Sort order if it matters. Axis tick locations and label format. Color scale — the function, the palette endpoints, the domain. Annotations — value labels, subtitle. Margins. Accessibility metadata. Dark-mode behavior. None of this can be left to defaults if you want a chart that matches the specification you derived in the prior chapters. A two-line "Constrain it" produces a chart on Claude Code's defaults. A twenty-line "Constrain it" produces the chart you specified.
+
+**Move 4: Ask for verification.** A specific form: "Restate the channel decomposition in your own words first. Then write D3 v7 with comments showing which line implements which channel. After the code, list any decisions you made that are not specified above." The restatement catches misinterpretation before code is written. The line-level comments make the channel mapping auditable in the code. The unspecified-decisions list shows you where Claude Code chose for you — and therefore where defaults may not match intent.
+
+The second prompt in this chapter's opening case follows this structure exactly. The four moves are labeled. The "Constrain it" block is the longest. The "Verify" move is the last. This is not a coincidence.
+
+<!-- → [FIGURE: The second prompt from the opening case rendered as an annotated code block. Each of the four moves is highlighted in a different muted color with a label bracket on the left margin: Move 1 (Show what you have), Move 2 (Say what you want), Move 3 (Constrain it — the largest block), Move 4 (Verify). Annotations point out: "data sample goes here," "chart type named explicitly, not categorically," "every channel-to-attribute mapping is a bullet," "verification request is always the last move." This is the template the reader will copy for every chart in the book.] -->
 
 ---
 
-## Discussion questions
+## What Claude Code Does and Does Not Do Well
 
-1. The MBTA project's "nothing beat iterating on working code" lesson predates Claude Code by a decade. Why does it apply more strongly now than it did then?
-2. The four-move prompt structure is roughly 250 words for a single chart. Is this overhead worth paying for every chart? What types of charts justify shorter prompts; what types justify longer?
-3. Claude Code's failure modes (Chapter 00 named three: API hallucination, chart-type mismatch, channel mismatch) are often diagnosable from the output without running it. Which can be caught by reading the prompt and the response together; which require running the chart?
-4. The Evergreen/Emery five-category subset is the per-chart audit. What item is most often missing from charts you produce? What does the consistent gap suggest about your prompt patterns?
-5. *Cross-chapter synthesis.* Chapter 14 walks the full Evergreen/Emery checklist and the Tufte/Few/Cairo synthesis. Frame the relationship between this chapter's per-chart audit and Chapter 14's project-wide audit: where does each operate, and when does the per-chart audit defer to the project-wide one?
+The labor in this pipeline is divided: Claude Code handles syntax and computation; you handle decisions and judgment. Understanding where the line is keeps the pipeline working.
+
+Claude Code is reliable for valid D3 v7 syntax. It is reliable for layout computation — Sankey flows, treemap nesting, force-directed simulations — via D3's layout primitives. It handles responsive resize via window event listeners. It generates accessibility metadata when asked. It implements color scales using D3's interpolators. It produces correct tick formatting.
+
+Claude Code is unreliable for chart selection when the prompt is vague. It reaches for familiar defaults — pie charts for anything with percentages, line charts for anything with dates — the same familiarity bias that Chapter 4 diagnosed in human designers. If the chart-type decision is not in the prompt, Claude Code will make it, and not necessarily well.
+
+Claude Code is unreliable for domain-specific defaults. Financial chart conventions, scientific publication norms, humanitarian-data display standards — these are not in the prompt. Claude Code cannot apply them unless you name them or reference a pantry file that embodies them.
+
+Claude Code is unreliable for performance at scale. Charts with tens of thousands of points, real-time updates, server-side rendering — these require implementation choices (canvas instead of SVG, virtual scrolling, WebGL) that the straightforward D3 approach does not produce. Claude Code can produce a starting point; a developer is often needed to finish.
+
+The division of labor is clean: Claude Code executes; you decide. The four-move structure is how you communicate the decisions to the executor.
+
+<!-- → [TABLE: Two-column reference table — "Claude Code handles reliably" vs. "You must specify (Claude Code guesses badly)." Reliable column: D3 v7 syntax, layout computation (Sankey, treemap, force), responsive resize, color scale implementation, tick formatting, accessibility metadata when asked. Must-specify column: chart type (defaults to familiarity bias), channel-to-attribute mappings, sort order, zero baseline, domain-specific conventions, performance optimizations at scale. Caption: "The division of labor. Everything in the right column belongs in your 'Constrain it' block."] -->
+
+---
+
+## The MBTA Lesson
+
+Mike Barry and Brian Card built a complete D3-based visualization of Boston's MBTA transit system as a master's thesis project in 2014. Their published reflection includes a sentence that has become the canonical statement of the iteration-on-working-code principle: *"Mockups and prototypes helped us formulate ideas, but nothing beat iterating on working code."*
+
+The sentence is from 2014. It was about D3 development before LLMs. It applies more strongly now because the barrier to producing working code has dropped from hours to seconds. When it took a day to produce the first working chart, iteration cycles were long and expensive. When it takes twelve seconds, the right workflow is to produce something that runs and immediately improve it.
+
+The MBTA lesson has four practical consequences.
+
+**Get a working chart fast.** The first prompt should produce something that opens in a browser and shows the data. Not a perfect chart — a working one. The 200-word prompt from the opening case is the model: specific enough to land near the target, not so exhaustive that the prompt-writing takes longer than the iteration would.
+
+**Iterate on the artifact, not the specification.** Once a chart exists, the iteration target is the chart, not the prompt. You read the chart against the audit, identify the specific failure, and write a follow-up prompt that names it. A good follow-up is small and targeted:
+
+> "The y-axis starts at $40M instead of $0. Reset to a zero baseline. The proportional ink principle requires this for bar charts — bar length encodes magnitude, and a non-zero baseline distorts the channel. Regenerate."
+
+A bad follow-up re-specifies everything from the beginning. The bad version produces a wholesale regeneration that may introduce new failures. The good version produces a small change.
+
+**One concern per iteration.** When multiple things are wrong, fix them in sequence. Two simultaneous changes introduce ambiguity about which fix produced which effect. Debugging becomes harder. The order matters: fix structural failures (wrong channel, wrong baseline, wrong chart type) before stylistic ones (color palette, font size, label position). A chart with the wrong channel mapping cannot be saved by changing colors.
+
+**The rendered chart is the truth.** A working chart shows things that specifications do not. Data clusters in unexpected ways. Labels overlap at small browser widths. A color that looks fine in light mode looks wrong in dark mode. None of this is visible in a written specification. Open the chart in a browser. Resize it. Switch to dark mode. Run a color-blind simulator. The artifact is the truth; the prompt was a hypothesis.
+
+<!-- → [FIGURE: The MBTA iteration loop as a circular flow diagram. Four nodes: (1) Four-move prompt → (2) Working chart (12 seconds) → (3) Audit (Evergreen/Emery subset, 90 seconds) → (4) Targeted follow-up prompt. Arrow from (4) back to (2). A fifth node breaks out of the loop: "Audit passes → Publishable chart." Annotation on the loop: "One concern per iteration. Structural before stylistic." Annotation on the exit arrow: "Typically 1–3 iterations." The MBTA quote appears as a caption: "Nothing beat iterating on working code. — Barry & Card, 2014."] -->
+
+---
+
+## The Audit
+
+Between the first chart and the publishable chart is the audit. The audit is not intuition — "this doesn't feel right." It is a checklist applied systematically.
+
+Stephanie Evergreen and Ann Emery's 22-point data visualization checklist, which lives in the pantry as `EvergreenDataVizChecklist.txt`, organizes the audit into five categories. Chapter 14 walks the full checklist for project-level design review. This chapter uses the per-chart subset — the items most likely to fail on a Claude Code first output and most straightforward to fix.
+
+**Text.** Is the title clear and informative? Do axis labels name the attribute and its units? If annotations are present, do they support the message rather than restate the obvious?
+
+**Arrangement.** Is the sort order meaningful? For categorical charts: sorted by value, not alphabetically or in source order unless the source order is the point. Is the layout using space efficiently, or are there large empty regions? Does visual flow match reading order?
+
+**Color.** Is every color doing work? Sequential, categorical, or diverging — does the scale type match the data type? Is the palette color-blind safe? Test with a simulator; do not assume.
+
+**Lines.** Do gridlines aid reading without distracting? Stroke widths consistent. No 3D effects, no perspective, no shadow.
+
+**Overall.** No chartjunk that does not support the message. Zero baseline where bar charts require it — this is the proportional ink principle from Chapter 5, grounded in Stevens' power law from Chapter 3. Data shown without distortion. ARIA labels and `<title>` elements present for screen-reader access.
+
+The audit takes ninety seconds for a static chart. It is the difference between "Claude Code produced a chart for me" and "I produced a publishable chart using Claude Code." The distinction matters because it is the difference between executing the tool and owning the output.
+
+---
+
+## Common Failures and the Follow-Ups That Fix Them
+
+Five failures recur across chart types. Each has a standard follow-up form.
+
+**Y-axis auto-fit instead of zero baseline.** Claude Code defaults to `d3.extent(data)` for the quantitative axis, which starts the axis at the minimum value in the dataset. For bar charts this violates proportional ink. The follow-up:
+
+> "Reset the y-axis (or x-axis for horizontal bars) to start at 0. The proportional ink principle: bar length is the magnitude channel. A non-zero baseline compresses the channel. Regenerate the scale and the gridline positions."
+
+**Wrong channel for the data type.** Claude Code sometimes encodes a quantitative variable with color hue — an identity channel — rather than luminance or saturation. Hue cannot be ranked. The follow-up:
+
+> "The chart uses hue to encode [quantitative attribute]. Hue is an identity channel; it distinguishes categories, not magnitudes. Replace with sequential luminance using d3.scaleSequential with d3.interpolateRgb from [pale] to [dark]. Keep y-position as the primary channel; luminance is the redundant encoding."
+
+**Sort order missing or wrong.** The default is often source-file order, which may be alphabetical or arbitrary. The follow-up:
+
+> "Sort the categories by [attribute] descending so the highest value appears first. The categorical axis has no inherent order; the sort gives the reader a ranking."
+
+**Labels overcrowded or rotated unnecessarily.** Rotated x-axis labels on a column chart are sometimes the right call; on a horizontal bar chart they never are. The follow-up:
+
+> "Remove the -30° rotation on the y-axis labels. For horizontal bars, the labels go on the left axis and are read normally. Set rotation to 0 and right-align."
+
+**No accessibility metadata.** Claude Code does not add ARIA labels unless asked. The follow-up:
+
+> "Add ARIA: SVG gets `role='img'` and `aria-label` describing the chart in one sentence. Each bar gets a `<title>` element with the category name and value."
+
+The pattern across all five: name the specific failure, name the rule it violates (from this book's framework), and tell Claude Code what to do differently. No re-specification of the entire chart. One targeted change.
+
+<!-- → [TABLE: Five-row reference table of common Claude Code failures. Columns: Failure name | What Claude Code does by default | The rule violated | Follow-up prompt template (one sentence). Rows: (1) Auto-fit axis | d3.extent on quantitative scale | Proportional ink / zero baseline | "Reset [axis] to start at 0..." (2) Wrong channel for data type | Hue for quantitative | Expressiveness principle | "Replace hue with sequential luminance..." (3) Wrong sort order | Source-file order | Effectiveness principle | "Sort by [attribute] descending..." (4) Unnecessary label rotation | -30° on horizontal bar y-axis | Arrangement | "Remove rotation, set to 0, right-align..." (5) No accessibility metadata | No ARIA | Accessibility | "Add role='img', aria-label, and <title> per bar..." Caption: "Keep this table next to your keyboard. These five failures account for most first-output problems."] -->
+
+---
+
+## A Constitution for Every Project
+
+The four-move prompt works for a single chart. For a project with twenty charts, the four-move structure has an additional layer: the `CLAUDE.md` and `DESIGN.md` files from Chapter 00.
+
+`CLAUDE.md` is the coding constitution. It holds project-wide standards that Claude Code should apply to every chart: D3 version, file-naming convention, accessibility defaults, the requirement to add `<title>` and ARIA labels. Anything you find yourself specifying in every "Constrain it" block is a candidate for `CLAUDE.md`. Reference it at the start of every Claude Code session: "follow the conventions in `CLAUDE.md`."
+
+`DESIGN.md` is the visual constitution. It holds the project's color palette with hex values, the typography rules, the responsive breakpoints, the dark-mode color inversions. Reference it only in sessions that involve visual decisions — loading it on a routine code session wastes instruction space on rules that do not apply to the task.
+
+The split matters because of what Chapter 00 called the instruction budget. The Claude Code context window has a practical limit on how much specification it can hold at once while still producing coherent output. Loading both constitutions plus a twenty-line "Constrain it" block is manageable. Loading them plus the full documentation for a third-party library plus the entire data file in CSV form is not. Use both files judiciously.
+
+After ten charts, review your "Constrain it" blocks. What did you specify in every one? Move it to `CLAUDE.md`. What design decision did you make the same way every time? Move it to `DESIGN.md`. The constitutions improve through use; a blank `CLAUDE.md` on chart twenty is a sign the iteration model was not applied.
+
+---
+
+## The Full Pipeline, Once
+
+Here is the five-stage pipeline walked once through, with the humanitarian funding dataset from the chapter's opening.
+
+**Stage 1 — Chapter 3 audit.** Five rows. Sector: categorical, five values, no inherent order. Funding: quantitative, ratio scale, USD millions. One observation per category. Analyst's question: how are funds distributed? Reader's question: which sectors get the most and least? "Compared with what?" — sectors compared to each other, within-period. Relationship type: comparison.
+
+**Stage 2 — Chapter 4 selection.** Cairo step 1: "Food security received 56% of total funding, more than the next four sectors combined." Step 2: five categorical values, one quantitative attribute. Step 3: comparison. Step 4: horizontal bar chart, sorted descending, long labels suggest horizontal orientation.
+
+**Stage 3 — Chapter 3 channel decomposition.** Marks: rectangles. y-position: sector, sorted descending. x-position from zero: funding, range 0 to 400M. Color luminance: funding, redundant. Annotations: value labels at bar ends, subtitle naming period and units.
+
+**Stage 4 — This chapter's four-move prompt.** The prompt from the opening case. Run it. Twelve seconds. First output.
+
+**Stage 5 — Audit and iterate.** Open in browser. Resize. Dark mode. Color-blind simulator. Apply the five-category checklist. In this case, all items pass. Chart is publishable.
+
+When an item fails, the follow-up is small, targeted, and grounded in the chapter's vocabulary. Typically one to three iterations after the first chart. The pipeline ends when the audit passes.
+
+<!-- → [FIGURE: End-to-end pipeline as a horizontal five-stage flow. Boxes: (1) Chapter 3: Data audit — attribute types, analyst vs. reader question, "compared with what?" (2) Chapter 4: Chart selection — Cairo four steps, functional category, specific form. (3) Chapter 3: Channel decomposition — marks, mappings, constraints. (4) Chapter 5: Four-move prompt → Working chart. (5) Audit & iterate → Publishable chart. Arrows between all five. A "feedback loop" arrow from Stage 5 back to Stage 4 labeled "Structural failure → revise decomposition." Each box also names its deliverable file from the chapter-05-pipeline/ directory (01-data-audit.md, etc.). Caption: "The pipeline. Stages 1–3 are upstream. Stage 4 is this chapter. Stage 5 is the loop that closes the gap."] -->
+
+---
+
+## What This Changes Going Forward
+
+Every chapter in Part II follows this pipeline. Each chart family — comparison, distribution, relationship, flow, spatial — adds chart-family-specific design rules to the "Constrain it" block. Chapter 6 adds the zero-baseline rule and the sort-by-value convention for bar charts. Later chapters add the IQR whisker rule for box plots, the log-scale-for-skewed-data convention for scatterplots, the rate-not-absolute-count rule for choropleths. The rules are additions to the framework you now have. They do not replace it.
+
+The pipeline is the constant. The channel decomposition belongs in the "Constrain it" block of every chart prompt, regardless of chart type. The "Verify" move belongs at the end of every prompt. The audit belongs after every first output. The iteration belongs between audit and publishable.
+
+Feynman's lecture style had a specific rhythm: here is the phenomenon, here is the question it raises, here is the mechanism that answers it, here is how you would calculate it yourself. This pipeline has the same rhythm. Here is the data. Here is the question. Here is the specification. Here is the chart. The chart is what you calculate. The calculation is correct when the audit passes. The audit passes when the specification was right. The specification was right when the upstream chapters were done.
+
+Do the upstream chapters first.
 
 ---
 
@@ -483,214 +225,117 @@ The thing to watch for, going forward, is the temptation to skip the upstream wo
 
 ### Warm-up
 
-**Exercise 4.1** — *Write a four-move prompt for a familiar chart.* Take a chart you have produced before (a bar chart, a line chart, a scatterplot from your professional work). Write the four-move prompt that would produce it from scratch with Claude Code. Submit the prompt without running it. Estimate how close to your original chart Claude Code's output would be.
+**Exercise 5.1 — Move identification.** The opening case contains two prompts. For the second prompt, label each of the four moves explicitly. Identify which line or block constitutes Move 1, Move 2, Move 3, and Move 4. Then identify one thing the second prompt specifies that the first prompt leaves to Claude Code's default — and name what Claude Code's default would likely have been.
 
-**Exercise 4.2** — *Targeted follow-up.* Claude Code produces a chart with three failures: (1) y-axis auto-fits to data range instead of zero, (2) color hue encodes a quantitative variable, (3) sort order is alphabetical instead of by value. Write three separate follow-up prompts, one per failure. Order them in the right sequence (structural before stylistic).
+**Exercise 5.2 — Targeted follow-up writing.** Claude Code produces a chart with these three failures: (1) the y-axis starts at $40M instead of $0, (2) categories are sorted alphabetically instead of by value, (3) color hue encodes a quantitative variable. Write three separate targeted follow-up prompts, one per failure. Order them correctly (structural before stylistic). For each, name the rule the failure violates.
 
-**Exercise 4.3** — *Audit subset.* Apply the Evergreen/Emery five-category subset (text, arrangement, color, lines, overall) to a chart in the pantry. Report which categories pass, which fail, and what follow-up would fix the failures.
+**Exercise 5.3 — Audit application.** Apply the Evergreen/Emery five-category subset (text, arrangement, color, lines, overall) to any chart in the book's pantry. For each category, state pass or fail with a one-sentence justification. For each failure, write the follow-up prompt that would fix it.
 
 ### Application
 
-**Exercise 4.4** — *End-to-end pipeline.* Take a real dataset you have. Walk the full pipeline: Chapter 3 audit, Chapter 2 selection, Chapter 1 decomposition, Chapter 4 prompt. Run the prompt through Claude Code. Audit the output. Iterate to publishable. Submit: the audit document, the prompt, the first output, the iteration log, the final chart.
+**Exercise 5.4 — Vague vs. four-move comparison.** Build the same chart twice using Claude Code. First attempt: a single-sentence vague prompt. Second attempt: a full four-move prompt derived from the channel decomposition and chart-type selection for the same dataset. Count the iterations each required to reach a publishable output. Compare total time. Report which failures the vague prompt introduced that the four-move prompt avoided.
 
-**Exercise 4.5** — *MBTA-model practice.* Build the same chart twice: once with a vague prompt and as much iteration as needed to land on a publishable output, once with a four-move prompt. Compare the time, the number of iterations, and the final chart. The exercise teaches you what specificity buys in concrete terms.
+**Exercise 5.5 — Full pipeline, one chart.** Take a real dataset you have or one from a public repository. Walk the complete five-stage pipeline: Chapter 3 data audit, Chapter 4 chart selection, Chapter 3 channel decomposition, four-move prompt, audit and iterate. Document each stage as a separate markdown file in a `chapter-05-pipeline/` directory. Submit the directory.
 
-**Exercise 4.6** — *CLAUDE.md update from experience.* After building 5 charts in your domain, review your prompt history. What constraints did you specify in every prompt? Promote them to your `CLAUDE.md`. What constraints did you specify but were ignored or misinterpreted? Note them as potential clarifications for the next round.
+**Exercise 5.6 — CLAUDE.md from experience.** Build five charts on the same project using the four-move structure. After the fifth, review your "Constrain it" blocks. Identify every constraint you specified in all five. Write a `CLAUDE.md` that promotes those constraints to project-wide defaults. Test it on a sixth chart: does the "Constrain it" block shrink without losing output quality?
 
 ### Synthesis
 
-**Exercise 4.7** — *Iteration log analysis.* Build 10 charts using the four-move structure and keep an iteration log per chart. After 10 charts, analyze: which failures recur? Which categories of the Evergreen/Emery checklist fail most often? What patterns can be moved upstream into the initial prompt or the `CLAUDE.md`?
+**Exercise 5.7 — Iteration log analysis.** Build ten charts using the four-move structure and keep an iteration log for each (initial prompt, first output description, each follow-up and the failure it targeted, final result). After ten charts, analyze: which of the five Evergreen/Emery categories failed most often? Which prompt patterns consistently prevented failures? What belongs in your `CLAUDE.md` that is not there yet?
 
-**Exercise 4.8** — *Multi-LLM iteration comparison.* Take the same flawed Claude Code output. Submit a follow-up prompt to Claude Code, ChatGPT, and Gemini. Compare how each handles the iteration. Where do they converge? Where does each LLM produce a different correction?
+**Exercise 5.8 — When the pipeline breaks down.** Identify a chart request where the four-move pipeline would produce a worse outcome than a different approach — either because the data is too large for inline specification, because the chart requires domain knowledge Claude Code does not have, or because the required interaction pattern is beyond straightforward D3. Describe what breaks and what the right workflow is instead.
 
 ### Challenge
 
-**Exercise 4.9** — *Edge case: a high-performance chart.* Take a dataset with 50,000+ points. Walk the four-move pipeline. When you hit a performance issue (Claude Code's straightforward implementation chokes), write the follow-up prompt that asks for the optimization (canvas instead of SVG, virtual scrolling, deck.gl). Document what Claude Code did well and where the human (you) had to intervene.
+**Exercise 5.9 — Multi-LLM iteration comparison.** Take the same flawed Claude Code first output. Write a targeted follow-up prompt and submit it to Claude Code, ChatGPT, and Gemini. Compare how each handles the correction. Where do all three converge on the right fix? Where does each LLM produce a different correction, and what does the divergence reveal about each model's default behavior?
 
-**Exercise 4.10** — *Build your team's CLAUDE.md.* If you work with a team, draft a shared `CLAUDE.md` for the team's D3 work. Include: the team's color palette with hex values, the team's typography conventions, the team's accessibility requirements, the team's preferred D3 version, the team's responsive design conventions. Test it on three real charts and refine.
+**Exercise 5.10 — Build a team prompt template.** If you work with a team, draft a shared four-move prompt template that captures the team's invariants: D3 version, output format, accessibility defaults, palette reference, dark-mode requirement. Test it on three charts across two team members. Identify where the template under-specifies (different team members fill in different defaults) and revise.
 
 ---
 
-## LLM Exercise — Chapter 4: The Full Pipeline
+## Key Terms
+
+**Four-move prompt.** Show what you have → say what you want → constrain it → ask for verification. The structure that makes Claude Code reliable.
+
+**Working chart.** A chart that runs in a browser and shows the data. The target of the first prompt. Distinguished from a publishable chart.
+
+**Publishable chart.** A working chart that has been audited and iterated to remove the failures the audit caught.
+
+**MBTA iteration model.** Get a working chart fast; iterate on the artifact, not the specification; one concern per iteration; trust the rendered chart over the imagined one. From Barry and Card (2014).
+
+**Targeted follow-up prompt.** A short prompt naming one specific failure and the rule it violates. Distinguished from re-specifying the original prompt.
+
+**Evergreen/Emery checklist.** The audit instrument. Five categories: text, arrangement, color, lines, overall. Full version in `pantry/EvergreenDataVizChecklist.txt`. Chapter 14 walks the complete version.
+
+**CLAUDE.md / DESIGN.md.** The coding and visual constitutions for a project. Constraints that recur in every chart belong in one of the two files.
+
+---
+
+## LLM Exercise — Chapter 5: The Full Pipeline
 
 **Project:** [TBD — selected after Chapter 00]
 
-**What you're building this chapter:** A complete D3 chart from raw dataset to publishable output, walked through the full pipeline (Chapters 1–4) with iteration logs documenting the failures and follow-ups. The deliverable demonstrates the workflow that Chapters 5–13 will apply to specific chart families.
+**What you're building this chapter:** A complete D3 chart from raw dataset to publishable output, walked through the full pipeline with an iteration log documenting each failure and the follow-up that fixed it. The deliverable is the workflow that every subsequent chapter applies.
 
-**Tool:** Claude Code (primary) + Claude chat or a Claude Project (for the audit step if working in a Project).
+**Tool:** Claude Code (primary) + Claude chat or a Claude Project (for the audit step).
 
 ---
 
 **The Prompt (full pipeline):**
 
 ```
-I am working through Chapter 4 of Brutalist d3 x Claude. I want
-to build a complete chart from a dataset I have, demonstrating the full
+I am working through Chapter 5 of Brutalist D3 × Claude. I want to
+build a complete chart from a dataset, demonstrating the full
 pipeline. Help me through the steps:
 
 1. Read the dataset I'm providing: [DESCRIBE: rows, columns, types,
-   source]. The communication goal is [DESCRIBE: what the reader needs
-   to know in 5 seconds; the audience].
+   source]. Communication goal: [DESCRIBE: what the reader needs to
+   know in 5 seconds; who the audience is].
 
-2. Apply Chapter 3's audit: data types, analyst's vs. reader's question,
-   "compared with what?", relationship the data supports.
+2. Apply Chapter 3's audit: data types, analyst's vs. reader's
+   question, "compared with what?", relationship type.
 
-3. Apply Chapter 2's selection: Cairo's four-step framework. Recommend
-   a chart type with justification.
+3. Apply Chapter 4's selection: Cairo's four-step framework.
+   Recommend a chart type with justification.
 
-4. Apply Chapter 1's channel decomposition: marks, channel-to-attribute
-   mappings, design constraints.
+4. Apply Chapter 3's channel decomposition: marks, channel-to-
+   attribute mappings, design constraints.
 
-5. Write the four-move Claude Code prompt that integrates all the above.
-   Submit the prompt to Claude Code. Read the first output.
+5. Write the four-move Claude Code prompt that integrates all the
+   above. Run it. Read the first output.
 
 6. Apply the Evergreen/Emery five-category subset (text, arrangement,
    color, lines, overall). Identify any failures.
 
 7. For each failure, write a targeted follow-up prompt naming the
-   specific failure and the perceptual or design rule it violates.
+   specific failure and the rule it violates.
 
-8. Iterate to a publishable output (typically 1-3 iterations after the
-   first). Document each iteration in an iteration log.
+8. Iterate to publishable (typically 1–3 iterations). Document each
+   iteration in a log.
 
-Save the audit, the channel decomposition, the prompt, the iteration
-log, and the final chart as a `chapter-04-full-pipeline/` directory
-with the appropriate files. The directory becomes a model for every
-chart you build in Chapters 5-13.
+Save outputs as a chapter-05-full-pipeline/ directory:
+01-data-audit.md, 02-selection-audit.md, 03-channel-decomposition.md,
+04-prompt.txt, 05-iteration-log.md, 06-final-chart.html.
 ```
 
 ---
 
-**What this produces:** A directory containing the full audit-to-output trail for one chart. Files: `01-data-audit.md`, `02-selection-audit.md`, `03-channel-decomposition.md`, `04-prompt.txt`, `05-iteration-log.md`, `06-final-chart.html`. The directory is your reference template.
+**What this produces:** A directory containing the full audit-to-output trail for one chart. The directory is your reference template for Chapters 6–14.
 
 **How to adapt this prompt:**
 - *For your own dataset:* Replace the dataset description and communication goal.
-- *For ChatGPT / Gemini:* Works as-is. Both will produce the audit; the chart still gets built in Claude Code.
-- *For a Claude Project:* Save the audit framework as system context; the per-chart pipeline becomes the user message.
+- *For ChatGPT / Gemini:* Works as-is for the audit stages; the chart itself still gets built in Claude Code.
+- *For a Claude Project:* Save the audit framework as system-prompt context; the per-chart pipeline becomes the user message.
 
-**Connection to previous chapters:** This is the chapter that integrates everything from Part I. Chapters 1, 2, 3 produce the inputs; Chapter 4 produces the output. Future chapters' LLM Exercises will follow the same pattern with chart-family-specific design rules added.
+**Connection to previous chapters:** This is the integration chapter for Part I. Chapters 3, 4, and 3 produce the inputs; Chapter 5 produces the output. Every subsequent chapter adds chart-family-specific design rules to the "Constrain it" block.
 
-**Preview of next chapter:** Chapter 5 begins Part II — the chart taxonomy. Each Part II chapter adds chart-family-specific design rules to the framework you have just built. Chapter 5 (comparison charts) is the first; the same pipeline applies, with comparison-specific design rules layered on.
-
----
-
-## Visual suggestions
-
-The figures this chapter discusses, with Claude Code prompts to generate them. The chapter is about the prompt → chart pipeline, so the focal figures show that pipeline in action — vague vs. precise prompts producing different charts, MBTA-style iteration, the full pipeline output.
-
-For chart-type references the chapter mentions in passing, see Part II directly: [Bar Chart](20-bar-chart.md), [Sankey Diagram](62-sankey-diagram.md), [Line Graph](43-line-graph.md), [Treemap](75-treemap.md), [Scatterplot](36-scatterplot.md). Each Part II chapter has its own prompt.
-
-### Figure 4.1 — Two prompts for the same chart
-
-The opening-case figure. Same source dataset, two prompts: a vague one ("make a bar chart of these numbers") and a precise four-move one. Two resulting charts side by side. The reader sees what each prompt produces and can read off the difference.
-
-See [Bar Chart](20-bar-chart.md) in Part II for the canonical reference.
-
-```
-Generate a single HTML page in D3 v7 with two side-by-side bar charts. Two files:
-
-1. `chapter-04-fig-01.html` — full HTML with inline CSS and inline D3 v7. Two SVG panels in a flex layout. Page subtitle: "Same data, two prompts — vague vs. four-move."
-
-2. `chapter-04-fig-01/data.json` — the dataset.
-
-Data shape:
-- 8–12 categories with one quantitative attribute.
-  - `category`: string — sector or program name
-  - `value`: number — funding amount, count, or percentage
-
-{DATA NEEDED} — A humanitarian-program funding-by-sector dataset. UNHCR or OCHA published reports work. 8–12 categories with values of varying magnitude.
-
-Left panel — vague-prompt output:
-- Default chart that Claude Code produces from a one-line "make a bar chart" prompt.
-- Bars in source order (not sorted), default rainbow palette, no axis labels, no zero baseline highlighted, ambient grid lines.
-- This panel is intentionally compromised; do not improve it.
-
-Right panel — four-move-prompt output:
-- Bars sorted descending by value.
-- Single-hue walnut palette.
-- Zero baseline explicit; y-axis ticks at meaningful round numbers.
-- Direct value labels on each bar.
-- One-line subtitle naming the chart's claim.
-
-Caption box between or beneath both panels showing the two prompts side by side. The reader should be able to read both prompts and see how each one produced its chart.
-
-Style: warm monochrome. The four-move chart looks editorial; the vague chart looks like default software output.
-
-Provide both files as separate code blocks.
-```
-
-### Figure 4.2 — MBTA iteration sequence
-
-A 4-panel sequence showing one chart through four iterations of the MBTA review process. The first panel is the initial Claude Code output; each subsequent panel applies one Evergreen/Emery audit correction. The figure is the iteration loop made visible.
-
-```
-Generate a 4-panel iteration sequence in D3 v7. Two files:
-
-1. `chapter-04-fig-02.html` — full HTML with inline CSS and inline D3 v7. Four small panels in a row, each rendering the chart at a different iteration stage. Page subtitle: "One chart, four reviews — the MBTA iteration model."
-
-2. `chapter-04-fig-02/data.json` — the dataset (one source, rendered four ways with progressive corrections).
-
-Data shape:
-- A 5-source-node, 5-destination-node Sankey diagram representing humanitarian aid flow from donors to programs.
-  - `nodes`: array of `{id, label}`.
-  - `links`: array of `{source, target, value}`.
-
-{DATA NEEDED} — A humanitarian aid funding flow: top 5 donor countries → top 5 program sectors. OCHA FTS data or UNHCR donor reports.
-
-Panel 1 — initial output: rainbow palette, no labels on small links, ambient grid, default link curves.
-Panel 2 — color audit corrected: single-hue walnut palette.
-Panel 3 — labeling corrected: direct labels on each link with value.
-Panel 4 — final: subtitle, source/destination separation tightened, all corrections applied.
-
-Caption beneath each panel names the audit point applied at that step. Above the sequence, a brief description of the MBTA review process.
-
-Style: warm monochrome. The sequence reads as a progression from default output to publication-ready chart.
-
-Provide both files as separate code blocks.
-```
-
-### Figure 4.3 — The full pipeline: end-to-end on one dataset
-
-A wider figure showing the complete pipeline: data input (table view) → audit document (channel decomposition box) → prompt (code block) → chart output (final D3 visualization). The figure is the chapter's pipeline made visible end-to-end.
-
-```
-Generate a 4-panel end-to-end pipeline figure in D3 v7. Two files:
-
-1. `chapter-04-fig-03.html` — full HTML with inline CSS and inline D3 v7. Four panels arranged in sequence (left-to-right or top-to-bottom), each showing one stage of the pipeline. Page subtitle: "End to end — data, audit, prompt, chart."
-
-2. `chapter-04-fig-03/data.json` — the dataset and metadata.
-
-Data shape:
-- `data_table`: the source data as rows and columns.
-- `audit`: a structured object with channel decomposition (mark, channels, attribute mappings).
-- `prompt`: the Claude Code prompt as a string.
-- `chart_data`: the data shape needed to render the final chart.
-
-{DATA NEEDED} — A humanitarian-funding-by-region dataset, 8–10 regions, two attributes (current-year value, prior-year value).
-
-Panel 1 — data table: render the source data as an HTML table with light borders. 8–10 rows, 3–4 columns.
-Panel 2 — audit: a structured callout box with the channel decomposition rendered as a small structured list (Mark: bar; Channels: x-position = region, y-position = value, hue = year).
-Panel 3 — prompt: a code block showing the full four-move prompt.
-Panel 4 — chart: the final rendered chart (a multiset bar chart comparing current and prior year values).
-
-Caption between panels names what each stage accomplishes.
-
-Style: warm monochrome. Each panel labeled with its pipeline-stage name.
-
-Provide both files as separate code blocks.
-```
+**Preview of next chapter:** Chapter 6 begins the chart-family chapters. The full pipeline applies; comparison-specific design rules (zero baseline, sort-by-value, the Tufte/proportional-ink argument) are the addition.
 
 ---
 
-## Further reading
+## Further Reading
 
-- **Barry, Mike, and Brian Card. (2014).** "Visualizing MBTA Data." Available online. The full project report; read the section on iteration philosophy.
-- **Evergreen, Stephanie. (2019).** *Effective Data Visualization: The Right Chart for the Right Data.* SAGE Publications. Includes the Evergreen/Emery checklist with extensive examples.
-- **Few, Stephen.** *Now You See It: Simple Visualization Techniques for Quantitative Analysis.* Few's most accessible book; the chapters on iteration and audit are directly relevant.
-- **The book's pantry** — particularly `pantry/EvergreenDataVizChecklist.txt` for the full checklist and `pantry/00-claude-prompting-tips.md` for the prompt-writing discipline that this chapter applies to D3 specifically.
-
----
-
-## Tags
-
-Claude-Code, D3, four-move-prompt, MBTA-iteration-model, Evergreen-Emery-checklist, Few-clarity-criterion, working-chart, publishable-chart, targeted-follow-up, audit-checklist, full-pipeline, channel-decomposition
+- **Barry, Mike, and Brian Card. (2014).** "Visualizing MBTA Data." The full project report; read the section on iteration philosophy. Available online.
+- **Evergreen, Stephanie. (2019).** *Effective Data Visualization: The Right Chart for the Right Data.* SAGE Publications. The Evergreen/Emery checklist with extensive examples.
+- **Few, Stephen.** *Now You See It: Simple Visualization Techniques for Quantitative Analysis.* Chapters on iteration and audit are directly relevant.
+- **The book's pantry** — `pantry/EvergreenDataVizChecklist.txt` for the full checklist; `pantry/00-claude-prompting-tips.md` for prompt-writing discipline applied to D3.
