@@ -48,3 +48,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Francis Amasa Walker** ran the US Census of 1870 and 1880 — and used the back-to-back horizontal bar chart we now call a population pyramid as a standard visualization for age and sex distributions. He helped found the modern statistical agency.
+
+![Francis Amasa Walker, circa 1880. AI-generated portrait based on a public domain photograph.](../images/francis-amasa-walker.jpg)
+*Francis Amasa Walker, circa 1880. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Francis Amasa Walker, and how does his US Census work connect to the population pyramid we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Francis Amasa Walker"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to compare Walker's 1870 census population pyramids with the modern UN population pyramids of post-baby-boom countries — what changes the shape?
+- Ask it about Walker's controversial role in pre-eugenic American thinking about immigration.
+
+What changes? What gets better? What gets worse?

@@ -56,3 +56,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Victor de Villiers** co-wrote *The Point and Figure Method of Anticipating Stock Price Movements* in 1933 — formalizing a charting technique already in widespread floor-trader use, where columns of Xs and Os encode price moves without reference to time.
+
+![Victor de Villiers, circa 1933. AI-generated portrait based on a public domain photograph.](../images/victor-de-villiers.jpg)
+*Victor de Villiers, circa 1933. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Victor de Villiers, and how does his work on point-and-figure charts connect to the chart we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Point and figure chart"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to walk through how a point-and-figure chart's "box size" and "reversal amount" parameters change what gets recorded.
+- Ask it to compare point-and-figure with the kagi chart (Chapter 42) — both ignore time; how do they differ?
+
+What changes? What gets better? What gets worse?

@@ -54,3 +54,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Armi Ratia** founded the Finnish textile company Marimekko in 1951 — whose bold geometric prints lent their name to the variable-width stacked bar chart now used to display two-way category proportions. The chart is named after the fabric pattern, not its designer.
+
+![Armi Ratia, circa 1965. AI-generated portrait based on a public domain photograph.](../images/armi-ratia.jpg)
+*Armi Ratia, circa 1965. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Armi Ratia, and how does her textile design at Marimekko connect to the Marimekko chart we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about her career or ideas.
+```
+
+→ Search **"Armi Ratia"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to explain why a Marimekko chart works well for two-dimensional categorical data — and what fails when you try to use it for three dimensions.
+- Ask it about Marimekko's place in postwar Finnish design culture — and how the brand came to be everywhere.
+
+What changes? What gets better? What gets worse?

@@ -55,3 +55,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Charles Booth** mapped poverty across London block-by-block in his 1889 *Descriptive Map of London Poverty* — color-coding streets from "lowest class, vicious" to "upper-middle and upper class." It was the prototype for every social-data spatial visualization since.
+
+![Charles Booth, circa 1895. AI-generated portrait based on a public domain photograph.](../images/charles-booth.jpg)
+*Charles Booth, circa 1895. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Charles Booth, and how does his London poverty mapping work connect to the bubble map and thematic mapping we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Charles Booth (social reformer)"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to describe how Booth's surveyors actually collected the data block-by-block — and what biases that introduced.
+- Ask it to compare Booth's seven-class poverty map with the modern American Community Survey census tract maps.
+
+What changes? What gets better? What gets worse?

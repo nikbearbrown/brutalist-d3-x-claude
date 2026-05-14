@@ -55,3 +55,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Wilhelm Lexis** was a 19th-century German statistician who developed the Lexis diagram — a coordinate framework for displaying demographic data by age and year — that essentially formalized tally-style counting into a 2D visualization.
+
+![Wilhelm Lexis, circa 1900. AI-generated portrait based on a public domain photograph.](../images/wilhelm-lexis.jpg)
+*Wilhelm Lexis, circa 1900. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Wilhelm Lexis, and how does his Lexis diagram connect to the tally chart we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Wilhelm Lexis"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to walk through what a Lexis diagram shows — birth cohorts, age, period — and why demographers still use it.
+- Ask it about Lexis's broader influence on the founding generation of econometricians and demographers.
+
+What changes? What gets better? What gets worse?

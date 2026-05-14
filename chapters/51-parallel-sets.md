@@ -53,3 +53,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **John B. Sparks** published the *Histomap of Evolution* (1932) and *Histomap of World History* (1931) — five-foot fold-out charts that ran from antiquity to the present, with each civilization rendered as a horizontal ribbon whose width tracked its relative power. Multiple categorical bands, time on one axis, magnitude in band-width, the whole thing readable as a single image: the parallel-sets form, drawn by hand on cardstock.
+
+![John B. Sparks, circa 1933. AI-generated portrait based on a public domain photograph.](../images/john-b-sparks.jpg)
+*John B. Sparks, circa 1933. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was John B. Sparks, and how do his Histomap ribbons connect to the parallel-sets form we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"John B. Sparks Histomap"** on Wikipedia. See what the model got right, got wrong, or left out.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to walk through how Sparks's 1931 ribbon charts handle the multi-category-over-time problem — and where the form breaks down at extreme scale.
+- Ask it to compare Sparks's hand-drawn Histomap with a modern parallel-sets diagram of the Titanic survival data — what reading tasks each does well.
+
+What changes? What gets better? What gets worse?

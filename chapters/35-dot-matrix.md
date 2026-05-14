@@ -45,3 +45,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **John Horton Conway** invented the Game of Life in 1970 — a dot-matrix cellular automaton where each cell lives or dies by a few simple rules. The grid is the simplest possible dot matrix; the patterns that emerge are still studied as a model of complex systems.
+
+![John Horton Conway, circa 1990. AI-generated portrait based on a public domain photograph.](../images/john-horton-conway.jpg)
+*John Horton Conway, circa 1990. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was John Horton Conway, and how does the Game of Life connect to the dot matrix we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"John Horton Conway"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to walk through one cycle of the Game of Life starting from a "glider" — what each cell does, and why.
+- Ask it about Conway's wider mathematical career — surreal numbers, the Conway group, and the Look-and-say sequence.
+
+What changes? What gets better? What gets worse?

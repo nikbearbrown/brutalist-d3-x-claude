@@ -1,0 +1,91 @@
+<svg viewBox="0 0 700 560" xmlns="http://www.w3.org/2000/svg" font-family="Georgia, 'Times New Roman', serif">
+<defs>
+  <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#1a1714"/>
+  </marker>
+  <marker id="arrowL" markerWidth="8" markerHeight="6" refX="1" refY="3" orient="auto">
+    <polygon points="8 0, 0 3, 8 6" fill="#1a1714"/>
+  </marker>
+</defs>
+<rect x="0" y="0" width="700" height="560" fill="#fdfcfb"/>
+<text x="350.0" y="32" font-size="13" font-weight="bold" fill="#1a1714" text-anchor="middle">Three failure modes, three redesigns</text>
+<text x="16" y="129.0" font-size="11" font-weight="bold" fill="#1a1714">Familiarity bias</text>
+<text x="16" y="145.0" font-size="9" fill="#4a4540" font-style="italic">pie because pie</text>
+<rect x="130" y="70" width="220" height="130" fill="#fdfcfb" stroke="#8a8480" stroke-width="0.75"/>
+<path d="M 240.0,135.0 L 240.0,85.0 A 50,50 0 0 1 289.1,125.6 Z" fill="#1a1714" stroke="#fdfcfb" stroke-width="0.5"/>
+<path d="M 240.0,135.0 L 289.1,125.6 A 50,50 0 0 1 269.4,175.5 Z" fill="#3a3530" stroke="#fdfcfb" stroke-width="0.5"/>
+<path d="M 240.0,135.0 L 269.4,175.5 A 50,50 0 0 1 224.5,182.6 Z" fill="#5e5852" stroke="#fdfcfb" stroke-width="0.5"/>
+<path d="M 240.0,135.0 L 224.5,182.6 A 50,50 0 0 1 196.2,159.1 Z" fill="#80796f" stroke="#fdfcfb" stroke-width="0.5"/>
+<path d="M 240.0,135.0 L 196.2,159.1 A 50,50 0 0 1 190.4,128.7 Z" fill="#969089" stroke="#fdfcfb" stroke-width="0.5"/>
+<path d="M 240.0,135.0 L 190.4,128.7 A 50,50 0 0 1 201.5,103.1 Z" fill="#b0aaa2" stroke="#fdfcfb" stroke-width="0.5"/>
+<path d="M 240.0,135.0 L 201.5,103.1 A 50,50 0 0 1 221.6,88.5 Z" fill="#c8c4c0" stroke="#fdfcfb" stroke-width="0.5"/>
+<path d="M 240.0,135.0 L 221.6,88.5 A 50,50 0 0 1 240.0,85.0 Z" fill="#d8d4cf" stroke="#fdfcfb" stroke-width="0.5"/>
+<rect x="380" y="70" width="220" height="130" fill="#fdfcfb" stroke="#8a8480" stroke-width="0.75"/>
+<rect x="460" y="85" width="120" height="11" fill="#1a1714"/>
+<text x="583.0" y="93.8" font-size="8" fill="#4a4540">22</text>
+<rect x="460" y="100" width="98" height="11" fill="#1a1714"/>
+<text x="561.1818181818182" y="108.8" font-size="8" fill="#4a4540">18</text>
+<rect x="460" y="115" width="82" height="11" fill="#1a1714"/>
+<text x="544.8181818181818" y="123.8" font-size="8" fill="#4a4540">15</text>
+<rect x="460" y="130" width="65" height="11" fill="#1a1714"/>
+<text x="528.4545454545455" y="138.8" font-size="8" fill="#4a4540">12</text>
+<rect x="460" y="145" width="55" height="11" fill="#1a1714"/>
+<text x="517.5454545454545" y="153.8" font-size="8" fill="#4a4540">10</text>
+<rect x="460" y="160" width="49" height="11" fill="#1a1714"/>
+<text x="512.0909090909091" y="168.8" font-size="8" fill="#4a4540">9</text>
+<rect x="460" y="175" width="44" height="11" fill="#1a1714"/>
+<text x="506.6363636363636" y="183.8" font-size="8" fill="#4a4540">8</text>
+<rect x="460" y="190" width="33" height="11" fill="#1a1714"/>
+<text x="495.72727272727275" y="198.8" font-size="8" fill="#4a4540">6</text>
+<line x1="460" y1="83" x2="460" y2="195" stroke="#1a1714" stroke-width="1"/>
+<line x1="354" y1="135.0" x2="376" y2="135.0" stroke="#1a1714" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="16" y="289.0" font-size="11" font-weight="bold" fill="#1a1714">Aesthetic-first</text>
+<text x="16" y="305.0" font-size="9" fill="#4a4540" font-style="italic">3D exploded donut</text>
+<rect x="130" y="230" width="220" height="130" fill="#fdfcfb" stroke="#8a8480" stroke-width="0.75"/>
+<ellipse cx="240.0" cy="299.0" rx="56" ry="22" fill="none" stroke="#1a1714" stroke-width="1"/>
+<path d="M 184.0,299.0 A 56,22 0 0 0 296.0,299.0 L 296.0,307.0 A 56,22 0 0 1 184.0,307.0 Z" fill="#4a4540" stroke="#1a1714" stroke-width="0.5"/>
+<line x1="262.0" y1="299.0" x2="296.0" y2="299.0" stroke="#1a1714" stroke-width="0.6"/>
+<line x1="247.5" y1="306.5" x2="259.2" y2="319.7" stroke="#1a1714" stroke-width="0.6"/>
+<line x1="223.1" y1="304.1" x2="197.1" y2="313.1" stroke="#1a1714" stroke-width="0.6"/>
+<line x1="223.1" y1="293.9" x2="197.1" y2="284.9" stroke="#1a1714" stroke-width="0.6"/>
+<line x1="247.5" y1="291.5" x2="259.2" y2="278.3" stroke="#1a1714" stroke-width="0.6"/>
+<ellipse cx="240.0" cy="299.0" rx="22" ry="8" fill="#fdfcfb" stroke="#1a1714" stroke-width="0.8"/>
+<ellipse cx="310.0" cy="291.0" rx="20" ry="10" fill="#6e6862" stroke="#1a1714" stroke-width="0.8"/>
+<rect x="380" y="230" width="220" height="130" fill="#fdfcfb" stroke="#8a8480" stroke-width="0.75"/>
+<rect x="400.0" y="279.0" width="50.4" height="32" fill="#1a1714"/>
+<rect x="450.4" y="279.0" width="39.6" height="32" fill="#4a4540"/>
+<rect x="490.0" y="279.0" width="36.0" height="32" fill="#6e6862"/>
+<rect x="526.0" y="279.0" width="28.8" height="32" fill="#969089"/>
+<rect x="554.8" y="279.0" width="25.2" height="32" fill="#c8c4c0"/>
+<text x="490.0" y="327.0" font-size="9" fill="#4a4540" text-anchor="middle" font-style="italic">five segments, common baseline</text>
+<line x1="354" y1="295.0" x2="376" y2="295.0" stroke="#1a1714" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="16" y="449.0" font-size="11" font-weight="bold" fill="#1a1714">Software-default</text>
+<text x="16" y="465.0" font-size="9" fill="#4a4540" font-style="italic">whatever Excel did</text>
+<rect x="130" y="390" width="220" height="130" fill="#fdfcfb" stroke="#8a8480" stroke-width="0.75"/>
+<path d="M 145.0,450.0 L 162.3,454.4 L 179.5,462.8 L 196.8,455.2 L 214.1,448.8 L 231.4,440.3 L 248.6,433.7 L 265.9,439.3 L 283.2,430.5 L 300.5,431.2 L 317.7,424.3 L 335.0,419.4" stroke="#1a1714" stroke-width="1" fill="none"/>
+<path d="M 145.0,464.0 L 162.3,466.6 L 179.5,454.9 L 196.8,449.6 L 214.1,441.1 L 231.4,450.0 L 248.6,457.4 L 265.9,464.8 L 283.2,472.6 L 300.5,478.5 L 317.7,489.3 L 335.0,496.3" stroke="#3a3530" stroke-width="1" fill="none"/>
+<path d="M 145.0,453.8 L 162.3,453.5 L 179.5,459.6 L 196.8,461.1 L 214.1,459.5 L 231.4,456.2 L 248.6,454.5 L 265.9,450.0 L 283.2,440.9 L 300.5,448.5 L 317.7,455.7 L 335.0,467.3" stroke="#4a4540" stroke-width="1" fill="none"/>
+<path d="M 145.0,472.8 L 162.3,478.7 L 179.5,470.0 L 196.8,474.2 L 214.1,472.8 L 231.4,465.1 L 248.6,457.9 L 265.9,458.5 L 283.2,452.6 L 300.5,451.6 L 317.7,454.1 L 335.0,451.6" stroke="#6e6862" stroke-width="1" fill="none"/>
+<path d="M 145.0,437.6 L 162.3,431.3 L 179.5,424.9 L 196.8,417.6 L 214.1,415.0 L 231.4,415.0 L 248.6,415.0 L 265.9,418.7 L 283.2,416.0 L 300.5,421.3 L 317.7,431.7 L 335.0,420.7" stroke="#8a8480" stroke-width="1" fill="none"/>
+<path d="M 145.0,445.9 L 162.3,454.0 L 179.5,457.3 L 196.8,449.1 L 214.1,447.1 L 231.4,455.9 L 248.6,465.2 L 265.9,472.4 L 283.2,465.3 L 300.5,473.8 L 317.7,470.8 L 335.0,476.0" stroke="#a39d96" stroke-width="1" fill="none"/>
+<path d="M 145.0,449.5 L 162.3,452.0 L 179.5,457.4 L 196.8,450.4 L 214.1,453.3 L 231.4,455.2 L 248.6,457.4 L 265.9,454.0 L 283.2,459.5 L 300.5,455.7 L 317.7,450.8 L 335.0,442.7" stroke="#b8b3ac" stroke-width="1" fill="none"/>
+<rect x="380" y="390" width="220" height="130" fill="#fdfcfb" stroke="#8a8480" stroke-width="0.75"/>
+<rect x="384.0" y="394.0" width="50.0" height="59.0" fill="#f5f2ee" stroke="#c8c4c0" stroke-width="0.5"/>
+<path d="M 387.0,421.5 L 393.3,417.1 L 399.6,410.2 L 405.9,412.5 L 412.1,413.4 L 418.4,414.1 L 424.7,406.7 L 431.0,405.7" stroke="#1a1714" stroke-width="1" fill="none"/>
+<rect x="438.0" y="394.0" width="50.0" height="59.0" fill="#f5f2ee" stroke="#c8c4c0" stroke-width="0.5"/>
+<path d="M 441.0,414.3 L 447.3,406.4 L 453.6,414.4 L 459.9,408.3 L 466.1,405.1 L 472.4,402.0 L 478.7,403.0 L 485.0,402.0" stroke="#1a1714" stroke-width="1" fill="none"/>
+<rect x="492.0" y="394.0" width="50.0" height="59.0" fill="#f5f2ee" stroke="#c8c4c0" stroke-width="0.5"/>
+<path d="M 495.0,421.3 L 501.3,426.6 L 507.6,418.7 L 513.9,416.1 L 520.1,416.0 L 526.4,423.5 L 532.7,423.8 L 539.0,423.4" stroke="#1a1714" stroke-width="1" fill="none"/>
+<rect x="546.0" y="394.0" width="50.0" height="59.0" fill="#f5f2ee" stroke="#c8c4c0" stroke-width="0.5"/>
+<path d="M 549.0,424.1 L 555.3,416.6 L 561.6,416.7 L 567.9,423.2 L 574.1,427.0 L 580.4,423.2 L 586.7,426.1 L 593.0,431.7" stroke="#1a1714" stroke-width="1" fill="none"/>
+<rect x="384.0" y="457.0" width="50.0" height="59.0" fill="#f5f2ee" stroke="#c8c4c0" stroke-width="0.5"/>
+<path d="M 387.0,483.6 L 393.3,481.3 L 399.6,477.2 L 405.9,473.8 L 412.1,469.0 L 418.4,466.6 L 424.7,465.0 L 431.0,465.0" stroke="#1a1714" stroke-width="1" fill="none"/>
+<rect x="438.0" y="457.0" width="50.0" height="59.0" fill="#f5f2ee" stroke="#c8c4c0" stroke-width="0.5"/>
+<path d="M 441.0,482.9 L 447.3,484.5 L 453.6,476.5 L 459.9,480.9 L 466.1,476.0 L 472.4,475.6 L 478.7,476.5 L 485.0,473.8" stroke="#1a1714" stroke-width="1" fill="none"/>
+<rect x="492.0" y="457.0" width="50.0" height="59.0" fill="#f5f2ee" stroke="#c8c4c0" stroke-width="0.5"/>
+<path d="M 495.0,481.7 L 501.3,475.9 L 507.6,481.8 L 513.9,475.5 L 520.1,480.7 L 526.4,476.2 L 532.7,473.1 L 539.0,471.3" stroke="#1a1714" stroke-width="1" fill="none"/>
+<line x1="354" y1="455.0" x2="376" y2="455.0" stroke="#1a1714" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="240.0" y="60" font-size="11" font-weight="bold" fill="#1a1714" text-anchor="middle">Before</text>
+<text x="490.0" y="60" font-size="11" font-weight="bold" fill="#1a1714" text-anchor="middle">After</text>
+<text x="350.0" y="548" font-size="10" fill="#4a4540" text-anchor="middle" font-style="italic">The "before" charts are intentionally bad. They are the defaults the four-move prompt has to overrule.</text>
+</svg>

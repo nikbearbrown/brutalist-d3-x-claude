@@ -57,3 +57,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Heinz von Foerster** was a cyberneticist who pushed information visualization into circular and stacked forms during the 1960s — and led the Biological Computer Laboratory at Illinois, an early home of second-order cybernetics and visual reasoning about complex systems.
+
+![Heinz von Foerster, circa 1970. AI-generated portrait based on a public domain photograph.](../images/heinz-von-foerster.jpg)
+*Heinz von Foerster, circa 1970. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Heinz von Foerster, and how does his cybernetics work connect to the stacked bar chart we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Heinz von Foerster"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to apply von Foerster's "second-order" framing — observers in the system — to the design of a stacked bar chart.
+- Ask it about the Biological Computer Lab — what it set out to do, why it shut down, and what survived.
+
+What changes? What gets better? What gets worse?

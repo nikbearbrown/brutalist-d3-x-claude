@@ -69,3 +69,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Johannes Kepler** conjectured in 1611 that no arrangement of equal-size spheres in three dimensions could pack more densely than the face-centered cubic — the stacked-cannonball arrangement. The conjecture was finally proven by Thomas Hales in 1998. Every modern circle-packing layout, from sunburst files to bubble enclosures, is wrestling with the descendant of Kepler's question: how tightly can you pack circles into a container before they overlap?
+
+![Johannes Kepler, circa 1610. AI-generated portrait based on a public domain engraving.](../images/johannes-kepler.jpg)
+*Johannes Kepler, circa 1610. AI-generated portrait based on a public domain engraving (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Johannes Kepler, and how does his sphere-packing conjecture connect to the circle-packing layout we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Johannes Kepler conjecture sphere packing"** on Wikipedia. See what the model got right, got wrong, or left out.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to walk through what the Kepler conjecture says about *equal-size* spheres versus what a circle-packing chart faces with *variable-size* circles encoding data.
+- Ask it to compare the 1611 Kepler conjecture with the 1998 Hales proof — what changed about how mathematicians validate geometric claims.
+
+What changes? What gets better? What gets worse?

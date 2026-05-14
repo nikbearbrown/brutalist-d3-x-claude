@@ -67,3 +67,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Marshall McLuhan** argued in *The Gutenberg Galaxy* (1962) and *Understanding Media* (1964) that typography itself is a medium — that the size, the weight, the spacing of letters carry meaning independent of the words they spell. The word cloud is McLuhan's claim made literal. The frequency of a term is encoded in its visual prominence. The medium is the message, rendered as a chart.
+
+![Marshall McLuhan, circa 1965. AI-generated portrait based on a public domain photograph.](../images/marshall-mcluhan.jpg)
+*Marshall McLuhan, circa 1965. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Marshall McLuhan, and how does his media theory connect to the word-cloud form we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Marshall McLuhan Gutenberg Galaxy"** on Wikipedia. See what the model got right, got wrong, or left out.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to walk through one of McLuhan's typographic experiments (e.g., the visual layouts in *The Medium is the Massage*, 1967) and identify which of his rules a word cloud follows and which it breaks.
+- Ask it to compare McLuhan's pre-computer claim that "the medium is the message" with a modern word cloud's choice of font, color, and arrangement — what stays controllable, what doesn't.
+
+What changes? What gets better? What gets worse?

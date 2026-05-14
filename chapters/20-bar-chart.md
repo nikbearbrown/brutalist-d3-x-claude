@@ -53,3 +53,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Joseph Priestley** drew *A Chart of Biography* in 1765 — a horizontal bar chart spanning 1200 BC to 1750 AD, with each life as a line whose length encoded duration. It's one of the earliest published bar-style charts and the ancestor of every Gantt chart since.
+
+![Joseph Priestley, circa 1790. AI-generated portrait based on a public domain engraving.](../images/joseph-priestley.jpg)
+*Joseph Priestley, circa 1790. AI-generated portrait based on a public domain engraving (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Joseph Priestley, and how does his Chart of Biography connect to the bar chart we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Joseph Priestley"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to compare Priestley's 1765 horizontal bar chart with a modern stacked bar — what design conventions changed, what stayed?
+- Ask it about Priestley's wider intellectual life as a chemist (he discovered oxygen) and dissenting theologian.
+
+What changes? What gets better? What gets worse?

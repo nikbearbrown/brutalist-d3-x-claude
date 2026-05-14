@@ -57,3 +57,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Mary Eleanor Spear** developed practical chart-making standards through the 1950s — including the bar chart conventions and box-plot precursors that became US government statistical practice. Her 1952 textbook *Charting Statistics* was a standard reference for two generations.
+
+![Mary Eleanor Spear, circa 1950. AI-generated portrait based on a public domain photograph.](../images/mary-eleanor-spear.jpg)
+*Mary Eleanor Spear, circa 1950. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Mary Eleanor Spear, and how does her early chart standardization work connect to the donut chart we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about her career or ideas.
+```
+
+→ Search **"Mary Eleanor Spear"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to apply Spear's "design for clarity" approach to the donut chart — what would she keep, what would she cut?
+- Ask it about how Spear's work prefigured the box plot Tukey is usually credited with.
+
+What changes? What gets better? What gets worse?

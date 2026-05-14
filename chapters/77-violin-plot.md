@@ -64,3 +64,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **George E. P. Box** built much of modern applied statistics — including the Box-Jenkins time-series methods and the Box-Cox transformation — and famously said "all models are wrong, but some are useful." His framework taught generations how to handle distributions with shapes a box plot couldn't capture, which is exactly what the violin plot solves.
+
+![George E. P. Box, circa 1980. AI-generated portrait based on a public domain photograph.](../images/george-e-p-box.jpg)
+*George E. P. Box, circa 1980. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was George E. P. Box, and how does his work on statistical distributions and transformations connect to the violin plot we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"George E. P. Box"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to walk through when a violin plot tells you something a box plot hides — using one specific distribution shape (bimodal, heavily skewed).
+- Ask it about Box's "all models are wrong" quote and what it means for the practice of statistical visualization.
+
+What changes? What gets better? What gets worse?

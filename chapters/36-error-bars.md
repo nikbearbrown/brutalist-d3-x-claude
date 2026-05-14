@@ -69,3 +69,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Florence Nightingale David** was a 20th-century British statistician — Karl Pearson's protégée — whose work on combinatorial probability and statistical applications quietly shaped how we display uncertainty. She was named after Florence Nightingale, who was her godmother.
+
+![Florence Nightingale David, circa 1970. AI-generated portrait based on a public domain photograph.](../images/florence-nightingale-david.jpg)
+*Florence Nightingale David, circa 1970. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Florence Nightingale David, and how does her statistical work connect to the error bars and uncertainty visualization we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about her career or ideas.
+```
+
+→ Search **"Florence Nightingale David"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it about the difference between standard-error and confidence-interval error bars, and when each is the honest choice.
+- Ask it about David's wartime work — what statistical questions did she help solve during the Blitz?
+
+What changes? What gets better? What gets worse?

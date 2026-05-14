@@ -60,3 +60,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **W. Edwards Deming** carried Walter Shewhart's statistical process control charts to Japan in the 1950s and turned them into the language of postwar quality management. A control chart packed three things into one frame: the current value, the process mean, and the upper and lower control limits — *here is where I am, here is where I am supposed to be, here is when to worry*. The bullet graph is the same compression, redrawn in linear form.
+
+![W. Edwards Deming, circa 1980. AI-generated portrait based on a public domain photograph.](../images/w-edwards-deming.jpg)
+*W. Edwards Deming, circa 1980. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was W. Edwards Deming, and how does his statistical-process-control work connect to the bullet-graph form we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"W. Edwards Deming statistical process control"** on Wikipedia. See what the model got right, got wrong, or left out.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to compare a Shewhart control chart and a Stephen Few bullet graph side by side — which design choices carry over, which got dropped.
+- Ask it to walk through how Deming's idea of "common-cause vs. special-cause variation" maps onto a bullet graph's qualitative bands.
+
+What changes? What gets better? What gets worse?

@@ -58,3 +58,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Nicolas Oresme** drew the first known time-series-style line graphs in the 14th century — plotting velocity against time and computing the area beneath. He worked centuries before the analytical geometry Descartes is usually credited with founding.
+
+![Nicolas Oresme, 14th century. AI-generated illustration based on a public domain painting.](../images/nicolas-oresme.jpg)
+*Nicolas Oresme, 14th century. AI-generated illustration based on a public domain painting (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Nicolas Oresme, and how does his 14th-century graphical method connect to the line graph we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Nicole Oresme"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to walk through Oresme's "Merton mean speed theorem" — the proto-integral calculation he made graphically.
+- Ask it about Oresme's wider career — Bishop of Lisieux, economic theorist, and translator of Aristotle.
+
+What changes? What gets better? What gets worse?

@@ -49,3 +49,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **W. E. B. Du Bois** designed a series of data visualizations — including proportional bubbles, circular flow diagrams, and color-coded maps — for the 1900 Paris Exposition's *Exhibit of American Negroes*. They are among the most visually inventive infographics of any era.
+
+![W. E. B. Du Bois, circa 1900. AI-generated portrait based on a public domain photograph.](../images/w-e-b-du-bois.jpg)
+*W. E. B. Du Bois, circa 1900. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was W. E. B. Du Bois, and how does his 1900 Paris Exposition data visualization work connect to the bubble chart we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"W. E. B. Du Bois"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to describe one specific Du Bois plate from the 1900 Exposition — what data, what encoding, what argument.
+- Ask it to compare Du Bois's hand-drawn statistical art with the modern automated chart-generation pipelines.
+
+What changes? What gets better? What gets worse?

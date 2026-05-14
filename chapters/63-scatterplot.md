@@ -61,3 +61,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **John Frederick Herschel** drew what is generally credited as the first scatter plot, in 1833, plotting orbits of double stars — predating Galton's well-known parents-and-children height scatter by half a century.
+
+![John Frederick Herschel, circa 1860. AI-generated portrait based on a public domain photograph.](../images/john-frederick-herschel.jpg)
+*John Frederick Herschel, circa 1860. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was John Frederick Herschel, and how does his early scatter plot connect to the chart we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"John Herschel"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to describe Herschel's 1833 double-star scatter — what each axis encoded, and what insight it revealed.
+- Ask it about Herschel's wider career — coining "photography," "positive" and "negative" for images, and his work on chemistry of light.
+
+What changes? What gets better? What gets worse?

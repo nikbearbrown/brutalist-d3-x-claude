@@ -104,8 +104,14 @@ The entity and connection count determines which forms remain feasible. Sankey d
 
 There is a common mismatch worth naming: using a force-directed graph for data that has quantitative flow magnitudes. The force-directed graph cannot show the magnitudes — it shows topology. A designer with a Sankey-appropriate dataset who reaches for a force-directed graph is making the same error as a designer with a comparison question who reaches for a pie chart. The form doesn't fit the question.
 
-<!-- → [TABLE: form selection reference — rows: Sankey / alluvial / ribbon chord / non-ribbon chord / arc / force-directed. Columns: primary question (magnitude or existence), layout type, entity count range, typical use case, failure condition. Student uses this as a lookup card before building any flow or network chart.] -->
-
+| Form | Primary question | Layout type | Entity count range | Typical use case | Failure condition |
+|---|---|---|---|---|---|
+| Sankey | Magnitude — how much flows between groups | Left-to-right, two or more node columns | 5–30 nodes per column | Energy budgets, customer-journey funnels | Cycles in the data (a node feeds itself) |
+| Alluvial | Magnitude across ordered categorical states | Vertical bands per time step | 4–20 entities | Survey response shifts over time | Too many steps — bands cross illegibly |
+| Ribbon chord | Magnitude — symmetric pairs | Circular, ribbons inside a ring | 6–20 nodes | Trade flows, migration matrices | More than ~20 nodes — ribbons overlap into a hairball |
+| Non-ribbon chord | Existence — which pairs are connected | Circular, straight chords | 10–40 nodes | Social network adjacency, citation links | Audience expects magnitude (chord thickness misleads) |
+| Arc | Connection topology along a one-dimensional ordering | Horizontal axis, arcs above | 10–60 nodes | Network adjacency where node order has meaning | More than ~60 — arcs become a wash |
+| Force-directed | Cluster structure — who groups with whom | Algorithmic, positions emerge | 20–500 nodes | Exploratory social or citation networks | Print reproduction (positions shift each render) |
 ---
 
 ## The design decisions in the pantry Sankey
@@ -186,6 +192,18 @@ Build a Sankey diagram with four levels of nodes — for example: donor country 
 
 **Exercise 13.10 — Matrix view as alternative to hairball.** *(Tests: matrix view for dense networks)*
 Take a dense network dataset with 40–80 nodes and high average degree that would produce a hairball in force-directed layout. Build the adjacency matrix (heatmap: rows and columns are nodes, cells shaded for connections). Sort rows and columns by node degree (most connected first). Compare the matrix view to the force-directed graph: what structural feature is visible in the matrix that was invisible in the hairball? What feature of the force-directed layout (cluster proximity, community grouping) is lost in the matrix? Write one paragraph on when each form is appropriate for dense networks.
+
+---
+
+## A note about AI
+
+Flow and network charts are where the model is most likely to produce a hairball — a graph so dense that nothing is visible.
+
+Where the model genuinely helps: producing the same graph with three layouts (force-directed, hierarchical, circular) so the layout's effect on readability is visible.
+
+Where the model does damage: defaulting to force-directed for graphs of any size. Force-directed becomes a hairball past a few dozen nodes.
+
+The rule: layout from the model; the size-appropriate choice from you.
 
 ---
 
@@ -276,3 +294,27 @@ Flag any audit failure and write the follow-up prompt that corrects it.
 ---
 
 *Tags: flow-charts, network-charts, Sankey, alluvial, chord-diagram, ribbon-chord, arc-diagram, force-directed, hairball, Bertin-width, Gestalt-connection, d3-sankey, d3-force, D3, Claude-Code*
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Charles Joseph Minard** drew the 1869 flow map of Napoleon's Russian campaign — combining six variables (army size, location, direction, temperature, distance, time) in a single image. Tufte called it possibly "the best statistical graphic ever drawn."
+
+![Charles Joseph Minard, circa 1860. AI-generated portrait based on a public domain engraving.](../images/charles-joseph-minard.jpg)
+*Charles Joseph Minard, circa 1860. AI-generated portrait based on a public domain engraving (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Charles Joseph Minard, and how does his Napoleon's-march flow map connect to the flow and network charts we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Charles Joseph Minard"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to enumerate the six variables in Minard's map and explain how each was visually encoded.
+- Ask it to compare Minard's flow map with the modern Sankey diagram (Chapter 62) — what's shared, what's different?
+
+What changes? What gets better? What gets worse?

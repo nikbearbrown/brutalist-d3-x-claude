@@ -59,3 +59,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Walter A. Shewhart** invented the control chart at Bell Labs in 1924 — a span-style chart with mean lines and tolerance bands that turned statistical quality control into a discipline. The chart family includes the span chart you're learning here.
+
+![Walter A. Shewhart, circa 1935. AI-generated portrait based on a public domain photograph.](../images/walter-a-shewhart.jpg)
+*Walter A. Shewhart, circa 1935. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Walter A. Shewhart, and how does his control chart connect to the span chart we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Walter A. Shewhart"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to walk through how Shewhart's 1924 control chart distinguished common-cause variation from special-cause variation.
+- Ask it about Shewhart's influence on W. Edwards Deming and on postwar Japanese manufacturing.
+
+What changes? What gets better? What gets worse?

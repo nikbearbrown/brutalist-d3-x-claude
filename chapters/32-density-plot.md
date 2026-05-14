@@ -46,3 +46,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Karl Pearson** coined the word "histogram" in 1891 and developed the system of probability distributions, skewness, and kurtosis that lets us reason about smooth density curves. His statistical contributions are foundational; his entanglement with eugenics is dark.
+
+![Karl Pearson, circa 1910. AI-generated portrait based on a public domain photograph.](../images/karl-pearson.jpg)
+*Karl Pearson, circa 1910. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Karl Pearson, and how does his work on distributions and skewness connect to the density plot we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Karl Pearson"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to walk through what a Pearson distribution system actually is — and why the family of curves still appears in modern density estimation.
+- Ask it to confront the entanglement of Pearson's statistical innovations with his racist eugenics — how should modern textbooks handle the legacy?
+
+What changes? What gets better? What gets worse?

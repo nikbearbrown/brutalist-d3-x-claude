@@ -32,8 +32,13 @@ There are five primary types, and they matter because they constrain what charts
 
 Most real datasets contain several types at once. The Boston transit dataset that Mike Barry and Brian Card worked with for their MBTA visualization project contains temporal (timestamp), geographic (station location), categorical (line color), quantitative (passenger count), and ordinal (peak/off-peak/late-night) variables all in one table. You don't build one chart from all of them. You build a chart that uses the subset the question requires.
 
-<!-- → [TABLE: five-row data type reference — columns: type name, definition (one sentence), encoding constraint (what channels work / what channels lie), common misclassification failure, one chart it opens up. Rows: categorical, ordinal, quantitative, temporal, geographic. Student uses this as a lookup card during the type-identification step of any audit.] -->
-
+| Type | Definition | Encoding constraint | Common misclassification failure | Chart it opens up |
+|---|---|---|---|---|
+| Categorical | Discrete labels with no inherent order. | Hue and shape work; sequential luminance lies (implies order). | Treating sectors or country names as ordinal because the source file is sorted. | Horizontal bar chart, sorted by the value column. |
+| Ordinal | Discrete labels with an inherent order but unspecified gaps. | Position and sequential luminance work; quantitative scales lie (implies known gaps). | Encoding a 5-point Likert scale as if it were an interval. | Diverging stacked bar, dot plot. |
+| Quantitative | Numeric values where differences and ratios are meaningful. | Position (rank 1) and length (rank 3) work; area and hue degrade accuracy. | Treating ZIP codes or year-as-int as quantitative when they're nominal. | Scatterplot, line chart, histogram. |
+| Temporal | Ordered points or intervals in time. | Position on an x-axis works; categorical encodings lose continuity. | Plotting dates as evenly spaced categories when calendar gaps matter (missing months). | Line chart, area chart, spiral plot. |
+| Geographic | Locations on a coordinate surface. | Map projections work; non-spatial encoding loses the relational information. | Encoding country names as a bar chart when the geographic adjacency is the point. | Choropleth, dot map, flow map. |
 Which brings us to the question.
 
 ---
@@ -86,8 +91,12 @@ Four failure patterns are worth naming because they appear everywhere.
 
 The check applied: every chart's key message should answer "compared with what?" explicitly. "Funding for food security is highest" fails the check. "Funding for food security is highest — more than twice the next-largest category" makes the comparison explicit. If the answer cannot be put in the message, it is probably not in the chart either.
 
-<!-- → [TABLE: four-row failure reference — columns: failure pattern name, what the chart shows, what reference is missing, the redesign that passes the check. Rows: absolute counts where ratios needed / time series without baseline / cross-sectional comparison without controls / single-value claim. Student uses this as a diagnostic checklist when reviewing any chart before publication.] -->
-
+| Failure pattern | What the chart shows | What reference is missing | Redesign that passes the check |
+|---|---|---|---|
+| Absolute counts where ratios are needed | Raw case counts by country | Population denominator | Per-capita rate, or two panels (counts + rates) |
+| Time series without baseline | A rising line | Pre-period, comparison group, or expected trajectory | Add a before-period, an index point, or a counterfactual line |
+| Cross-sectional comparison without controls | Two groups, one taller | The third variable that differs between them | Stratify, or report the comparison conditional on the confounder |
+| Single-value claim | "Funding rose 40%" with no chart at all | The reference the 40% is measured against | Replace the claim with a chart that shows both endpoints and the baseline |
 ---
 
 ## What relationships does your data actually support?
@@ -120,8 +129,18 @@ What relationships does this data support?
 
 Four relationships natively supported. Four not. Different questions, different charts, all from the same dataset. The chart you build depends on which of these the reader's question targets.
 
-<!-- → [TABLE: eight-row relationship support matrix for the humanitarian funding dataset — columns: relationship type, supported by this dataset (yes/no/weakly), variables involved if yes, what additional data would be needed if no. Rows: comparison / change over time / distribution / correlation / part-to-whole / hierarchy / flow / spatial. Caption: "The relationships the data does not support are as important as the ones it does."] -->
+| Relationship type | Supported by this dataset? | Variables involved (if yes) | Additional data needed (if no) |
+|---|---|---|---|
+| Comparison | Yes | sector × funding amount | — |
+| Change over time | Yes | month × funding amount | — |
+| Distribution | Weakly | funding amount across countries | More observations per cell to see the shape |
+| Correlation | No | — | A second quantitative variable per country (e.g., need score) |
+| Part-to-whole | Yes | sector share of total funding | — |
+| Hierarchy | No | — | Sector-to-subsector parent links |
+| Flow | No | — | Donor → recipient pairs with magnitudes |
+| Spatial | Weakly | country (point only, no boundaries) | Geographic boundaries or coordinates |
 
+*The relationships the data does not support are as important as the ones it does.*
 The relationships the data does *not* support are as important as the ones it does. If the reader's question is "how does sector funding compare with sector funding in a neighboring country," this dataset cannot answer it. Country is constant. The right move is to acknowledge the gap, not to build a chart that pretends to answer by substituting a different question for the one that was asked.
 
 This is Cairo's deepest point about chart honesty. The FiveThirtyEight Nigeria case — a chart titled "kidnappings in Nigeria" that actually showed news *stories* about kidnappings, not kidnappings themselves — is exactly this failure. The analyst had data about media attention. The reader's question was about violence. The chart substituted one for the other without acknowledging the substitution. The visual claim exceeded what the data could bear.
@@ -236,6 +255,18 @@ Take a real dataset and an ambiguous chart brief (something like "visualize prog
 
 ---
 
+## A note about AI
+
+Reading a dataset is the first move and the most easily skipped. The model will summarize a dataset on request and the summary will look like reading. It is not.
+
+Where the model genuinely helps: producing the five-number summary, the value-count distributions, and the missingness pattern for each column. The summary is a starting map.
+
+Where the model does damage: declaring what the dataset is about. What it is about is a function of why you are looking at it, and the model does not know.
+
+The rule: structure from the model; meaning from you.
+
+---
+
 ## LLM Exercise — Chapter 05: Reading a Dataset
 
 **What you're building:** A pre-chart audit document for a real dataset — type identification, analyst-vs-reader question framing, "compared with what?" check, gap audit. The audit feeds directly into the chart-selection step and the four-move Claude Code prompt.
@@ -302,3 +333,27 @@ to the chart-selection step and the Claude Code prompt.
 ---
 
 *Tags: reading-data, data-types, categorical, ordinal, quantitative, temporal, geographic, analyst-question, reader-question, Cairo, compared-with-what, FT-visual-vocabulary, MBTA-project, FiveThirtyEight-Nigeria, gap-audit, pre-chart-audit*
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **John Tukey** invented exploratory data analysis (EDA) in the 1960s and 70s — arguing that the right first move with a dataset is to *look* at it, not test it. He also coined the words "bit" and "software."
+
+![John Tukey, circa 1970. AI-generated portrait based on a public domain photograph.](../images/john-tukey.jpg)
+*John Tukey, circa 1970. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was John Tukey, and how does his exploratory data analysis approach connect to the way we read a dataset in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"John Tukey"** on Wikipedia. See what the model got right, got wrong, or left out.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to walk through Tukey's "five-number summary" on one specific small dataset — what does it reveal that mean and standard deviation hide?
+- Ask it to compare Tukey's pencil-and-paper EDA with the modern dataframe-and-plotting workflow you'd use with Claude.
+
+What changes? What gets better? What gets worse?

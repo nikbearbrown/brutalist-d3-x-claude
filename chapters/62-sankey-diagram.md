@@ -48,3 +48,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Matthew Henry Phineas Riall Sankey** drew the diagram that bears his name in 1898 — for an engineering analysis of energy losses in a steam engine, where flow widths encoded thermal-energy magnitudes. Energy-balance diagrams still use his form a century later.
+
+![Matthew Henry Phineas Riall Sankey, circa 1898. AI-generated portrait based on a public domain photograph.](../images/matthew-henry-phineas-riall-sankey.jpg)
+*Matthew Henry Phineas Riall Sankey, circa 1898. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was M. H. P. R. Sankey, and how does his original 1898 diagram connect to the Sankey diagram we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Matthew Henry Phineas Riall Sankey"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to walk through Sankey's 1898 steam-engine diagram — what flow inputs, what waste-heat outputs, what conservation rule.
+- Ask it to compare Sankey's 1898 chart with Minard's earlier flow maps — what's the design lineage?
+
+What changes? What gets better? What gets worse?

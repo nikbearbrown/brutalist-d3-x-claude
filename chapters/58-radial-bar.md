@@ -59,3 +59,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Will Burtin** was a German-American information designer who, in the 1940s and 50s, produced some of the first sophisticated radial visualizations — including a famous 1951 chart of antibiotic effectiveness against bacterial species using a radial bar layout. He shaped *Fortune* magazine's visual identity.
+
+![Will Burtin, circa 1955. AI-generated portrait based on a public domain photograph.](../images/will-burtin.jpg)
+*Will Burtin, circa 1955. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Will Burtin, and how does his information design work connect to the radial bar chart we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Will Burtin"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to describe Burtin's 1951 antibiotic effectiveness chart — what each ring, bar, and color encoded.
+- Ask it about the larger 1950s movement of "information design" as a profession distinct from graphic design.
+
+What changes? What gets better? What gets worse?

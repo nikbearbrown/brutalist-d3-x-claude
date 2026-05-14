@@ -41,3 +41,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Willard C. Brinton** published *Graphic Methods for Presenting Facts* in 1914 — the first American textbook on business graphics. Brinton catalogued every chart he had seen in twenty years of engineering reports, including filled-area charts that traced the rise and fall of production over time. He argued that the *area under the line* carried meaning the line alone could not: the accumulated total, the resource consumed, the share held.
+
+![Willard C. Brinton, circa 1914. AI-generated portrait based on a public domain photograph.](../images/willard-c-brinton.jpg)
+*Willard C. Brinton, circa 1914. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Willard C. Brinton, and how does his 1914 catalogue of area-based business graphics connect to the area-graph form we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Willard C. Brinton Graphic Methods"** on Wikipedia. See what the model got right, got wrong, or left out.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to walk through one of Brinton's 1914 area charts and identify which design principles (zero baseline, sort order, layer ordering) it gets right and which it gets wrong by modern standards.
+- Ask it to compare Brinton's pre-computer chart catalogue with the modern Financial Times Visual Vocabulary — what new forms emerged, what stayed the same.
+
+What changes? What gets better? What gets worse?

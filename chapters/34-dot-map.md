@@ -55,3 +55,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **André-Michel Guerry** founded "moral statistics" in 1830s France — mapping crime rates, suicide rates, and literacy as shaded and dotted maps. He invented many of the conventions still used in thematic cartography.
+
+![André-Michel Guerry, circa 1833. AI-generated portrait based on a public domain engraving.](../images/andre-michel-guerry.jpg)
+*André-Michel Guerry, circa 1833. AI-generated portrait based on a public domain engraving (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was André-Michel Guerry, and how does his thematic cartography connect to the dot map we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"André-Michel Guerry"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to compare one of Guerry's 1833 crime maps with a modern dot-map of arrests in a US city — what's similar, what's different?
+- Ask it about the ethical risks of "moral statistics" — and how those risks reappear in modern policing data.
+
+What changes? What gets better? What gets worse?

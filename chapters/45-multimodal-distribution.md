@@ -63,3 +63,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Maurice Kendall** developed the rank-correlation statistic that bears his name (Kendall's tau) and co-wrote the standard 20th-century reference on advanced statistics. His careful work on bimodal and multimodal distributions shapes how we read the curves in this chapter.
+
+![Maurice Kendall, circa 1955. AI-generated portrait based on a public domain photograph.](../images/maurice-kendall.jpg)
+*Maurice Kendall, circa 1955. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Maurice Kendall, and how does his work on rank correlation and advanced distribution theory connect to multimodal distributions we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Maurice Kendall"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to walk through Kendall's tau and explain when it beats Pearson's correlation.
+- Ask it to describe one historically important bimodal dataset — and what its two modes turned out to mean.
+
+What changes? What gets better? What gets worse?

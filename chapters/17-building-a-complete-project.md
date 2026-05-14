@@ -137,8 +137,14 @@ The iteration discipline from Chapter 5 applies here too: one failure at a time,
 
 Document every iteration in `PROJECT.md`'s technical layer. Not because documentation is virtuous but because the log is the institutional memory of the project. When the client asks why the heatmap sorts by 2024 count and not by alphabetical order, the answer is in the log.
 
-<!-- → [TABLE: A sample PROJECT.md technical layer entry for Chart 1 (the heatmap). Columns: Version, Date, Change, Audit failure addressed. Rows: v1 (first output — color domain auto-fit, y-axis labels overlapping), v2 (color domain set to [0, max]; left margin increased to 200px — two audit failures resolved), v3 (final — all 22 checklist items pass). The table shows the iteration as a structured record, not a narrative. Caption: "The technical layer is not a story. It is a log. The version, the date, the change, and the audit item it fixed. When a colleague inherits the project, this is what they read."] -->
+| Version | Date | Change | Audit failure addressed |
+|---|---|---|---|
+| v1 | 2026-04-12 | First output from four-move prompt. | (initial — see audit results below) |
+| v2 | 2026-04-12 | Color domain explicitly set to `[0, max]`; left margin increased from 80px to 200px. | (1) Auto-fit color hides low-value cells; (2) y-axis labels overlap |
+| v3 | 2026-04-13 | Added `<title>` per cell; sort rows by row-mean descending; gridlines reduced to `#c8c4c0` 0.75px. | (3) No accessibility metadata; (4) row order obscures pattern; (5) gridlines compete with marks |
+| Final | 2026-04-13 | All 22 Evergreen/Emery items pass; approved for chapter inclusion. | — |
 
+*The technical layer is not a story. It is a log. The version, the date, the change, and the audit item it fixed. When a colleague inherits the project, this is what they read.*
 ---
 
 ## Phase E: Handoff
@@ -250,6 +256,18 @@ Build the project. Document the decisions. Publish the result. That is the cours
 
 ---
 
+## A note about AI
+
+Building a complete project is the move that integrates everything the book has taught. The model can produce a complete-looking project at speed. Looking complete is not being complete.
+
+Where the model genuinely helps: producing the scaffolding of a project — file structure, data pipeline, build configuration — so you spend your time on the analysis rather than on setup.
+
+Where the model does damage: producing the analytical conclusions of the project. The conclusions are what the project is for, and they have to be yours.
+
+The rule: scaffolding from the model; conclusions from your reading of your data.
+
+---
+
 ## LLM Exercise — Chapter 17: The Final Project
 
 **Project:** Your choice — this is the final project of the book.
@@ -330,3 +348,27 @@ PROJECT.md, README.md, and a publication-ready artifact.
 - **Evergreen, Stephanie. (2019).** *Effective Data Visualization.* The 22-point checklist that Phase D applies.
 - **UNHCR Refugee Statistics.** unhcr.org/refugee-statistics. The dataset used in this chapter's worked example. Publicly available, updated annually.
 - **The book's pantry** — the complete reference set you have used throughout. Every pantry file is a Phase C resource.
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Buckminster Fuller** spent decades insisting that a designer's job is not to make objects but to make the whole system legible to the people who have to live with it. His Dymaxion map and the *World Game* were enormous communication projects: a data narrative wrapped around a verifiable artifact, end to end. The complete-project discipline of this chapter — README to chart to audit log — is Fuller's idea of legibility scaled down.
+
+![Buckminster Fuller, circa 1962. AI-generated portrait based on a public domain photograph.](../images/buckminster-fuller.jpg)
+*Buckminster Fuller, circa 1962. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Buckminster Fuller, and how does his approach to large communication projects connect to the build-a-complete-project workflow we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Buckminster Fuller Dymaxion"** on Wikipedia. See what the model got right, got wrong, or left out.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to compare Fuller's *World Game* presentations with a modern data-journalism feature like the NYT's COVID dashboard — what makes them complete projects.
+- Ask it to describe how Fuller's principle of "comprehensive anticipatory design science" applies to building a portfolio of D3 charts that age well.
+
+What changes? What gets better? What gets worse?

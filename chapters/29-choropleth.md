@@ -56,3 +56,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Charles Dupin** drew the first known choropleth map in 1826 — a shaded map of France encoding regional illiteracy by darkness. The technique became the standard way to display any rate or density across geographic regions.
+
+![Charles Dupin, circa 1830. AI-generated portrait based on a public domain engraving.](../images/charles-dupin.jpg)
+*Charles Dupin, circa 1830. AI-generated portrait based on a public domain engraving (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Charles Dupin, and how does his 1826 illiteracy map connect to the choropleth maps we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Charles Dupin"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to redo Dupin's 1826 map in modern D3 conventions — what changes about the data classification and color choice?
+- Ask it about the common choropleth pitfalls (the modifiable areal unit problem, raw counts vs. rates) Dupin already had to navigate.
+
+What changes? What gets better? What gets worse?

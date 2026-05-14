@@ -55,3 +55,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Toussaint Loua** published the first known heatmap in 1873 — a shaded matrix of Paris neighborhood statistics — a century before computers made the form ubiquitous. The matrix layout he chose is essentially identical to a modern heatmap.
+
+![Toussaint Loua, circa 1880. AI-generated portrait based on a public domain photograph.](../images/toussaint-loua.jpg)
+*Toussaint Loua, circa 1880. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Toussaint Loua, and how does his 1873 shaded matrix connect to the heatmap we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Toussaint Loua"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to compare Loua's 1873 matrix with a modern computational heatmap — what aspects of the design have changed, what stayed the same?
+- Ask it about the data Loua chose to encode (Parisian neighborhood demographics) and the social-statistics movement he was part of.
+
+What changes? What gets better? What gets worse?

@@ -40,8 +40,12 @@ Claude runs in several products. They all use the same underlying model, but the
 
 The general rule is simple: if the task produces a file, use Claude Code. If the task produces a conversation, use Claude chat. If the task spans files across many sessions, use a Project.
 
-<!-- → [TABLE: four-row comparison of Claude products for D3 work — columns: product name, file-system access (yes/no), persistent context (yes/no), best for (one-line description), typical D3 use case. Student should see at a glance why Claude Code is the default for chart-building and when the others become relevant.] -->
-
+| Product | File-system access | Persistent context | Best for | Typical D3 use case |
+|---|---|---|---|---|
+| Claude Code | Yes | Yes (in project memory) | Building, iterating, and shipping chart code | Generating `chart.html` from a CSV, watching it render, asking for the next revision |
+| Claude.ai (web) | No | No (per conversation) | Sketching prompts and explaining concepts | Drafting a four-move prompt before pasting it into Claude Code |
+| Claude in Chrome | Page DOM only | No | Inspecting an existing chart on the web | Asking "what's wrong with this chart?" while looking at it |
+| Claude API | Whatever you wire up | Whatever you persist | Programmatic pipelines — batch chart generation, build scripts | Generating 50 small multiples from a script |
 ---
 
 ## The instruction budget, and why two files beat one
@@ -153,8 +157,11 @@ A scatterplot where hue encodes a third quantitative variable. The reader cannot
 
 The fix is to specify the channel-to-attribute mapping explicitly in Move 3. When Claude Code produces the chart, audit it: is the mapping what the prompt specified? If not, the follow-up prompt names the channel-theory violation directly.
 
-<!-- → [TABLE: three-row failure mode reference — columns: failure mode name, what it looks like in the output, the prompt move that prevents it, example of the fix as a prompt fragment. Rows: API hallucination / chart-type mismatch / channel mismatch. Student should be able to use this as a diagnostic checklist during the verification stack.] -->
-
+| Failure mode | What it looks like in the output | The prompt move that prevents it | Example of the fix |
+|---|---|---|---|
+| API hallucination | Code calls `d3.scale.linear()` (v3 syntax) or invents methods that don't exist | Pin the version explicitly in Move 3 (Constrain it) | "Use D3 v7 syntax only — no v3 or v4 API calls." |
+| Chart-type mismatch | Pie chart for 14 categories, line chart for unordered groups | Name the chart type explicitly in Move 2 (Say what you want), not the category | "A horizontal bar chart, sorted descending — not 'a comparison chart.'" |
+| Channel mismatch | Hue encoding a quantitative variable, area encoding when length would work | Specify channel-to-attribute mappings as bullets in Move 3 | "Map: x = sector, y = funding amount (position, not area). Color: single hue, no scale." |
 ---
 
 ## Multi-LLM comparison
@@ -306,6 +313,18 @@ Find a chart published in a recent data journalism piece, dashboard, or research
 
 ---
 
+## A note about AI
+
+The basics chapter teaches the foundational moves of working with Claude on D3. The note examines what the basics make harder to notice.
+
+Where the model genuinely helps: producing working D3 boilerplate for a target chart type and explaining the choices it made. The explanation is useful even when the boilerplate is generic.
+
+Where the model does damage: producing code that looks correct and is subtly wrong — wrong scale, wrong axis orientation, wrong data join. The subtlety is what makes the failure mode dangerous.
+
+The rule: read every line of model-generated D3 code before you trust the chart it produces.
+
+---
+
 ## LLM Exercise — Chapter 02: Building your prompting practice
 
 **What you're building:** Two files — your `CLAUDE.md` (coding constitution) and your `DESIGN.md` (visual constitution) — that travel with you across every chapter of this book and every D3 project beyond it. Plus a worked example showing your default workflow.
@@ -410,3 +429,27 @@ Save the document as DESIGN.md.
 ---
 
 *Tags: Claude-Code, prompting, four-move-structure, verification, multi-LLM-comparison, D3, API-hallucination, channel-mismatch, chart-type-mismatch, CLAUDE.md, DESIGN.md, instruction-budget, specification-skill*
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Margaret Hamilton** led the team that wrote the Apollo Guidance Computer software in the 1960s — coining the term "software engineering" along the way. Her stack of program listings stood taller than she did. The discipline of "talk to your software carefully and you will get something you didn't expect" was hers.
+
+![Margaret Hamilton, circa 1969. AI-generated portrait based on a public domain photograph.](../images/margaret-hamilton.jpg)
+*Margaret Hamilton, circa 1969. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Margaret Hamilton, and how does her work on the Apollo Guidance Computer software connect to the practice of working with code-generating tools like Claude? Keep it to three paragraphs. End with the single most surprising thing about her career or ideas.
+```
+
+→ Search **"Margaret Hamilton (software engineer)"** on Wikipedia. See what the model got right, got wrong, or left out.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to compare Hamilton's priority-display approach for handling Apollo's alarm system with the way Claude reports errors and warnings while writing D3 code.
+- Add a constraint: "Answer as Hamilton's 1969 internal memo on why robust error handling matters in life-critical software."
+
+What changes? What gets better? What gets worse?

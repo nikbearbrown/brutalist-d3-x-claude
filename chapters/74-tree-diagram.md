@@ -55,3 +55,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Porphyry of Tyre** was a 3rd-century Phoenician philosopher whose *Isagoge* introduced the "Porphyrian tree" — a hierarchical branching diagram of categories — that became the standard tree visualization in medieval logic and the ancestor of every modern taxonomy diagram.
+
+![Porphyry of Tyre, 3rd century. AI-generated illustration based on a public domain painting.](../images/porphyry-of-tyre.jpg)
+*Porphyry of Tyre, 3rd century. AI-generated illustration based on a public domain painting (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Porphyry of Tyre, and how does the Porphyrian tree connect to the tree diagram we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Porphyry (philosopher)"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to walk through how the Porphyrian tree organized Aristotelian categories — substance, body, animal, human — and where it failed.
+- Ask it about the bridge from Porphyry's 3rd-century tree to Linnaean taxonomy to modern cladistic phylogeny.
+
+What changes? What gets better? What gets worse?

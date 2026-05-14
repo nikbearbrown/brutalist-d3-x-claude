@@ -65,3 +65,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Alex Osborn** coined the word "brainstorming" in his 1953 book *Applied Imagination* — proposing the four rules (defer judgment, encourage wild ideas, build on others, go for quantity) that still drive most modern ideation workshops. He was a Madison Avenue ad executive.
+
+![Alex Osborn, circa 1953. AI-generated portrait based on a public domain photograph.](../images/alex-osborn.jpg)
+*Alex Osborn, circa 1953. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Alex Osborn, and how does his brainstorming method connect to the ideation chapter we covered? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Alex Faickney Osborn"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to apply Osborn's four rules to a brainstorming session with Claude — which rules apply, which break?
+- Ask it about the modern research on group brainstorming — does it actually outperform individual idea generation?
+
+What changes? What gets better? What gets worse?

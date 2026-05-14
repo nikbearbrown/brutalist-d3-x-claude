@@ -62,3 +62,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Ralph Nelson Elliott** developed Elliott Wave Theory in the 1930s — a system of reading OHLC price charts as nested fractal patterns of impulse waves and corrections. The theory is contested but the chart-reading discipline it produced is widespread.
+
+![Ralph Nelson Elliott, circa 1935. AI-generated portrait based on a public domain photograph.](../images/ralph-nelson-elliott.jpg)
+*Ralph Nelson Elliott, circa 1935. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Ralph Nelson Elliott, and how does Elliott Wave Theory connect to the OHLC chart we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Ralph Nelson Elliott"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to walk through how Elliott's 5-3 wave pattern is identified on a daily OHLC chart.
+- Ask it to discuss the empirical evidence — or lack of it — that Elliott Wave Theory predicts price action.
+
+What changes? What gets better? What gets worse?

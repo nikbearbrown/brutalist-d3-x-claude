@@ -81,3 +81,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Henry Gantt** developed the chart bearing his name around 1910 — a horizontal bar layout of tasks against time, used first to schedule ammunition production for the US Army. It is now the default project-planning visualization.
+
+![Henry Gantt, circa 1910. AI-generated portrait based on a public domain photograph.](../images/henry-gantt.jpg)
+*Henry Gantt, circa 1910. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Henry Gantt, and how does his task-scheduling chart connect to the Gantt chart we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Henry Gantt"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to compare a Gantt chart with a PERT chart — when does each form work better for project planning?
+- Ask it about Gantt's role in the broader "scientific management" movement of the early 20th century — and where that tradition led.
+
+What changes? What gets better? What gets worse?

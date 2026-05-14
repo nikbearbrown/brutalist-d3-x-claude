@@ -97,8 +97,16 @@ Claude Code is unreliable for performance at scale. Charts with tens of thousand
 
 The division of labor is clean: Claude Code executes; you decide. The four-move structure is how you communicate the decisions to the executor.
 
-<!-- → [TABLE: Two-column reference table — "Claude Code handles reliably" vs. "You must specify (Claude Code guesses badly)." Reliable column: D3 v7 syntax, layout computation (Sankey, treemap, force), responsive resize, color scale implementation, tick formatting, accessibility metadata when asked. Must-specify column: chart type (defaults to familiarity bias), channel-to-attribute mappings, sort order, zero baseline, domain-specific conventions, performance optimizations at scale. Caption: "The division of labor. Everything in the right column belongs in your 'Constrain it' block."] -->
+| Claude Code handles reliably | You must specify (Claude Code guesses badly) |
+|---|---|
+| D3 v7 syntax — `d3.scaleLinear()`, `d3.select()`, joins | Chart type — defaults to whatever is most familiar (pie, line) |
+| Layout computation — Sankey, treemap, force-directed | Channel-to-attribute mappings — which variable goes on which channel |
+| Responsive resize — `<svg viewBox>` with width 100% | Sort order — defaults to source-file order |
+| Color scale implementation — sequential, diverging, categorical | Zero baseline — only added when explicitly requested |
+| Tick formatting — `d3.timeFormat`, `d3.format` | Domain-specific conventions (financial: green up / red down) |
+| Accessibility metadata — when asked | Performance optimizations at scale (>10k marks) |
 
+*The division of labor. Everything in the right column belongs in your "Constrain it" block.*
 ---
 
 ## The MBTA Lesson
@@ -171,8 +179,15 @@ Five failures recur across chart types. Each has a standard follow-up form.
 
 The pattern across all five: name the specific failure, name the rule it violates (from this book's framework), and tell Claude Code what to do differently. No re-specification of the entire chart. One targeted change.
 
-<!-- → [TABLE: Five-row reference table of common Claude Code failures. Columns: Failure name | What Claude Code does by default | The rule violated | Follow-up prompt template (one sentence). Rows: (1) Auto-fit axis | d3.extent on quantitative scale | Proportional ink / zero baseline | "Reset [axis] to start at 0..." (2) Wrong channel for data type | Hue for quantitative | Expressiveness principle | "Replace hue with sequential luminance..." (3) Wrong sort order | Source-file order | Effectiveness principle | "Sort by [attribute] descending..." (4) Unnecessary label rotation | -30° on horizontal bar y-axis | Arrangement | "Remove rotation, set to 0, right-align..." (5) No accessibility metadata | No ARIA | Accessibility | "Add role='img', aria-label, and <title> per bar..." Caption: "Keep this table next to your keyboard. These five failures account for most first-output problems."] -->
+| Failure | What Claude Code does by default | Rule violated | Follow-up prompt template |
+|---|---|---|---|
+| Auto-fit axis | `d3.extent` on quantitative scale | Proportional ink / zero baseline | "Reset y-axis to start at 0, not at the data minimum." |
+| Wrong channel for data type | Hue ramp for quantitative variable | Expressiveness principle | "Replace hue with sequential luminance from `--cream` to `--ink`." |
+| Wrong sort order | Source-file order on a categorical axis | Effectiveness principle | "Sort bars by value descending, not by source-file order." |
+| Unnecessary label rotation | −30° rotation on horizontal-bar y-axis labels | Arrangement | "Remove rotation, set to 0°, right-align labels with 8px padding." |
+| No accessibility metadata | No ARIA attributes on the SVG | Accessibility | "Add `role='img'`, aria-label on the SVG, and a `<title>` element per bar." |
 
+*Keep this table next to your keyboard. These five failures account for most first-output problems.*
 ---
 
 ## A Constitution for Every Project
@@ -271,6 +286,18 @@ Do the upstream chapters first.
 
 ---
 
+## A note about AI
+
+Claude Code is a specific way of working with the model — code-aware, file-aware, multi-step. The note examines what the integration changes about the failure modes.
+
+Where the model genuinely helps: producing a long sequence of small correct edits faster than you could type them, when the edits are well-specified.
+
+Where the model does damage: producing a long sequence of edits that drift from the original intent, when the intent was vague or incompletely communicated. The drift compounds.
+
+The rule: specify tightly before the run; verify thoroughly after it.
+
+---
+
 ## LLM Exercise — Chapter 5: The Full Pipeline
 
 **Project:** [TBD — selected after Chapter 00]
@@ -339,3 +366,27 @@ Save outputs as a chapter-05-full-pipeline/ directory:
 - **Evergreen, Stephanie. (2019).** *Effective Data Visualization: The Right Chart for the Right Data.* SAGE Publications. The Evergreen/Emery checklist with extensive examples.
 - **Few, Stephen.** *Now You See It: Simple Visualization Techniques for Quantitative Analysis.* Chapters on iteration and audit are directly relevant.
 - **The book's pantry** — `pantry/EvergreenDataVizChecklist.txt` for the full checklist; `pantry/00-claude-prompting-tips.md` for prompt-writing discipline applied to D3.
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Grace Hopper** wrote the first compiler in 1952 — A-0 — arguing that programmers should not write in machine code if a machine could translate from something more human. The chain that runs from her work to "tell Claude what you want" is short.
+
+![Grace Hopper, circa 1960. AI-generated portrait based on a public domain photograph.](../images/grace-hopper.jpg)
+*Grace Hopper, circa 1960. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Grace Hopper, and how does her work on compilers and high-level languages connect to working with code-generating tools like Claude? Keep it to three paragraphs. End with the single most surprising thing about her career or ideas.
+```
+
+→ Search **"Grace Hopper"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to trace the lineage from A-0 to FLOW-MATIC to COBOL to natural-language prompting.
+- Ask it about the actual moth Hopper taped into a logbook — was it really the origin of "debugging"?
+
+What changes? What gets better? What gets worse?

@@ -54,3 +54,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Mark Twain** patented a memory-training game in 1885 — *Mark Twain's Memory Builder* — built around marking historical dates and events on a printed timeline. The game flopped commercially but the timeline format he formalized is essentially modern.
+
+![Mark Twain, circa 1890. AI-generated portrait based on a public domain photograph.](../images/mark-twain.jpg)
+*Mark Twain, circa 1890. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Mark Twain, and how does his patented Memory Builder timeline game connect to the timeline visualization we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Mark Twain"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to describe the Memory Builder game's mechanics — what scores points, what doesn't.
+- Ask it about Twain's other patents — including a self-pasting scrapbook that actually made him money.
+
+What changes? What gets better? What gets worse?

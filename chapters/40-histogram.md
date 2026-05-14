@@ -51,3 +51,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Herman Hollerith** developed the punch-card tabulating machine for the 1890 US Census — automating the production of frequency counts that became, when printed, the first machine-aided histograms. His company eventually became IBM.
+
+![Herman Hollerith, circa 1890. AI-generated portrait based on a public domain photograph.](../images/herman-hollerith.jpg)
+*Herman Hollerith, circa 1890. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Herman Hollerith, and how does his tabulating machine connect to the histogram we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Herman Hollerith"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to walk through how a 1890 census punch card was processed into a frequency table — and how that table became a printed histogram.
+- Ask it about the lineage from Hollerith's company through IBM to modern data infrastructure.
+
+What changes? What gets better? What gets worse?

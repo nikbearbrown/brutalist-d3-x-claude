@@ -13,7 +13,8 @@ In the second chart, GDP still sits on the x-axis. But life expectancy is now en
 
 The data is *identical*. The question is *identical*. The charts are not.
 
-<!-- → [FIGURE: Two side-by-side scatterplots, identical 50-country dataset. Left: x = GDP per capita (log scale), y = life expectancy — reader answers the question in under a second. Right: x = GDP per capita, all points on a single horizontal line, luminance encodes life expectancy — reader cannot answer the question. Caption should name the channels and note the Cleveland & McGill rank of each: position (rank 1) vs. luminance (rank 6).] -->
+![Two side-by-side scatterplots of 50 countries — left uses position to encode life expectancy, right collapses all points to a single line and encodes life expectancy as luminance.](../images/03-marks-and-channels-fig-01.png)
+*Figure 3.1 — Position (rank 1) vs. luminance (rank 6)*
 
 That gap — that enormous difference in what you can do with the same numbers — is the subject of this chapter. It comes down to two concepts: **marks** (the geometric shapes used to show data) and **channels** (the visual properties that carry the actual values). Understanding them is the difference between a chart that communicates and one that merely depicts.
 
@@ -43,7 +44,8 @@ A **mark** is a geometric element used to represent data. There are four types:
 
 **Glyph marks** — composite symbols. A candlestick chart's body-with-wicks. A bullet graph's bar-with-bands. A wind-rose's directional arrow. Glyphs let a single mark encode multiple attributes simultaneously, at the cost of requiring the reader to learn the symbol.
 
-<!-- → [FIGURE: Four-panel reference diagram — one panel per mark type. Point: scatterplot excerpt, each dot labeled "one observation." Line: line chart excerpt with annotation "implies interpolation between plotted values." Area: bar chart excerpt with annotation "height encodes magnitude." Glyph: single candlestick with wicks, each component labeled (open, close, high, low). Clean, minimal, no data — the marks themselves are the subject.] -->
+![Four-panel mark-type reference — point, line, area, and glyph illustrated with one example each.](../images/03-marks-and-channels-fig-02.png)
+*Figure 3.2 — The four mark types*
 
 The mark choice is not neutral. It is already making a claim about the data. Minard's 1869 flow map of Napoleon's Russian campaign — the one Tufte called "perhaps the best statistical graphic ever drawn" — uses a single continuous *area mark*: a band whose width varies as the army marches and retreats, the width encoding the number of soldiers still alive. The mark is the argument. The army is not a set of sample points at sample times; it is a continuous, depleting mass. A point mark at each waypoint would show locations. The area band shows the *depletion*. Same data, different mark, different claim.
 
@@ -74,8 +76,16 @@ The question is: which channel should carry which attribute? And the answer is n
 7. **Color hue** — cannot be ranked at all for quantitative data. The reader cannot decide whether red is greater than blue.
 8. **Shape** — categorical only. Useless for quantity.
 
-<!-- → [TABLE: Cleveland & McGill channel ranking — two columns: Rank (1–8) and Channel name, with a third column: Best attribute type (Quantitative / Categorical / Both). Add a fourth column: Stevens' exponent where applicable (position/length ≈ 1.0, area ≈ 0.7, luminance ≈ 0.33, hue/shape: N/A). Reader should be able to use this as a quick-reference card alongside the chapter.] -->
-
+| Rank | Channel | Best attribute type | Stevens' exponent |
+|---|---|---|---|
+| 1 | Position along a common scale | Quantitative | ≈ 1.0 |
+| 2 | Position along non-aligned scales | Quantitative | ≈ 1.0 |
+| 3 | Length | Quantitative | ≈ 1.0 |
+| 4 | Angle / slope | Quantitative | ≈ 0.7 |
+| 5 | Area | Quantitative | ≈ 0.7 |
+| 6 | Volume / luminance | Quantitative | ≈ 0.33 (luminance) |
+| 7 | Hue | Categorical | N/A |
+| 8 | Shape / texture | Categorical | N/A |
 This ranking is the answer to the opening puzzle. The first chart used *position* for life expectancy — channel number one. The second chart used *color luminance* — channel number six. The reader in the second chart was trying to read quantity off a channel that human perception handles six times less accurately than position. The chart didn't fail because it was ugly. It failed because the assignment was wrong.
 
 ---
@@ -100,7 +110,8 @@ The fix is to scale by area: if the value doubles, the area doubles, and the eye
 
 This is not a stylistic complaint about bubble charts. It is a statement about human perception. The chart is asking the reader to compare quantities encoded on a channel whose perceptual exponent is 0.7, when a channel with an exponent of 1.0 is available. The reader will be wrong, and they will be wrong in a systematic direction.
 
-<!-- → [FIGURE: Side-by-side bubble pair showing the radius-vs-area distortion. Left: two bubbles sized by radius — one with value 1, one with value 2. Label shows actual area ratio (4×) vs. data ratio (2×) vs. perceived ratio under Stevens (≈2.6×). Right: same two bubbles sized by area — area ratio (2×) matches data ratio, perceived ratio ≈1.5×. The three-number divergence on the left is the teaching point; make all three numbers visible.] -->
+![Two bubble pairs comparing radius-linear vs area-linear encoding, with three annotated numbers per pair (data ratio, area ratio, perceived ratio).](../images/03-marks-and-channels-fig-03.png)
+*Figure 3.3 — Radius-vs-area distortion in bubble encoding*
 
 ---
 
@@ -136,7 +147,8 @@ But. The polar area form means that the outer portions of each wedge are amplifi
 
 This is the case that matters for how you think about the framework. The rules describe perceptual mechanisms. A designer who understands the mechanism can decide when the payoff justifies the cost. Nightingale knew. Most people who use polar area charts today — a form that has become fashionable in data journalism — do not. They get the drama without understanding that the drama is partially an artifact of a perceptual distortion, not just the data.
 
-<!-- → [FIGURE: Nightingale's 1858 polar area chart rendered twice. Left: radius-linear (original) — wedges amplified, seasonal swell of preventable deaths is visually dominant. Right: area-corrected version — same data, smaller visual spread. Caption: "The distortion is the argument. Left panel is what Nightingale published. Right panel is what the data would show if area were scaled honestly. The difference is the rhetorical choice." Make the two versions visually comparable at the same size.] -->
+![Nightingale's 1858 polar-area chart rendered twice — left uses radius proportional to value (the published version), right uses radius proportional to the square root of value (area-honest).](../images/03-marks-and-channels-fig-04.png)
+*Figure 3.4 — Nightingale's rose, radius-linear vs. area-corrected*
 
 ---
 
@@ -248,6 +260,18 @@ The rest of this book is the details.
 
 ---
 
+## A note about AI
+
+Marks and channels are the grammar of visualization. The model can recite the grammar. Reciting is not designing.
+
+Where the model genuinely helps: producing the canonical channel-ranking — position beats length beats angle beats color — and explaining why on a worked dataset.
+
+Where the model does damage: choosing the channels for your specific chart. The choice depends on what you are emphasizing, which is yours to decide.
+
+The rule: grammar from the model; design from you.
+
+---
+
 ## LLM Exercise — Chapter 3: Marks and Channels
 
 **Project:** [TBD — selected after Chapter 00]
@@ -319,3 +343,27 @@ output on the first attempt.
 - **Stevens, S. S. (1957).** "On the Psychophysical Law." *Psychological Review* 64(3). The power-law mechanism. Read for the formulation; later work has refined the exponents but not overturned the structure.
 - **Kelleher, Curran.** Observable notebooks and YouTube tutorials. The marks-and-channels material is the accessible entry point for all of this.
 - **Tufte, Edward R. (1983, 2nd ed. 2001).** *The Visual Display of Quantitative Information.* The Minard, Snow, and Nightingale readings in Chapter 1 are the most-cited treatments in the literature.
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Jock Mackinlay** ranked visual channels by perceptual accuracy in his 1986 dissertation — showing that position beats length beats angle beats color, in roughly that order. The ranking still drives every decision about which channel to use for the most important variable.
+
+![Jock Mackinlay, circa 1986. AI-generated portrait based on a public domain photograph.](../images/jock-mackinlay.jpg)
+*Jock Mackinlay, circa 1986. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who is Jock Mackinlay, and how does his ranking of visual encoding channels connect to the marks-and-channels framework we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Jock D. Mackinlay"** on Wikipedia. See what the model got right, got wrong, or left out.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to walk through one example where Mackinlay's ranking explains why a chart redesign improved (or worsened) readability.
+- Ask it to compare Mackinlay's APT system from 1986 with modern automated chart-recommendation tools.
+
+What changes? What gets better? What gets worse?

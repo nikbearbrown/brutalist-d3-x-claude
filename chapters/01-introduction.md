@@ -43,3 +43,39 @@ If you finish this book, watch your own charts the way Erin Simpson watched the 
 ---
 
 *Continue with Chapter 00 — Claude Basics if you have not yet used Claude Code on a D3 project. Continue with Chapter 1 — Marks and Channels if you are ready to start building the design vocabulary.*
+
+---
+
+## A note about AI
+
+This book uses Claude as a working partner for D3 visualization. The introduction sets the posture; the note examines the seam where the partnership goes wrong.
+
+Where the model genuinely helps: generating a wide range of visualization candidates for a given dataset faster than you can sketch them. Breadth at the exploratory phase is real value.
+
+Where the model does damage: deciding which visualization fits the dataset's story. The fit depends on what you want the reader to take away, and the model does not know what you want.
+
+The rule: diverge with the model, converge without it.
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Jacques Bertin** published *Sémiologie graphique* in 1967 — the book that taught a generation of designers, cartographers, and statisticians that visualization is a language with grammar. His seven visual variables (position, size, shape, value, color, orientation, texture) still organize how D3 thinks about marks.
+
+![Jacques Bertin, circa 1970. AI-generated portrait based on a public domain photograph.](../images/jacques-bertin.jpg)
+*Jacques Bertin, circa 1970. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Jacques Bertin, and how does his Semiology of Graphics connect to the visualization design principles we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Jacques Bertin"** on Wikipedia. See what the model got right, got wrong, or left out.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to map Bertin's seven visual variables onto a specific D3 chart you'd build for a real dataset — where does each variable land?
+- Ask it to compare Bertin's hand-drawn matrix manipulations with the modern interactive grammar in D3 and Vega-Lite.
+
+What changes? What gets better? What gets worse?

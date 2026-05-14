@@ -60,3 +60,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Muriel Cooper** ran the MIT Visible Language Workshop in the 1980s and 90s — pioneering interactive and dynamic visual design when most people still thought of charts as static print objects. Her work imagined screens as design surfaces with time, motion, and depth as first-class variables.
+
+![Muriel Cooper, circa 1985. AI-generated portrait based on a public domain photograph.](../images/muriel-cooper.jpg)
+*Muriel Cooper, circa 1985. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Muriel Cooper, and how does her dynamic information design work connect to the radial column chart we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about her career or ideas.
+```
+
+→ Search **"Muriel Cooper"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to design an animated version of a radial column chart — what does motion add that a static chart can't carry?
+- Ask it about Cooper's MIT Media Lab demos that previewed concepts now standard in interactive data graphics.
+
+What changes? What gets better? What gets worse?

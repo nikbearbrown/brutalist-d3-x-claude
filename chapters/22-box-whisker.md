@@ -56,3 +56,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Andreas Buja** has worked across visualization, computational statistics, and exploratory data analysis since the 1980s — including foundational papers on interactive box-whisker variants and on the inferential interpretation of visual patterns.
+
+![Andreas Buja, circa 1995. AI-generated portrait based on a public domain photograph.](../images/andreas-buja.jpg)
+*Andreas Buja, circa 1995. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who is Andreas Buja, and how does his statistical visualization research connect to the box-whisker plot we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Andreas Buja"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to explain Buja's "visual inference" idea — using lineups of fake plots to test whether what you see in real data is real.
+- Ask it to compare standard box-whisker plots with the interactive variants Buja's research helped develop.
+
+What changes? What gets better? What gets worse?

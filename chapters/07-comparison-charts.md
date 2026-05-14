@@ -229,6 +229,18 @@ Take a real dataset with 25 or more categories and one quantitative attribute. B
 
 ---
 
+## A note about AI
+
+Comparison charts are the most overused category in the book. The model produces bar charts on request. Whether a bar chart is the right comparison is a different question.
+
+Where the model genuinely helps: producing the alternative comparison forms — slope charts, dot plots, dumbbell charts — for the same data, so you can see what the default obscures.
+
+Where the model does damage: defaulting to a grouped bar chart for any multi-category comparison. The default fails when categories are many, when ordering matters, or when the comparison is relative rather than absolute.
+
+The rule: ask for alternatives before you accept the default.
+
+---
+
 ## LLM Exercise — Chapter 07: Comparison Charts
 
 **What you're building:** A complete, audited comparison chart for a real dataset, plus the channel-mapping audit document and the Claude Code prompt that produced it.
@@ -310,3 +322,27 @@ Flag any audit failure and write the follow-up prompt that corrects it.
 ---
 
 *Tags: comparison-charts, bar-chart, column-chart, multiset, grouped-bars, stacked-bars, radial-bar, zero-baseline, proportional-ink, Tufte, Few, Cairo, Weissgerber, Pandey, label-length, small-multiples, Cleveland-McGill, Stevens-power-law, Gestalt-proximity, Gestalt-continuity, Evergreen-Emery, D3, Claude-Code, channel-specification*
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **William Playfair** invented the bar chart, line graph, and pie chart in his 1786 *Commercial and Political Atlas* — and used them to make political arguments about British trade. Most of the chart vocabulary you use today is his.
+
+![William Playfair, circa 1800. AI-generated portrait based on a public domain engraving.](../images/william-playfair.jpg)
+*William Playfair, circa 1800. AI-generated portrait based on a public domain engraving (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was William Playfair, and how do his 1786 chart inventions connect to the comparison charts we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"William Playfair"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to redraw Playfair's bar chart of Scottish imports in modern D3 conventions — what changes about the message?
+- Ask it about Playfair's side career as a banker, fraudster, and rumored spy.
+
+What changes? What gets better? What gets worse?

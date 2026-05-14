@@ -1,0 +1,100 @@
+<svg viewBox="0 0 700 480" xmlns="http://www.w3.org/2000/svg" font-family="Georgia, 'Times New Roman', serif">
+<defs>
+  <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#1a1714"/>
+  </marker>
+  <marker id="arrowL" markerWidth="8" markerHeight="6" refX="1" refY="3" orient="auto">
+    <polygon points="8 0, 0 3, 8 6" fill="#1a1714"/>
+  </marker>
+</defs>
+<rect x="0" y="0" width="700" height="480" fill="#fdfcfb"/>
+<text x="175" y="42" font-size="13" font-weight="bold" fill="#1a1714" text-anchor="middle">Left — pie chart, 14 sectors</text>
+<text x="525" y="42" font-size="13" font-weight="bold" fill="#1a1714" text-anchor="middle">Right — sorted horizontal bars</text>
+<path d="M 175,220 L 175.00,120.00 A 100,100 0 0 1 266.52,179.71 Z" fill="#1a1714" stroke="#fdfcfb" stroke-width="0.5"/>
+<path d="M 175,220 L 266.52,179.71 A 100,100 0 0 1 264.10,265.40 Z" fill="#3a3530" stroke="#fdfcfb" stroke-width="0.5"/>
+<path d="M 175,220 L 264.10,265.40 A 100,100 0 0 1 204.10,315.67 Z" fill="#4a4540" stroke="#fdfcfb" stroke-width="0.5"/>
+<path d="M 175,220 L 204.10,315.67 A 100,100 0 0 1 141.13,314.09 Z" fill="#5e5852" stroke="#fdfcfb" stroke-width="0.5"/>
+<path d="M 175,220 L 141.13,314.09 A 100,100 0 0 1 94.47,279.29 Z" fill="#6e6862" stroke="#fdfcfb" stroke-width="0.5"/>
+<path d="M 175,220 L 94.47,279.29 A 100,100 0 0 1 76.23,235.64 Z" fill="#80796f" stroke="#fdfcfb" stroke-width="0.5"/>
+<path d="M 175,220 L 76.23,235.64 A 100,100 0 0 1 77.55,197.57 Z" fill="#8a8480" stroke="#fdfcfb" stroke-width="0.5"/>
+<path d="M 175,220 L 77.55,197.57 A 100,100 0 0 1 90.23,166.95 Z" fill="#969089" stroke="#fdfcfb" stroke-width="0.5"/>
+<path d="M 175,220 L 90.23,166.95 A 100,100 0 0 1 107.93,145.83 Z" fill="#a39d96" stroke="#fdfcfb" stroke-width="0.5"/>
+<path d="M 175,220 L 107.93,145.83 A 100,100 0 0 1 126.82,132.37 Z" fill="#b0aaa2" stroke="#fdfcfb" stroke-width="0.5"/>
+<path d="M 175,220 L 126.82,132.37 A 100,100 0 0 1 142.91,125.29 Z" fill="#bbb5ac" stroke="#fdfcfb" stroke-width="0.5"/>
+<path d="M 175,220 L 142.91,125.29 A 100,100 0 0 1 155.65,121.89 Z" fill="#c8c4c0" stroke="#fdfcfb" stroke-width="0.5"/>
+<path d="M 175,220 L 155.65,121.89 A 100,100 0 0 1 166.84,120.33 Z" fill="#d3cfca" stroke="#fdfcfb" stroke-width="0.5"/>
+<path d="M 175,220 L 166.84,120.33 A 100,100 0 0 1 175.00,120.00 Z" fill="#e0ddd6" stroke="#fdfcfb" stroke-width="0.5"/>
+<rect x="30" y="332" width="9" height="9" fill="#1a1714" stroke="#1a1714" stroke-width="0.4"/>
+<text x="43" y="340" font-size="9" fill="#4a4540">Food security (18.4%)</text>
+<rect x="195" y="332" width="9" height="9" fill="#3a3530" stroke="#1a1714" stroke-width="0.4"/>
+<text x="208" y="340" font-size="9" fill="#4a4540">Shelter (14.1%)</text>
+<rect x="30" y="346" width="9" height="9" fill="#4a4540" stroke="#1a1714" stroke-width="0.4"/>
+<text x="43" y="354" font-size="9" fill="#4a4540">Health (12.8%)</text>
+<rect x="195" y="346" width="9" height="9" fill="#5e5852" stroke="#1a1714" stroke-width="0.4"/>
+<text x="208" y="354" font-size="9" fill="#4a4540">Protection (10.2%)</text>
+<rect x="30" y="360" width="9" height="9" fill="#6e6862" stroke="#1a1714" stroke-width="0.4"/>
+<text x="43" y="368" font-size="9" fill="#4a4540">WASH (9.4%)</text>
+<rect x="195" y="360" width="9" height="9" fill="#80796f" stroke="#1a1714" stroke-width="0.4"/>
+<text x="208" y="368" font-size="9" fill="#4a4540">Education (7.6%)</text>
+<rect x="30" y="374" width="9" height="9" fill="#8a8480" stroke="#1a1714" stroke-width="0.4"/>
+<text x="43" y="382" font-size="9" fill="#4a4540">Logistics (6.1%)</text>
+<rect x="195" y="374" width="9" height="9" fill="#969089" stroke="#1a1714" stroke-width="0.4"/>
+<text x="208" y="382" font-size="9" fill="#4a4540">Nutrition (5.3%)</text>
+<rect x="30" y="388" width="9" height="9" fill="#a39d96" stroke="#1a1714" stroke-width="0.4"/>
+<text x="43" y="396" font-size="9" fill="#4a4540">Coordination (4.4%)</text>
+<rect x="195" y="388" width="9" height="9" fill="#b0aaa2" stroke="#1a1714" stroke-width="0.4"/>
+<text x="208" y="396" font-size="9" fill="#4a4540">Multi-sector (3.7%)</text>
+<rect x="30" y="402" width="9" height="9" fill="#bbb5ac" stroke="#1a1714" stroke-width="0.4"/>
+<text x="43" y="410" font-size="9" fill="#4a4540">Early recovery (2.8%)</text>
+<rect x="195" y="402" width="9" height="9" fill="#c8c4c0" stroke="#1a1714" stroke-width="0.4"/>
+<text x="208" y="410" font-size="9" fill="#4a4540">Cash transfer (2.1%)</text>
+<rect x="30" y="416" width="9" height="9" fill="#d3cfca" stroke="#1a1714" stroke-width="0.4"/>
+<text x="43" y="424" font-size="9" fill="#4a4540">Mine action (1.8%)</text>
+<rect x="195" y="416" width="9" height="9" fill="#e0ddd6" stroke="#1a1714" stroke-width="0.4"/>
+<text x="208" y="424" font-size="9" fill="#4a4540">Other (1.3%)</text>
+<text x="374" y="81.52" font-size="10" fill="#1a1714" text-anchor="end">Food security</text>
+<rect x="380" y="70" width="280" height="16" fill="#1a1714"/>
+<text x="664.0" y="81.52" font-size="10" fill="#4a4540">18.4%</text>
+<text x="374" y="101.52" font-size="10" fill="#1a1714" text-anchor="end">Shelter</text>
+<rect x="380" y="90" width="215" height="16" fill="#1a1714"/>
+<text x="598.5652173913044" y="101.52" font-size="10" fill="#4a4540">14.1%</text>
+<text x="374" y="121.52" font-size="10" fill="#1a1714" text-anchor="end">Health</text>
+<rect x="380" y="110" width="195" height="16" fill="#1a1714"/>
+<text x="578.7826086956522" y="121.52" font-size="10" fill="#4a4540">12.8%</text>
+<text x="374" y="141.52" font-size="10" fill="#1a1714" text-anchor="end">Protection</text>
+<rect x="380" y="130" width="155" height="16" fill="#1a1714"/>
+<text x="539.2173913043479" y="141.52" font-size="10" fill="#4a4540">10.2%</text>
+<text x="374" y="161.52" font-size="10" fill="#1a1714" text-anchor="end">WASH</text>
+<rect x="380" y="150" width="143" height="16" fill="#1a1714"/>
+<text x="527.0434782608696" y="161.52" font-size="10" fill="#4a4540">9.4%</text>
+<text x="374" y="181.52" font-size="10" fill="#1a1714" text-anchor="end">Education</text>
+<rect x="380" y="170" width="116" height="16" fill="#1a1714"/>
+<text x="499.6521739130435" y="181.52" font-size="10" fill="#4a4540">7.6%</text>
+<text x="374" y="201.52" font-size="10" fill="#1a1714" text-anchor="end">Logistics</text>
+<rect x="380" y="190" width="93" height="16" fill="#1a1714"/>
+<text x="476.82608695652175" y="201.52" font-size="10" fill="#4a4540">6.1%</text>
+<text x="374" y="221.52" font-size="10" fill="#1a1714" text-anchor="end">Nutrition</text>
+<rect x="380" y="210" width="81" height="16" fill="#1a1714"/>
+<text x="464.6521739130435" y="221.52" font-size="10" fill="#4a4540">5.3%</text>
+<text x="374" y="241.52" font-size="10" fill="#1a1714" text-anchor="end">Coordination</text>
+<rect x="380" y="230" width="67" height="16" fill="#1a1714"/>
+<text x="450.95652173913044" y="241.52" font-size="10" fill="#4a4540">4.4%</text>
+<text x="374" y="261.52" font-size="10" fill="#1a1714" text-anchor="end">Multi-sector</text>
+<rect x="380" y="250" width="56" height="16" fill="#1a1714"/>
+<text x="440.304347826087" y="261.52" font-size="10" fill="#4a4540">3.7%</text>
+<text x="374" y="281.52" font-size="10" fill="#1a1714" text-anchor="end">Early recovery</text>
+<rect x="380" y="270" width="43" height="16" fill="#1a1714"/>
+<text x="426.60869565217394" y="281.52" font-size="10" fill="#4a4540">2.8%</text>
+<text x="374" y="301.52" font-size="10" fill="#1a1714" text-anchor="end">Cash transfer</text>
+<rect x="380" y="290" width="32" height="16" fill="#1a1714"/>
+<text x="415.95652173913044" y="301.52" font-size="10" fill="#4a4540">2.1%</text>
+<text x="374" y="321.52" font-size="10" fill="#1a1714" text-anchor="end">Mine action</text>
+<rect x="380" y="310" width="27" height="16" fill="#1a1714"/>
+<text x="411.39130434782606" y="321.52" font-size="10" fill="#4a4540">1.8%</text>
+<text x="374" y="341.52" font-size="10" fill="#1a1714" text-anchor="end">Other</text>
+<rect x="380" y="330" width="20" height="16" fill="#1a1714"/>
+<text x="403.7826086956522" y="341.52" font-size="10" fill="#4a4540">1.3%</text>
+<line x1="380" y1="68" x2="380" y2="350" stroke="#1a1714" stroke-width="1"/>
+<text x="350.0" y="458" font-size="11" fill="#1a1714" text-anchor="middle">Same 14-sector humanitarian funding data, two chart types.</text>
+<text x="350.0" y="472" font-size="10" fill="#4a4540" text-anchor="middle" font-style="italic">Left: angle (rank 4). Right: length from a common baseline (rank 1). The reader can rank the top three on the right in three seconds.</text>
+</svg>

@@ -56,3 +56,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Steve Nison** introduced the Western trading world to Japanese charting methods — including kagi, renko, and candlestick charts — in his 1991 book *Japanese Candlestick Charting Techniques*. The book opened a centuries-old chart tradition to a new audience.
+
+![Steve Nison, circa 1991. AI-generated portrait based on a public domain photograph.](../images/steve-nison.jpg)
+*Steve Nison, circa 1991. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who is Steve Nison, and how does his work bringing Japanese charting techniques to the West connect to the kagi chart we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Steve Nison"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to walk through how a kagi chart's "yang" and "yin" line shifts encode price action without time on the x-axis.
+- Ask it to compare kagi charts with point-and-figure charts (Chapter 54) — both are time-independent; how do they differ?
+
+What changes? What gets better? What gets worse?

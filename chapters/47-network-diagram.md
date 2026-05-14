@@ -62,3 +62,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Jacob L. Moreno** drew the first sociogram in 1934 — a network diagram of which children at a girls' reform school liked or disliked which other children. He coined "sociometry" and laid the foundation for modern social network analysis.
+
+![Jacob L. Moreno, circa 1934. AI-generated portrait based on a public domain photograph.](../images/jacob-l-moreno.jpg)
+*Jacob L. Moreno, circa 1934. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Jacob L. Moreno, and how does his sociogram work connect to the network diagram we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Jacob L. Moreno"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to describe one of Moreno's 1934 sociograms — what nodes, what edges, what conclusions he drew.
+- Ask it about the bridge from Moreno's sociometry to modern computational social network analysis.
+
+What changes? What gets better? What gets worse?

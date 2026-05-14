@@ -49,3 +49,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Augustus De Morgan** drew circular relational diagrams in *Formal Logic* (1847) — points arranged around a ring, lines drawn between them whenever a logical relation held. He was reasoning about syllogisms, not about gene expression or trade flows, but the layout choice was the same one Circos would make 162 years later: a ring is the most legible way to show many-to-many connections between a fixed set of entities.
+
+![Augustus De Morgan, circa 1860. AI-generated portrait based on a public domain photograph.](../images/augustus-de-morgan.jpg)
+*Augustus De Morgan, circa 1860. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Augustus De Morgan, and how do his circular logical-relation diagrams connect to the chord-diagram form we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Augustus De Morgan Formal Logic"** on Wikipedia. See what the model got right, got wrong, or left out.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to walk through how De Morgan's circular syllogism diagrams differ from a modern Circos chord plot — and what stays the same.
+- Ask it to compare De Morgan's laws (the algebraic ones taught in CS courses) with the diagrammatic reasoning he used in *Formal Logic* — which made it into modern visualization, which didn't.
+
+What changes? What gets better? What gets worse?

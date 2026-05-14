@@ -51,3 +51,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Ramon Llull**, a 13th-century Catalan philosopher, built rotating concentric paper wheels that combined attributes by spinning the inner disk against the outer. Each rotation produced a new conjunction of categories. His *Ars Magna* (c. 1305) is the oldest known mechanical combinatorial visualization — and the conceptual ancestor of every spiral plot that wraps a time series around a center to make cycles visible.
+
+![Ramon Llull, 13th century. AI-generated illustration based on a public domain painting.](../images/ramon-llull.jpg)
+*Ramon Llull, 13th century. AI-generated illustration based on a public domain painting (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Ramon Llull, and how do his combinatorial wheels connect to the spiral-plot form we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Ramon Llull Ars Magna combinatorial wheels"** on Wikipedia. See what the model got right, got wrong, or left out.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to walk through how Llull's rotating wheels (one rotation = one new combination) map onto a spiral plot's rotation-per-period rule.
+- Ask it to compare Llull's medieval combinatorial machine with a modern spiral plot of monthly electricity consumption — what reading task each supports.
+
+What changes? What gets better? What gets worse?

@@ -76,8 +76,15 @@ Three-dimensional bar effects, gradient backgrounds, rainbow colors encoding not
 
 The resolution is not "remove everything that isn't data ink." It is "keep everything that supports the reader's comprehension; remove everything that doesn't." The two criteria look similar but produce different charts at the margin.
 
-<!-- → [TABLE: data-ink resolution reference — three columns: visual element, Tufte strict reading (keep or remove), Few's criterion result (keep or remove), reason. Rows: light gridlines at axis ticks / color luminance reinforcing position / value annotations above bars / 3D bar perspective / gradient background / rainbow palette encoding nothing / drop shadow. Student uses this as a lookup card when deciding which elements to keep or remove.] -->
-
+| Visual element | Tufte (strict) | Few (functional) | Reason |
+|---|---|---|---|
+| Light gridlines at axis ticks | Remove | Keep | Few: aids reading long-distance comparisons; Tufte: reader can interpolate |
+| Color luminance reinforcing position | Remove (redundant) | Keep | Few: redundancy aids accessibility; Tufte: redundant ink violates ratio |
+| Value annotations above bars | Keep | Keep | Both: direct labeling replaces axis reading |
+| 3D bar perspective | Remove | Remove | Both: perspective distorts the position-along-common-scale channel |
+| Gradient background | Remove | Remove | Both: non-data ink, reduces contrast for the data marks |
+| Rainbow palette encoding nothing | Remove | Remove | Both: decorative color competes with attentional encoding |
+| Drop shadow | Remove | Remove | Both: non-data ink, no informational content |
 ---
 
 ## Color: the three vocabularies
@@ -136,8 +143,54 @@ Stephanie Evergreen and Ann Emery's twenty-two-point checklist operationalizes t
 
 Every failed item is a prompt to Claude Code. Not a prompt to revise the concept — a prompt to fix the specific encoding decision that the failed item names. The twenty-two items are not abstract principles; they are concrete checks, each with a concrete fix.
 
-<!-- → [TABLE: Evergreen/Emery 22-point checklist reference — all 22 items organized in five category sections (text 5, arrangement 4, color 5, lines 4, overall 4). For each item: the item text, the principle it operationalizes (Tufte / Few / Cairo / Gestalt), and the Claude Code prompt phrase that satisfies it. Student uses this as the pre-flight specification card for every chart they build.] -->
+### Text (5 items)
 
+| Item | Principle | Claude Code prompt phrase |
+|---|---|---|
+| Chart has a title in plain language | Cairo: key message | "Title the chart with the headline finding in 6–10 words." |
+| Subtitle gives context or units | Few: data context | "Add a subtitle with units and time period." |
+| Text size ≥ 9pt at final display size | Few: legibility | "Set body text to 11pt, axis labels to 10pt minimum." |
+| Type sans-serif or appropriate serif, no novelty | Tufte: visual quietude | "Use a single typeface family throughout — no display fonts." |
+| Numerical labels rounded to meaningful precision | Tufte: ratio | "Round axis labels to 2 significant digits unless precision matters." |
+
+### Arrangement (4 items)
+
+| Item | Principle | Claude Code prompt phrase |
+|---|---|---|
+| Vertical orientation only when categories are short | Cleveland & McGill | "Use horizontal bars when category labels exceed 12 characters." |
+| No diagonal or rotated labels under 90° | Gestalt: continuity | "Keep all labels horizontal; if too long, switch to horizontal bars." |
+| Bars / categories sorted by value, not source order | Cleveland: effectiveness | "Sort the bars by value descending." |
+| Adequate white space between chart elements | Tufte: ratio | "Add 16px of padding between the axis and the first bar." |
+
+### Color (5 items)
+
+| Item | Principle | Claude Code prompt phrase |
+|---|---|---|
+| Color is used purposefully, not decoratively | Tufte: data-ink | "Use a single hue across all bars unless color encodes a variable." |
+| Sequential luminance for quantitative | Cleveland: expressiveness | "Use a single-hue sequential luminance scale for the quantitative variable." |
+| Categorical hue limited to ≤ 7 categories | Few: working memory | "Limit categorical color to 6 distinguishable hues." |
+| Colorblind-safe palette | Few: accessibility | "Use a palette readable in deuteranopia simulation." |
+| Adequate contrast against background | Cairo: legibility | "Ensure text-to-background contrast ratio ≥ 4.5:1." |
+
+### Lines (4 items)
+
+| Item | Principle | Claude Code prompt phrase |
+|---|---|---|
+| Gridlines light or removed | Tufte: data-ink | "Set gridlines to `#c8c4c0`, 0.75px, behind the marks." |
+| Axis lines minimal | Tufte: data-ink | "Remove top and right axis spines; keep bottom and left only." |
+| No 3D or shadow effects | Tufte: chartjunk | "Flat fills only — no shadows, no gradients, no 3D." |
+| Marks have a defined stroke for clarity | Few: contrast | "Add a 0.5px `--ink` stroke around each bar." |
+
+### Overall (4 items)
+
+| Item | Principle | Claude Code prompt phrase |
+|---|---|---|
+| Zero baseline for length encodings | Cleveland: proportional ink | "Bar y-axis starts at 0 regardless of data minimum." |
+| Annotations on the most important values | Cairo: focus | "Direct-label the top 3 bars with their values." |
+| One chart, one message | Cairo: key message | "Drop the secondary metric — one chart, one finding." |
+| Print-reproducible (no color-only encoding) | Few: redundancy | "Test in grayscale; encoding must survive the conversion." |
+
+*The 22-point pre-flight checklist. Run it before publishing any chart.*
 ---
 
 ## The audit as design discipline, not just post-processing
@@ -232,6 +285,18 @@ The Evergreen/Emery checklist is a general instrument. Draft a customized versio
 
 ---
 
+## A note about AI
+
+The design principles chapter brings the book's accumulated rules into application. The model has read every design-principles book ever published.
+
+Where the model genuinely helps: critiquing your draft chart against canonical principles — data-ink ratio, perceptual ordering, color choice — and surfacing where you violated them.
+
+Where the model does damage: producing principle-compliant charts that fail at the actual job of communicating your specific argument. Principle compliance and argument-serving are not the same thing.
+
+The rule: principles from the model; the argument-serving check from your reader.
+
+---
+
 ## LLM Exercise — Chapter 16: Design Audit
 
 **What you're building:** A complete audit and redesign of a flawed visualization, with each correction documented using the principle and perceptual mechanism it serves.
@@ -302,3 +367,27 @@ Walk me through the full design audit:
 ---
 
 *Tags: design-principles, audit, Tufte, Few, Cairo, chartjunk-debate, data-ink-ratio, proportional-ink, Stevens-power-law, Gestalt, Evergreen-Emery, 22-point-checklist, accessibility, color-blind, dark-mode, annotation-strategy, D3, Claude-Code*
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Edward Tufte** published *The Visual Display of Quantitative Information* in 1983 — and coined the terms "chartjunk," "data-ink ratio," and "sparklines." His insistence on stripping decoration from charts continues to shape how serious data graphics get made.
+
+![Edward Tufte, circa 1983. AI-generated portrait based on a public domain photograph.](../images/edward-tufte.jpg)
+*Edward Tufte, circa 1983. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who is Edward Tufte, and how do his design principles connect to the practical chart design work we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Edward Tufte"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to apply Tufte's data-ink-ratio principle to a bar chart you'd build in D3 — what gets stripped?
+- Ask it to discuss criticisms of Tufte's "chartjunk" framing — when does decoration actually help comprehension?
+
+What changes? What gets better? What gets worse?

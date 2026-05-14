@@ -54,3 +54,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Saul Bass** was a graphic designer best known for film title sequences (*Vertigo*, *Anatomy of a Murder*, *Psycho*) — but his work spanned corporate identity, infographics, and the kind of clean radial layouts that influence chart design to this day. He believed every design choice should carry weight.
+
+![Saul Bass, circa 1965. AI-generated portrait based on a public domain photograph.](../images/saul-bass.jpg)
+*Saul Bass, circa 1965. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Saul Bass, and how does his design sensibility connect to the radial bar chart we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Saul Bass"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to apply Bass's reductionist design approach to one specific radial bar chart — what gets cut?
+- Ask it about Bass's corporate-identity work for AT&T, United Airlines, and Quaker Oats — and the discipline of designing something that has to scale from billboard to business card.
+
+What changes? What gets better? What gets worse?

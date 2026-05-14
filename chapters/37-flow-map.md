@@ -58,3 +58,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Harry Beck** designed the London Underground map in 1933 — abandoning geographic accuracy for topological clarity, with lines drawn at 45° and 90° angles and stations evenly spaced. The map is the ancestor of every modern transit and flow diagram.
+
+![Harry Beck, circa 1933. AI-generated portrait based on a public domain photograph.](../images/harry-beck.jpg)
+*Harry Beck, circa 1933. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Harry Beck, and how does his London Underground map connect to the flow map we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Harry Beck"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to compare Beck's 1933 topological map with a geographically accurate London Underground map — what's gained, what's lost?
+- Ask it about how Beck was paid for the map (or wasn't), and what that says about the design profession of the time.
+
+What changes? What gets better? What gets worse?

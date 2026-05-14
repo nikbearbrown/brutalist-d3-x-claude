@@ -223,6 +223,18 @@ If you can answer all three questions in sixty seconds, you know the chapter. Th
 
 ---
 
+## A note about AI
+
+Hierarchy charts — treemaps, sunbursts, dendrograms — make the structure visible. The model will produce any of them. Which one fits depends on whether your reader needs to compare leaves or follow branches.
+
+Where the model genuinely helps: producing both the rectangular and radial versions and naming what each does well.
+
+Where the model does damage: producing a treemap for a hierarchy that does not have meaningful magnitudes — the rectangles become arbitrary.
+
+The rule: check that the hierarchy has the property the chart form needs before you generate the chart.
+
+---
+
 ## LLM Exercise — Chapter 12: Hierarchy Charts
 
 **Project:** [TBD — selected after Chapter 00]
@@ -298,3 +310,27 @@ readable, click-to-zoom implemented if the depth requires it.
 - **Munzner, Tamara. (2014).** *Visualization Analysis and Design.* CRC Press. Chapter on hierarchical visualization, including the depth-limit analysis and the treemap-vs-sunburst trade-off.
 - **Friendly, Michael. (2008).** "A Brief History of Data Visualization." In *Handbook of Data Visualization.* Springer. The origin story of Shneiderman's treemap and its development.
 - **The book's pantry** — `treemap.html`, `circle-packing.html`, `tree-diagram.html` for working examples of each form.
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Ben Shneiderman** invented the treemap in 1990 — to display hierarchical disk usage on his hard drive without wasted screen space. The algorithm now displays everything from stock-market sectors to government budgets to file-system contents.
+
+![Ben Shneiderman, circa 1991. AI-generated portrait based on a public domain photograph.](../images/ben-shneiderman.jpg)
+*Ben Shneiderman, circa 1991. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who is Ben Shneiderman, and how does his invention of the treemap connect to the hierarchy charts we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Ben Shneiderman"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to walk through the original "slice-and-dice" treemap algorithm — what it does well, and what later "squarified" treemaps improved.
+- Ask it about Shneiderman's "visual information seeking mantra" — overview, zoom, filter, details on demand.
+
+What changes? What gets better? What gets worse?

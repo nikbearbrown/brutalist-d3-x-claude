@@ -59,3 +59,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Émile Cheysson** was a 19th-century French engineer and statistician who pioneered the use of pie charts and proportional area diagrams in public administration — making the form a workhorse of European government statistics decades after Playfair invented it.
+
+![Émile Cheysson, circa 1880. AI-generated portrait based on a public domain photograph.](../images/emile-cheysson.jpg)
+*Émile Cheysson, circa 1880. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Émile Cheysson, and how does his statistical-graphics work connect to the pie chart we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Émile Cheysson"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to recreate one of Cheysson's 1870s administrative pie charts in modern D3 — what changes about clarity?
+- Ask it about the long-running debate over whether the pie chart is ever actually the right choice.
+
+What changes? What gets better? What gets worse?

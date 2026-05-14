@@ -57,3 +57,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **John T. Stasko** has spent decades on information visualization research at Georgia Tech — including the radial sunburst variant of the treemap, where each level of a hierarchy occupies a concentric ring. His lab's work on visualization evaluation shaped how the field measures effectiveness.
+
+![John T. Stasko, circa 1997. AI-generated portrait based on a public domain photograph.](../images/john-t-stasko.jpg)
+*John T. Stasko, circa 1997. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who is John T. Stasko, and how does his sunburst and treemap research connect to the sunburst chart we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"John T. Stasko"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to compare the sunburst with the rectangular treemap (Chapter 75) for the same hierarchical dataset — which encoding does which job?
+- Ask it about Stasko's work on visualization-task taxonomies — how do you choose between two chart forms for a given analytical task?
+
+What changes? What gets better? What gets worse?

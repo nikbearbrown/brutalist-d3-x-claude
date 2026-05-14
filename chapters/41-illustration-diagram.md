@@ -51,3 +51,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Otto Neurath** invented the Isotype pictogram system in 1920s Vienna — a visual language of stick-figure icons that could communicate statistical and social information across languages and literacy levels. His goal was an internationally legible visual language for working-class audiences.
+
+![Otto Neurath, circa 1930. AI-generated portrait based on a public domain photograph.](../images/otto-neurath.jpg)
+*Otto Neurath, circa 1930. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Otto Neurath, and how does the Isotype pictogram system connect to the illustration diagram we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Otto Neurath"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to design an Isotype-style icon set for one specific dataset — what abstractions are required to make figures legible?
+- Ask it about Neurath's involvement with the Vienna Circle of logical positivists — and what philosophical commitments shaped the visual language.
+
+What changes? What gets better? What gets worse?

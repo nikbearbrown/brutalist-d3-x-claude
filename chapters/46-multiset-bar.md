@@ -59,3 +59,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Howard Wainer** spent decades arguing — in *Visual Revelations* and in dozens of *Chance* magazine columns — that most published graphs commit the same handful of mistakes again and again. His careful redesigns of misleading charts taught a generation of statisticians to see them.
+
+![Howard Wainer, circa 1997. AI-generated portrait based on a public domain photograph.](../images/howard-wainer.jpg)
+*Howard Wainer, circa 1997. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who is Howard Wainer, and how does his work redesigning misleading graphs connect to the multiset bar chart we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Howard Wainer"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to apply Wainer's "twelve ways to make a bad graph" to a specific multiset bar chart you'd build — what's the worst design mistake to avoid?
+- Ask it about his role in psychometrics and the SAT — and how that fits with the visualization work.
+
+What changes? What gets better? What gets worse?

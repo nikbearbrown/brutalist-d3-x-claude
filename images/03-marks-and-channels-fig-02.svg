@@ -1,0 +1,66 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" font-family="Georgia, 'Times New Roman', serif">
+<defs>
+  <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#1a1714"/>
+  </marker>
+  <marker id="arrowL" markerWidth="8" markerHeight="6" refX="1" refY="3" orient="auto">
+    <polygon points="8 0, 0 3, 8 6" fill="#1a1714"/>
+  </marker>
+</defs>
+<rect x="0" y="0" width="700" height="420" fill="#fdfcfb"/>
+<text x="32" y="48" font-size="13" font-weight="bold" fill="#1a1714">Point</text>
+<rect x="32" y="56" width="290" height="150" fill="#f5f2ee" stroke="#1a1714" stroke-width="1"/>
+<circle cx="165" cy="138" r="3" fill="#1a1714"/>
+<circle cx="286" cy="127" r="3" fill="#1a1714"/>
+<circle cx="179" cy="141" r="3" fill="#1a1714"/>
+<circle cx="96" cy="132" r="3" fill="#1a1714"/>
+<circle cx="211" cy="166" r="3" fill="#1a1714"/>
+<circle cx="72" cy="108" r="3" fill="#1a1714"/>
+<circle cx="71" cy="168" r="3" fill="#1a1714"/>
+<circle cx="227" cy="77" r="3" fill="#1a1714"/>
+<circle cx="301" cy="186" r="3" fill="#1a1714"/>
+<circle cx="217" cy="145" r="3" fill="#1a1714"/>
+<circle cx="89" cy="74" r="3" fill="#1a1714"/>
+<circle cx="184" cy="79" r="3" fill="#1a1714"/>
+<circle cx="97" cy="101" r="3" fill="#1a1714"/>
+<circle cx="56" cy="127" r="3" fill="#1a1714"/>
+<circle cx="162" cy="171" r="3" fill="#1a1714"/>
+<circle cx="182" cy="148" r="3" fill="#1a1714"/>
+<circle cx="177" cy="150" r="3" fill="#1a1714"/>
+<circle cx="166" cy="105" r="3" fill="#1a1714"/>
+<line x1="92" y1="101" x2="147" y2="86" stroke="#4a4540" stroke-width="0.75" stroke-dasharray="4 3"/>
+<text x="150" y="89" font-size="10" fill="#4a4540" font-style="italic">one observation</text>
+<text x="338" y="48" font-size="13" font-weight="bold" fill="#1a1714">Line</text>
+<rect x="338" y="56" width="290" height="150" fill="#f5f2ee" stroke="#1a1714" stroke-width="1"/>
+<circle cx="362" cy="146" r="2.5" fill="#1a1714"/>
+<circle cx="410" cy="181" r="2.5" fill="#1a1714"/>
+<circle cx="459" cy="141" r="2.5" fill="#1a1714"/>
+<circle cx="507" cy="161" r="2.5" fill="#1a1714"/>
+<circle cx="556" cy="124" r="2.5" fill="#1a1714"/>
+<circle cx="604" cy="156" r="2.5" fill="#1a1714"/>
+<path d="M 362,146 L 410,181 L 459,141 L 507,161 L 556,124 L 604,156" stroke="#1a1714" stroke-width="1.25" fill="none"/>
+<text x="354" y="194" font-size="10" fill="#4a4540" font-style="italic">implies interpolation between plotted values</text>
+<text x="32" y="238" font-size="13" font-weight="bold" fill="#1a1714">Area</text>
+<rect x="32" y="246" width="290" height="150" fill="#f5f2ee" stroke="#1a1714" stroke-width="1"/>
+<rect x="60" y="298" width="24" height="80" fill="#1a1714"/>
+<rect x="98" y="268" width="24" height="110" fill="#1a1714"/>
+<rect x="136" y="318" width="24" height="60" fill="#1a1714"/>
+<rect x="174" y="283" width="24" height="95" fill="#1a1714"/>
+<rect x="212" y="338" width="24" height="40" fill="#1a1714"/>
+<rect x="250" y="303" width="24" height="75" fill="#1a1714"/>
+<line x1="48" y1="378" x2="306" y2="378" stroke="#4a4540" stroke-width="0.75"/>
+<text x="177.0" y="392" font-size="10" fill="#4a4540" text-anchor="middle" font-style="italic">height encodes magnitude</text>
+<text x="338" y="238" font-size="13" font-weight="bold" fill="#1a1714">Glyph</text>
+<rect x="338" y="246" width="290" height="150" fill="#f5f2ee" stroke="#1a1714" stroke-width="1"/>
+<line x1="448" y1="276" x2="448" y2="376" stroke="#1a1714" stroke-width="1"/>
+<rect x="436" y="306" width="24" height="50" fill="#1a1714"/>
+<line x1="449" y1="276" x2="496" y2="276" stroke="#4a4540" stroke-width="0.75" stroke-dasharray="4 3"/>
+<text x="498" y="279" font-size="10" fill="#4a4540" font-style="italic">high</text>
+<line x1="461" y1="306" x2="496" y2="306" stroke="#4a4540" stroke-width="0.75" stroke-dasharray="4 3"/>
+<text x="498" y="309" font-size="10" fill="#4a4540" font-style="italic">close</text>
+<line x1="461" y1="356" x2="496" y2="356" stroke="#4a4540" stroke-width="0.75" stroke-dasharray="4 3"/>
+<text x="498" y="359" font-size="10" fill="#4a4540" font-style="italic">open</text>
+<line x1="449" y1="376" x2="496" y2="376" stroke="#4a4540" stroke-width="0.75" stroke-dasharray="4 3"/>
+<text x="498" y="379" font-size="10" fill="#4a4540" font-style="italic">low</text>
+<text x="350.0" y="408" font-size="11" fill="#1a1714" text-anchor="middle" font-style="italic">The four mark types. Channels attach to marks.</text>
+</svg>

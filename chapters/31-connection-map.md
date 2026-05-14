@@ -59,3 +59,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Henry Drury Harness** drew the first known flow map in 1837 — for an Irish Railway Commission report — using line widths to encode passenger traffic between cities. His maps were the prototype for Minard, Sankey, and every modern connection map.
+
+![Henry Drury Harness, circa 1840. AI-generated portrait based on a public domain engraving.](../images/henry-drury-harness.jpg)
+*Henry Drury Harness, circa 1840. AI-generated portrait based on a public domain engraving (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Henry Drury Harness, and how does his 1837 flow-map work connect to the connection map we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Henry Drury Harness"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to compare Harness's 1837 passenger-flow map with the modern airline route maps you've seen.
+- Ask it about the Irish Railway Commission context — what policy question did the maps answer?
+
+What changes? What gets better? What gets worse?

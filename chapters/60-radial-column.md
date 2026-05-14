@@ -53,3 +53,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Massimo Vignelli** designed the 1972 New York City subway map — a strict, geometric, topologically simplified diagram in the lineage of Harry Beck's London Underground map. His radial and grid-aware design philosophy shapes how circular and column-based charts are still composed.
+
+![Massimo Vignelli, circa 1972. AI-generated portrait based on a public domain photograph.](../images/massimo-vignelli.jpg)
+*Massimo Vignelli, circa 1972. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Massimo Vignelli, and how does his information design philosophy connect to the radial column chart we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Massimo Vignelli"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to compare Vignelli's 1972 NYC subway map with the geographically accurate 1979 replacement — and where the design community landed.
+- Ask it about Vignelli's "design is one" credo — and how it survives in the era of dashboard-driven design.
+
+What changes? What gets better? What gets worse?

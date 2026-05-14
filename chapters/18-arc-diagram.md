@@ -80,3 +80,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Leonhard Euler** solved the Königsberg-bridges puzzle in 1735 by abstracting a city into nodes and edges and asking which path crossed each bridge exactly once. That single diagram founded graph theory — the mathematics that arc diagrams, force-directed networks, and every modern network visualization are built on. The arcs in this chapter trace back to those bridges.
+
+![Leonhard Euler, circa 1750. AI-generated portrait based on a public domain engraving.](../images/leonhard-euler.jpg)
+*Leonhard Euler, circa 1750. AI-generated portrait based on a public domain engraving (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Leonhard Euler, and how does his solution to the Königsberg-bridges problem connect to the arc-diagram form we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Leonhard Euler Königsberg bridges"** on Wikipedia. See what the model got right, got wrong, or left out.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to walk through how Euler's bridge-crossing condition (every vertex has even degree, except possibly the start and end) shows up when modern arc diagrams are checked for visual legibility.
+- Ask it to compare Euler's purely topological diagram with what a modern arc diagram adds on top — order along the axis, arc length, weighting.
+
+What changes? What gets better? What gets worse?

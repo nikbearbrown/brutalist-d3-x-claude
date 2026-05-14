@@ -46,3 +46,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Joseph Fourier** proved in 1822 that any periodic function could be decomposed into a sum of stacked sinusoids — and that the sum, drawn on paper as overlapping waveforms, was a more legible record of the underlying components than the raw signal. Strip away the trigonometry and you have the stream-graph: many categorical waveforms stacked, the total flowing through a baseline-free curve, the structure visible only after the decomposition is plotted.
+
+![Joseph Fourier, circa 1820. AI-generated portrait based on a public domain engraving.](../images/joseph-fourier.jpg)
+*Joseph Fourier, circa 1820. AI-generated portrait based on a public domain engraving (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Joseph Fourier, and how does his Fourier-series decomposition connect to the stream-graph form we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Joseph Fourier series"** on Wikipedia. See what the model got right, got wrong, or left out.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to walk through how a Fourier decomposition of monthly retail sales would look as a stream graph — and what gets lost when you collapse the harmonic components into stacked layers.
+- Ask it to compare Fourier's 1822 *Théorie analytique de la chaleur* with the 2008 NYT stream-graph of box-office data (Lee Byron) — what makes both "the same chart."
+
+What changes? What gets better? What gets worse?

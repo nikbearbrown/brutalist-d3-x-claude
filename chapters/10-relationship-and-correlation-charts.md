@@ -250,6 +250,18 @@ The scatterplot is the most honest form in this book, in the sense that its chan
 
 ---
 
+## A note about AI
+
+Relationship charts test whether a pattern is in the data or in the viewer. The model can produce scatter plots with regression lines on request. The regression line is a hypothesis, not an observation.
+
+Where the model genuinely helps: producing the scatter plot with and without the regression line, with and without the loess curve, with and without the residual plot. The contrast surfaces what each adds.
+
+Where the model does damage: declaring that the relationship is real because the regression p-value is small. The p-value is a statistic; the relationship is a claim.
+
+The rule: charts from the model; the relationship claim from your own argument.
+
+---
+
 ## LLM Exercise — Chapter 10: Relationship Charts
 
 **Project:** [TBD — selected after Chapter 00]
@@ -327,3 +339,27 @@ overplotting addressed, color scale appropriate for heatmaps.
 - **Munzner, Tamara. (2014).** *Visualization Analysis and Design.* CRC Press. The section on parallel coordinates and the axis-order-dependence problem.
 - **Cleveland, William S., and Robert McGill. (1984).** "Graphical Perception." *Journal of the American Statistical Association* 79(387). The accuracy ranking that puts position-along-common-scale at the top — the foundation for why scatterplots use both axes as position channels.
 - **The book's pantry** — `scatterplot.html`, `bubble-chart.html`, `heatmap.html` for working examples of each form.
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Francis Galton** drew the first scatter plot in 1885 to compare parents' and children's heights — and named the resulting downward-sloping pattern "regression toward the mean." His statistical instincts were brilliant; his applications of them (founding eugenics) were catastrophic.
+
+![Francis Galton, circa 1890. AI-generated portrait based on a public domain photograph.](../images/francis-galton.jpg)
+*Francis Galton, circa 1890. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Francis Galton, and how does his invention of the scatter plot connect to the relationship and correlation charts we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Francis Galton"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to walk through Galton's height-and-regression experiment, and explain what "regression to the mean" actually does and doesn't say.
+- Ask it to confront the entanglement of Galton's statistical innovations with his founding role in eugenics.
+
+What changes? What gets better? What gets worse?

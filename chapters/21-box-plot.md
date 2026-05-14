@@ -44,3 +44,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **William Sealy Gosset** — publishing under the pseudonym *Student* because his employer Guinness forbade staff from publishing under their own names — worked out in 1908 how small-sample distributions behaved differently from the normal. The t-distribution, the quartile, the inter-quartile range as the honest summary of a spread: these are the conceptual machinery the box plot puts on a page.
+
+![William Sealy Gosset (Student), circa 1910. AI-generated portrait based on a public domain photograph.](../images/william-sealy-gosset.jpg)
+*William Sealy Gosset (Student), circa 1910. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was William Sealy Gosset (Student), and how does his statistical work on small-sample distributions connect to the box-plot form we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"William Sealy Gosset Student t-distribution"** on Wikipedia. See what the model got right, got wrong, or left out.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to compare Gosset's pseudonymous "Student" papers with the modern open-science norm of full author attribution — what changed about scientific accountability.
+- Ask it to walk through how the inter-quartile range that Gosset's distribution work helped formalize shows up as the box of the box plot.
+
+What changes? What gets better? What gets worse?

@@ -50,3 +50,28 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Brian Johnson** co-invented the rectangular treemap with Ben Shneiderman at the University of Maryland in 1991 — collaborating on the recursive slice-and-dice algorithm that turns a hierarchical tree into a space-filling rectangle. The chart became one of the most-cited tools in information visualization.
+
+![Brian Johnson, circa 1991. AI-generated portrait based on a public domain photograph.](../images/brian-johnson.jpg)
+*Brian Johnson, circa 1991. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who is Brian Johnson, and how does his work co-inventing the treemap connect to the chart we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Treemapping"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to walk through the slice-and-dice algorithm — and explain why "squarified" treemaps were a major improvement.
+- Ask it about the original 1991 use case: visualizing disk usage so a user could find what was eating the hard drive.
+
+What changes? What gets better? What gets worse?

@@ -28,8 +28,14 @@ Stephen Few made this argument in 2005. His bullet graph was not a new form so m
 
 The chapter's test for any specialized form: does it use an appropriate channel for its primary data? If a specialized form uses position (the best channel) and bundles information efficiently, it earns the learning cost. If it uses angle or area decoratively when position was available, it fails.
 
-<!-- → [TABLE: earn-your-strangeness reference — rows: candlestick / Kagi / Point & Figure / bullet graph / radar chart / polar area. Columns: primary channel used, Cleveland & McGill rank of that channel, the specific analytical question only this form answers, the condition that makes it fail. Student uses this as a lookup card before choosing any specialized form.] -->
-
+| Form | Primary channel | Cleveland & McGill rank | The question only this form answers | Failure condition |
+|---|---|---|---|---|
+| Candlestick | Position + length | 1 + 3 | What was the within-period range AND the open-to-close direction? | Reader does not know the four price-points convention |
+| Kagi | Position with reversal-thresholded lines | 1 | Has the trend reversed by more than the threshold amount? | Audience expects a time-faithful x-axis |
+| Point & Figure | Position on a price grid | 1 | What price levels have held over time, independent of duration? | Audience expects time on the x-axis |
+| Bullet graph | Length against a qualitative ranges | 3 | Is this single value above target, on target, or below — and by how much? | Audience confuses ranges with separate measures |
+| Radar chart | Position on radial axes | 2 (non-aligned) | What is the multi-attribute profile of one entity? | Comparing many entities — overlapping polygons obscure each other |
+| Polar area (Nightingale) | Area | 5 | What is the cyclic / seasonal pattern across categories? | Audience reads radius linearly when area is the encoding |
 ---
 
 ## Candlestick and OHLC charts
@@ -191,6 +197,18 @@ Read Few's original 2005 "Bullet Graph Design Specification" (available online; 
 
 ---
 
+## A note about AI
+
+Specialized financial charts — candlestick, Kagi, point-and-figure — carry conventions the model can recite without internalizing.
+
+Where the model genuinely helps: producing the canonical reading of each chart type and the specific patterns traders look for.
+
+Where the model does damage: producing trading signals from any chart it generates. The model cannot have predictive value over the market, and any specific signal is a hallucination wearing a chart.
+
+The rule: chart conventions from the model; trading decisions from a professional with skin in the game.
+
+---
+
 ## LLM Exercise — Chapter 15: Specialized and Financial Charts
 
 **What you're building:** A specialized chart selected for a specific analytical question, with the domain-convention justification documented and the encoding decisions verified against the Cleveland and McGill hierarchy.
@@ -274,3 +292,27 @@ Flag any audit failure and write the follow-up prompt that corrects it.
 ---
 
 *Tags: specialized-charts, candlestick, OHLC, Kagi, Point-and-Figure, bullet-graph, Few, radar-chart, spider-chart, polar-area, Nightingale, axis-order-problem, Cleveland-McGill, position-vs-angle, dashboard, D3, Claude-Code*
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Munehisa Homma** was an 18th-century Japanese rice trader who developed the candlestick charting technique to track price action in the Osaka rice futures market — the earliest organized derivatives exchange. His method reached the West only in the 1990s.
+
+![Munehisa Homma, 18th century. AI-generated illustration based on a public domain painting.](../images/munehisa-homma.jpg)
+*Munehisa Homma, 18th century. AI-generated illustration based on a public domain painting (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Munehisa Homma, and how does his rice-trading candlestick technique connect to the specialized financial charts we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Munehisa Homma"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to read one candlestick (open, high, low, close, body, wicks) the way Homma would have.
+- Ask it about the structure of the Dōjima Rice Exchange — what made it the first true futures market.
+
+What changes? What gets better? What gets worse?

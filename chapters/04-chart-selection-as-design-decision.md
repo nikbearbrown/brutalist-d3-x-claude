@@ -13,7 +13,8 @@ Now imagine the same fourteen categories as a horizontal bar chart, sorted by fu
 
 The data is identical. The chart is not. This chapter is about what went wrong in the first version and how you make sure it does not happen in yours.
 
-<!-- → [FIGURE: Two side-by-side panels, identical 14-category humanitarian-funding dataset. Left: 14-slice pie chart with a cramped legend — intentionally hard to read, slivers at the bottom indistinguishable. Right: horizontal bar chart sorted descending, direct bar labels, zero baseline, single-hue palette. Caption: "Same data, two chart types. Left: reader cannot rank the top three categories in under 30 seconds. Right: 3 seconds. The difference is angle (Cleveland & McGill rank 4) vs. length from a common baseline (rank 1)."] -->
+![Two panels with the same 14-sector humanitarian funding data — left is a cramped 14-slice pie with a legend, right is a sorted horizontal bar chart.](../images/04-chart-selection-as-design-decision-fig-01.png)
+*Figure 4.1 — Pie chart vs. sorted bar chart, 14-sector dataset*
 
 ---
 
@@ -86,7 +87,8 @@ This is the load-bearing step. Every subsequent step follows from it. The reason
 
 These defaults are not laws. Part II of this book applies the framework to each chart family in detail. The point of step 4 here is to *name a candidate* — something to build and test. Named candidates are revisable. "I don't know, just make something" produces whatever the software defaults to, which is often wrong for reasons that take a chapter to undo.
 
-<!-- → [FIGURE: Cairo's four-step framework as a left-to-right flow diagram. Four labeled boxes: (1) Key Message → single sentence, (2) Data Structure → attribute types and counts, (3) Functional Category → FT Visual Vocabulary lookup, (4) Specific Form → chart type named. Arrows between boxes; decision branches shown at step 3 (one branch per category) converging into step 4 defaults. Annotate the humanitarian-funding example's path through the diagram in blood-red so the reader sees the worked case.] -->
+![Cairo's four-step framework as a left-to-right flow diagram — Key Message → Data Structure → Functional Category → Specific Form, with a worked example showing the path for the humanitarian funding case.](../images/04-chart-selection-as-design-decision-fig-02.png)
+*Figure 4.2 — Cairo's four-step chart-selection framework*
 
 ---
 
@@ -124,7 +126,8 @@ The corrective is Tufte's principle: *show the data.* Any visual element that do
 
 The corrective is to override the defaults consciously. The four-step framework is the discipline that produces overrides. Do the four steps before any code is written or any tool is opened; the chart will then differ from the default in ways you can defend.
 
-<!-- → [FIGURE: Three-row before/after triptych. Row 1 — Familiarity bias: 8-category pie chart (before) → sorted horizontal bar chart (after). Row 2 — Aesthetic-first: 3D exploded donut chart (before) → flat stacked bar (after). Row 3 — Software-default: 7-series overlapping line chart in Excel default rainbow palette (before) → small multiples, one panel per series, muted palette (after). Each row labeled with the failure mode name and one-sentence diagnosis. The "before" charts are intentionally bad; do not soften them.] -->
+![Three rows of before/after redesigns — familiarity bias (pie → sorted bar), aesthetic-first (3D exploded donut → flat stacked bar), software-default (tangled rainbow lines → small multiples).](../images/04-chart-selection-as-design-decision-fig-03.png)
+*Figure 4.3 — Three failure modes, three redesigns*
 
 ---
 
@@ -158,7 +161,8 @@ This is the thing the fourteen-slice pie chart got wrong. Its designers had the 
 
 Write the message first. The chart follows.
 
-<!-- → [FIGURE: Three-panel comparison using the same humanitarian-funding dataset. Left panel: line chart of monthly totals (change over time question). Center panel: horizontal bar chart of cumulative funding by sector, sorted descending (comparison question). Right panel: 100% stacked column chart with one column per year segmented by sector (part-to-whole with temporal sub-message). Caption: "One dataset, three questions, three charts. None is the 'right chart for this data.' All three are right for their respective questions. The chart follows the message."] -->
+![Three panels using the same humanitarian funding dataset — line chart (change over time), horizontal bar chart (comparison), and 100% stacked column chart (part-to-whole with temporal sub-message).](../images/04-chart-selection-as-design-decision-fig-04.png)
+*Figure 4.4 — One dataset, three questions, three charts*
 
 ---
 
@@ -267,6 +271,18 @@ The key message sentence is the test. Everything else in this chapter is the mac
 
 ---
 
+## A note about AI
+
+Chart selection is the design decision that the model is most prone to oversimplifying. The model will produce a chart on request without naming the trade-offs of the chart it picked.
+
+Where the model genuinely helps: producing three candidate chart types for the same data and naming what each emphasizes and what each hides.
+
+Where the model does damage: defaulting to a bar chart or a line chart because both are common in its training distribution. The default is not the design.
+
+The rule: ask the model for alternatives; choose from among them yourself.
+
+---
+
 ## LLM Exercise — Chapter 4: Chart Selection
 
 **Project:** [TBD — selected after Chapter 00]
@@ -337,3 +353,27 @@ prompt structure.
 - **Friendly, Michael. (2008).** "A Brief History of Data Visualization." In *Handbook of Data Visualization*, edited by C. Chen, W. Härdle, and A. Unwin. Springer. The origin stories that ground chart-type choice.
 - **Tufte, Edward R. (1983, 2nd ed. 2001).** *The Visual Display of Quantitative Information.* Chapter 1 establishes "show the data."
 - **Few, Stephen.** *Show Me the Numbers: Designing Tables and Graphs to Enlighten.* The most rigorous practical chart-selection reference; Few's chapter on selecting the right chart is the deepest treatment of the four-step decision in book form.
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Calvin F. Schmid** was an American sociologist and statistician who wrote *Handbook of Graphic Presentation* (1954) — the first practical manual that walked the reader through *which chart to use for which question*. Before Schmid's book, chart selection was mostly inherited from whatever the previous author had done. After it, the question "key message → data structure → functional category → specific form" had a textbook answer.
+
+![Calvin F. Schmid, circa 1955. AI-generated portrait based on a public domain photograph.](../images/calvin-f-schmid.jpg)
+*Calvin F. Schmid, circa 1955. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Calvin F. Schmid, and how does his chart-selection framework connect to the four-step Cairo workflow we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Calvin F. Schmid statistician"** on Wikipedia. See what the model got right, got wrong, or left out.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to walk through how Schmid's 1954 chart-selection rules would handle the 14-category humanitarian funding dataset from the opening case.
+- Ask it to compare Schmid's pre-computer chart-selection guide with Andy Kirk's *Data Visualisation* (2016) — what changed, what didn't.
+
+What changes? What gets better? What gets worse?

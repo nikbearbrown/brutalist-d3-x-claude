@@ -242,6 +242,18 @@ Everything else follows from there.
 
 ---
 
+## A note about AI
+
+Time-series visualization is where small choices change the story. The model produces line charts with default axes; the defaults sometimes lie.
+
+Where the model genuinely helps: producing the same time series with linear and log scales, with absolute and indexed-to-100 axes, so you can see which framing serves the argument.
+
+Where the model does damage: cropping the y-axis to emphasize change that is barely there, or starting the x-axis at zero when the data starts later. Both are common and both are misleading.
+
+The rule: inspect every axis choice the model made; decide deliberately which to keep.
+
+---
+
 ## LLM Exercise — Chapter 8: Temporal Charts
 
 **Project:** [TBD — selected after Chapter 00]
@@ -316,3 +328,27 @@ appropriate.
 - **Tufte, Edward R. (1983, 2nd ed. 2001).** *The Visual Display of Quantitative Information.* The proportional ink principle; the Minard chart as the canonical multi-channel temporal visualization.
 - **Wickham, Hadley. (2010).** "A Layered Grammar of Graphics." *Journal of Computational and Graphical Statistics* 19(1). Wickham's treatment of the time channel in the grammar framework.
 - **The book's pantry** — `line-graph.html`, `area-graph.html`, `stacked-area.html`, `stream-graph.html`, `spiral-plot.html`, `gantt-chart.html` for working examples of each form.
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Étienne-Jules Marey** was a 19th-century French physiologist who developed the "graphical method" — recording heartbeats, gait, and bird flight as continuous time-series traces on paper. He believed the trace was a more honest record than the human eye.
+
+![Étienne-Jules Marey, circa 1885. AI-generated portrait based on a public domain photograph.](../images/etienne-jules-marey.jpg)
+*Étienne-Jules Marey, circa 1885. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Étienne-Jules Marey, and how does his graphical method connect to the time-series and temporal charts we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Étienne-Jules Marey"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to compare Marey's chronophotographs of horses in motion with the modern small-multiples approach to time-series.
+- Ask it to describe Marey's sphygmograph — what physiological signal it captured, and how.
+
+What changes? What gets better? What gets worse?

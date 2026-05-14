@@ -1,0 +1,148 @@
+<svg viewBox="0 0 700 480" xmlns="http://www.w3.org/2000/svg" font-family="Georgia, 'Times New Roman', serif">
+<defs>
+  <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#1a1714"/>
+  </marker>
+  <marker id="arrowL" markerWidth="8" markerHeight="6" refX="1" refY="3" orient="auto">
+    <polygon points="8 0, 0 3, 8 6" fill="#1a1714"/>
+  </marker>
+</defs>
+<rect x="0" y="0" width="700" height="480" fill="#fdfcfb"/>
+<text x="60" y="42" font-size="13" font-weight="bold" fill="#1a1714">Left — channel: position</text>
+<text x="400" y="42" font-size="13" font-weight="bold" fill="#1a1714">Right — channel: luminance</text>
+<line x1="60" y1="360" x2="340" y2="360" stroke="#8a8480" stroke-width="1"/>
+<line x1="60" y1="60" x2="60" y2="360" stroke="#8a8480" stroke-width="1"/>
+<line x1="60.0" y1="360" x2="60.0" y2="364" stroke="#4a4540" stroke-width="1"/>
+<text x="60.0" y="378" font-size="10" fill="#4a4540" text-anchor="middle">6</text>
+<line x1="153.33333333333331" y1="360" x2="153.33333333333331" y2="364" stroke="#4a4540" stroke-width="1"/>
+<text x="153.33333333333331" y="378" font-size="10" fill="#4a4540" text-anchor="middle">8</text>
+<line x1="246.66666666666666" y1="360" x2="246.66666666666666" y2="364" stroke="#4a4540" stroke-width="1"/>
+<text x="246.66666666666666" y="378" font-size="10" fill="#4a4540" text-anchor="middle">10</text>
+<line x1="340.0" y1="360" x2="340.0" y2="364" stroke="#4a4540" stroke-width="1"/>
+<text x="340.0" y="378" font-size="10" fill="#4a4540" text-anchor="middle">12</text>
+<text x="200.0" y="398" font-size="11" fill="#1a1714" text-anchor="middle">GDP per capita (log scale)</text>
+<line x1="56" y1="326.6666666666667" x2="60" y2="326.6666666666667" stroke="#4a4540" stroke-width="1"/>
+<text x="52" y="329.6666666666667" font-size="10" fill="#4a4540" text-anchor="end">50</text>
+<line x1="56" y1="260.0" x2="60" y2="260.0" stroke="#4a4540" stroke-width="1"/>
+<text x="52" y="263.0" font-size="10" fill="#4a4540" text-anchor="end">60</text>
+<line x1="56" y1="193.33333333333331" x2="60" y2="193.33333333333331" stroke="#4a4540" stroke-width="1"/>
+<text x="52" y="196.33333333333331" font-size="10" fill="#4a4540" text-anchor="end">70</text>
+<line x1="56" y1="126.66666666666666" x2="60" y2="126.66666666666666" stroke="#4a4540" stroke-width="1"/>
+<text x="52" y="129.66666666666666" font-size="10" fill="#4a4540" text-anchor="end">80</text>
+<line x1="56" y1="60.0" x2="60" y2="60.0" stroke="#4a4540" stroke-width="1"/>
+<text x="52" y="63.0" font-size="10" fill="#4a4540" text-anchor="end">90</text>
+<text x="22" y="210.0" font-size="11" fill="#1a1714" text-anchor="middle" transform="rotate(-90 22,210.0)">Life expectancy (years)</text>
+<circle cx="149.4" cy="272.8" r="3.2" fill="#1a1714"/>
+<circle cx="87.2" cy="315.0" r="3.2" fill="#1a1714"/>
+<circle cx="201.9" cy="253.1" r="3.2" fill="#1a1714"/>
+<circle cx="194.8" cy="248.9" r="3.2" fill="#1a1714"/>
+<circle cx="78.6" cy="326.7" r="3.2" fill="#1a1714"/>
+<circle cx="91.8" cy="326.7" r="3.2" fill="#1a1714"/>
+<circle cx="174.3" cy="265.4" r="3.2" fill="#1a1714"/>
+<circle cx="124.5" cy="318.4" r="3.2" fill="#1a1714"/>
+<circle cx="224.5" cy="205.9" r="3.2" fill="#1a1714"/>
+<circle cx="167.4" cy="284.0" r="3.2" fill="#1a1714"/>
+<circle cx="310.8" cy="125.1" r="3.2" fill="#1a1714"/>
+<circle cx="141.0" cy="285.0" r="3.2" fill="#1a1714"/>
+<circle cx="105.0" cy="311.9" r="3.2" fill="#1a1714"/>
+<circle cx="271.2" cy="182.5" r="3.2" fill="#1a1714"/>
+<circle cx="114.0" cy="326.7" r="3.2" fill="#1a1714"/>
+<circle cx="161.4" cy="294.3" r="3.2" fill="#1a1714"/>
+<circle cx="204.8" cy="239.7" r="3.2" fill="#1a1714"/>
+<circle cx="120.3" cy="309.9" r="3.2" fill="#1a1714"/>
+<circle cx="237.6" cy="236.0" r="3.2" fill="#1a1714"/>
+<circle cx="214.2" cy="231.2" r="3.2" fill="#1a1714"/>
+<circle cx="181.4" cy="275.5" r="3.2" fill="#1a1714"/>
+<circle cx="242.2" cy="183.0" r="3.2" fill="#1a1714"/>
+<circle cx="129.7" cy="326.7" r="3.2" fill="#1a1714"/>
+<circle cx="285.8" cy="193.6" r="3.2" fill="#1a1714"/>
+<circle cx="249.7" cy="224.1" r="3.2" fill="#1a1714"/>
+<circle cx="98.5" cy="275.3" r="3.2" fill="#1a1714"/>
+<circle cx="172.7" cy="270.9" r="3.2" fill="#1a1714"/>
+<circle cx="190.3" cy="269.1" r="3.2" fill="#1a1714"/>
+<circle cx="79.0" cy="326.7" r="3.2" fill="#1a1714"/>
+<circle cx="211.1" cy="270.9" r="3.2" fill="#1a1714"/>
+<circle cx="285.9" cy="194.6" r="3.2" fill="#1a1714"/>
+<circle cx="216.3" cy="208.8" r="3.2" fill="#1a1714"/>
+<circle cx="212.8" cy="276.8" r="3.2" fill="#1a1714"/>
+<circle cx="303.0" cy="158.7" r="3.2" fill="#1a1714"/>
+<circle cx="186.6" cy="264.2" r="3.2" fill="#1a1714"/>
+<circle cx="242.8" cy="222.4" r="3.2" fill="#1a1714"/>
+<circle cx="229.4" cy="189.8" r="3.2" fill="#1a1714"/>
+<circle cx="139.7" cy="299.0" r="3.2" fill="#1a1714"/>
+<circle cx="164.8" cy="279.8" r="3.2" fill="#1a1714"/>
+<circle cx="183.5" cy="266.7" r="3.2" fill="#1a1714"/>
+<circle cx="110.9" cy="314.8" r="3.2" fill="#1a1714"/>
+<circle cx="259.3" cy="198.7" r="3.2" fill="#1a1714"/>
+<circle cx="101.3" cy="326.7" r="3.2" fill="#1a1714"/>
+<circle cx="284.9" cy="163.4" r="3.2" fill="#1a1714"/>
+<circle cx="89.3" cy="326.7" r="3.2" fill="#1a1714"/>
+<circle cx="287.8" cy="173.1" r="3.2" fill="#1a1714"/>
+<circle cx="272.0" cy="182.8" r="3.2" fill="#1a1714"/>
+<circle cx="172.1" cy="284.1" r="3.2" fill="#1a1714"/>
+<circle cx="158.1" cy="245.4" r="3.2" fill="#1a1714"/>
+<circle cx="106.7" cy="326.7" r="3.2" fill="#1a1714"/>
+<line x1="400" y1="210.0" x2="680" y2="210.0" stroke="#8a8480" stroke-width="1"/>
+<line x1="400.0" y1="206.0" x2="400.0" y2="214.0" stroke="#4a4540" stroke-width="1"/>
+<text x="400.0" y="228.0" font-size="10" fill="#4a4540" text-anchor="middle">6</text>
+<line x1="493.3333333333333" y1="206.0" x2="493.3333333333333" y2="214.0" stroke="#4a4540" stroke-width="1"/>
+<text x="493.3333333333333" y="228.0" font-size="10" fill="#4a4540" text-anchor="middle">8</text>
+<line x1="586.6666666666666" y1="206.0" x2="586.6666666666666" y2="214.0" stroke="#4a4540" stroke-width="1"/>
+<text x="586.6666666666666" y="228.0" font-size="10" fill="#4a4540" text-anchor="middle">10</text>
+<line x1="680.0" y1="206.0" x2="680.0" y2="214.0" stroke="#4a4540" stroke-width="1"/>
+<text x="680.0" y="228.0" font-size="10" fill="#4a4540" text-anchor="middle">12</text>
+<text x="540.0" y="398" font-size="11" fill="#1a1714" text-anchor="middle">GDP per capita (log scale)</text>
+<circle cx="489.4" cy="208.1" r="4.5" fill="rgb(195,192,189)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="427.2" cy="208.4" r="4.5" fill="rgb(234,231,227)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="541.9" cy="208.4" r="4.5" fill="rgb(177,174,171)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="534.8" cy="209.9" r="4.5" fill="rgb(174,171,167)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="418.6" cy="210.5" r="4.5" fill="rgb(245,242,238)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="431.8" cy="208.6" r="4.5" fill="rgb(245,242,238)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="514.3" cy="207.0" r="4.5" fill="rgb(189,186,182)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="464.5" cy="209.5" r="4.5" fill="rgb(237,234,230)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="564.5" cy="209.2" r="4.5" fill="rgb(134,131,128)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="507.4" cy="210.4" r="4.5" fill="rgb(206,203,199)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="650.8" cy="212.7" r="4.5" fill="rgb(61,58,54)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="481.0" cy="211.1" r="4.5" fill="rgb(206,203,200)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="445.0" cy="210.1" r="4.5" fill="rgb(231,228,224)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="611.2" cy="210.7" r="4.5" fill="rgb(113,110,107)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="454.0" cy="211.1" r="4.5" fill="rgb(245,242,238)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="501.4" cy="207.3" r="4.5" fill="rgb(215,212,208)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="544.8" cy="212.4" r="4.5" fill="rgb(165,162,159)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="460.3" cy="211.7" r="4.5" fill="rgb(229,226,222)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="577.6" cy="212.2" r="4.5" fill="rgb(162,159,155)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="554.2" cy="211.8" r="4.5" fill="rgb(157,154,151)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="521.4" cy="209.4" r="4.5" fill="rgb(198,195,191)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="582.2" cy="209.4" r="4.5" fill="rgb(113,110,107)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="469.7" cy="207.6" r="4.5" fill="rgb(245,242,238)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="625.8" cy="210.8" r="4.5" fill="rgb(123,120,117)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="589.7" cy="207.4" r="4.5" fill="rgb(151,148,144)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="438.5" cy="207.4" r="4.5" fill="rgb(198,195,191)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="512.7" cy="208.3" r="4.5" fill="rgb(194,191,187)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="530.3" cy="208.0" r="4.5" fill="rgb(192,189,185)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="419.0" cy="209.0" r="4.5" fill="rgb(245,242,238)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="551.1" cy="207.3" r="4.5" fill="rgb(194,191,187)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="625.9" cy="207.0" r="4.5" fill="rgb(124,121,117)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="556.3" cy="207.9" r="4.5" fill="rgb(137,134,130)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="552.8" cy="207.6" r="4.5" fill="rgb(199,196,192)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="643.0" cy="209.2" r="4.5" fill="rgb(91,88,85)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="526.6" cy="207.2" r="4.5" fill="rgb(187,184,181)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="582.8" cy="212.2" r="4.5" fill="rgb(149,146,143)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="569.4" cy="210.7" r="4.5" fill="rgb(120,117,113)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="479.7" cy="207.9" r="4.5" fill="rgb(219,216,212)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="504.8" cy="208.5" r="4.5" fill="rgb(202,199,195)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="523.5" cy="209.1" r="4.5" fill="rgb(190,187,183)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="450.9" cy="209.2" r="4.5" fill="rgb(234,231,227)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="599.3" cy="207.7" r="4.5" fill="rgb(128,125,121)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="441.3" cy="212.1" r="4.5" fill="rgb(245,242,238)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="624.9" cy="213.0" r="4.5" fill="rgb(96,93,89)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="429.3" cy="209.8" r="4.5" fill="rgb(245,242,238)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="627.8" cy="209.9" r="4.5" fill="rgb(104,101,98)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="612.0" cy="207.5" r="4.5" fill="rgb(113,110,107)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="512.1" cy="207.6" r="4.5" fill="rgb(206,203,199)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="498.1" cy="209.1" r="4.5" fill="rgb(170,167,164)" stroke="#4a4540" stroke-width="0.4"/>
+<circle cx="446.7" cy="208.6" r="4.5" fill="rgb(245,242,238)" stroke="#4a4540" stroke-width="0.4"/>
+<text x="540.0" y="330" font-size="10" fill="#4a4540" text-anchor="middle" font-style="italic">all points on one horizontal line</text>
+<text x="350.0" y="448" font-size="11" fill="#1a1714" text-anchor="middle">Same 50-country dataset. Left: position encoding (Cleveland &amp; McGill rank 1). Right: luminance encoding (rank 6).</text>
+<text x="350.0" y="464" font-size="10" fill="#4a4540" text-anchor="middle" font-style="italic">The reader can answer the question on the left in under a second. The right panel asks the eye to do a job perception cannot do.</text>
+</svg>

@@ -66,3 +66,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **George Bradshaw** published the first national railway timetable in 1839 — *Bradshaw's Railway Guide* — and the format he developed (origins × destinations × times in a tabular matrix) became the universal timetable layout for trains, buses, and ferries worldwide.
+
+![George Bradshaw, circa 1850. AI-generated portrait based on a public domain engraving.](../images/george-bradshaw.jpg)
+*George Bradshaw, circa 1850. AI-generated portrait based on a public domain engraving (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was George Bradshaw, and how does his railway timetable connect to the timetable visualization we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"George Bradshaw"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to compare a 19th-century *Bradshaw's* page with a modern airline schedule — what conventions held, what changed?
+- Ask it about Bradshaw's other innovation — the printed canal map of England — and why it mattered for industrial logistics.
+
+What changes? What gets better? What gets worse?

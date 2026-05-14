@@ -51,3 +51,28 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Kaoru Ishikawa** built statistical quality control into the foundation of postwar Japanese manufacturing — and his quality-improvement toolkit included radar/spider charts as a standard way to display multi-attribute supplier or process scorecards. The "fishbone diagram" he is most famous for is just one of his methods.
+
+![Kaoru Ishikawa, circa 1970. AI-generated portrait based on a public domain photograph.](../images/kaoru-ishikawa.jpg)
+*Kaoru Ishikawa, circa 1970. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Kaoru Ishikawa, and how does his quality control methodology connect to the radar chart we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Kaoru Ishikawa"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to design a radar chart for a specific multi-attribute decision (laptop choice, supplier comparison, fitness benchmark) — and discuss when the form misleads.
+- Ask it to compare Ishikawa's full "seven basic tools of quality" with the modern data-science workflow.
+
+What changes? What gets better? What gets worse?

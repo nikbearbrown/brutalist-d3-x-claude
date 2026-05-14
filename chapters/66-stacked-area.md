@@ -61,3 +61,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Émile Levasseur** was a 19th-century French economic geographer who produced some of the first stacked-area charts of national production and trade — building the form that would later become the streamgraph and the modern stacked area chart.
+
+![Émile Levasseur, circa 1880. AI-generated portrait based on a public domain photograph.](../images/emile-levasseur.jpg)
+*Émile Levasseur, circa 1880. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Émile Levasseur, and how does his stacked-area work connect to the chart we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Émile Levasseur"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to walk through how a stacked-area chart can mislead about category trends — and what design choices reduce that risk.
+- Ask it about Levasseur's role in the early statistical-atlas tradition that produced the US Census atlases of the 1870s.
+
+What changes? What gets better? What gets worse?

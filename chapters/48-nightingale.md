@@ -54,3 +54,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Florence Nightingale** designed the polar-area "rose" diagram (now called the Nightingale chart) in 1858 to show that British soldiers in the Crimean War were dying overwhelmingly from preventable disease — not battle wounds. Her chart persuaded Parliament to reform military hygiene.
+
+![Florence Nightingale, circa 1858. AI-generated portrait based on a public domain photograph.](../images/florence-nightingale.jpg)
+*Florence Nightingale, circa 1858. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Florence Nightingale, and how does her polar-area "rose" diagram connect to the Nightingale chart we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about her career or ideas.
+```
+
+→ Search **"Florence Nightingale"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to walk through how Nightingale's rose diagram encodes monthly cause-of-death proportions — and what made it more persuasive than a table.
+- Ask it about Nightingale's election in 1859 as the first woman fellow of the Royal Statistical Society.
+
+What changes? What gets better? What gets worse?

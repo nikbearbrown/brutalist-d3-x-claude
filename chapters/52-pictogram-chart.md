@@ -47,3 +47,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Marie Neurath** co-created the Isotype pictogram system with her husband Otto, and continued the work alone after his death in 1945 — translating science, history, and statistics into pictograms for working-class and child audiences. She produced more than 80 illustrated books.
+
+![Marie Neurath, circa 1948. AI-generated portrait based on a public domain photograph.](../images/marie-neurath.jpg)
+*Marie Neurath, circa 1948. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Marie Neurath, and how does her work continuing Isotype connect to the pictogram chart we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about her career or ideas.
+```
+
+→ Search **"Marie Neurath"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to design an Isotype-style pictogram chart for one specific demographic statistic — what icon, what scale?
+- Ask it about Marie Neurath's *Wonders of the Modern World* book series, and how it taught science visually to a generation of children.
+
+What changes? What gets better? What gets worse?

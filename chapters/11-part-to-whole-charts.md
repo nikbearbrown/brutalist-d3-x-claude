@@ -44,8 +44,14 @@ Stephen Few's position on these trade-offs is the book's: the question is "does 
 
 Donut charts extend the form by removing the center, creating space for a summary statistic — total funding, total population, a key annotation. The encoding is identical to the pie: angle. The donut adds utility in dashboard contexts where a single supporting number at the center earns its place. For analytical work, the donut inherits the pie's perceptual limitations.
 
-<!-- → [TABLE: part-to-whole form selection guide — columns: form, primary channel, Cleveland & McGill rank, best condition (audience + communication goal), failure condition. Rows: pie / donut / waffle / single stacked bar / Marimekko / Nightingale rose. Student uses this as a decision-card before building any part-to-whole chart.] -->
-
+| Form | Primary channel | Cleveland & McGill rank | Best condition | Failure condition |
+|---|---|---|---|---|
+| Pie | Angle | 4 | ≤ 5 categories, one slice dominates, general audience | More than 5 slices; need to rank middle categories |
+| Donut | Angle (arc) | 4 | Same as pie, but center holds a summary number | Same as pie; the hole adds no information |
+| Waffle | Position (cell count) | 1 | Audience that will count cells; precise percentages matter | Many small categories produce visually scattered cells |
+| Single stacked bar | Length within total | 3 | 3–5 categories, fixed total, headline number | Many segments — middle segments become hard to compare |
+| Marimekko | Position + area | 1 + 5 | Two-dimensional part-to-whole (category × sub-category) | Audience that mistakes area for one of the dimensions |
+| Nightingale rose | Area (with angle illusion) | 5 | Cyclic / seasonal categories where the cycle matters | Linear categories — the cycle is meaningless and area is misread |
 ---
 
 ## Waffle charts and what they do differently
@@ -208,6 +214,18 @@ Find a public-facing dashboard or report that contains at least two part-to-whol
 
 ---
 
+## A note about AI
+
+Part-to-whole is the family most often defaulted to pie charts and most often poorly served by them. The model defaults to pie. The default is a problem.
+
+Where the model genuinely helps: producing the alternative — stacked bar, 100% stacked area, treemap, waffle — for the same data, so the comparison is visible.
+
+Where the model does damage: defaulting to a pie when there are more than five categories. Pies degrade fast past five.
+
+The rule: ask for the alternatives explicitly.
+
+---
+
 ## LLM Exercise — Chapter 11: Part-to-Whole Charts
 
 **What you're building:** A part-to-whole chart selected for a specific audience and communication goal, with the five-slice rule applied and the channel choice documented.
@@ -292,3 +310,27 @@ Flag any audit failure and write the follow-up prompt that corrects it.
 ---
 
 *Tags: part-to-whole, pie-chart, donut, waffle, stacked-bar, Marimekko, Nightingale-rose, five-slice-rule, Cleveland-McGill-angle, Bertin-area, Cairo-rhetorical-analytical, Few-clarity, D3, Claude-Code*
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Georg von Mayr** was a 19th-century German statistician who built systematic part-to-whole charts (pie variants, stacked bars, area diagrams) to display the components of state and demographic data — and helped move statistics from text tables to visual reasoning.
+
+![Georg von Mayr, circa 1900. AI-generated portrait based on a public domain photograph.](../images/georg-von-mayr.jpg)
+*Georg von Mayr, circa 1900. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Georg von Mayr, and how does his early statistical graphics work connect to the part-to-whole charts we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Georg von Mayr"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to recreate one of von Mayr's 1870s demographic part-to-whole charts in modern D3 — what changes about the message?
+- Ask it to compare his approach with Playfair's a century earlier — what did each contribute?
+
+What changes? What gets better? What gets worse?

@@ -65,3 +65,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Joseph A. Hill** served as Chief Statistician of the U.S. Census and oversaw the *Statistical Atlas of the United States* editions of 1900, 1910, and 1920 — produced with the Census Office's graphics team. Those atlases pioneered the use of proportionally-sized squares, circles, and human figures to encode population, immigration, manufacturing output. Every modern bubble-area chart is a descendant of those plates.
+
+![Joseph A. Hill, circa 1920. AI-generated portrait based on a public domain photograph.](../images/joseph-a-hill.jpg)
+*Joseph A. Hill, circa 1920. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Joseph A. Hill, and how does his work on the Statistical Atlas of the United States connect to the proportional-area form we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Joseph A. Hill Statistical Atlas United States Census"** on Wikipedia. See what the model got right, got wrong, or left out.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to walk through one plate from the 1900 Statistical Atlas that uses proportional-area encoding and assess whether the radius or the area is doing the work.
+- Ask it to compare the Census Office's pre-computer proportional-symbol cartography with a modern d3.scaleSqrt() bubble chart — what is identical, what is different.
+
+What changes? What gets better? What gets worse?

@@ -58,3 +58,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Alfred Inselberg** invented parallel coordinates in 1959 — a way to plot high-dimensional points by stringing them across parallel vertical axes — and spent decades developing the geometry behind the technique. It is now the standard chart for high-dimensional categorical data.
+
+![Alfred Inselberg, circa 1985. AI-generated portrait based on a public domain photograph.](../images/alfred-inselberg.jpg)
+*Alfred Inselberg, circa 1985. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who is Alfred Inselberg, and how does parallel coordinates connect to the chart we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Alfred Inselberg"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to explain how a point in 5D becomes a polyline on a 2D parallel-coordinates plot — and why crossings reveal correlation.
+- Ask it about Inselberg's later work using parallel coordinates for flight conflict detection.
+
+What changes? What gets better? What gets worse?

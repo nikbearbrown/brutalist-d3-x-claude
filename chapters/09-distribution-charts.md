@@ -98,8 +98,13 @@ Cairo's argument is that the designer's professional obligation is to the reader
 
 The practical decision rule: match the chart form to the lowest reliable graphicacy level in your audience. If you are writing for statisticians in a peer-reviewed journal, violin plots are the right default for showing distribution shape. If you are presenting to a school board or a community meeting, histograms with annotations are more likely to produce genuine understanding. If the audience has no visualization training at all, a stem-and-leaf plot — which looks like a sorted list with structure — may be the most honest form available.
 
-<!-- → [TABLE: five-row graphicacy reference — columns: distribution form, required graphicacy level (general public / college-educated / statistically trained / visualization-trained), what it reveals, what it hides, best professional context. Rows: stem-and-leaf / histogram / box plot / violin plot / hybrid box-violin. Student uses this as a form-selection lookup card before building any distribution chart.] -->
-
+| Form | Required graphicacy | What it reveals | What it hides | Best professional context |
+|---|---|---|---|---|
+| Stem-and-leaf | College-educated | Every data value, plus rough shape | Population shape at scale (>200 values) | Teaching, small-sample inspection |
+| Histogram | General public | Overall shape, mode, skew | Individual values; sensitive to bin width | Reports, public-facing dashboards |
+| Box plot | Statistically trained | Quartiles, median, outliers — comparable across groups | Multi-modality, exact density | Side-by-side group comparisons |
+| Violin plot | Visualization-trained | Full density shape, including bimodality | Precise quartile values | Research papers, exploratory analysis |
+| Hybrid box-violin | Visualization-trained | Quartiles AND density shape | Compact display — wider per group than either alone | Cases where both reading tasks matter |
 ---
 
 ## Stem-and-leaf and density plots
@@ -204,6 +209,18 @@ Take a dataset with a known or suspected bimodal shape. Build violin plots at th
 
 ---
 
+## A note about AI
+
+Distribution charts are the family where the model is most prone to producing a histogram when a violin plot, an ECDF, or a strip plot would teach more.
+
+Where the model genuinely helps: producing the distribution four ways — histogram, density, ECDF, beeswarm — and explaining what each reveals about the same data.
+
+Where the model does damage: choosing bin width for histograms. The bin width is a design choice that shapes the story, and the model's defaults are not always the right defaults.
+
+The rule: distribution forms from the model; bin width from you.
+
+---
+
 ## LLM Exercise — Chapter 09: Distribution Charts
 
 **What you're building:** A distribution chart selected for a specific audience and built with the bin/bandwidth decision documented.
@@ -282,3 +299,27 @@ Flag any audit failure and write the follow-up prompt that corrects it.
 ---
 
 *Tags: distribution-charts, histogram, box-plot, violin-plot, KDE, kernel-density-estimation, stem-and-leaf, Tukey, bin-width, bandwidth, graphicacy, Cairo, Heer-Bostock, multimodality, D3, Claude-Code*
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Adolphe Quetelet** coined "the average man" in 1835 — proposing that human traits (height, chest circumference, criminal tendency) follow normal distributions. He gave statistics the conceptual tools to think about populations as distributions, not lists.
+
+![Adolphe Quetelet, circa 1860. AI-generated portrait based on a public domain photograph.](../images/adolphe-quetelet.jpg)
+*Adolphe Quetelet, circa 1860. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Adolphe Quetelet, and how does his "average man" framework connect to the distribution charts we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Adolphe Quetelet"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to walk through Quetelet's 1846 fit of Scottish soldier chest measurements to a normal curve — and what made it convincing at the time.
+- Ask it about the eugenics-adjacent reception of Quetelet's ideas in the late 19th century — what survived and what was discarded.
+
+What changes? What gets better? What gets worse?

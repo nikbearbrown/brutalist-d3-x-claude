@@ -56,3 +56,27 @@ Provide both files as separate code blocks. Do not explain — just produce the 
 ```
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **Arthur Lyon Bowley** was a British statistician who in 1901 produced *Elements of Statistics* — the first English-language statistics textbook to systematically use simple visual displays (including a precursor to stem-and-leaf and dot displays) to teach inferential reasoning.
+
+![Arthur Lyon Bowley, circa 1920. AI-generated portrait based on a public domain photograph.](../images/arthur-lyon-bowley.jpg)
+*Arthur Lyon Bowley, circa 1920. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was Arthur Lyon Bowley, and how does his early statistical-graphics work connect to the stem-and-leaf display we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"Arthur Lyon Bowley"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to compare Bowley's 1901 dot displays with Tukey's 1977 stem-and-leaf plot — what's the design lineage?
+- Ask it about Bowley's pioneering work on the sampling theory of survey statistics.
+
+What changes? What gets better? What gets worse?

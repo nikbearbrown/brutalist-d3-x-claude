@@ -221,6 +221,18 @@ If you can answer all three questions in sixty seconds, you know the chapter. Th
 
 ---
 
+## A note about AI
+
+Geographic charts come with the most encoded assumptions — projection, classification, basemap. The model will produce a chart without flagging any of them.
+
+Where the model genuinely helps: producing the same data in multiple projections (Mercator, Albers, equal-area) so the projection's effect on the story is visible.
+
+Where the model does damage: defaulting to Mercator for a global thematic map. Mercator distorts area badly at high latitudes, and the distortion shapes the perceived story.
+
+The rule: projection is a design choice; choose it deliberately.
+
+---
+
 ## LLM Exercise — Chapter 14: Spatial Charts
 
 **Project:** [TBD — selected after Chapter 00]
@@ -297,3 +309,27 @@ uses d3.scaleSqrt if applicable.
 - **Tufte, Edward R. (1983, 2nd ed. 2001).** *The Visual Display of Quantitative Information.* The Snow analysis is Tufte's canonical case for how visualization reveals causal structure.
 - **Cairo, Alberto. (2019).** *How Charts Lie: Getting Smarter About Visual Information.* Chapter 5 on map distortions and the ratio-vs-absolute rule.
 - **The book's pantry** — `bubble-map.html` for the proportional symbol map; the Visualizing Origin to Destination Flows reference for connection/flow maps.
+
+---
+
+## AI Wayback Machine
+
+The ideas in this chapter didn't appear from nowhere. **John Snow** mapped the 1854 Broad Street cholera outbreak in London — using a dot map of deaths to identify a single contaminated pump. The map became the founding case for spatial epidemiology and one of the most influential pieces of data visualization ever made.
+
+![John Snow, circa 1856. AI-generated portrait based on a public domain photograph.](../images/john-snow.jpg)
+*John Snow, circa 1856. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
+
+**Run this:**
+
+```
+Who was John Snow, and how does his Broad Street cholera map connect to the spatial and geographic charts we covered in this chapter? Keep it to three paragraphs. End with the single most surprising thing about his career or ideas.
+```
+
+→ Search **"John Snow"** on Wikipedia.
+
+**Now make the prompt better.** Try one of these:
+
+- Ask it to walk through how Snow's dot map, combined with the Voronoi-like analysis he sketched, isolated the pump as the cause.
+- Ask it to compare Snow's 1854 mapping with modern outbreak surveillance dashboards.
+
+What changes? What gets better? What gets worse?
