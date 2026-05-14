@@ -11,6 +11,10 @@ mkdir -p "$OUTPUT_DIR"
 # 00-frontmatter → 01-introduction → 02..NN chapters → 99-back-matter
 cat $METADATA chapters/*.md > "$OUTPUT_DIR/combined.md"
 
+# Resource paths so pandoc finds images regardless of how the chapter
+# markdown wrote the relative path (../images/ from chapters/, images/ from root).
+RESOURCE_PATH=".:images:chapters"
+
 # EPUB (primary — upload this to KDP)
 pandoc "$OUTPUT_DIR/combined.md" \
   --from markdown \
@@ -18,6 +22,7 @@ pandoc "$OUTPUT_DIR/combined.md" \
   --epub-cover-image=cover.jpg \
   --css=styles/kindle.css \
   --css=styles/kindle-book.css \
+  --resource-path="$RESOURCE_PATH" \
   --toc --toc-depth=2 \
   --output="$OUTPUT_DIR/$BOOK_SLUG.epub"
 
@@ -28,6 +33,7 @@ pandoc "$OUTPUT_DIR/combined.md" \
   --standalone \
   --css=styles/kindle.css \
   --css=styles/kindle-book.css \
+  --resource-path="$RESOURCE_PATH" \
   --toc \
   --output="$OUTPUT_DIR/$BOOK_SLUG.html"
 
