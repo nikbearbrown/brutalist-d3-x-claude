@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 6.4 — End-to-End Visualization Pipeline</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #FFFFFF; color: #121212; width: 1600px; height: 900px; overflow: hidden; }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const W = 1600, H = 900;
+const svg = d3.select('#chart').append('svg')
+  .attr('width', W).attr('height', H)
+  .attr('role', 'img').attr('aria-labelledby', 'chart-title chart-desc');
+
+svg.append('title').attr('id', 'chart-title').text('Figure 6.4 \u2014 End-to-End Visualization Pipeline');
+svg.append('desc').attr('id', 'chart-desc').text('A horizontal five-stage pipeline from data audit through chart selection, channel decomposition, prompt-to-chart, and audit-iterate to publishable output, with a feedback loop for structural failures.');
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#FFFFFF');
+
+// ── Arrow marker definitions ──
+const defs = svg.append('defs');
+
+function addArrowMarker(id, color) {
+  defs.append('marker')
+    .attr('id', id)
+    .attr('viewBox', '0 0 10 10')
+    .attr('refX', 10).attr('refY', 5)
+    .attr('markerWidth', 8).attr('markerHeight', 8)
+    .attr('orient', 'auto-start-reverse')
+    .append('path')
+      .attr('d', 'M 0 1 L 10 5 L 0 9 Z')
+      .attr('fill', color);
+}
+
+addArrowMarker('arrow-ink', '#121212');
+addArrowMarker('arrow-red', '#C8102E');
+addArrowMarker('arrow-border', '#D4D4D4');
+addArrowMarker('arrow-ochre', '#C8860E');
+
+// ── Title ──
+svg.append('text').attr('x', W / 2).attr('y', 48).attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif").attr('font-size', 34).attr('fill', '#121212')
+  .text('The pipeline. Stages 1\u20133 are upstream. Stage 4 is this chapter.');
+
+svg.append('text').attr('x', W / 2).attr('y', 78).attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 14).attr('fill', '#545454')
+  .text('Figure 6.4 \u2014 End-to-end visualization pipeline');
+
+// ── Stage data ──
+const stages = [
+  {
+    num: 1,
+    title: 'Data audit',
+    lines: [
+      'Attribute types',
+      'Analyst vs reader question',
+      '\u201CCompared with what?\u201D'
+    ],
+    deliverable: '01-data-audit.md',
+    chapter: 'Ch. 5',
+    color: '#121212',
+    highlight: false
+  },
+  {
+    num: 2,
+    title: 'Chart selection',
+    lines: [
+      'Cairo four steps',
+      'Functional category',
+      'Specific form'
+    ],
+    deliverable: '02-chart-selection.md',
+    chapter: 'Ch. 4',
+    color: '#121212',
+    highlight: false
+  },
+  {
+    num: 3,
+    title: 'Channel decomposition',
+    lines: [
+      'Marks',
+      'Mappings',
+      'Constraints'
+    ],
+    deliverable: '03-channel-decomposition.md',
+    chapter: 'Ch. 3',
+    color: '#121212',
+    highlight: false
+  },
+  {
+    num: 4,
+    title: 'Four-move prompt',
+    subtitle: '\u2192 Working chart',
+    lines: [],
+    deliverable: '04-chart.html',
+    chapter: 'Ch. 6',
+    color: '#C8102E',
+    highlight: true
+  },
+  {
+    num: 5,
+    title: 'Audit & iterate',
+    subtitle: '\u2192 Publishable chart',
+    lines: [],
+    deliverable: '05-final-chart.html',
+    chapter: 'Ch. 6',
+    color: '#C8102E',
+    highlight: true
+  }
+];
+
+// ── Layout constants ──
+const boxW = 240;
+const boxH = 200;
+const gapX = 40;
+const totalContentW = stages.length * boxW + (stages.length - 1) * gapX;
+const startX = (W - totalContentW) / 2;
+const boxY = 140;
+
+// ── "Upstream" bracket label for stages 1-3 ──
+const upstreamStartX = startX;
+const upstreamEndX = startX + 3 * boxW + 2 * gapX;
+const bracketY = boxY - 30;
+
+svg.append('line')
+  .attr('x1', upstreamStartX + 20).attr('y1', bracketY)
+  .attr('x2', upstreamEndX - 20).attr('y2', bracketY)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1.5);
+svg.append('line')
+  .attr('x1', upstreamStartX + 20).attr('y1', bracketY)
+  .attr('x2', upstreamStartX + 20).attr('y2', bracketY + 10)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1.5);
+svg.append('line')
+  .attr('x1', upstreamEndX - 20).attr('y1', bracketY)
+  .attr('x2', upstreamEndX - 20).attr('y2', bracketY + 10)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1.5);
+
+svg.append('text')
+  .attr('x', (upstreamStartX + upstreamEndX) / 2).attr('y', bracketY - 8)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 12).attr('font-weight', 600)
+  .attr('fill', '#545454')
+  .text('UPSTREAM');
+
+// ── "This chapter" bracket label for stages 4-5 ──
+const chapterStartX = startX + 3 * (boxW + gapX);
+const chapterEndX = startX + totalContentW;
+
+svg.append('line')
+  .attr('x1', chapterStartX + 20).attr('y1', bracketY)
+  .attr('x2', chapterEndX - 20).attr('y2', bracketY)
+  .attr('stroke', '#C8102E').attr('stroke-width', 1.5);
+svg.append('line')
+  .attr('x1', chapterStartX + 20).attr('y1', bracketY)
+  .attr('x2', chapterStartX + 20).attr('y2', bracketY + 10)
+  .attr('stroke', '#C8102E').attr('stroke-width', 1.5);
+svg.append('line')
+  .attr('x1', chapterEndX - 20).attr('y1', bracketY)
+  .attr('x2', chapterEndX - 20).attr('y2', bracketY + 10)
+  .attr('stroke', '#C8102E').attr('stroke-width', 1.5);
+
+svg.append('text')
+  .attr('x', (chapterStartX + chapterEndX) / 2).attr('y', bracketY - 8)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 12).attr('font-weight', 600)
+  .attr('fill', '#C8102E')
+  .text('THIS CHAPTER');
+
+// ── Draw stage boxes ──
+stages.forEach((s, i) => {
+  const x = startX + i * (boxW + gapX);
+  const g = svg.append('g');
+
+  // Box
+  g.append('rect')
+    .attr('x', x).attr('y', boxY)
+    .attr('width', boxW).attr('height', boxH)
+    .attr('fill', s.highlight ? '#FDF2F3' : '#FAFAFA')
+    .attr('stroke', s.color)
+    .attr('stroke-width', s.highlight ? 2.5 : 1.5)
+    .attr('rx', 8);
+
+  // Stage number badge
+  g.append('rect')
+    .attr('x', x).attr('y', boxY)
+    .attr('width', boxW).attr('height', 36)
+    .attr('fill', s.color)
+    .attr('rx', 8);
+  // Bottom corners of badge header
+  g.append('rect')
+    .attr('x', x).attr('y', boxY + 28)
+    .attr('width', boxW).attr('height', 8)
+    .attr('fill', s.color);
+
+  g.append('text')
+    .attr('x', x + boxW / 2).attr('y', boxY + 24)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif").attr('font-size', 13).attr('font-weight', 700)
+    .attr('fill', '#FFFFFF')
+    .text('STAGE ' + s.num);
+
+  // Title
+  g.append('text')
+    .attr('x', x + boxW / 2).attr('y', boxY + 62)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif").attr('font-size', 15).attr('font-weight', 700)
+    .attr('fill', s.color)
+    .text(s.title);
+
+  // Subtitle (for stages 4 and 5)
+  if (s.subtitle) {
+    g.append('text')
+      .attr('x', x + boxW / 2).attr('y', boxY + 82)
+      .attr('text-anchor', 'middle')
+      .attr('font-family', "'Inter', sans-serif").attr('font-size', 13).attr('font-weight', 600)
+      .attr('fill', s.color === '#C8102E' ? '#C8102E' : '#121212')
+      .text(s.subtitle);
+  }
+
+  // Detail lines
+  s.lines.forEach((line, li) => {
+    g.append('text')
+      .attr('x', x + boxW / 2).attr('y', boxY + 86 + li * 20)
+      .attr('text-anchor', 'middle')
+      .attr('font-family', "'Inter', sans-serif").attr('font-size', 12)
+      .attr('fill', '#545454')
+      .text(line);
+  });
+
+  // Deliverable label below box
+  const delivY = boxY + boxH + 18;
+  g.append('rect')
+    .attr('x', x + 10).attr('y', delivY - 14)
+    .attr('width', boxW - 20).attr('height', 24)
+    .attr('fill', '#F5F5F5').attr('stroke', '#D4D4D4').attr('stroke-width', 1).attr('rx', 4);
+
+  g.append('text')
+    .attr('x', x + boxW / 2).attr('y', delivY + 3)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'JetBrains Mono', monospace").attr('font-size', 11)
+    .attr('fill', '#545454')
+    .text(s.deliverable);
+
+  // Chapter reference below deliverable
+  g.append('text')
+    .attr('x', x + boxW / 2).attr('y', delivY + 28)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif").attr('font-size', 12).attr('font-weight', 600)
+    .attr('fill', s.highlight ? '#C8102E' : '#545454')
+    .text(s.chapter);
+
+  // ── Arrow to next stage ──
+  if (i < stages.length - 1) {
+    const arrowStartX = x + boxW;
+    const arrowEndX = x + boxW + gapX;
+    const arrowY = boxY + boxH / 2;
+
+    svg.append('line')
+      .attr('x1', arrowStartX + 4).attr('y1', arrowY)
+      .attr('x2', arrowEndX - 4).attr('y2', arrowY)
+      .attr('stroke', i >= 3 ? '#C8102E' : '#121212')
+      .attr('stroke-width', 2)
+      .attr('marker-end', i >= 3 ? 'url(#arrow-red)' : 'url(#arrow-ink)');
+  }
+});
+
+// ── Feedback loop arrow: Stage 5 back to Stage 4 ──
+const stage4X = startX + 3 * (boxW + gapX);
+const stage5X = startX + 4 * (boxW + gapX);
+const feedbackY = boxY + boxH + 80;
+const loopStartX = stage5X + boxW / 2;
+const loopStartY = boxY + boxH;
+const loopEndX = stage4X + boxW / 2;
+const loopEndY = boxY + boxH;
+
+// Down from stage 5
+svg.append('path')
+  .attr('d', `M ${loopStartX} ${loopStartY + 2}
+              L ${loopStartX} ${feedbackY}
+              L ${loopEndX} ${feedbackY}
+              L ${loopEndX} ${loopEndY + 2}`)
+  .attr('fill', 'none')
+  .attr('stroke', '#C8860E')
+  .attr('stroke-width', 2)
+  .attr('stroke-dasharray', '6,4')
+  .attr('marker-end', 'url(#arrow-ochre)');
+
+// Label on the feedback arrow
+svg.append('rect')
+  .attr('x', (loopStartX + loopEndX) / 2 - 160).attr('y', feedbackY - 14)
+  .attr('width', 320).attr('height', 28)
+  .attr('fill', '#FFFFFF').attr('stroke', '#C8860E').attr('stroke-width', 1).attr('rx', 4);
+
+svg.append('text')
+  .attr('x', (loopStartX + loopEndX) / 2).attr('y', feedbackY + 5)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 12).attr('font-weight', 600)
+  .attr('fill', '#C8860E')
+  .text('Structural failure \u2192 revise decomposition');
+
+// ── Large stage annotations for stages 4 and 5 ──
+// Stage 4 annotation
+const ann4X = stage4X + boxW / 2;
+const ann4Y = boxY + 110;
+svg.append('text')
+  .attr('x', ann4X).attr('y', ann4Y)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'JetBrains Mono', monospace").attr('font-size', 11)
+  .attr('fill', '#C8102E')
+  .text('Prompt \u2192 Code \u2192 Browser');
+
+svg.append('text')
+  .attr('x', ann4X).attr('y', ann4Y + 18)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'JetBrains Mono', monospace").attr('font-size', 11)
+  .attr('fill', '#545454')
+  .text('~12 seconds');
+
+// Stage 5 annotation
+const ann5X = stage5X + boxW / 2;
+const ann5Y = boxY + 110;
+svg.append('text')
+  .attr('x', ann5X).attr('y', ann5Y)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'JetBrains Mono', monospace").attr('font-size', 11)
+  .attr('fill', '#C8102E')
+  .text('Audit \u2192 Fix \u2192 Re-audit');
+
+svg.append('text')
+  .attr('x', ann5X).attr('y', ann5Y + 18)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'JetBrains Mono', monospace").attr('font-size', 11)
+  .attr('fill', '#545454')
+  .text('1\u20133 iterations');
+
+// ── Caption section ──
+svg.append('line')
+  .attr('x1', 60).attr('y1', H - 70).attr('x2', W - 60).attr('y2', H - 70)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+
+// Wrap the caption into two lines
+svg.append('text')
+  .attr('x', W / 2).attr('y', H - 44)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 13).attr('fill', '#545454')
+  .text('Stage 5 is the loop that closes the gap between \u201CClaude Code generated something\u201D');
+
+svg.append('text')
+  .attr('x', W / 2).attr('y', H - 24)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 13).attr('fill', '#545454')
+  .text('and \u201CI am confident in shipping this.\u201D');
+</script>
+</body>
+</html>

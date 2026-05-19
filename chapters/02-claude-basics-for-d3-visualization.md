@@ -20,6 +20,8 @@ Claude Code returns a working bar chart, sorted, annotated, on a zero baseline, 
 
 <!-- → [INFOGRAPHIC: side-by-side comparison of the two prompts — left column is the vague prompt with annotations flagging each decision Claude Code had to make on its own (chart type, marks, channels, sort order, baseline); right column is the specific prompt with the same decision points labeled as author-controlled. Caption: "Every decision the vague prompt omits is a decision the model makes for you."] -->
 
+![Figure 2.1 — Every decision the vague prompt omits is a decision the model makes for you](../images/02-claude-basics-for-d3-visualization-fig-01.jpg)
+
 The difference between those two prompts is not length, and it is not politeness. It is **specificity**. The first prompt told Claude Code to make a chart. The second told Claude Code *which* chart, *which* marks, *which* channels, *which* constraints. The model did not decide these things. You did.
 
 That gap — between letting the model decide and deciding yourself — is the entire subject of this chapter. The rest of the book gives you the vocabulary to close it for every chart type, every dataset, every communication goal. This chapter teaches you the machinery that makes the vocabulary useful.
@@ -76,6 +78,8 @@ Merged:    ~200+ instructions, budget exceeded, later rules degraded.
 
 <!-- → [INFOGRAPHIC: horizontal budget bar — total bar represents 150–200 instructions; first segment (~50) labeled "Claude Code system prompt (not yours)"; second segment (~100) labeled "CLAUDE.md — coding constitution"; third segment shown in a separate bar representing DESIGN.md loading on demand. A second version of the bar shows the merged-file scenario where the bar overflows, with the overflow zone hatched and labeled "rules degraded silently here." Caption: "The instruction budget is real. The degradation is silent."] -->
 
+![Figure 2.2 — The instruction budget is real. The degradation is silent.](../images/02-claude-basics-for-d3-visualization-fig-02.jpg)
+
 Two files with clear separation of concerns keep both within budget. That is the reason for the split. It is not a style preference.
 
 ---
@@ -118,6 +122,8 @@ Request reasoning. Ask Claude Code to restate what it understood before writing 
 The four moves take perhaps 90 seconds longer to write than a vague prompt. They reliably produce charts that are correct on the first attempt. The 90 seconds is not overhead. It is the work.
 
 <!-- → [INFOGRAPHIC: four-panel vertical flow diagram — one panel per move, each labeled with the move name (Show / Say / Constrain / Verify), a one-line description of what it contributes, and a short example line pulled from the cognitive domain prompt. Arrows connecting panels downward. A "what Claude decides without this move" callout on the right side of each panel showing what gets left to the model if the move is skipped. Caption: "Move 3 is the move most people skip. It is also the one that determines whether the output is right on the first attempt."] -->
+
+![Figure 2.3 — Move 3 is the move most people skip. It determines whether the output is right on the first attempt.](../images/02-claude-basics-for-d3-visualization-fig-03.jpg)
 
 ### Three notes specific to D3
 
@@ -202,6 +208,8 @@ Do all three layers. Do them in order. For a static chart, the full stack takes 
 
 <!-- → [INFOGRAPHIC: three-layer vertical stack diagram — Layer 1 at top (lightest shade), Layer 2 middle, Layer 3 at bottom (darkest shade, labeled "most likely to catch runtime failures"). Each layer shows: the check name, what you look at, what it catches, and approximate time. An arrow on the right side reads "catches earlier failures first; don't skip ahead." Caption: "Two minutes. In order. Every time."] -->
 
+![Figure 2.4 — Two minutes. In order. Every time.](../images/02-claude-basics-for-d3-visualization-fig-04.jpg)
+
 The opening example from this chapter is the failure mode in miniature. The scatterplot with circle-size encoding would have passed Layer 1 — you asked for a chart and got a chart. Layer 2 would have caught it if the prompt had specified the channels — the mapping (size for score, hue for domain) would not have matched what a correct prompt specified. Layer 3 would have confirmed it — opening the chart in a browser and trying to read the ranking makes the failure obvious in two seconds.
 
 ---
@@ -244,6 +252,8 @@ four-move structure.
 This pattern — audit, prompt, build, verify — repeats in every exercise in the book. It is not optional. It is the discipline that makes the model reliably useful for chart work. Without the audit, Claude Code produces charts on guesses. Without the verification, you publish charts on hope.
 
 <!-- → [INFOGRAPHIC: horizontal workflow diagram — four boxes connected by arrows: Audit (channel decomposition in Claude chat) → Prompt (four-move structure, submitted to Claude Code) → Build (Claude Code generates HTML) → Verify (three-layer stack). Below each box, a one-line note on what failure looks like if you skip that step. Caption: "The pattern is not overhead. It is the work."] -->
+
+![Figure 2.5 — The pattern is not overhead. It is the work.](../images/02-claude-basics-for-d3-visualization-fig-05.jpg)
 
 ---
 

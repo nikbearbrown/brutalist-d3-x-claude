@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 2.5 — The Audit-Prompt-Build-Verify Workflow</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #FFFFFF;
+    color: #121212;
+    width: 1600px;
+    height: 900px;
+    overflow: hidden;
+  }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const W = 1600, H = 900;
+const svg = d3.select('#chart').append('svg')
+  .attr('width', W).attr('height', H)
+  .attr('role', 'img')
+  .attr('aria-labelledby', 'chart-title');
+
+svg.append('title').attr('id', 'chart-title').text('Figure 2.5 — Audit-Prompt-Build-Verify Workflow');
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#FFFFFF');
+
+// Title
+svg.append('text')
+  .attr('x', W/2).attr('y', 52)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-size', 36).attr('fill', '#121212')
+  .text('The pattern is not overhead. It is the work.');
+
+svg.append('text')
+  .attr('x', W/2).attr('y', 82)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 14).attr('fill', '#545454')
+  .text('Figure 2.5 — The four-stage workflow: audit, prompt, build, verify');
+
+const stages = [
+  {
+    name: 'AUDIT',
+    desc: 'Channel decomposition',
+    tool: 'Claude chat or Claude Code',
+    detail: 'Classify attributes, pick chart family, map channels to data',
+    skipFailure: 'Channels assigned by guess — wrong chart for the question',
+    icon: 'A',
+    color: '#121212'
+  },
+  {
+    name: 'PROMPT',
+    desc: 'Four-move structure',
+    tool: 'Submitted to Claude Code',
+    detail: 'Show data, say chart type, constrain every channel, request verification',
+    skipFailure: 'Vague prompt — model makes 5+ decisions you did not review',
+    icon: 'P',
+    color: '#545454'
+  },
+  {
+    name: 'BUILD',
+    desc: 'Claude Code generates HTML',
+    tool: 'Claude Code writes file',
+    detail: 'D3 v7 single-file HTML, responsive, dark mode, accessibility',
+    skipFailure: 'No code — obvious, but: also no iteration if prompt was weak',
+    icon: 'B',
+    color: '#C8102E'
+  },
+  {
+    name: 'VERIFY',
+    desc: 'Three-layer verification stack',
+    tool: 'Browser + manual audit',
+    detail: 'Format check → fact check → runtime test. In order. Every time.',
+    skipFailure: 'Ship on hope — failures invisible until a reader sees them',
+    icon: 'V',
+    color: '#C8860E'
+  }
+];
+
+const boxW = 300;
+const boxH = 340;
+const gap = 60;
+const totalBoxW = stages.length * boxW + (stages.length - 1) * gap;
+const startX = (W - totalBoxW) / 2;
+const startY = 120;
+
+stages.forEach((s, i) => {
+  const x = startX + i * (boxW + gap);
+  const y = startY;
+
+  // Main box
+  svg.append('rect')
+    .attr('x', x).attr('y', y).attr('width', boxW).attr('height', boxH)
+    .attr('fill', '#FFFFFF').attr('stroke', s.color).attr('stroke-width', 2).attr('rx', 8);
+
+  // Header band
+  svg.append('rect')
+    .attr('x', x).attr('y', y).attr('width', boxW).attr('height', 72)
+    .attr('fill', s.color).attr('rx', 8);
+  svg.append('rect')
+    .attr('x', x).attr('y', y + 60).attr('width', boxW).attr('height', 12)
+    .attr('fill', s.color);
+
+  // Icon circle
+  svg.append('circle')
+    .attr('cx', x + 44).attr('cy', y + 36).attr('r', 22)
+    .attr('fill', 'none').attr('stroke', '#FFFFFF').attr('stroke-width', 2);
+  svg.append('text')
+    .attr('x', x + 44).attr('y', y + 44)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'EB Garamond', Georgia, serif")
+    .attr('font-size', 28).attr('fill', '#FFFFFF')
+    .text(s.icon);
+
+  // Stage name
+  svg.append('text')
+    .attr('x', x + 80).attr('y', y + 32)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 20).attr('font-weight', 700).attr('fill', '#FFFFFF')
+    .text(s.name);
+
+  // Description
+  svg.append('text')
+    .attr('x', x + 80).attr('y', y + 54)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 13).attr('fill', 'rgba(255,255,255,0.8)')
+    .text(s.desc);
+
+  // Tool
+  svg.append('text')
+    .attr('x', x + 20).attr('y', y + 104)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 11).attr('font-weight', 600).attr('fill', '#545454')
+    .text('TOOL:');
+  svg.append('text')
+    .attr('x', x + 20).attr('y', y + 122)
+    .attr('font-family', "'JetBrains Mono', monospace")
+    .attr('font-size', 12).attr('fill', '#121212')
+    .text(s.tool);
+
+  // Detail
+  svg.append('text')
+    .attr('x', x + 20).attr('y', y + 156)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 11).attr('font-weight', 600).attr('fill', '#545454')
+    .text('WHAT HAPPENS:');
+
+  // Wrap detail text
+  const words = s.detail.split(' ');
+  let line = '';
+  let lineNum = 0;
+  words.forEach(w => {
+    const test = line + (line ? ' ' : '') + w;
+    if (test.length > 38 && line) {
+      svg.append('text')
+        .attr('x', x + 20).attr('y', y + 176 + lineNum * 18)
+        .attr('font-family', "'Inter', sans-serif")
+        .attr('font-size', 13).attr('fill', '#121212')
+        .text(line);
+      lineNum++;
+      line = w;
+    } else {
+      line = test;
+    }
+  });
+  if (line) {
+    svg.append('text')
+      .attr('x', x + 20).attr('y', y + 176 + lineNum * 18)
+      .attr('font-family', "'Inter', sans-serif")
+      .attr('font-size', 13).attr('fill', '#121212')
+      .text(line);
+  }
+
+  // Arrow to next stage
+  if (i < stages.length - 1) {
+    const arrowX = x + boxW + gap/2;
+    svg.append('line')
+      .attr('x1', x + boxW + 4).attr('y1', y + boxH/2)
+      .attr('x2', x + boxW + gap - 4).attr('y2', y + boxH/2)
+      .attr('stroke', '#D4D4D4').attr('stroke-width', 3);
+    svg.append('polygon')
+      .attr('points', `${x + boxW + gap - 12},${y + boxH/2 - 8} ${x + boxW + gap - 2},${y + boxH/2} ${x + boxW + gap - 12},${y + boxH/2 + 8}`)
+      .attr('fill', '#D4D4D4');
+  }
+});
+
+// "IF SKIPPED" section below each box
+const skipY = startY + boxH + 30;
+
+svg.append('text')
+  .attr('x', W/2).attr('y', skipY + 8)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 13).attr('font-weight', 700).attr('fill', '#C8102E')
+  .text('WHAT FAILURE LOOKS LIKE IF YOU SKIP THIS STEP');
+
+svg.append('line')
+  .attr('x1', startX).attr('y1', skipY + 18).attr('x2', startX + totalBoxW).attr('y2', skipY + 18)
+  .attr('stroke', '#C8102E').attr('stroke-width', 1);
+
+stages.forEach((s, i) => {
+  const x = startX + i * (boxW + gap);
+  const y = skipY + 32;
+
+  svg.append('rect')
+    .attr('x', x).attr('y', y).attr('width', boxW).attr('height', 80)
+    .attr('fill', '#FFF8F8').attr('stroke', '#C8102E').attr('stroke-width', 1).attr('rx', 6);
+
+  // Wrap skip failure text
+  const words = s.skipFailure.split(' ');
+  let line = '';
+  let lineNum = 0;
+  words.forEach(w => {
+    const test = line + (line ? ' ' : '') + w;
+    if (test.length > 38 && line) {
+      svg.append('text')
+        .attr('x', x + 16).attr('y', y + 24 + lineNum * 18)
+        .attr('font-family', "'Inter', sans-serif")
+        .attr('font-size', 13).attr('fill', '#C8102E')
+        .text(line);
+      lineNum++;
+      line = w;
+    } else {
+      line = test;
+    }
+  });
+  if (line) {
+    svg.append('text')
+      .attr('x', x + 16).attr('y', y + 24 + lineNum * 18)
+      .attr('font-family', "'Inter', sans-serif")
+      .attr('font-size', 13).attr('fill', '#C8102E')
+      .text(line);
+  }
+});
+
+// Connecting lines from boxes to skip section
+stages.forEach((s, i) => {
+  const x = startX + i * (boxW + gap) + boxW/2;
+  svg.append('line')
+    .attr('x1', x).attr('y1', startY + boxH)
+    .attr('x2', x).attr('y2', skipY + 32)
+    .attr('stroke', '#D4D4D4').attr('stroke-width', 1).attr('stroke-dasharray', '3,3');
+});
+
+// Bottom overall message
+const msgY = H - 100;
+svg.append('rect')
+  .attr('x', W/2 - 460).attr('y', msgY).attr('width', 920).attr('height', 48)
+  .attr('fill', '#121212').attr('rx', 8);
+svg.append('text')
+  .attr('x', W/2).attr('y', msgY + 30)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-size', 22).attr('fill', '#FFFFFF')
+  .text('Audit → Prompt → Build → Verify. This pattern repeats in every exercise in the book. It is not optional.');
+
+// Caption
+svg.append('line')
+  .attr('x1', 80).attr('y1', H - 30).attr('x2', W - 80).attr('y2', H - 30)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+svg.append('text')
+  .attr('x', W/2).attr('y', H - 10)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('fill', '#545454')
+  .text('Without the audit, Claude Code produces charts on guesses. Without the verification, you publish charts on hope.');
+</script>
+</body>
+</html>

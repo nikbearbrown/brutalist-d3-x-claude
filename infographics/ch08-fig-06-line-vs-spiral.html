@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 8.6 — Line chart vs spiral plot: trend vs cycle</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #121212;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--color-white);
+    color: var(--color-ink);
+    width: 1600px;
+    height: 900px;
+    overflow: hidden;
+  }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const W = 1600, H = 900;
+const svg = d3.select('#chart').append('svg')
+  .attr('width', W).attr('height', H)
+  .attr('role', 'img')
+  .attr('aria-labelledby', 'chart-title chart-desc');
+
+svg.append('title').attr('id', 'chart-title').text('Same data. Different question. Different form.');
+svg.append('desc').attr('id', 'chart-desc').text('Side-by-side comparison of a line chart and a spiral plot showing five years of monthly electricity consumption. The line chart reveals the overall trend while the spiral plot reveals seasonal consistency.');
+
+// Background
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#FFFFFF');
+
+// Main title
+svg.append('text')
+  .attr('x', W / 2).attr('y', 52)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-size', 34).attr('fill', '#121212')
+  .text('Same data. Different question. Different form.');
+
+// Subtitle
+svg.append('text')
+  .attr('x', W / 2).attr('y', 80)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 14).attr('fill', '#545454')
+  .text('Figure 8.6 \u2014 Line chart vs spiral plot: trend vs cycle');
+
+// Generate 60 months of electricity consumption data (Jan 2019 - Dec 2023)
+// Strong seasonal cycle: winter high (~800-900), summer low (~400-500), slight upward trend
+const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const data = [];
+
+for (let yr = 0; yr < 5; yr++) {
+  for (let mo = 0; mo < 12; mo++) {
+    const year = 2019 + yr;
+    const monthIndex = yr * 12 + mo;
+    // Seasonal pattern: winter high, summer low
+    // Use cosine centered on January (month 0) for winter peak
+    const seasonal = Math.cos((mo - 0) * Math.PI / 6) * 200; // +200 in Jan, -200 in Jul
+    const base = 650;
+    const trend = yr * 12; // slight upward trend ~12 kWh per year
+    const noise = (Math.sin(monthIndex * 3.7) * 20) + (Math.cos(monthIndex * 2.3) * 15);
+    const value = Math.round(base + seasonal + trend + noise);
+
+    data.push({
+      year,
+      month: mo,
+      monthLabel: monthNames[mo],
+      monthIndex,
+      label: monthNames[mo] + ' ' + year,
+      shortLabel: monthNames[mo] + '\u2019' + String(year).slice(2),
+      value: Math.max(350, Math.min(950, value)),
+      date: new Date(year, mo, 15)
+    });
+  }
+}
+
+// Target annotation point: July 2023
+const july2023 = data.find(d => d.year === 2023 && d.month === 6);
+
+// Divider line
+svg.append('line')
+  .attr('x1', W / 2).attr('y1', 96).attr('x2', W / 2).attr('y2', H - 50)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 2);
+
+// =========================================================
+// LEFT PANEL — Line chart
+// =========================================================
+const leftPanelX = 50;
+const leftPanelW = W / 2 - 70;
+
+// Panel header
+svg.append('rect')
+  .attr('x', leftPanelX).attr('y', 98).attr('width', leftPanelW).attr('height', 40)
+  .attr('fill', '#F5F5F5').attr('rx', 4);
+svg.append('text')
+  .attr('x', leftPanelX + leftPanelW / 2).attr('y', 124)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 17).attr('font-weight', 700).attr('fill', '#121212')
+  .text('Line chart');
+
+const leftChartX = leftPanelX + 70;
+const leftChartY = 172;
+const leftChartW = leftPanelW - 100;
+const leftChartH = 400;
+
+const xScaleLeft = d3.scaleTime()
+  .domain([new Date(2019, 0, 1), new Date(2023, 11, 31)])
+  .range([0, leftChartW]);
+
+const yScaleLeft = d3.scaleLinear()
+  .domain([300, 1000])
+  .range([leftChartH, 0]);
+
+const gLeft = svg.append('g')
+  .attr('transform', `translate(${leftChartX}, ${leftChartY})`);
+
+// Gridlines
+gLeft.selectAll('.gridline-left')
+  .data(yScaleLeft.ticks(5))
+  .join('line')
+    .attr('class', 'gridline-left')
+    .attr('x1', 0).attr('x2', leftChartW)
+    .attr('y1', d => yScaleLeft(d)).attr('y2', d => yScaleLeft(d))
+    .attr('stroke', '#ECECEC').attr('stroke-width', 1)
+    .attr('aria-hidden', 'true');
+
+// Y-axis
+const yAxisLeft = d3.axisLeft(yScaleLeft).ticks(5).tickFormat(d => d + ' kWh');
+gLeft.append('g').call(yAxisLeft)
+  .selectAll('text')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 10).attr('fill', '#545454');
+gLeft.selectAll('.domain, .tick line').attr('stroke', '#D4D4D4');
+
+// X-axis
+const xAxisLeft = d3.axisBottom(xScaleLeft)
+  .ticks(d3.timeYear.every(1))
+  .tickFormat(d3.timeFormat('%Y'));
+const xAxisLeftG = gLeft.append('g')
+  .attr('transform', `translate(0, ${leftChartH})`)
+  .call(xAxisLeft);
+xAxisLeftG.selectAll('text')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 11).attr('fill', '#545454');
+xAxisLeftG.select('.domain').attr('stroke', '#D4D4D4');
+
+// Line
+const lineLeft = d3.line()
+  .x(d => xScaleLeft(d.date))
+  .y(d => yScaleLeft(d.value))
+  .curve(d3.curveMonotoneX);
+
+gLeft.append('path')
+  .datum(data)
+  .attr('fill', 'none')
+  .attr('stroke', '#121212')
+  .attr('stroke-width', 1.8)
+  .attr('d', lineLeft);
+
+// Trend line (linear regression approximation)
+const trendStartY = yScaleLeft(data[0].value);
+const trendEndY = yScaleLeft(data[data.length - 1].value);
+// Compute approximate linear trend
+const meanY1 = d3.mean(data.slice(0, 12), d => d.value);
+const meanY5 = d3.mean(data.slice(48, 60), d => d.value);
+gLeft.append('line')
+  .attr('x1', xScaleLeft(new Date(2019, 5, 15)))
+  .attr('y1', yScaleLeft(meanY1))
+  .attr('x2', xScaleLeft(new Date(2023, 5, 15)))
+  .attr('y2', yScaleLeft(meanY5))
+  .attr('stroke', '#C8860E')
+  .attr('stroke-width', 2)
+  .attr('stroke-dasharray', '8,4')
+  .attr('opacity', 0.7);
+
+gLeft.append('text')
+  .attr('x', xScaleLeft(new Date(2021, 8, 1)))
+  .attr('y', yScaleLeft((meanY1 + meanY5) / 2) - 10)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 11).attr('font-weight', 600).attr('fill', '#C8860E')
+  .text('Trend: +' + Math.round(meanY5 - meanY1) + ' kWh over 5 years');
+
+// Annotate July 2023
+if (july2023) {
+  const jx = xScaleLeft(july2023.date);
+  const jy = yScaleLeft(july2023.value);
+
+  gLeft.append('circle')
+    .attr('cx', jx).attr('cy', jy).attr('r', 6)
+    .attr('fill', 'none').attr('stroke', '#C8102E').attr('stroke-width', 2);
+  gLeft.append('circle')
+    .attr('cx', jx).attr('cy', jy).attr('r', 3)
+    .attr('fill', '#C8102E');
+
+  // Annotation line and label
+  gLeft.append('line')
+    .attr('x1', jx).attr('y1', jy + 8)
+    .attr('x2', jx).attr('y2', jy + 40)
+    .attr('stroke', '#C8102E').attr('stroke-width', 1);
+  gLeft.append('text')
+    .attr('x', jx).attr('y', jy + 54)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'JetBrains Mono', monospace")
+    .attr('font-size', 10).attr('fill', '#C8102E')
+    .text('Jul 2023: ' + july2023.value + ' kWh');
+  gLeft.append('text')
+    .attr('x', jx).attr('y', jy + 68)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 9).attr('fill', '#545454')
+    .text('Read from left axis');
+}
+
+// Label below chart
+gLeft.append('text')
+  .attr('x', leftChartW / 2).attr('y', leftChartH + 58)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-style', 'italic')
+  .attr('font-size', 14).attr('fill', '#121212')
+  .text('Answers: \u201CIs consumption rising over five years?\u201D');
+
+// =========================================================
+// RIGHT PANEL — Spiral plot
+// =========================================================
+const rightPanelX = W / 2 + 20;
+const rightPanelW = W / 2 - 70;
+
+// Panel header
+svg.append('rect')
+  .attr('x', rightPanelX).attr('y', 98).attr('width', rightPanelW).attr('height', 40)
+  .attr('fill', '#F5F5F5').attr('rx', 4);
+svg.append('text')
+  .attr('x', rightPanelX + rightPanelW / 2).attr('y', 124)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 17).attr('font-weight', 700).attr('fill', '#121212')
+  .text('Spiral plot');
+
+// Spiral center
+const spiralCX = rightPanelX + rightPanelW / 2;
+const spiralCY = 460;
+const spiralR = 240; // max radius for display
+
+const gSpiral = svg.append('g')
+  .attr('transform', `translate(${spiralCX}, ${spiralCY})`);
+
+// Radius scale: value maps to distance from center
+const rScaleLinear = d3.scaleLinear()
+  .domain([300, 1000])
+  .range([40, spiralR]);
+
+// Angle: January at 12 o'clock (top), clockwise
+// January = -PI/2 (top), each month = 2*PI/12
+function monthToAngle(monthInYear) {
+  return (monthInYear / 12) * 2 * Math.PI - Math.PI / 2;
+}
+
+// Draw reference circles (concentric)
+const refValues = [400, 600, 800, 1000];
+refValues.forEach(v => {
+  gSpiral.append('circle')
+    .attr('cx', 0).attr('cy', 0)
+    .attr('r', rScaleLinear(v))
+    .attr('fill', 'none')
+    .attr('stroke', '#ECECEC')
+    .attr('stroke-width', 0.5)
+    .attr('aria-hidden', 'true');
+  gSpiral.append('text')
+    .attr('x', 4).attr('y', -rScaleLinear(v) - 2)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 8).attr('fill', '#D4D4D4')
+    .attr('text-anchor', 'start')
+    .text(v);
+});
+
+// Month labels around the outside
+monthNames.forEach((m, i) => {
+  const angle = monthToAngle(i);
+  const labelR = spiralR + 18;
+  const lx = Math.cos(angle) * labelR;
+  const ly = Math.sin(angle) * labelR;
+  gSpiral.append('text')
+    .attr('x', lx).attr('y', ly + 4)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 11).attr('fill', '#545454')
+    .text(m);
+
+  // Radial gridline
+  gSpiral.append('line')
+    .attr('x1', Math.cos(angle) * 35).attr('y1', Math.sin(angle) * 35)
+    .attr('x2', Math.cos(angle) * spiralR).attr('y2', Math.sin(angle) * spiralR)
+    .attr('stroke', '#F0F0F0').attr('stroke-width', 0.5)
+    .attr('aria-hidden', 'true');
+});
+
+// Year colors
+const yearColors = ['#D4D4D4', '#A0A0A0', '#7A7A7A', '#4A4A4A', '#121212'];
+const years = [2019, 2020, 2021, 2022, 2023];
+
+// Draw spiral: one loop per year, data mapped to radius at correct angle
+years.forEach((year, yi) => {
+  const yearData = data.filter(d => d.year === year);
+
+  // Build path points for this year
+  const lineGen = d3.lineRadial()
+    .angle(d => monthToAngle(d.month))
+    .radius(d => rScaleLinear(d.value))
+    .curve(d3.curveCardinalClosed.tension(0.4));
+
+  gSpiral.append('path')
+    .datum(yearData)
+    .attr('fill', 'none')
+    .attr('stroke', yearColors[yi])
+    .attr('stroke-width', yi === 4 ? 2.5 : 1.5)
+    .attr('d', lineGen);
+
+  // Year label at the January point of each loop
+  const janPoint = yearData.find(d => d.month === 0);
+  if (janPoint) {
+    const angle = monthToAngle(0);
+    const r = rScaleLinear(janPoint.value);
+    gSpiral.append('text')
+      .attr('x', Math.cos(angle) * r + 8)
+      .attr('y', Math.sin(angle) * r)
+      .attr('font-family', "'JetBrains Mono', monospace")
+      .attr('font-size', 9).attr('fill', yearColors[yi])
+      .text(year);
+  }
+});
+
+// Annotate July 2023 on spiral
+if (july2023) {
+  const angle = monthToAngle(july2023.month);
+  const r = rScaleLinear(july2023.value);
+  const jx = Math.cos(angle) * r;
+  const jy = Math.sin(angle) * r;
+
+  gSpiral.append('circle')
+    .attr('cx', jx).attr('cy', jy).attr('r', 6)
+    .attr('fill', 'none').attr('stroke', '#C8102E').attr('stroke-width', 2);
+  gSpiral.append('circle')
+    .attr('cx', jx).attr('cy', jy).attr('r', 3)
+    .attr('fill', '#C8102E');
+
+  // Leader line
+  const leaderEndX = jx + 30;
+  const leaderEndY = jy + 30;
+  gSpiral.append('line')
+    .attr('x1', jx + 6).attr('y1', jy + 6)
+    .attr('x2', leaderEndX).attr('y2', leaderEndY)
+    .attr('stroke', '#C8102E').attr('stroke-width', 1);
+  gSpiral.append('text')
+    .attr('x', leaderEndX + 4).attr('y', leaderEndY + 4)
+    .attr('font-family', "'JetBrains Mono', monospace")
+    .attr('font-size', 10).attr('fill', '#C8102E')
+    .text('Jul 2023: ' + july2023.value + ' kWh');
+  gSpiral.append('text')
+    .attr('x', leaderEndX + 4).attr('y', leaderEndY + 18)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 9).attr('fill', '#545454')
+    .text('Compare radial distance to other Julys');
+}
+
+// Season labels
+const seasonLabels = [
+  { text: 'WINTER', angle: monthToAngle(0), offset: 14 },
+  { text: 'SUMMER', angle: monthToAngle(6), offset: 14 }
+];
+seasonLabels.forEach(s => {
+  const lx = Math.cos(s.angle) * (spiralR + 34);
+  const ly = Math.sin(s.angle) * (spiralR + 34);
+  gSpiral.append('text')
+    .attr('x', lx).attr('y', ly + 4)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 10).attr('font-weight', 700).attr('fill', '#C8860E')
+    .text(s.text);
+});
+
+// Cluster annotation: "Winter spikes cluster here" at top
+gSpiral.append('text')
+  .attr('x', 0).attr('y', -spiralR - 50)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 10).attr('fill', '#545454')
+  .text('\u2191 Winter peaks cluster at outer edge');
+
+// "Summer dips cluster here" at bottom
+gSpiral.append('text')
+  .attr('x', 0).attr('y', spiralR + 52)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 10).attr('fill', '#545454')
+  .text('\u2193 Summer lows cluster near center');
+
+// Label below spiral
+svg.append('text')
+  .attr('x', spiralCX).attr('y', spiralCY + spiralR + 86)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-style', 'italic')
+  .attr('font-size', 14).attr('fill', '#121212')
+  .text('Answers: \u201CIs the seasonal pattern consistent across years?\u201D');
+
+// Legend for year colors
+const legendX = rightPanelX + rightPanelW - 120;
+const legendY = 150;
+years.forEach((year, i) => {
+  svg.append('line')
+    .attr('x1', legendX).attr('y1', legendY + i * 18)
+    .attr('x2', legendX + 20).attr('y2', legendY + i * 18)
+    .attr('stroke', yearColors[i]).attr('stroke-width', i === 4 ? 2.5 : 1.5);
+  svg.append('text')
+    .attr('x', legendX + 26).attr('y', legendY + i * 18 + 4)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 10).attr('fill', yearColors[i])
+    .text(year);
+});
+
+// =========================================================
+// Bottom caption
+// =========================================================
+svg.append('line')
+  .attr('x1', 50).attr('y1', H - 42).attr('x2', W - 50).attr('y2', H - 42)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+
+svg.append('text')
+  .attr('x', W / 2).attr('y', H - 16)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-style', 'italic')
+  .attr('font-size', 15).attr('fill', '#545454')
+  .text('The line chart answers a trend question. The spiral answers a cycle question. Choose the form that matches the question.');
+</script>
+</body>
+</html>

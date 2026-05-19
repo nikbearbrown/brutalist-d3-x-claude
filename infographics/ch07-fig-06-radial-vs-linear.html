@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 7.6 — Radial Bars vs Linear Bars</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #121212;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--color-white);
+    color: var(--color-ink);
+    width: 1600px;
+    height: 900px;
+    overflow: hidden;
+  }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const W = 1600, H = 900;
+const svg = d3.select('#chart').append('svg')
+  .attr('width', W).attr('height', H)
+  .attr('role', 'img')
+  .attr('aria-labelledby', 'chart-title chart-desc');
+
+svg.append('title').attr('id', 'chart-title').text('Two equal radial lengths are not visually equal areas.');
+svg.append('desc').attr('id', 'chart-desc').text('Side-by-side comparison of a radial bar chart and a linear bar chart showing the same cognitive domain data, demonstrating how radial encoding distorts area perception.');
+
+// Background
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#FFFFFF');
+
+// Main title
+svg.append('text')
+  .attr('x', W / 2).attr('y', 52)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-size', 38).attr('fill', '#121212')
+  .text('Two equal radial lengths are not visually equal areas.');
+
+// Subtitle
+svg.append('text')
+  .attr('x', W / 2).attr('y', 82)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 14).attr('fill', '#545454')
+  .text('Figure 7.6 \u2014 Radial bars vs linear bars');
+
+// Data
+const data = [
+  { domain: 'Memory', value: 96 },
+  { domain: 'Pattern', value: 94 },
+  { domain: 'Language', value: 87 },
+  { domain: 'Reasoning', value: 82 },
+  { domain: 'Common Sense', value: 68 },
+  { domain: 'Social', value: 55 },
+  { domain: 'Creativity', value: 47 },
+  { domain: 'Embodied', value: 36 }
+];
+
+// Divider
+svg.append('line')
+  .attr('x1', W / 2).attr('y1', 100).attr('x2', W / 2).attr('y2', H - 60)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+
+// =========================================================
+// LEFT PANEL: Radial bar chart
+// =========================================================
+const leftCx = W / 4;
+const leftCy = 440;
+
+svg.append('text')
+  .attr('x', leftCx).attr('y', 118)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 18).attr('font-weight', 700).attr('fill', '#121212')
+  .text('Radial bar chart');
+
+const innerRadius = 60;
+const outerRadius = 250;
+
+const angleScale = d3.scaleBand()
+  .domain(data.map(d => d.domain))
+  .range([0, 2 * Math.PI])
+  .padding(0.12);
+
+const radiusScale = d3.scaleLinear()
+  .domain([0, 100])
+  .range([innerRadius, outerRadius]);
+
+// Luminance scale for radial bars
+const colorScaleRadial = d3.scaleLinear()
+  .domain([30, 100])
+  .range(['#D4D4D4', '#121212']);
+
+const gRadial = svg.append('g')
+  .attr('transform', `translate(${leftCx}, ${leftCy})`);
+
+// Concentric reference circles
+[25, 50, 75, 100].forEach(v => {
+  gRadial.append('circle')
+    .attr('cx', 0).attr('cy', 0)
+    .attr('r', radiusScale(v))
+    .attr('fill', 'none')
+    .attr('stroke', '#E8E8E8')
+    .attr('stroke-width', 0.5)
+    .attr('aria-hidden', 'true');
+});
+
+// Radial bars using arc generator
+const arcGen = d3.arc()
+  .innerRadius(innerRadius)
+  .startAngle(d => angleScale(d.domain))
+  .endAngle(d => angleScale(d.domain) + angleScale.bandwidth())
+  .outerRadius(d => radiusScale(d.value))
+  .padAngle(0.02)
+  .padRadius(innerRadius);
+
+gRadial.selectAll('.radial-bar')
+  .data(data)
+  .join('path')
+    .attr('class', 'radial-bar')
+    .attr('d', arcGen)
+    .attr('fill', d => colorScaleRadial(d.value))
+    .attr('tabindex', 0)
+    .attr('aria-label', d => `${d.domain}: ${d.value}`);
+
+// Labels around radial chart
+data.forEach(d => {
+  const angle = angleScale(d.domain) + angleScale.bandwidth() / 2;
+  const labelR = radiusScale(d.value) + 18;
+  const x = labelR * Math.sin(angle);
+  const y = -labelR * Math.cos(angle);
+  const rotation = (angle * 180 / Math.PI) - 90;
+  const flip = angle > Math.PI;
+
+  gRadial.append('text')
+    .attr('x', x).attr('y', y)
+    .attr('text-anchor', flip ? 'end' : 'start')
+    .attr('dominant-baseline', 'middle')
+    .attr('transform', `rotate(${flip ? rotation + 180 : rotation}, ${x}, ${y})`)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 11).attr('fill', '#545454')
+    .text(`${d.domain} (${d.value})`);
+});
+
+// Annotation: highlight distortion between two bars
+// Compare Embodied (36, inner) and Memory (96, outer)
+// Draw bracket highlighting arc area difference
+const annotX = leftCx + 210;
+const annotY = 680;
+
+// Annotation callout box
+svg.append('rect')
+  .attr('x', 40).attr('y', annotY - 8)
+  .attr('width', W / 2 - 80).attr('height', 60)
+  .attr('fill', '#FFF8F8').attr('stroke', '#C8102E').attr('stroke-width', 1).attr('rx', 4);
+
+svg.append('text')
+  .attr('x', W / 4).attr('y', annotY + 14)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('font-weight', 600).attr('fill', '#C8102E')
+  .text('The outer arc covers more visual angle than the inner arc.');
+
+svg.append('text')
+  .attr('x', W / 4).attr('y', annotY + 34)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('fill', '#545454')
+  .text('Two equal radial lengths \u2260 visually equal areas.');
+
+// Arrow from annotation to outer bar area
+svg.append('line')
+  .attr('x1', W / 4 + 80).attr('y1', annotY - 8)
+  .attr('x2', leftCx + 100).attr('y2', leftCy + 140)
+  .attr('stroke', '#C8102E').attr('stroke-width', 1.5)
+  .attr('stroke-dasharray', '4,3')
+  .attr('marker-end', 'url(#arrow-red)');
+
+// Arrow marker
+svg.append('defs').append('marker')
+  .attr('id', 'arrow-red')
+  .attr('viewBox', '0 0 10 10')
+  .attr('refX', 10).attr('refY', 5)
+  .attr('markerWidth', 8).attr('markerHeight', 8)
+  .attr('orient', 'auto-start-reverse')
+  .append('path')
+    .attr('d', 'M 0 0 L 10 5 L 0 10 z')
+    .attr('fill', '#C8102E');
+
+// =========================================================
+// RIGHT PANEL: Linear bar chart (horizontal, sorted)
+// =========================================================
+const dataSorted = [...data].sort((a, b) => b.value - a.value);
+
+svg.append('text')
+  .attr('x', W * 3 / 4).attr('y', 118)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 18).attr('font-weight', 700).attr('fill', '#121212')
+  .text('Linear bar chart');
+
+const rightChartX = W / 2 + 160;
+const rightChartY = 160;
+const rightChartW = 500;
+const rightChartH = 460;
+
+const yScaleBand = d3.scaleBand()
+  .domain(dataSorted.map(d => d.domain))
+  .range([0, rightChartH])
+  .padding(0.2);
+
+const xScaleLinear = d3.scaleLinear()
+  .domain([0, 100])
+  .range([0, rightChartW]);
+
+// Luminance scale for linear bars
+const colorScaleLinear = d3.scaleLinear()
+  .domain([30, 100])
+  .range(['#D4D4D4', '#121212']);
+
+const gLinear = svg.append('g')
+  .attr('transform', `translate(${rightChartX}, ${rightChartY})`);
+
+// Zero baseline
+gLinear.append('line')
+  .attr('x1', 0).attr('y1', 0)
+  .attr('x2', 0).attr('y2', rightChartH)
+  .attr('stroke', '#121212').attr('stroke-width', 1.5);
+
+// Gridlines
+gLinear.selectAll('.gridline')
+  .data(xScaleLinear.ticks(5))
+  .join('line')
+    .attr('x1', d => xScaleLinear(d)).attr('x2', d => xScaleLinear(d))
+    .attr('y1', 0).attr('y2', rightChartH)
+    .attr('stroke', '#E8E8E8').attr('stroke-width', 1)
+    .attr('aria-hidden', 'true');
+
+// X-axis
+gLinear.append('g')
+  .attr('transform', `translate(0, ${rightChartH})`)
+  .call(d3.axisBottom(xScaleLinear).ticks(5))
+  .selectAll('text')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 11).attr('fill', '#545454');
+gLinear.selectAll('.domain').attr('stroke', '#D4D4D4');
+
+// Bars
+gLinear.selectAll('.bar-linear')
+  .data(dataSorted)
+  .join('rect')
+    .attr('class', 'bar-linear')
+    .attr('x', 0)
+    .attr('y', d => yScaleBand(d.domain))
+    .attr('width', d => xScaleLinear(d.value))
+    .attr('height', yScaleBand.bandwidth())
+    .attr('fill', d => colorScaleLinear(d.value))
+    .attr('rx', 2)
+    .attr('tabindex', 0)
+    .attr('aria-label', d => `${d.domain}: ${d.value}`);
+
+// Labels
+dataSorted.forEach(d => {
+  gLinear.append('text')
+    .attr('x', -10)
+    .attr('y', yScaleBand(d.domain) + yScaleBand.bandwidth() / 2 + 4)
+    .attr('text-anchor', 'end')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 13).attr('fill', '#121212')
+    .text(d.domain);
+
+  gLinear.append('text')
+    .attr('x', xScaleLinear(d.value) + 8)
+    .attr('y', yScaleBand(d.domain) + yScaleBand.bandwidth() / 2 + 4)
+    .attr('text-anchor', 'start')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 12).attr('font-weight', 600).attr('fill', '#121212')
+    .text(d.value);
+});
+
+// Right panel label
+svg.append('rect')
+  .attr('x', W / 2 + 40).attr('y', annotY - 8)
+  .attr('width', W / 2 - 80).attr('height', 60)
+  .attr('fill', '#F5F5F5').attr('stroke', '#D4D4D4').attr('stroke-width', 1).attr('rx', 4);
+
+svg.append('text')
+  .attr('x', W * 3 / 4).attr('y', annotY + 14)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('font-weight', 600).attr('fill', '#121212')
+  .text('Clean and honest.');
+
+svg.append('text')
+  .attr('x', W * 3 / 4).attr('y', annotY + 34)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('fill', '#545454')
+  .text('Equal bar lengths = visually equal values. No distortion.');
+
+// =========================================================
+// Caption
+// =========================================================
+svg.append('line')
+  .attr('x1', 60).attr('y1', H - 44).attr('x2', W - 60).attr('y2', H - 44)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+
+svg.append('text')
+  .attr('x', W / 2).attr('y', H - 18)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-style', 'italic')
+  .attr('font-size', 15).attr('fill', '#545454')
+  .text('The outer arc covers more visual angle than the inner arc.');
+</script>
+</body>
+</html>

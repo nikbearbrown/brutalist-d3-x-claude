@@ -14,6 +14,8 @@ That distortion is not a coincidence or an aesthetic preference. It is a predict
 
 <!-- → [IMAGE: two side-by-side renderings of the same 8-bar cognitive-domain chart — left panel with y-axis from 0 to 100 (honest), right panel with y-axis from 30 to 100 (truncated). Annotations call out the visual ratio the truncated panel implies between Memory Retrieval and Embodied Teaching (~5×) vs. the true data ratio (~2.7×). Caption: "Same data. The truncated baseline makes a 2.7× difference look like a 5× difference."] -->
 
+![Figure 7.1 — Same data. The truncated baseline makes a 2.7× difference look like a 5× difference.](../images/07-comparison-charts-fig-01.jpg)
+
 Everything in this chapter follows from that mechanism.
 
 ---
@@ -35,6 +37,8 @@ Weissgerber and colleagues (2015) analyzed over 700 biology research articles. M
 This is why the zero-baseline rule is not a Tufte preference or a minimalism position. It is a rule grounded in the mechanism of the channel itself. Violating it produces measurable perceptual distortion.
 
 <!-- → [CHART: horizontal ranking diagram of Cleveland & McGill's perceptual channel accuracy — channels listed from most accurate (position along common scale) to least accurate (color hue/saturation), with the bar chart's channel highlighted and a callout noting where truncation breaks the encoding. Based on the 1984 paper; student should see at a glance why bars outperform angles, areas, and color intensity for comparison tasks.] -->
+
+![Figure 7.2 — Why bars outperform angles, areas, and color for comparison](../images/07-comparison-charts-fig-02.jpg)
 
 ---
 
@@ -58,6 +62,8 @@ The truncated baseline is never the right answer. There is always a legitimate a
 
 <!-- → [INFOGRAPHIC: three-panel comparison using the 12.4% / 12.8% / 13.2% example — left panel: truncated bar chart (y-axis 12–14, distorted), center panel: dot plot with zoomed y-axis (honest, shows variation without distortion), right panel: difference chart showing percentage point change from baseline. Each panel labeled with the channel it uses and a verdict (distorts / honest / honest). Caption: "Three values. One wrong response. Three right ones."] -->
 
+![Figure 7.3 — Three values. One wrong response. Three right ones.](../images/07-comparison-charts-fig-03.jpg)
+
 ---
 
 ## The choice between horizontal and vertical
@@ -77,6 +83,8 @@ Category count works the same way. For many categories — more than 15 or so �
 Vertical columns are the cultural default for small datasets with short labels. Horizontal bars are the right choice for long labels and larger category counts. The choice costs nothing in perceptual accuracy — position is position.
 
 <!-- → [INFOGRAPHIC: two-panel decision diagram — left panel shows a vertical column chart with 8 short labels (~6 characters each, readable at -30°); right panel shows a horizontal bar chart of the same data with longer labels (~20 characters, reading naturally left-to-right). Gestalt proximity arrows show the label-to-bar relationship in each orientation. Caption: "The orientation choice is not aesthetic. It is a question of which Gestalt principles the layout can preserve."] -->
+
+![Figure 7.4 — The orientation choice is not aesthetic. It is a Gestalt question.](../images/07-comparison-charts-fig-04.jpg)
 
 ---
 
@@ -108,6 +116,8 @@ Same dataset. Different questions. Different charts. The chart is not "the one t
 
 <!-- → [INFOGRAPHIC: three-panel side-by-side of the same 5-country × 4-sector humanitarian funding dataset rendered three ways — left: stacked bars (total is primary), center: multiset bars (within-country sector comparison), right: small multiples (cross-sector comparison across countries, shared y-axis). Each panel labeled with the question it answers and the channel-ranking justification. Caption: "Same data. Three questions. Three charts. The question determines the form."] -->
 
+![Figure 7.5 — Same data. Three questions. Three charts.](../images/07-comparison-charts-fig-05.jpg)
+
 ---
 
 ## Radial bars: when the curve earns its keep
@@ -125,6 +135,8 @@ The second is **decorative or marketing contexts** where the chart's primary rol
 For ordinary comparison of categories without an inherent cycle, radial bars are just bars made harder to read. The pantry's `radial-bar-chart.html` shows a working implementation. Compare it to `bar-chart.html`. The linear version is unambiguously easier to read — which is the finding, every time. "More modern" does not mean "more legible." The FT, the NYT, Reuters, and the Pudding use linear bars overwhelmingly. The radial form appears in magazines, marketing dashboards, and infographics where visual interest is the explicit goal.
 
 <!-- → [IMAGE: side-by-side of radial bar chart and linear bar chart using the same 8-category cognitive domain data — left: radial bars fanned around a center point; right: linear horizontal bars. A callout on the radial panel marks two bars of similar "radial length" that sweep different visual areas due to their position (inner vs. outer arc). Caption: "The outer arc covers more visual angle than the inner arc. Two equal radial lengths are not visually equal areas."] -->
+
+![Figure 7.6 — Two equal radial lengths are not visually equal areas.](../images/07-comparison-charts-fig-06.jpg)
 
 ---
 
@@ -161,6 +173,8 @@ Return to the `bar-chart.html` example. Every decision it makes is doing visible
 None of these decisions is decorative. Each is the deliberate application of a perceptual principle to a specific design problem. The chart took roughly 70 lines of D3 to build. What makes it good is not the code — it is the channel decomposition the code implements. You can describe that decomposition in a hundred words. Claude Code can then write the seventy lines.
 
 <!-- → [INFOGRAPHIC: annotated screenshot of bar-chart.html with six callout arrows, one per design decision — sort order, zero baseline, luminance redundancy, score annotations, grid lines, label rotation. Each callout names the decision, the perceptual principle it applies (e.g., "Munzner effectiveness: derive order from primary attribute"), and what would break if the decision were reversed. Caption: "Every element is doing work. Nothing is decorative."] -->
+
+![Figure 7.7 — Every element is doing work. Nothing is decorative.](../images/07-comparison-charts-fig-07.jpg)
 
 ---
 

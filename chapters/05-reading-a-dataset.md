@@ -69,6 +69,8 @@ The MBTA project's three guiding questions make this concrete: "When and where a
 
 <!-- → [INFOGRAPHIC: two-column contrast diagram — left column labeled "Analyst's question," right column labeled "Reader's question." Three paired examples, one per row, using the MBTA questions: analyst version on the left (e.g., "What is the system's load distribution?"), reader version on the right (e.g., "When and where are the trains crowded?"). A center column labels the difference in each pair: "exploratory vs. summative," "producer's interest vs. audience's need," "open-ended vs. actionable." Caption: "Same data. Different framing. Different chart."] -->
 
+![Figure 5.1 — Same data. Different framing. Different chart.](../images/05-reading-a-dataset-fig-01.jpg)
+
 ---
 
 ## Compared with what?
@@ -161,6 +163,8 @@ The move to avoid is the fourth one, which is not honest: producing a chart that
 
 <!-- → [INFOGRAPHIC: decision tree — starting node "Does the dataset support the reader's question?" branching to yes (proceed) and no; the no branch splits into three: "Can you get the missing data?" (yes → find better data), "Is there a related question worth answering?" (yes → reframe), "Must you proceed anyway?" (yes → acknowledge the gap). A fourth branch labeled "Substitute a different question without acknowledging it" leads off the diagram to a node labeled "This is the failure mode." Caption: "Three honest moves. One failure mode."] -->
 
+![Figure 5.2 — Three honest moves. One failure mode.](../images/05-reading-a-dataset-fig-02.jpg)
+
 ---
 
 ## The audit in practice
@@ -184,6 +188,8 @@ In all three cases, a single-variable choropleth fails the check.
 This chart honestly answers the question the data supports. The "compared with what?" is explicit. The chart's claims do not exceed its data. This is the chart the audit produces — and it is a different chart than the one you would have built by walking directly to Claude Code with the original brief.
 
 <!-- → [INFOGRAPHIC: five-step vertical audit flow for the food assistance example — one box per step, labeled Step 1 through Step 5. Each box shows: the step name, the input (what you look at), and the output (what it tells you). Arrows connecting downward. The final box (Step 5) shows the chart specification that emerges from the audit, with key message, data structure, functional category, and chart form all filled in. Caption: "The audit is not overhead. It is how the specification gets built."] -->
+
+![Figure 5.3 — The audit is not overhead. It is how the specification gets built.](../images/05-reading-a-dataset-fig-03.jpg)
 
 ---
 

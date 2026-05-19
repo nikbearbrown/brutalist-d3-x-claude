@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 6.1 — Vague vs Four-Move Prompt</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #121212;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--color-white);
+    color: var(--color-ink);
+    width: 1600px;
+    height: 900px;
+    overflow: hidden;
+  }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const W = 1600, H = 900;
+const svg = d3.select('#chart').append('svg')
+  .attr('width', W).attr('height', H)
+  .attr('role', 'img')
+  .attr('aria-labelledby', 'chart-title chart-desc');
+
+svg.append('title').attr('id', 'chart-title').text('What 9 words vs 200 words buys');
+svg.append('desc').attr('id', 'chart-desc').text('Side-by-side comparison showing how a vague 9-word prompt produces an inferior chart while a disciplined 200-word prompt produces a correct, readable visualization from the same dataset.');
+
+// Background
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#FFFFFF');
+
+// Main title
+svg.append('text')
+  .attr('x', W / 2).attr('y', 56)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-size', 38).attr('fill', '#121212')
+  .text('What 9 words vs 200 words buys');
+
+// Subtitle
+svg.append('text')
+  .attr('x', W / 2).attr('y', 86)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 14).attr('fill', '#545454')
+  .text('Figure 6.1 \u2014 Same dataset, same model, different prompt discipline');
+
+// Divider line
+svg.append('line')
+  .attr('x1', W / 2).attr('y1', 110).attr('x2', W / 2).attr('y2', H - 70)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 2);
+
+// Data
+const data = [
+  { sector: 'Food Security', value: 98 },
+  { sector: 'Water & Sanitation', value: 72 },
+  { sector: 'Shelter', value: 56 },
+  { sector: 'Health', value: 43 },
+  { sector: 'Protection', value: 31 }
+];
+
+// =========================================================
+// LEFT PANEL — Vague prompt output
+// =========================================================
+const leftPanelX = 60;
+const leftPanelW = W / 2 - 80;
+
+// Panel header
+svg.append('rect')
+  .attr('x', leftPanelX).attr('y', 108).attr('width', leftPanelW).attr('height', 44)
+  .attr('fill', '#F5F5F5').attr('rx', 4);
+svg.append('text')
+  .attr('x', leftPanelX + leftPanelW / 2).attr('y', 137)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 18).attr('font-weight', 700).attr('fill', '#545454')
+  .text('Vague prompt output');
+
+// Word count badge
+svg.append('rect')
+  .attr('x', leftPanelX + leftPanelW - 100).attr('y', 114).attr('width', 80).attr('height', 28)
+  .attr('fill', '#545454').attr('rx', 14);
+svg.append('text')
+  .attr('x', leftPanelX + leftPanelW - 60).attr('y', 133)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 13).attr('font-weight', 700).attr('fill', '#FFFFFF')
+  .text('9 words');
+
+// Left chart area
+const leftChartX = leftPanelX + 80;
+const leftChartY = 180;
+const leftChartW = leftPanelW - 120;
+const leftChartH = 420;
+
+// Left chart: vertical bars, y-axis starts at $40M (bad), no sort, uniform steelblue
+const yMinVague = 40;
+const yMaxVague = 100;
+
+const xScaleVague = d3.scaleBand()
+  .domain(data.map(d => d.sector))
+  .range([0, leftChartW])
+  .padding(0.15);
+
+const yScaleVague = d3.scaleLinear()
+  .domain([yMinVague, yMaxVague])
+  .range([leftChartH, 0]);
+
+const gLeft = svg.append('g')
+  .attr('transform', `translate(${leftChartX}, ${leftChartY})`);
+
+// Y-axis (vague — starts at $40M)
+const yAxisVague = d3.axisLeft(yScaleVague)
+  .ticks(6)
+  .tickFormat(d => `$${d}M`);
+
+gLeft.append('g')
+  .attr('class', 'axis-y')
+  .call(yAxisVague)
+  .selectAll('text')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 11)
+  .attr('fill', '#545454');
+
+gLeft.selectAll('.axis-y .domain, .axis-y .tick line')
+  .attr('stroke', '#D4D4D4');
+
+// X-axis with crowded labels (not rotated — intentionally bad)
+const xAxisVague = d3.axisBottom(xScaleVague);
+
+gLeft.append('g')
+  .attr('class', 'axis-x')
+  .attr('transform', `translate(0, ${leftChartH})`)
+  .call(xAxisVague)
+  .selectAll('text')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 10)
+  .attr('fill', '#545454')
+  .style('text-anchor', 'middle');
+
+gLeft.selectAll('.axis-x .domain, .axis-x .tick line')
+  .attr('stroke', '#D4D4D4');
+
+// Bars — uniform steelblue, no sort, no value labels
+gLeft.selectAll('.bar-vague')
+  .data(data)
+  .join('rect')
+    .attr('class', 'bar-vague')
+    .attr('x', d => xScaleVague(d.sector))
+    .attr('y', d => yScaleVague(Math.max(d.value, yMinVague)))
+    .attr('width', xScaleVague.bandwidth())
+    .attr('height', d => leftChartH - yScaleVague(Math.max(d.value, yMinVague)))
+    .attr('fill', 'steelblue');
+
+// Annotation: truncated baseline callout
+gLeft.append('line')
+  .attr('x1', -10).attr('y1', leftChartH)
+  .attr('x2', leftChartW + 10).attr('y2', leftChartH)
+  .attr('stroke', '#C8102E').attr('stroke-width', 2)
+  .attr('stroke-dasharray', '6,3');
+
+gLeft.append('text')
+  .attr('x', leftChartW / 2).attr('y', leftChartH + 50)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('font-weight', 600).attr('fill', '#C8102E')
+  .text('\u2191 y-axis starts at $40M \u2014 differences exaggerated');
+
+// Problem list below chart
+const problemsY = leftChartY + leftChartH + 80;
+const problems = [
+  'Truncated y-axis exaggerates differences',
+  'No sort order \u2014 rank invisible',
+  'No value labels \u2014 requires mental math',
+  'Crowded x-axis labels overlap',
+  'Uniform fill \u2014 no visual hierarchy'
+];
+
+problems.forEach((p, i) => {
+  svg.append('circle')
+    .attr('cx', leftPanelX + 20).attr('cy', problemsY + i * 24)
+    .attr('r', 4).attr('fill', '#C8102E');
+  svg.append('text')
+    .attr('x', leftPanelX + 34).attr('y', problemsY + i * 24 + 4)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 12).attr('fill', '#545454')
+    .text(p);
+});
+
+// =========================================================
+// RIGHT PANEL — Four-move prompt output
+// =========================================================
+const rightPanelX = W / 2 + 20;
+const rightPanelW = W / 2 - 80;
+
+// Panel header
+svg.append('rect')
+  .attr('x', rightPanelX).attr('y', 108).attr('width', rightPanelW).attr('height', 44)
+  .attr('fill', '#FFF8F8').attr('rx', 4);
+svg.append('text')
+  .attr('x', rightPanelX + rightPanelW / 2).attr('y', 137)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 18).attr('font-weight', 700).attr('fill', '#C8102E')
+  .text('Four-move prompt output');
+
+// Word count badge
+svg.append('rect')
+  .attr('x', rightPanelX + rightPanelW - 110).attr('y', 114).attr('width', 90).attr('height', 28)
+  .attr('fill', '#C8102E').attr('rx', 14);
+svg.append('text')
+  .attr('x', rightPanelX + rightPanelW - 65).attr('y', 133)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 13).attr('font-weight', 700).attr('fill', '#FFFFFF')
+  .text('200 words');
+
+// Right chart: horizontal bars, sorted descending, zero baseline, sequential luminance, value labels
+const dataSorted = [...data].sort((a, b) => b.value - a.value);
+
+const rightChartX = rightPanelX + 160;
+const rightChartY = 190;
+const rightChartW = rightPanelW - 220;
+const rightChartH = 350;
+
+const yScaleBand = d3.scaleBand()
+  .domain(dataSorted.map(d => d.sector))
+  .range([0, rightChartH])
+  .padding(0.2);
+
+const xScaleLinear = d3.scaleLinear()
+  .domain([0, 100])
+  .range([0, rightChartW]);
+
+// Luminance scale — pale to dark
+const colorScaleSequential = d3.scaleLinear()
+  .domain([0, 100])
+  .range(['#E8E0D6', '#121212']);
+
+const gRight = svg.append('g')
+  .attr('transform', `translate(${rightChartX}, ${rightChartY})`);
+
+// Zero baseline
+gRight.append('line')
+  .attr('x1', 0).attr('y1', 0)
+  .attr('x2', 0).attr('y2', rightChartH)
+  .attr('stroke', '#121212').attr('stroke-width', 1.5);
+
+// X-axis at bottom
+const xAxisRight = d3.axisBottom(xScaleLinear)
+  .ticks(5)
+  .tickFormat(d => `$${d}M`);
+
+gRight.append('g')
+  .attr('class', 'axis-x-right')
+  .attr('transform', `translate(0, ${rightChartH})`)
+  .call(xAxisRight)
+  .selectAll('text')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 11)
+  .attr('fill', '#545454');
+
+gRight.selectAll('.axis-x-right .domain, .axis-x-right .tick line')
+  .attr('stroke', '#D4D4D4');
+
+// Gridlines
+gRight.selectAll('.gridline')
+  .data(xScaleLinear.ticks(5))
+  .join('line')
+    .attr('class', 'gridline')
+    .attr('x1', d => xScaleLinear(d))
+    .attr('y1', 0)
+    .attr('x2', d => xScaleLinear(d))
+    .attr('y2', rightChartH)
+    .attr('stroke', '#E8E8E8')
+    .attr('stroke-width', 1)
+    .attr('aria-hidden', 'true');
+
+// Bars — sequential luminance, sorted descending
+gRight.selectAll('.bar-right')
+  .data(dataSorted)
+  .join('rect')
+    .attr('class', 'bar-right')
+    .attr('x', 0)
+    .attr('y', d => yScaleBand(d.sector))
+    .attr('width', d => xScaleLinear(d.value))
+    .attr('height', yScaleBand.bandwidth())
+    .attr('fill', d => colorScaleSequential(d.value))
+    .attr('rx', 2)
+    .attr('tabindex', 0)
+    .attr('aria-label', d => `${d.sector}: $${d.value}M`);
+
+// Left-aligned sector names
+dataSorted.forEach(d => {
+  gRight.append('text')
+    .attr('x', -12)
+    .attr('y', yScaleBand(d.sector) + yScaleBand.bandwidth() / 2 + 5)
+    .attr('text-anchor', 'end')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 14).attr('fill', '#121212')
+    .text(d.sector);
+});
+
+// Direct value labels
+dataSorted.forEach(d => {
+  gRight.append('text')
+    .attr('x', xScaleLinear(d.value) + 8)
+    .attr('y', yScaleBand(d.sector) + yScaleBand.bandwidth() / 2 + 5)
+    .attr('text-anchor', 'start')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 13).attr('font-weight', 600)
+    .attr('fill', '#121212')
+    .text(`$${d.value}M`);
+});
+
+// Virtue list below chart
+const virtuesY = rightChartY + rightChartH + 70;
+const virtues = [
+  'Zero baseline \u2014 proportions honest',
+  'Sorted descending \u2014 rank obvious',
+  'Direct value labels \u2014 no mental math',
+  'Left-aligned names \u2014 easy to scan',
+  'Sequential luminance \u2014 reinforces rank'
+];
+
+virtues.forEach((v, i) => {
+  svg.append('circle')
+    .attr('cx', rightPanelX + 20).attr('cy', virtuesY + i * 24)
+    .attr('r', 4).attr('fill', '#121212');
+  svg.append('text')
+    .attr('x', rightPanelX + 34).attr('y', virtuesY + i * 24 + 4)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 12).attr('fill', '#121212')
+    .text(v);
+});
+
+// =========================================================
+// Caption
+// =========================================================
+svg.append('line')
+  .attr('x1', 60).attr('y1', H - 44).attr('x2', W - 60).attr('y2', H - 44)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+
+svg.append('text')
+  .attr('x', W / 2).attr('y', H - 18)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-style', 'italic')
+  .attr('font-size', 15).attr('fill', '#545454')
+  .text('The difference is not intelligence applied. It is discipline applied.');
+</script>
+</body>
+</html>

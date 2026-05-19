@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 6.3 — The Iteration Loop</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #FFFFFF; color: #121212; width: 1600px; height: 900px; overflow: hidden; }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const W = 1600, H = 900;
+const svg = d3.select('#chart').append('svg')
+  .attr('width', W).attr('height', H)
+  .attr('role', 'img').attr('aria-labelledby', 'chart-title chart-desc');
+
+svg.append('title').attr('id', 'chart-title').text('Figure 6.3 — The Iteration Loop');
+svg.append('desc').attr('id', 'chart-desc').text('A circular flow diagram showing the MBTA iteration loop: prompt, build, audit, revise, with an exit path when the audit passes.');
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#FFFFFF');
+
+// ── Arrowhead marker definitions ──
+const defs = svg.append('defs');
+
+function addArrowMarker(id, color) {
+  defs.append('marker')
+    .attr('id', id)
+    .attr('viewBox', '0 0 10 10')
+    .attr('refX', 10).attr('refY', 5)
+    .attr('markerWidth', 8).attr('markerHeight', 8)
+    .attr('orient', 'auto-start-reverse')
+    .append('path')
+      .attr('d', 'M 0 1 L 10 5 L 0 9 Z')
+      .attr('fill', color);
+}
+
+addArrowMarker('arrow-ink', '#121212');
+addArrowMarker('arrow-red', '#C8102E');
+addArrowMarker('arrow-secondary', '#545454');
+addArrowMarker('arrow-border', '#D4D4D4');
+addArrowMarker('arrow-green', '#2D8B4E');
+
+// ── Title ──
+svg.append('text').attr('x', W / 2).attr('y', 48).attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif").attr('font-size', 34).attr('fill', '#121212')
+  .text('Nothing beat iterating on working code.');
+
+svg.append('text').attr('x', W / 2).attr('y', 78).attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 14).attr('fill', '#545454')
+  .text('Figure 6.3 \u2014 The iteration loop: prompt, build, audit, revise');
+
+// ── Loop geometry ──
+// Center of the circular loop
+const cx = 660, cy = 480;
+const radius = 210;
+
+// Node positions around the circle (top, right, bottom, left)
+// 1: Four-move prompt (top) — 270 deg
+// 2: Working chart (right) — 0 deg
+// 3: Audit (bottom) — 90 deg
+// 4: Targeted follow-up (left) — 180 deg
+const nodes = [
+  {
+    label: 'Four-move prompt',
+    sublabel: '',
+    angle: -90,
+    color: '#121212',
+    textColor: '#FFFFFF',
+    w: 220, h: 56
+  },
+  {
+    label: 'Working chart',
+    sublabel: '~12 seconds',
+    angle: 0,
+    color: '#C8102E',
+    textColor: '#FFFFFF',
+    w: 200, h: 56
+  },
+  {
+    label: 'Audit',
+    sublabel: 'Evergreen/Emery subset, ~90 s',
+    angle: 90,
+    color: '#545454',
+    textColor: '#FFFFFF',
+    w: 200, h: 56
+  },
+  {
+    label: 'Targeted follow-up',
+    sublabel: 'prompt',
+    angle: 180,
+    color: '#121212',
+    textColor: '#FFFFFF',
+    w: 230, h: 56
+  }
+];
+
+// Compute positions
+nodes.forEach(n => {
+  const rad = (n.angle * Math.PI) / 180;
+  n.x = cx + radius * Math.cos(rad);
+  n.y = cy + radius * Math.sin(rad);
+});
+
+// ── Draw curved arrows between nodes ──
+// Arrows: 1→2, 2→3, 3→4, 4→2 (loop back)
+const arrowPairs = [
+  { from: 0, to: 1, marker: 'arrow-ink' },
+  { from: 1, to: 2, marker: 'arrow-red' },
+  { from: 2, to: 3, marker: 'arrow-secondary' },
+  { from: 3, to: 1, marker: 'arrow-ink' }  // loop back to Working chart
+];
+
+arrowPairs.forEach(pair => {
+  const fromNode = nodes[pair.from];
+  const toNode = nodes[pair.to];
+
+  // Compute start/end angles
+  const fromAngle = (fromNode.angle * Math.PI) / 180;
+  const toAngle = (toNode.angle * Math.PI) / 180;
+
+  // Arc start and end — offset slightly from node centers along the circle
+  const offsetDeg = 18;
+  const startAngle = fromNode.angle + offsetDeg;
+  const endAngle = toNode.angle - offsetDeg;
+
+  const startRad = (startAngle * Math.PI) / 180;
+  const endRad = (endAngle * Math.PI) / 180;
+
+  const sx = cx + radius * Math.cos(startRad);
+  const sy = cy + radius * Math.sin(startRad);
+  const ex = cx + radius * Math.cos(endRad);
+  const ey = cy + radius * Math.sin(endRad);
+
+  // For the loop-back arrow (3→1 which is node index 3 to 1), use a slightly larger radius arc
+  const arcRadius = (pair.from === 3 && pair.to === 1) ? radius + 30 : radius;
+
+  // Determine sweep flag — we want to go clockwise for normal arrows
+  // For the feedback loop (3→1), we go counter-clockwise (large arc)
+  let sweepFlag = 1;
+  let largeArcFlag = 0;
+
+  if (pair.from === 3 && pair.to === 1) {
+    // Counter-clockwise large arc for the feedback path
+    sweepFlag = 0;
+    largeArcFlag = 1;
+  }
+
+  svg.append('path')
+    .attr('d', `M ${sx} ${sy} A ${arcRadius} ${arcRadius} 0 ${largeArcFlag} ${sweepFlag} ${ex} ${ey}`)
+    .attr('fill', 'none')
+    .attr('stroke', pair.from === 3 ? '#D4D4D4' : (pair.from === 1 ? '#C8102E' : pair.from === 2 ? '#545454' : '#121212'))
+    .attr('stroke-width', 2.5)
+    .attr('marker-end', `url(#${pair.marker})`)
+    .attr('stroke-dasharray', pair.from === 3 ? '6,4' : 'none');
+});
+
+// ── Draw nodes ──
+nodes.forEach((n, i) => {
+  const g = svg.append('g');
+
+  // Node box
+  g.append('rect')
+    .attr('x', n.x - n.w / 2).attr('y', n.y - n.h / 2)
+    .attr('width', n.w).attr('height', n.h)
+    .attr('fill', n.color).attr('rx', 8);
+
+  // Number badge
+  g.append('circle')
+    .attr('cx', n.x - n.w / 2 + 22).attr('cy', n.y - n.h / 2 + 16)
+    .attr('r', 11)
+    .attr('fill', 'rgba(255,255,255,0.2)');
+  g.append('text')
+    .attr('x', n.x - n.w / 2 + 22).attr('y', n.y - n.h / 2 + 21)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif").attr('font-size', 12).attr('font-weight', 700)
+    .attr('fill', n.textColor)
+    .text(i + 1);
+
+  // Label
+  g.append('text')
+    .attr('x', n.x).attr('y', n.sublabel ? n.y - 2 : n.y + 5)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif").attr('font-size', 15).attr('font-weight', 700)
+    .attr('fill', n.textColor)
+    .text(n.label);
+
+  // Sublabel
+  if (n.sublabel) {
+    g.append('text')
+      .attr('x', n.x).attr('y', n.y + 16)
+      .attr('text-anchor', 'middle')
+      .attr('font-family', "'JetBrains Mono', monospace").attr('font-size', 11)
+      .attr('fill', 'rgba(255,255,255,0.75)')
+      .text(n.sublabel);
+  }
+});
+
+// ── Exit path: Audit passes → Publishable chart ──
+const auditNode = nodes[2]; // bottom node
+const exitStartX = auditNode.x + auditNode.w / 2 + 10;
+const exitStartY = auditNode.y;
+const exitEndX = 1180;
+const exitEndY = auditNode.y;
+
+// Exit arrow line
+svg.append('line')
+  .attr('x1', exitStartX).attr('y1', exitStartY)
+  .attr('x2', exitEndX - 140).attr('y2', exitEndY)
+  .attr('stroke', '#2D8B4E').attr('stroke-width', 2.5)
+  .attr('marker-end', 'url(#arrow-green)');
+
+// "Audit passes" label on arrow
+svg.append('text')
+  .attr('x', (exitStartX + exitEndX - 140) / 2).attr('y', exitStartY - 12)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 12).attr('font-weight', 600)
+  .attr('fill', '#2D8B4E')
+  .text('Audit passes');
+
+// Exit node: Publishable chart
+const exitBoxX = exitEndX - 130;
+const exitBoxW = 280;
+const exitBoxH = 64;
+svg.append('rect')
+  .attr('x', exitBoxX).attr('y', exitEndY - exitBoxH / 2)
+  .attr('width', exitBoxW).attr('height', exitBoxH)
+  .attr('fill', '#2D8B4E').attr('rx', 8);
+
+svg.append('text')
+  .attr('x', exitBoxX + exitBoxW / 2).attr('y', exitEndY + 6)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 16).attr('font-weight', 700)
+  .attr('fill', '#FFFFFF')
+  .text('Publishable chart');
+
+// Checkmark icon
+svg.append('text')
+  .attr('x', exitBoxX + 24).attr('y', exitEndY + 6)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 18)
+  .attr('fill', 'rgba(255,255,255,0.6)')
+  .text('\u2713');
+
+// ── Annotation: "Typically 1-3 iterations" ──
+svg.append('text')
+  .attr('x', exitBoxX + exitBoxW / 2).attr('y', exitEndY + exitBoxH / 2 + 24)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'JetBrains Mono', monospace").attr('font-size', 12)
+  .attr('fill', '#2D8B4E')
+  .text('Typically 1\u20133 iterations');
+
+// ── Annotation: "One concern per iteration" ──
+// Place in upper-right area near the loop
+const annotX = 1100, annotY = 270;
+
+svg.append('rect')
+  .attr('x', annotX - 10).attr('y', annotY - 20)
+  .attr('width', 380).attr('height', 60)
+  .attr('fill', '#FAFAFA').attr('stroke', '#D4D4D4').attr('stroke-width', 1).attr('rx', 6);
+
+svg.append('rect')
+  .attr('x', annotX - 10).attr('y', annotY - 20)
+  .attr('width', 4).attr('height', 60)
+  .attr('fill', '#C8860E').attr('rx', 2);
+
+svg.append('text')
+  .attr('x', annotX + 14).attr('y', annotY + 2)
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 14).attr('font-weight', 700)
+  .attr('fill', '#121212')
+  .text('One concern per iteration.');
+
+svg.append('text')
+  .attr('x', annotX + 14).attr('y', annotY + 24)
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 13)
+  .attr('fill', '#545454')
+  .text('Structural before stylistic.');
+
+// ── Dashed line from annotation to loop ──
+svg.append('line')
+  .attr('x1', annotX - 10).attr('y1', annotY + 10)
+  .attr('x2', cx + radius * Math.cos((-45 * Math.PI) / 180) + 20)
+  .attr('y2', cy + radius * Math.sin((-45 * Math.PI) / 180) - 20)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1).attr('stroke-dasharray', '4,3');
+
+// ── Caption bar ──
+svg.append('line')
+  .attr('x1', 60).attr('y1', H - 50).attr('x2', W - 60).attr('y2', H - 50)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+
+svg.append('text')
+  .attr('x', W / 2).attr('y', H - 24)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 12).attr('fill', '#545454')
+  .text('Barry & Card, 2014');
+
+// ── Loop label in center ──
+svg.append('text')
+  .attr('x', cx).attr('y', cy - 8)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif").attr('font-size', 20).attr('fill', '#121212')
+  .text('MBTA');
+
+svg.append('text')
+  .attr('x', cx).attr('y', cy + 16)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 12).attr('fill', '#545454')
+  .text('Iteration Loop');
+</script>
+</body>
+</html>

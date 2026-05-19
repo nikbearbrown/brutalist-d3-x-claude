@@ -11,6 +11,8 @@ Same visual trick. Different channel. Different verdict.
 
 <!-- → [FIGURE: Two side-by-side charts, identical monthly revenue data (12 months, range $83k–$91k). Left: column bar chart, y-axis from $80k — the bars are dramatically different heights even though values differ by <10%. Right: line chart, same y-axis from $80k — this is now fine, because point position is the channel, not bar length. Caption: "Same y-axis range. Left is a proportional ink violation; right is a legitimate design choice. The channel determines the rule." Label each panel with its channel: "Channel: bar length (area)" vs. "Channel: point position."] -->
 
+![Figure 8.1 — Same y-axis range. The channel determines the rule.](../images/08-time-series-and-temporal-charts-fig-01.jpg)
+
 This is the central technical fact about temporal charts. The channel determines what the zero-baseline rule requires. Area charts use area as a channel. Line charts use point position. That distinction splits the temporal family into two regimes with different rules, and understanding the split is what separates a chart that reads honestly from one that is technically correct and perceptually misleading.
 
 ---
@@ -37,6 +39,8 @@ Seven forms. The choice among them is a channel choice, and the channel choice f
 
 <!-- → [INFOGRAPHIC: Seven-panel reference grid, one panel per temporal form. Each panel: form name (uppercase, JetBrains Mono), a thumbnail sketch of the form's characteristic visual shape, primary channel listed, the one-line "use when" condition. Panels: Line chart (path, point position, "trajectory"), Area chart (filled region, area, "magnitude"), Stacked area (layered fills, position + area, "composition + total"), Stream graph (centered organic flow, area centered, "rhetorical rise/fall"), Spiral plot (Archimedean spiral, curved position, "cyclic structure"), Gantt chart (horizontal bars, position + length, "intervals + duration"), Timeline (events on a single axis, position only, "narrative sequence"). Warm monochrome. This is the navigation reference the reader returns to whenever they have temporal data.] -->
 
+![Figure 8.2 — Seven temporal forms. The question determines the channel.](../images/08-time-series-and-temporal-charts-fig-02.jpg)
+
 ---
 
 ## Why the Zero-Baseline Rule Splits the Family
@@ -53,6 +57,8 @@ This is the split:
 Kelleher's worked example makes the failure concrete. An area chart of daily temperature, y-axis from 50°F to 90°F. The filled region below the temperature line looks visually substantial — a large warm-toned area that appears to represent the temperature. But the area represents (temperature − 50), not temperature. A day at 70°F has an area corresponding to 20; a day at 80°F has an area corresponding to 30. The visual ratio is 20:30, or 1.5:1. The actual temperature ratio is 70:80, or 1.14:1. The chart is amplifying the difference by a factor of three relative to the actual temperature values. The fix is either to zero-baseline the area (the area now corresponds to the temperature itself) or to drop the area encoding entirely and use a pure line chart where point position carries the value.
 
 <!-- → [FIGURE: Three-panel comparison using a 30-day temperature dataset (range 65°F–85°F). Left panel: area chart, y-axis from 50°F — the "area" looks large and dramatic; label shows "Visual area encodes temp − 50, not temp." Center panel: same area chart, y-axis from 0°F — the filled area is now mostly blank space below 65°F, but the area encodes the actual temperature. Right panel: line chart, y-axis from 60°F to 90°F — tight range, no area, point position is the channel, zero baseline not required. Caption shows the calculation for two days: day at 70°F and day at 80°F — visual ratio in left panel (1.5:1) vs. actual temperature ratio (1.14:1) vs. line chart (position difference is honest).] -->
+
+![Figure 8.3 — Area encodes the wrong quantity when the baseline is wrong.](../images/08-time-series-and-temporal-charts-fig-03.jpg)
 
 ---
 
@@ -86,6 +92,8 @@ The honest version: label the axis with the actual measurement years, draw conne
 
 <!-- → [FIGURE: Two panels, same monthly dataset (24 months) with one month missing (March 2021). Left: compressed axis — February and April sit adjacent, the connecting line implies a continuous trend with an artificially steep slope. Right: gap-marked axis — March 2021 held at its correct calendar position, the line is broken, a dotted segment or shaded region indicates missing data. Caption: "Left: the Gestalt principle works against honesty — the eye reads continuity where there is a gap. Right: the gap is visible, the slope of the line before and after is correct." Annotate the slope angles in both panels to show the distortion.] -->
 
+![Figure 8.4 — The eye reads continuity where there is a gap.](../images/08-time-series-and-temporal-charts-fig-04.jpg)
+
 ---
 
 ## Stacked Area: What Moves Up as Accuracy Degrades
@@ -103,6 +111,8 @@ The design consequence: put the most important series and the most stable series
 The total trajectory — the sum of all series — is the top boundary of the topmost layer. This is the most accurately read quantity in the chart: position along a common scale, shared with the y-axis. If the total is the primary question, the stacked area chart answers it well. If individual series values are the primary question, consider small multiples with one panel per series.
 
 <!-- → [FIGURE: A stacked area chart with five layers, annotated to show the accuracy gradient. Bottom layer (Food Security): bracket on the right edge labeled "Fixed baseline = 0. Position-along-common-scale. Accuracy: high." Second layer (Shelter): bracket labeled "Baseline varies with Food Security top edge. Reader must estimate thickness. Accuracy: lower." Top layer (Protection): bracket labeled "Baseline highly variable. Thickness estimation hardest. Accuracy: lowest." The total top edge has its own bracket: "Total trajectory — position along common scale. Accuracy: high." This figure makes the layer-ordering rule self-evident: what you need to read most accurately belongs at the bottom.] -->
+
+![Figure 8.5 — What you need to read most accurately belongs at the bottom.](../images/08-time-series-and-temporal-charts-fig-05.jpg)
 
 ---
 
@@ -133,6 +143,8 @@ The honest test: if you showed a reader the spiral plot and the small-multiples 
 The spiral is an honest chart when the channel cost is worth the perceptual benefit. It is a dishonest one when it is chosen because it looks more interesting than a line chart.
 
 <!-- → [FIGURE: Side-by-side comparison using five years of monthly electricity consumption data with a strong seasonal cycle. Left: standard line chart, 60 months on the x-axis — the trend is visible, the seasonal sawtooth repeats but its structure is harder to perceive as a single unit. Right: spiral plot, one rotation per year — January always at 12 o'clock, the winter spikes form a consistent cluster at the top of all five spirals, the summer dips cluster at the bottom. Caption: "Left answers: 'Is consumption rising over five years?' Right answers: 'Is the seasonal pattern consistent across years?' Same data. Different question. Different form." Annotate one specific data point (July 2023) on both charts and show how the reading task differs.] -->
+
+![Figure 8.6 — Same data. Different question. Different form.](../images/08-time-series-and-temporal-charts-fig-06.jpg)
 
 ---
 

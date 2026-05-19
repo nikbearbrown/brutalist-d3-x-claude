@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 8.4 — Missing data in time series: compressed vs gap-marked</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #121212;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--color-white);
+    color: var(--color-ink);
+    width: 1600px;
+    height: 900px;
+    overflow: hidden;
+  }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const W = 1600, H = 900;
+const svg = d3.select('#chart').append('svg')
+  .attr('width', W).attr('height', H)
+  .attr('role', 'img')
+  .attr('aria-labelledby', 'chart-title chart-desc');
+
+svg.append('title').attr('id', 'chart-title').text('The eye reads continuity where there is a gap.');
+svg.append('desc').attr('id', 'chart-desc').text('Two panels comparing how missing data in a time series can be shown: compressing the axis creates a false slope, while marking the gap preserves honest slopes.');
+
+// Background
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#FFFFFF');
+
+// Main title
+svg.append('text')
+  .attr('x', W / 2).attr('y', 52)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-size', 34).attr('fill', '#121212')
+  .text('The eye reads continuity where there is a gap.');
+
+// Subtitle
+svg.append('text')
+  .attr('x', W / 2).attr('y', 80)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 14).attr('fill', '#545454')
+  .text('Figure 8.4 \u2014 Missing data in time series: compressed vs gap-marked');
+
+// Generate 24 months of data, Jan 2020 - Dec 2021, trending upward ~100 to ~160
+const months = [];
+const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const baseValues = [
+  102, 105, 108, 107, 112, 115, 113, 118, 120, 122, 126, 128,
+  130, 133, 137, 135, 140, 143, 141, 146, 149, 152, 155, 158
+];
+
+for (let i = 0; i < 24; i++) {
+  const year = 2020 + Math.floor(i / 12);
+  const month = i % 12;
+  const isMissing = (year === 2021 && month === 2); // March 2021 is missing
+  months.push({
+    index: i,
+    date: new Date(year, month, 1),
+    label: monthNames[month] + ' ' + year,
+    shortLabel: monthNames[month] + '\u2019' + String(year).slice(2),
+    value: isMissing ? null : baseValues[i],
+    missing: isMissing
+  });
+}
+
+const dataWithValues = months.filter(d => d.value !== null);
+
+// Divider line
+svg.append('line')
+  .attr('x1', W / 2).attr('y1', 96).attr('x2', W / 2).attr('y2', H - 50)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 2);
+
+// =========================================================
+// LEFT PANEL — Compressed axis (missing month omitted)
+// =========================================================
+const leftPanelX = 50;
+const leftPanelW = W / 2 - 70;
+
+// Panel header — red tinted
+svg.append('rect')
+  .attr('x', leftPanelX).attr('y', 98).attr('width', leftPanelW).attr('height', 40)
+  .attr('fill', '#FFF0F0').attr('rx', 4);
+svg.append('text')
+  .attr('x', leftPanelX + leftPanelW / 2).attr('y', 124)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 17).attr('font-weight', 700).attr('fill', '#C8102E')
+  .text('Compressed axis');
+
+const leftChartX = leftPanelX + 70;
+const leftChartY = 170;
+const leftChartW = leftPanelW - 100;
+const leftChartH = 380;
+
+// For compressed: use only data with values, evenly spaced
+const compressedData = dataWithValues;
+
+const xScaleLeft = d3.scalePoint()
+  .domain(compressedData.map(d => d.label))
+  .range([0, leftChartW])
+  .padding(0.3);
+
+const yScaleLeft = d3.scaleLinear()
+  .domain([90, 170])
+  .range([leftChartH, 0]);
+
+const gLeft = svg.append('g')
+  .attr('transform', `translate(${leftChartX}, ${leftChartY})`);
+
+// Red border around left panel chart area
+gLeft.append('rect')
+  .attr('x', -10).attr('y', -10)
+  .attr('width', leftChartW + 20).attr('height', leftChartH + 20)
+  .attr('fill', 'none').attr('stroke', '#C8102E').attr('stroke-width', 2.5);
+
+// Gridlines
+gLeft.selectAll('.gridline-left')
+  .data(yScaleLeft.ticks(5))
+  .join('line')
+    .attr('class', 'gridline-left')
+    .attr('x1', 0).attr('x2', leftChartW)
+    .attr('y1', d => yScaleLeft(d)).attr('y2', d => yScaleLeft(d))
+    .attr('stroke', '#ECECEC').attr('stroke-width', 1)
+    .attr('aria-hidden', 'true');
+
+// Y-axis
+const yAxisLeft = d3.axisLeft(yScaleLeft).ticks(5);
+gLeft.append('g').call(yAxisLeft)
+  .selectAll('text')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 11).attr('fill', '#545454');
+gLeft.selectAll('.domain, .tick line').attr('stroke', '#D4D4D4');
+
+// Line
+const lineLeft = d3.line()
+  .x(d => xScaleLeft(d.label))
+  .y(d => yScaleLeft(d.value));
+
+gLeft.append('path')
+  .datum(compressedData)
+  .attr('fill', 'none')
+  .attr('stroke', '#121212')
+  .attr('stroke-width', 2)
+  .attr('d', lineLeft);
+
+// Data dots
+gLeft.selectAll('.dot-left')
+  .data(compressedData)
+  .join('circle')
+    .attr('class', 'dot-left')
+    .attr('cx', d => xScaleLeft(d.label))
+    .attr('cy', d => yScaleLeft(d.value))
+    .attr('r', 3)
+    .attr('fill', '#121212')
+    .attr('tabindex', 0)
+    .attr('aria-label', d => `${d.label}: ${d.value}`);
+
+// X-axis with rotated labels
+const xAxisLeft = d3.axisBottom(xScaleLeft).tickSize(0);
+const xAxisLeftG = gLeft.append('g')
+  .attr('transform', `translate(0, ${leftChartH})`)
+  .call(xAxisLeft);
+xAxisLeftG.selectAll('text')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 9).attr('fill', '#545454')
+  .attr('text-anchor', 'end')
+  .attr('transform', 'rotate(-45)')
+  .attr('dx', '-4px').attr('dy', '6px');
+xAxisLeftG.select('.domain').attr('stroke', '#D4D4D4');
+
+// Highlight the steep false slope between Feb 2021 and Apr 2021
+const feb21 = compressedData.find(d => d.label === 'Feb 2021');
+const apr21 = compressedData.find(d => d.label === 'Apr 2021');
+
+if (feb21 && apr21) {
+  const x1 = xScaleLeft(feb21.label);
+  const y1 = yScaleLeft(feb21.value);
+  const x2 = xScaleLeft(apr21.label);
+  const y2 = yScaleLeft(apr21.value);
+
+  // Red highlight line for the steep slope
+  gLeft.append('line')
+    .attr('x1', x1).attr('y1', y1)
+    .attr('x2', x2).attr('y2', y2)
+    .attr('stroke', '#C8102E').attr('stroke-width', 3.5)
+    .attr('stroke-linecap', 'round');
+
+  // Red angle annotation showing steep slope
+  // Draw a horizontal reference and the slope line to show the angle
+  const midX = (x1 + x2) / 2;
+  const midY = (y1 + y2) / 2;
+
+  // Horizontal reference from Feb point
+  gLeft.append('line')
+    .attr('x1', x1).attr('y1', y1)
+    .attr('x2', x1 + 50).attr('y2', y1)
+    .attr('stroke', '#C8102E').attr('stroke-width', 1.5)
+    .attr('stroke-dasharray', '4,3')
+    .attr('opacity', 0.6);
+
+  // Arc showing angle
+  const arcRadius = 30;
+  const angle = Math.atan2(y2 - y1, x2 - x1);
+  const arcPath = d3.arc()({
+    innerRadius: arcRadius - 1,
+    outerRadius: arcRadius,
+    startAngle: 0,
+    endAngle: -angle // SVG coordinate correction
+  });
+
+  // Use a simpler arc approach
+  const endArcX = x1 + arcRadius * Math.cos(angle);
+  const endArcY = y1 + arcRadius * Math.sin(angle);
+  gLeft.append('path')
+    .attr('d', `M ${x1 + arcRadius},${y1} A ${arcRadius},${arcRadius} 0 0,${angle < 0 ? 1 : 0} ${endArcX},${endArcY}`)
+    .attr('fill', 'none')
+    .attr('stroke', '#C8102E')
+    .attr('stroke-width', 2);
+
+  // Red dots on the two points
+  gLeft.append('circle').attr('cx', x1).attr('cy', y1).attr('r', 5).attr('fill', '#C8102E');
+  gLeft.append('circle').attr('cx', x2).attr('cy', y2).attr('r', 5).attr('fill', '#C8102E');
+
+  // "False slope" label
+  gLeft.append('text')
+    .attr('x', midX).attr('y', midY - 16)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 12).attr('font-weight', 700).attr('fill', '#C8102E')
+    .text('False slope');
+}
+
+// Annotation text below chart
+const annoLeftY = leftChartH + 80;
+const annoLines = [
+  'Gestalt continuity reads a trend that',
+  'doesn\u2019t exist \u2014 the gap creates a false slope'
+];
+annoLines.forEach((line, i) => {
+  gLeft.append('text')
+    .attr('x', leftChartW / 2).attr('y', annoLeftY + i * 18)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'EB Garamond', Georgia, serif")
+    .attr('font-style', 'italic')
+    .attr('font-size', 14).attr('fill', '#C8102E')
+    .text(line);
+});
+
+
+// =========================================================
+// RIGHT PANEL — Gap-marked axis
+// =========================================================
+const rightPanelX = W / 2 + 20;
+const rightPanelW = W / 2 - 70;
+
+// Panel header
+svg.append('rect')
+  .attr('x', rightPanelX).attr('y', 98).attr('width', rightPanelW).attr('height', 40)
+  .attr('fill', '#F5F5F5').attr('rx', 4);
+svg.append('text')
+  .attr('x', rightPanelX + rightPanelW / 2).attr('y', 124)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 17).attr('font-weight', 700).attr('fill', '#121212')
+  .text('Gap-marked axis');
+
+const rightChartX = rightPanelX + 70;
+const rightChartY = 170;
+const rightChartW = rightPanelW - 100;
+const rightChartH = 380;
+
+// For gap-marked: use all 24 months on x-axis, March 2021 at its correct position
+const xScaleRight = d3.scaleTime()
+  .domain([new Date(2020, 0, 1), new Date(2021, 11, 31)])
+  .range([0, rightChartW]);
+
+const yScaleRight = d3.scaleLinear()
+  .domain([90, 170])
+  .range([rightChartH, 0]);
+
+const gRight = svg.append('g')
+  .attr('transform', `translate(${rightChartX}, ${rightChartY})`);
+
+// Ink border around right panel chart area
+gRight.append('rect')
+  .attr('x', -10).attr('y', -10)
+  .attr('width', rightChartW + 20).attr('height', rightChartH + 20)
+  .attr('fill', 'none').attr('stroke', '#121212').attr('stroke-width', 2);
+
+// Gridlines
+gRight.selectAll('.gridline-right')
+  .data(yScaleRight.ticks(5))
+  .join('line')
+    .attr('class', 'gridline-right')
+    .attr('x1', 0).attr('x2', rightChartW)
+    .attr('y1', d => yScaleRight(d)).attr('y2', d => yScaleRight(d))
+    .attr('stroke', '#ECECEC').attr('stroke-width', 1)
+    .attr('aria-hidden', 'true');
+
+// Y-axis
+const yAxisRight = d3.axisLeft(yScaleRight).ticks(5);
+gRight.append('g').call(yAxisRight)
+  .selectAll('text')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 11).attr('fill', '#545454');
+gRight.selectAll('.domain, .tick line').attr('stroke', '#D4D4D4');
+
+// X-axis
+const xAxisRight = d3.axisBottom(xScaleRight)
+  .ticks(d3.timeMonth.every(3))
+  .tickFormat(d3.timeFormat('%b \'%y'));
+const xAxisRightG = gRight.append('g')
+  .attr('transform', `translate(0, ${rightChartH})`)
+  .call(xAxisRight);
+xAxisRightG.selectAll('text')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 10).attr('fill', '#545454')
+  .attr('text-anchor', 'end')
+  .attr('transform', 'rotate(-45)')
+  .attr('dx', '-4px').attr('dy', '6px');
+xAxisRightG.select('.domain').attr('stroke', '#D4D4D4');
+
+// Shaded gray region for the missing month (March 2021)
+const mar1 = new Date(2021, 2, 1);
+const apr1 = new Date(2021, 3, 1);
+gRight.append('rect')
+  .attr('x', xScaleRight(mar1) - 2)
+  .attr('y', 0)
+  .attr('width', xScaleRight(apr1) - xScaleRight(mar1) + 4)
+  .attr('height', rightChartH)
+  .attr('fill', '#D4D4D4')
+  .attr('opacity', 0.35);
+
+// "No data" label in the gap
+gRight.append('text')
+  .attr('x', (xScaleRight(mar1) + xScaleRight(apr1)) / 2)
+  .attr('y', rightChartH / 2)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'JetBrains Mono', monospace")
+  .attr('font-size', 10).attr('fill', '#545454')
+  .attr('transform', `rotate(-90, ${(xScaleRight(mar1) + xScaleRight(apr1)) / 2}, ${rightChartH / 2})`)
+  .text('NO DATA');
+
+// Split data into before-gap and after-gap segments
+const beforeGap = months.filter(d => d.value !== null && d.date < mar1);
+const afterGap = months.filter(d => d.value !== null && d.date >= apr1);
+
+const lineRight = d3.line()
+  .x(d => xScaleRight(d.date))
+  .y(d => yScaleRight(d.value));
+
+// Line before gap
+gRight.append('path')
+  .datum(beforeGap)
+  .attr('fill', 'none')
+  .attr('stroke', '#121212')
+  .attr('stroke-width', 2)
+  .attr('d', lineRight);
+
+// Line after gap
+gRight.append('path')
+  .datum(afterGap)
+  .attr('fill', 'none')
+  .attr('stroke', '#121212')
+  .attr('stroke-width', 2)
+  .attr('d', lineRight);
+
+// Dotted line bridging the gap (Feb 2021 to Apr 2021)
+const feb21R = beforeGap[beforeGap.length - 1];
+const apr21R = afterGap[0];
+gRight.append('line')
+  .attr('x1', xScaleRight(feb21R.date)).attr('y1', yScaleRight(feb21R.value))
+  .attr('x2', xScaleRight(apr21R.date)).attr('y2', yScaleRight(apr21R.value))
+  .attr('stroke', '#545454')
+  .attr('stroke-width', 1.5)
+  .attr('stroke-dasharray', '5,4');
+
+// Data dots
+gRight.selectAll('.dot-right')
+  .data(dataWithValues)
+  .join('circle')
+    .attr('class', 'dot-right')
+    .attr('cx', d => xScaleRight(d.date))
+    .attr('cy', d => yScaleRight(d.value))
+    .attr('r', 3)
+    .attr('fill', '#121212')
+    .attr('tabindex', 0)
+    .attr('aria-label', d => `${d.label}: ${d.value}`);
+
+// Annotation text below chart
+const annoRightY = rightChartH + 80;
+const annoRightLines = [
+  'Gap is visible. Slopes before',
+  'and after are correct.'
+];
+annoRightLines.forEach((line, i) => {
+  gRight.append('text')
+    .attr('x', rightChartW / 2).attr('y', annoRightY + i * 18)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'EB Garamond', Georgia, serif")
+    .attr('font-style', 'italic')
+    .attr('font-size', 14).attr('fill', '#121212')
+    .text(line);
+});
+
+// =========================================================
+// Bottom caption
+// =========================================================
+svg.append('line')
+  .attr('x1', 50).attr('y1', H - 42).attr('x2', W - 50).attr('y2', H - 42)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+
+svg.append('text')
+  .attr('x', W / 2).attr('y', H - 16)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-style', 'italic')
+  .attr('font-size', 15).attr('fill', '#545454')
+  .text('Left: Gestalt continuity works against honesty. Right: the gap is visible, the slopes are correct.');
+</script>
+</body>
+</html>

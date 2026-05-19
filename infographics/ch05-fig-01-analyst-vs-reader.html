@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 5.1 — Analyst's Question vs Reader's Question</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #FFFFFF; color: #121212; width: 1600px; height: 900px; overflow: hidden; }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const W = 1600, H = 900;
+const svg = d3.select('#chart').append('svg')
+  .attr('width', W).attr('height', H)
+  .attr('role', 'img').attr('aria-labelledby', 'chart-title');
+
+svg.append('title').attr('id', 'chart-title').text('Figure 5.1 — Analyst vs Reader Question Framing');
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#FFFFFF');
+
+svg.append('text').attr('x', W/2).attr('y', 48).attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif").attr('font-size', 36).attr('fill', '#121212')
+  .text('Same data. Different framing. Different chart.');
+svg.append('text').attr('x', W/2).attr('y', 78).attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 14).attr('fill', '#545454')
+  .text('Figure 5.1 — The analyst\'s question vs the reader\'s question');
+
+const colL = 100, colR = 900, colC = W/2, colW = 560;
+const headerY = 110;
+
+// Left header
+svg.append('rect').attr('x', colL).attr('y', headerY).attr('width', colW).attr('height', 52).attr('fill', '#545454').attr('rx', 8);
+svg.append('text').attr('x', colL + colW/2).attr('y', headerY + 33).attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 20).attr('font-weight', 700).attr('fill', '#FFFFFF')
+  .text("ANALYST'S QUESTION");
+
+// Right header
+svg.append('rect').attr('x', colR).attr('y', headerY).attr('width', colW).attr('height', 52).attr('fill', '#C8102E').attr('rx', 8);
+svg.append('text').attr('x', colR + colW/2).attr('y', headerY + 33).attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 20).attr('font-weight', 700).attr('fill', '#FFFFFF')
+  .text("READER'S QUESTION");
+
+// Center label
+svg.append('text').attr('x', colC).attr('y', headerY + 33).attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 12).attr('font-weight', 700).attr('fill', '#545454')
+  .text('THE SHIFT');
+
+// Divider
+svg.append('line').attr('x1', colC).attr('y1', headerY + 60).attr('x2', colC).attr('y2', H - 100)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 2);
+
+const pairs = [
+  {
+    analyst: "What is the system's load distribution?",
+    reader: 'When and where are the trains crowded?',
+    shift: 'Exploratory → Summative',
+    shiftSub: 'From open-ended to answerable'
+  },
+  {
+    analyst: 'How does ridership respond to weather variables?',
+    reader: 'How do snowstorms affect the system?',
+    shift: "Producer's interest → Audience's need",
+    shiftSub: 'From analytical to practical'
+  },
+  {
+    analyst: 'What is the per-route utilization over time?',
+    reader: 'How congested is my route?',
+    shift: 'Open-ended → Actionable',
+    shiftSub: 'From comprehensive to personal'
+  }
+];
+
+const rowH = 200;
+const startY = 200;
+
+pairs.forEach((p, i) => {
+  const y = startY + i * rowH;
+
+  // Left card (analyst)
+  svg.append('rect').attr('x', colL).attr('y', y).attr('width', colW).attr('height', 140)
+    .attr('fill', '#F8F8F8').attr('stroke', '#D4D4D4').attr('stroke-width', 1.5).attr('rx', 8);
+  svg.append('rect').attr('x', colL).attr('y', y).attr('width', 6).attr('height', 140)
+    .attr('fill', '#545454').attr('rx', 3);
+
+  svg.append('text').attr('x', colL + 28).attr('y', y + 28)
+    .attr('font-family', "'Inter', sans-serif").attr('font-size', 11).attr('font-weight', 700).attr('fill', '#545454')
+    .text('MBTA EXAMPLE ' + (i+1));
+
+  svg.append('text').attr('x', colL + 28).attr('y', y + 62)
+    .attr('font-family', "'EB Garamond', Georgia, serif").attr('font-size', 21).attr('font-style', 'italic').attr('fill', '#121212')
+    .text('"' + p.analyst + '"');
+
+  svg.append('rect').attr('x', colL + 28).attr('y', y + 88).attr('width', 120).attr('height', 24)
+    .attr('fill', '#E8E8E8').attr('rx', 4);
+  svg.append('text').attr('x', colL + 88).attr('y', y + 105)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'JetBrains Mono', monospace").attr('font-size', 11).attr('fill', '#545454')
+    .text('exploratory');
+
+  // Right card (reader)
+  svg.append('rect').attr('x', colR).attr('y', y).attr('width', colW).attr('height', 140)
+    .attr('fill', '#FFF8F8').attr('stroke', '#C8102E').attr('stroke-width', 1.5).attr('rx', 8);
+  svg.append('rect').attr('x', colR + colW - 6).attr('y', y).attr('width', 6).attr('height', 140)
+    .attr('fill', '#C8102E').attr('rx', 3);
+
+  svg.append('text').attr('x', colR + 24).attr('y', y + 28)
+    .attr('font-family', "'Inter', sans-serif").attr('font-size', 11).attr('font-weight', 700).attr('fill', '#C8102E')
+    .text('READER VERSION');
+
+  svg.append('text').attr('x', colR + 24).attr('y', y + 62)
+    .attr('font-family', "'EB Garamond', Georgia, serif").attr('font-size', 21).attr('font-style', 'italic').attr('fill', '#121212')
+    .text('"' + p.reader + '"');
+
+  svg.append('rect').attr('x', colR + 24).attr('y', y + 88).attr('width', 120).attr('height', 24)
+    .attr('fill', '#F9F2F3').attr('rx', 4);
+  svg.append('text').attr('x', colR + 84).attr('y', y + 105)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'JetBrains Mono', monospace").attr('font-size', 11).attr('fill', '#C8102E')
+    .text('actionable');
+
+  // Center shift pill
+  const pillY = y + 40;
+  svg.append('rect').attr('x', colC - 110).attr('y', pillY).attr('width', 220).attr('height', 52)
+    .attr('fill', '#121212').attr('rx', 8);
+  svg.append('text').attr('x', colC).attr('y', pillY + 22).attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif").attr('font-size', 13).attr('font-weight', 700).attr('fill', '#FFFFFF')
+    .text(p.shift);
+  svg.append('text').attr('x', colC).attr('y', pillY + 42).attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif").attr('font-size', 11).attr('fill', '#A0978C')
+    .text(p.shiftSub);
+
+  // Arrows from cards to center
+  svg.append('line').attr('x1', colL + colW).attr('y1', y + 66).attr('x2', colC - 110).attr('y2', pillY + 26)
+    .attr('stroke', '#D4D4D4').attr('stroke-width', 1).attr('stroke-dasharray', '4,3');
+  svg.append('line').attr('x1', colR).attr('y1', y + 66).attr('x2', colC + 110).attr('y2', pillY + 26)
+    .attr('stroke', '#D4D4D4').attr('stroke-width', 1).attr('stroke-dasharray', '4,3');
+});
+
+// Caption
+svg.append('line').attr('x1', 60).attr('y1', H - 40).attr('x2', W - 60).attr('y2', H - 40)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+svg.append('text').attr('x', W/2).attr('y', H - 16).attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 12).attr('fill', '#545454')
+  .text('Barry & Card\'s MBTA project chose the reader\'s framing. The chart follows the question, not the data.');
+</script>
+</body>
+</html>

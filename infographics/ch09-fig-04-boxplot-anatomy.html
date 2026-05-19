@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 9.4 — Box plot anatomy: Tukey's rule vs min-to-max</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #121212;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--color-white);
+    color: var(--color-ink);
+    width: 1600px;
+    height: 900px;
+    overflow: hidden;
+  }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const W = 1600, H = 900;
+const svg = d3.select('#chart').append('svg')
+  .attr('width', W).attr('height', H)
+  .attr('role', 'img')
+  .attr('aria-labelledby', 'chart-title chart-desc');
+
+svg.append('title').attr('id', 'chart-title').text("Tukey's design is specific. The fence is what makes the outlier visible.");
+svg.append('desc').attr('id', 'chart-desc').text("Anatomy diagram comparing a correctly constructed Tukey box plot with labeled quartiles, IQR, whiskers, and outliers against a range chart where whiskers extend to min and max, hiding outliers.");
+
+// Background
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#FFFFFF');
+
+// Main title
+svg.append('text')
+  .attr('x', W / 2).attr('y', 48)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-size', 34).attr('fill', '#121212')
+  .text("Tukey\u2019s design is specific. The fence is what makes the outlier visible.");
+
+// Subtitle
+svg.append('text')
+  .attr('x', W / 2).attr('y', 78)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 14).attr('fill', '#545454')
+  .text("Figure 9.4 \u2014 Box plot anatomy: Tukey\u2019s rule vs min-to-max");
+
+// Divider line
+svg.append('line')
+  .attr('x1', W * 0.62).attr('y1', 96).attr('x2', W * 0.62).attr('y2', H - 60)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 2);
+
+// =========================================================
+// DATA for box plot
+// =========================================================
+// Simulated distribution stats
+const Q1 = 32, Q2 = 45, Q3 = 58;
+const IQR = Q3 - Q1; // 26
+const upperFence = Q3 + 1.5 * IQR; // 97
+const lowerFence = Q1 - 1.5 * IQR; // -7
+// Actual whisker ends (most extreme values within fences)
+const upperWhisker = 92;
+const lowerWhisker = 8;
+// Outliers
+const outliers = [102, 110, -5];
+
+// Y-scale for the box plot (shared concept, different rendering)
+const yMin = -15, yMax = 120;
+
+// =========================================================
+// LEFT PANEL — Tukey's Box Plot Anatomy
+// =========================================================
+const leftPanelX = 40;
+const leftPanelW = W * 0.58;
+
+// Panel header
+svg.append('text')
+  .attr('x', leftPanelX + leftPanelW / 2).attr('y', 116)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 20).attr('font-weight', 700).attr('fill', '#121212')
+  .text("TUKEY\u2019S BOX PLOT");
+
+const leftChartX = leftPanelX + 200;
+const leftChartY = 150;
+const leftChartH = 580;
+const boxWidth = 80;
+const boxCenterX = 160;
+
+const yScale = d3.scaleLinear()
+  .domain([yMin, yMax])
+  .range([leftChartH, 0]);
+
+const gLeft = svg.append('g')
+  .attr('transform', `translate(${leftChartX}, ${leftChartY})`);
+
+// Light background for chart area
+gLeft.append('rect')
+  .attr('x', -160).attr('y', -10)
+  .attr('width', 680).attr('height', leftChartH + 20)
+  .attr('fill', '#FAFAFA').attr('stroke', '#121212').attr('stroke-width', 2).attr('rx', 4);
+
+// Y-axis scale (subtle)
+const yAxisLeft = d3.axisLeft(yScale).ticks(8);
+gLeft.append('g')
+  .attr('transform', `translate(${boxCenterX - boxWidth / 2 - 30}, 0)`)
+  .call(yAxisLeft)
+  .selectAll('text')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 10).attr('fill', '#545454');
+gLeft.selectAll('.domain, .tick line').attr('stroke', '#D4D4D4');
+
+// --- Draw box plot elements ---
+
+// Upper whisker line (vertical)
+gLeft.append('line')
+  .attr('x1', boxCenterX).attr('y1', yScale(Q3))
+  .attr('x2', boxCenterX).attr('y2', yScale(upperWhisker))
+  .attr('stroke', '#121212').attr('stroke-width', 2.5);
+
+// Upper whisker cap
+gLeft.append('line')
+  .attr('x1', boxCenterX - 25).attr('y1', yScale(upperWhisker))
+  .attr('x2', boxCenterX + 25).attr('y2', yScale(upperWhisker))
+  .attr('stroke', '#121212').attr('stroke-width', 2.5);
+
+// Lower whisker line (vertical)
+gLeft.append('line')
+  .attr('x1', boxCenterX).attr('y1', yScale(Q1))
+  .attr('x2', boxCenterX).attr('y2', yScale(lowerWhisker))
+  .attr('stroke', '#121212').attr('stroke-width', 2.5);
+
+// Lower whisker cap
+gLeft.append('line')
+  .attr('x1', boxCenterX - 25).attr('y1', yScale(lowerWhisker))
+  .attr('x2', boxCenterX + 25).attr('y2', yScale(lowerWhisker))
+  .attr('stroke', '#121212').attr('stroke-width', 2.5);
+
+// Box (IQR)
+gLeft.append('rect')
+  .attr('x', boxCenterX - boxWidth / 2)
+  .attr('y', yScale(Q3))
+  .attr('width', boxWidth)
+  .attr('height', yScale(Q1) - yScale(Q3))
+  .attr('fill', '#FFFFFF')
+  .attr('stroke', '#121212')
+  .attr('stroke-width', 2.5);
+
+// Median line
+gLeft.append('line')
+  .attr('x1', boxCenterX - boxWidth / 2).attr('y1', yScale(Q2))
+  .attr('x2', boxCenterX + boxWidth / 2).attr('y2', yScale(Q2))
+  .attr('stroke', '#C8102E').attr('stroke-width', 3);
+
+// Outlier dots
+outliers.forEach(v => {
+  gLeft.append('circle')
+    .attr('cx', boxCenterX)
+    .attr('cy', yScale(v))
+    .attr('r', 6)
+    .attr('fill', 'none')
+    .attr('stroke', '#C8102E')
+    .attr('stroke-width', 2);
+});
+
+// =========================================================
+// ANNOTATIONS (callout lines + labels)
+// =========================================================
+const annotFont = "'Inter', sans-serif";
+const annotSize = 12;
+const monoFont = "'JetBrains Mono', monospace";
+const labelX = boxCenterX + boxWidth / 2 + 20; // Start of callout lines (right side)
+const textX = labelX + 100; // Where text starts
+
+function drawAnnotation(yVal, label, sublabel, color, textAnchor, offsetX, offsetY) {
+  const cy = yScale(yVal);
+  const startX = offsetX < 0 ? boxCenterX - boxWidth / 2 - 5 : boxCenterX + boxWidth / 2 + 5;
+  const endX = startX + offsetX;
+  const endY = cy + (offsetY || 0);
+
+  // Callout line
+  gLeft.append('line')
+    .attr('x1', startX).attr('y1', cy)
+    .attr('x2', endX).attr('y2', endY)
+    .attr('stroke', color || '#545454').attr('stroke-width', 1.5)
+    .attr('stroke-dasharray', '4,3');
+
+  // Dot at connection point
+  gLeft.append('circle')
+    .attr('cx', startX).attr('cy', cy)
+    .attr('r', 3)
+    .attr('fill', color || '#545454');
+
+  // Label text
+  gLeft.append('text')
+    .attr('x', endX + (offsetX > 0 ? 8 : -8))
+    .attr('y', endY - 4)
+    .attr('text-anchor', textAnchor || 'start')
+    .attr('font-family', annotFont)
+    .attr('font-size', annotSize).attr('font-weight', 600)
+    .attr('fill', color || '#121212')
+    .text(label);
+
+  if (sublabel) {
+    gLeft.append('text')
+      .attr('x', endX + (offsetX > 0 ? 8 : -8))
+      .attr('y', endY + 14)
+      .attr('text-anchor', textAnchor || 'start')
+      .attr('font-family', monoFont)
+      .attr('font-size', 11)
+      .attr('fill', '#545454')
+      .text(sublabel);
+  }
+}
+
+// 1. Q3 annotation
+drawAnnotation(Q3, 'Q3 (75th percentile)', 'Top of box', '#121212', 'start', 140, -15);
+
+// 2. Median annotation
+drawAnnotation(Q2, 'Median (Q2, 50th percentile)', null, '#C8102E', 'start', 160, 0);
+
+// 3. Q1 annotation
+drawAnnotation(Q1, 'Q1 (25th percentile)', 'Bottom of box', '#121212', 'start', 140, 15);
+
+// 4. IQR bracket on the right side
+const bracketX = boxCenterX + boxWidth / 2 + 14;
+const q3y = yScale(Q3);
+const q1y = yScale(Q1);
+
+// Top horizontal tick
+gLeft.append('line')
+  .attr('x1', bracketX - 6).attr('y1', q3y)
+  .attr('x2', bracketX).attr('y2', q3y)
+  .attr('stroke', '#C8860E').attr('stroke-width', 2);
+// Vertical bracket line
+gLeft.append('line')
+  .attr('x1', bracketX).attr('y1', q3y)
+  .attr('x2', bracketX).attr('y2', q1y)
+  .attr('stroke', '#C8860E').attr('stroke-width', 2);
+// Bottom horizontal tick
+gLeft.append('line')
+  .attr('x1', bracketX - 6).attr('y1', q1y)
+  .attr('x2', bracketX).attr('y2', q1y)
+  .attr('stroke', '#C8860E').attr('stroke-width', 2);
+// IQR label
+gLeft.append('text')
+  .attr('x', bracketX + 8)
+  .attr('y', (q3y + q1y) / 2 - 6)
+  .attr('font-family', monoFont)
+  .attr('font-size', 13).attr('font-weight', 400)
+  .attr('fill', '#C8860E')
+  .text('IQR = Q3 \u2212 Q1');
+gLeft.append('text')
+  .attr('x', bracketX + 8)
+  .attr('y', (q3y + q1y) / 2 + 12)
+  .attr('font-family', monoFont)
+  .attr('font-size', 11)
+  .attr('fill', '#C8860E')
+  .text(`= ${Q3} \u2212 ${Q1} = ${IQR}`);
+
+// 5. Upper whisker annotation
+drawAnnotation(upperWhisker, 'Upper whisker', 'Most extreme value within Q3 + 1.5\u00D7IQR', '#121212', 'start', 180, 0);
+
+// 6. Lower whisker annotation
+drawAnnotation(lowerWhisker, 'Lower whisker', 'Most extreme value within Q1 \u2212 1.5\u00D7IQR', '#121212', 'start', 180, 0);
+
+// 7. Outlier annotations
+// Upper outliers
+const upperOutlierY = yScale(110);
+gLeft.append('line')
+  .attr('x1', boxCenterX + 10).attr('y1', yScale(110))
+  .attr('x2', boxCenterX + 130).attr('y2', upperOutlierY - 10)
+  .attr('stroke', '#C8102E').attr('stroke-width', 1.5)
+  .attr('stroke-dasharray', '4,3');
+gLeft.append('circle')
+  .attr('cx', boxCenterX + 10).attr('cy', yScale(110))
+  .attr('r', 3).attr('fill', '#C8102E');
+gLeft.append('text')
+  .attr('x', boxCenterX + 138).attr('y', upperOutlierY - 16)
+  .attr('font-family', annotFont).attr('font-size', annotSize).attr('font-weight', 600)
+  .attr('fill', '#C8102E')
+  .text('Outliers');
+gLeft.append('text')
+  .attr('x', boxCenterX + 138).attr('y', upperOutlierY + 2)
+  .attr('font-family', monoFont).attr('font-size', 11)
+  .attr('fill', '#C8102E')
+  .text('Beyond 1.5\u00D7IQR fence');
+
+// Lower outlier
+const lowerOutlierY = yScale(-5);
+gLeft.append('line')
+  .attr('x1', boxCenterX + 10).attr('y1', yScale(-5))
+  .attr('x2', boxCenterX + 130).attr('y2', lowerOutlierY + 5)
+  .attr('stroke', '#C8102E').attr('stroke-width', 1.5)
+  .attr('stroke-dasharray', '4,3');
+gLeft.append('circle')
+  .attr('cx', boxCenterX + 10).attr('cy', yScale(-5))
+  .attr('r', 3).attr('fill', '#C8102E');
+gLeft.append('text')
+  .attr('x', boxCenterX + 138).attr('y', lowerOutlierY + 0)
+  .attr('font-family', annotFont).attr('font-size', annotSize).attr('font-weight', 600)
+  .attr('fill', '#C8102E')
+  .text('Outlier');
+
+// Fence lines (dashed, subtle)
+// Upper fence
+gLeft.append('line')
+  .attr('x1', boxCenterX - 50).attr('y1', yScale(upperFence))
+  .attr('x2', boxCenterX + 50).attr('y2', yScale(upperFence))
+  .attr('stroke', '#C8860E').attr('stroke-width', 1)
+  .attr('stroke-dasharray', '6,4')
+  .attr('opacity', 0.6);
+gLeft.append('text')
+  .attr('x', boxCenterX - 55).attr('y', yScale(upperFence) + 4)
+  .attr('text-anchor', 'end')
+  .attr('font-family', monoFont).attr('font-size', 9)
+  .attr('fill', '#C8860E')
+  .text('fence = ' + upperFence.toFixed(0));
+
+// Lower fence (clipped to visible area)
+if (lowerFence >= yMin) {
+  gLeft.append('line')
+    .attr('x1', boxCenterX - 50).attr('y1', yScale(lowerFence))
+    .attr('x2', boxCenterX + 50).attr('y2', yScale(lowerFence))
+    .attr('stroke', '#C8860E').attr('stroke-width', 1)
+    .attr('stroke-dasharray', '6,4')
+    .attr('opacity', 0.6);
+  gLeft.append('text')
+    .attr('x', boxCenterX - 55).attr('y', yScale(lowerFence) + 4)
+    .attr('text-anchor', 'end')
+    .attr('font-family', monoFont).attr('font-size', 9)
+    .attr('fill', '#C8860E')
+    .text('fence = ' + lowerFence.toFixed(0));
+}
+
+// =========================================================
+// RIGHT PANEL — Range Chart (NOT Tukey)
+// =========================================================
+const rightPanelX = W * 0.62 + 30;
+const rightPanelW = W - rightPanelX - 40;
+
+// Panel header
+svg.append('text')
+  .attr('x', rightPanelX + rightPanelW / 2).attr('y', 116)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 20).attr('font-weight', 700).attr('fill', '#545454')
+  .text('RANGE CHART (not Tukey)');
+
+const rightChartX = rightPanelX + 100;
+const rightChartY = 150;
+const rightChartH = leftChartH;
+const rightBoxCenterX = 100;
+const rightBoxWidth = 70;
+
+// Min/max for range chart (includes outliers)
+const dataMin = -5;
+const dataMax = 110;
+
+const yScaleRight = d3.scaleLinear()
+  .domain([yMin, yMax])
+  .range([rightChartH, 0]);
+
+const gRight = svg.append('g')
+  .attr('transform', `translate(${rightChartX}, ${rightChartY})`);
+
+// Light background
+gRight.append('rect')
+  .attr('x', -60).attr('y', -10)
+  .attr('width', 340).attr('height', rightChartH + 20)
+  .attr('fill', '#FFF5F5').attr('stroke', '#C8102E').attr('stroke-width', 2).attr('rx', 4);
+
+// "NOT THIS" badge
+const badgeX = rightBoxCenterX + 80;
+const badgeY = -2;
+gRight.append('rect')
+  .attr('x', badgeX).attr('y', badgeY)
+  .attr('width', 100).attr('height', 30)
+  .attr('fill', '#C8102E').attr('rx', 4);
+gRight.append('text')
+  .attr('x', badgeX + 10).attr('y', badgeY + 20)
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 15).attr('font-weight', 700)
+  .attr('fill', '#FFFFFF')
+  .text('\u2716 NOT THIS');
+
+// Y-axis
+const yAxisRight = d3.axisLeft(yScaleRight).ticks(8);
+gRight.append('g')
+  .attr('transform', `translate(${rightBoxCenterX - rightBoxWidth / 2 - 20}, 0)`)
+  .call(yAxisRight)
+  .selectAll('text')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 10).attr('fill', '#545454');
+gRight.selectAll('.domain, .tick line').attr('stroke', '#D4D4D4');
+
+// --- Draw range chart (whiskers to min/max) ---
+
+// Whisker line (full range, min to max)
+gRight.append('line')
+  .attr('x1', rightBoxCenterX).attr('y1', yScaleRight(dataMax))
+  .attr('x2', rightBoxCenterX).attr('y2', yScaleRight(dataMin))
+  .attr('stroke', '#545454').attr('stroke-width', 2);
+
+// Upper cap (at max)
+gRight.append('line')
+  .attr('x1', rightBoxCenterX - 20).attr('y1', yScaleRight(dataMax))
+  .attr('x2', rightBoxCenterX + 20).attr('y2', yScaleRight(dataMax))
+  .attr('stroke', '#545454').attr('stroke-width', 2);
+
+// Lower cap (at min)
+gRight.append('line')
+  .attr('x1', rightBoxCenterX - 20).attr('y1', yScaleRight(dataMin))
+  .attr('x2', rightBoxCenterX + 20).attr('y2', yScaleRight(dataMin))
+  .attr('stroke', '#545454').attr('stroke-width', 2);
+
+// Box
+gRight.append('rect')
+  .attr('x', rightBoxCenterX - rightBoxWidth / 2)
+  .attr('y', yScaleRight(Q3))
+  .attr('width', rightBoxWidth)
+  .attr('height', yScaleRight(Q1) - yScaleRight(Q3))
+  .attr('fill', '#F5F5F5')
+  .attr('stroke', '#545454')
+  .attr('stroke-width', 2);
+
+// Median
+gRight.append('line')
+  .attr('x1', rightBoxCenterX - rightBoxWidth / 2)
+  .attr('y1', yScaleRight(Q2))
+  .attr('x2', rightBoxCenterX + rightBoxWidth / 2)
+  .attr('y2', yScaleRight(Q2))
+  .attr('stroke', '#545454').attr('stroke-width', 2.5);
+
+// NO outlier dots — they are absorbed into whiskers
+
+// Labels on right side
+const rLabelX = rightBoxCenterX + rightBoxWidth / 2 + 20;
+
+// "Max" label
+gRight.append('text')
+  .attr('x', rLabelX).attr('y', yScaleRight(dataMax) + 4)
+  .attr('font-family', monoFont).attr('font-size', 11)
+  .attr('fill', '#545454')
+  .text('max = ' + dataMax);
+
+// "Min" label
+gRight.append('text')
+  .attr('x', rLabelX).attr('y', yScaleRight(dataMin) + 4)
+  .attr('font-family', monoFont).attr('font-size', 11)
+  .attr('fill', '#545454')
+  .text('min = ' + dataMin);
+
+// Annotation text below the range chart
+const annotY = rightChartH + 50;
+const wrapX = -50;
+
+// Red annotation text
+const annotLines = [
+  'Whiskers to min/max \u2014',
+  'outliers invisible.',
+  '',
+  'This is NOT Tukey\u2019s box plot.',
+  'It is a five-number summary',
+  'range chart.'
+];
+
+annotLines.forEach((line, i) => {
+  if (line === '') return;
+  gRight.append('text')
+    .attr('x', wrapX).attr('y', annotY + i * 18)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 13)
+    .attr('font-style', i >= 3 ? 'italic' : 'normal')
+    .attr('fill', i < 2 ? '#C8102E' : '#545454')
+    .text(line);
+});
+
+// Red X marks where outliers should be but aren't
+// Show faded ghost outliers with strikethrough
+[102, 110, -5].forEach(v => {
+  gRight.append('circle')
+    .attr('cx', rightBoxCenterX)
+    .attr('cy', yScaleRight(v))
+    .attr('r', 5)
+    .attr('fill', 'none')
+    .attr('stroke', '#C8102E')
+    .attr('stroke-width', 1.5)
+    .attr('stroke-dasharray', '3,2')
+    .attr('opacity', 0.4);
+  // Small X through each
+  const cx = rightBoxCenterX, cy = yScaleRight(v);
+  gRight.append('line')
+    .attr('x1', cx - 4).attr('y1', cy - 4)
+    .attr('x2', cx + 4).attr('y2', cy + 4)
+    .attr('stroke', '#C8102E').attr('stroke-width', 1.5).attr('opacity', 0.5);
+  gRight.append('line')
+    .attr('x1', cx + 4).attr('y1', cy - 4)
+    .attr('x2', cx - 4).attr('y2', cy + 4)
+    .attr('stroke', '#C8102E').attr('stroke-width', 1.5).attr('opacity', 0.5);
+});
+
+// "Hidden!" label pointing at absorbed outliers
+gRight.append('text')
+  .attr('x', rightBoxCenterX - rightBoxWidth / 2 - 10)
+  .attr('y', yScaleRight(106))
+  .attr('text-anchor', 'end')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('font-weight', 700)
+  .attr('fill', '#C8102E')
+  .text('Outliers hidden!');
+
+gRight.append('line')
+  .attr('x1', rightBoxCenterX - rightBoxWidth / 2 - 8)
+  .attr('y1', yScaleRight(106) - 3)
+  .attr('x2', rightBoxCenterX - 8)
+  .attr('y2', yScaleRight(106) - 3)
+  .attr('stroke', '#C8102E').attr('stroke-width', 1)
+  .attr('stroke-dasharray', '3,2');
+
+// =========================================================
+// Bottom caption
+// =========================================================
+svg.append('line')
+  .attr('x1', 50).attr('y1', H - 42).attr('x2', W - 50).attr('y2', H - 42)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+
+svg.append('text')
+  .attr('x', W / 2).attr('y', H - 16)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-style', 'italic')
+  .attr('font-size', 15).attr('fill', '#545454')
+  .text('If your box plot uses min-to-max whiskers, it is a range chart, not a Tukey box plot.');
+</script>
+</body>
+</html>

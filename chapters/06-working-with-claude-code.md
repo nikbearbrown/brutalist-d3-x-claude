@@ -43,6 +43,8 @@ The chart that comes back is right on the first attempt. Five horizontal bars so
 
 <!-- → [FIGURE: Two side-by-side bar charts, same dataset. Left: vague-prompt output — column chart, auto-fit y-axis starting at $40M, uniform steelblue bars, crowded x-axis labels unrotated, no value labels. Right: four-move-prompt output — horizontal bars sorted descending, zero baseline, sequential pale-to-dark luminance, direct value labels, left-aligned sector names with generous margin. Caption labels each panel with the prompt that produced it (truncated to one line each). The reader should see, at a glance, what 9 words vs. 200 words buys.] -->
 
+![Figure 6.1 — What 9 words vs 200 words buys](../images/06-working-with-claude-code-fig-01.jpg)
+
 The difference between the two prompts is not intelligence applied. It is discipline applied. The second prompt is 200 words; the first is 9. But the second encodes the outputs of the previous three chapters — the channel decomposition from Chapter 3, the chart-type selection from Chapter 4, the data structure description that Chapter 3 teaches. Without that upstream work in the prompt, Claude Code is guessing. With it, Claude Code is executing.
 
 This chapter is about the four-move structure, the iteration model, and the audit discipline that takes "working chart" to "publishable chart." The pipeline is the subject.
@@ -80,6 +82,8 @@ Every D3 prompt Claude Code receives has the same four moves. The moves come fro
 The second prompt in this chapter's opening case follows this structure exactly. The four moves are labeled. The "Constrain it" block is the longest. The "Verify" move is the last. This is not a coincidence.
 
 <!-- → [FIGURE: The second prompt from the opening case rendered as an annotated code block. Each of the four moves is highlighted in a different muted color with a label bracket on the left margin: Move 1 (Show what you have), Move 2 (Say what you want), Move 3 (Constrain it — the largest block), Move 4 (Verify). Annotations point out: "data sample goes here," "chart type named explicitly, not categorically," "every channel-to-attribute mapping is a bullet," "verification request is always the last move." This is the template the reader will copy for every chart in the book.] -->
+
+![Figure 6.2 — The template the reader will copy for every chart](../images/06-working-with-claude-code-fig-02.jpg)
 
 ---
 
@@ -130,6 +134,8 @@ A bad follow-up re-specifies everything from the beginning. The bad version prod
 **The rendered chart is the truth.** A working chart shows things that specifications do not. Data clusters in unexpected ways. Labels overlap at small browser widths. A color that looks fine in light mode looks wrong in dark mode. None of this is visible in a written specification. Open the chart in a browser. Resize it. Switch to dark mode. Run a color-blind simulator. The artifact is the truth; the prompt was a hypothesis.
 
 <!-- → [FIGURE: The MBTA iteration loop as a circular flow diagram. Four nodes: (1) Four-move prompt → (2) Working chart (12 seconds) → (3) Audit (Evergreen/Emery subset, 90 seconds) → (4) Targeted follow-up prompt. Arrow from (4) back to (2). A fifth node breaks out of the loop: "Audit passes → Publishable chart." Annotation on the loop: "One concern per iteration. Structural before stylistic." Annotation on the exit arrow: "Typically 1–3 iterations." The MBTA quote appears as a caption: "Nothing beat iterating on working code. — Barry & Card, 2014."] -->
+
+![Figure 6.3 — Nothing beat iterating on working code.](../images/06-working-with-claude-code-fig-03.jpg)
 
 ---
 
@@ -221,6 +227,8 @@ Here is the five-stage pipeline walked once through, with the humanitarian fundi
 When an item fails, the follow-up is small, targeted, and grounded in the chapter's vocabulary. Typically one to three iterations after the first chart. The pipeline ends when the audit passes.
 
 <!-- → [FIGURE: End-to-end pipeline as a horizontal five-stage flow. Boxes: (1) Chapter 3: Data audit — attribute types, analyst vs. reader question, "compared with what?" (2) Chapter 4: Chart selection — Cairo four steps, functional category, specific form. (3) Chapter 3: Channel decomposition — marks, mappings, constraints. (4) Chapter 5: Four-move prompt → Working chart. (5) Audit & iterate → Publishable chart. Arrows between all five. A "feedback loop" arrow from Stage 5 back to Stage 4 labeled "Structural failure → revise decomposition." Each box also names its deliverable file from the chapter-05-pipeline/ directory (01-data-audit.md, etc.). Caption: "The pipeline. Stages 1–3 are upstream. Stage 4 is this chapter. Stage 5 is the loop that closes the gap."] -->
+
+![Figure 6.4 — The pipeline. Stages 1–3 are upstream. Stage 4 is this chapter.](../images/06-working-with-claude-code-fig-04.jpg)
 
 ---
 

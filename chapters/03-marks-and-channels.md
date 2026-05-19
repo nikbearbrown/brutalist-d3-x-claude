@@ -131,6 +131,8 @@ Munzner calls these the **expressiveness principle** (the channel must be capabl
 
 <!-- → [INFOGRAPHIC: Two-column taxonomy — Magnitude Channels vs. Identity Channels. Left column: Position, Length, Area, Luminance — each with a small icon and the note "suited to: quantitative / ordered data." Right column: Hue, Shape, Texture — each with a small icon and the note "suited to: categorical data." Below each column, a one-line example of the correct use and the most common misuse. The expressiveness and effectiveness principles appear as captions under the two columns.] -->
 
+![Figure 3.5 — Magnitude channels convey "how much." Identity channels convey "which one."](../images/03-marks-and-channels-fig-05.jpg)
+
 ---
 
 ## Three Worked Examples from Before the Framework Had a Name

@@ -20,7 +20,7 @@ Claude Code returns a working bar chart, sorted, annotated, on a zero baseline, 
 
 <!-- → [INFOGRAPHIC: side-by-side comparison of the two prompts — left column is the vague prompt with annotations flagging each decision Claude Code had to make on its own (chart type, marks, channels, sort order, baseline); right column is the specific prompt with the same decision points labeled as author-controlled. Caption: "Every decision the vague prompt omits is a decision the model makes for you."] -->
 
-*Figure 2.1*
+![Figure 2.1 — Every decision the vague prompt omits is a decision the model makes for you](../images/02-claude-basics-for-d3-visualization-fig-01.jpg)
 
 | | **Property** | **Value** |
 |---|---|---|
