@@ -303,3 +303,210 @@ This book is one application of the architecture built against every one of thos
 The result is a workflow where the human spends time on what is irreducibly human: judgment, direction, verification, decision. Claude handles what it is actually good at: D3 generation, pattern application, information retrieval — within a schema, on request, one chart at a time.
 
 That boundary, held firmly, is the whole idea.
+
+---
+
+## Who This Book Is For
+
+reader's roadmap)
+
+This file is a stub. Sections 1–10 and 12–13 are placeholders for a later pass.
+Section 11 (A note about AI) is substantive and written.
+
+A good model for the full version: Pearl's "The Mind Over Data" introduction,
+Molnar's Interpretable ML introduction. Both are argument-first and tell the
+reader exactly what to expect from each chapter.
+-->
+
+# Introduction
+
+<!-- [1] COLD OPEN
+     A specific named scene with real stakes.
+     No "this book will...", no throat-clearing.
+
+---
+
+## How to Read It
+
+<!-- TODO: populate from chapter content -->
+
+---
+
+## Table of Contents
+
+| Chapter | Title | File |
+|---------|-------|------|
+| Intro | Introduction | [chapters/00-introduction.md](chapters/00-introduction.md) |
+| Intro | Introduction | [chapters/01-introduction.md](chapters/01-introduction.md) |
+| 2 | Chapter 02 — Claude Basics for D3 Visualization | [chapters/02-claude-basics-for-d3-visualization-updated.md](chapters/02-claude-basics-for-d3-visualization-updated.md) |
+| 2 | Chapter 02 — Claude Basics for D3 Visualization | [chapters/02-claude-basics-for-d3-visualization.md](chapters/02-claude-basics-for-d3-visualization.md) |
+| 3 | Chapter 3 — Marks and Channels | [chapters/03-marks-and-channels.md](chapters/03-marks-and-channels.md) |
+| 4 | Chapter 4 — Chart Selection as Design Decision | [chapters/04-chart-selection-as-design-decision.md](chapters/04-chart-selection-as-design-decision.md) |
+| 5 | Chapter 05 — Reading a Dataset | [chapters/05-reading-a-dataset.md](chapters/05-reading-a-dataset.md) |
+| 6 | Chapter 6 — Working with Claude Code | [chapters/06-working-with-claude-code.md](chapters/06-working-with-claude-code.md) |
+| 7 | Chapter 07 — Comparison Charts | [chapters/07-comparison-charts.md](chapters/07-comparison-charts.md) |
+| 8 | Chapter 8 — Time Series and Temporal Charts | [chapters/08-time-series-and-temporal-charts.md](chapters/08-time-series-and-temporal-charts.md) |
+| 9 | Chapter 09 — Distribution Charts | [chapters/09-distribution-charts.md](chapters/09-distribution-charts.md) |
+| 10 | Chapter 10 — Relationship and Correlation Charts | [chapters/10-relationship-and-correlation-charts.md](chapters/10-relationship-and-correlation-charts.md) |
+| 11 | Chapter 11 — Part-to-Whole Charts | [chapters/11-part-to-whole-charts.md](chapters/11-part-to-whole-charts.md) |
+| 12 | Chapter 12 — Hierarchy Charts | [chapters/12-hierarchy-charts.md](chapters/12-hierarchy-charts.md) |
+| 13 | Chapter 13 — Flow and Network Charts | [chapters/13-flow-and-network-charts.md](chapters/13-flow-and-network-charts.md) |
+| 14 | Chapter 14 — Spatial and Geographic Charts | [chapters/14-spatial-and-geographic-charts.md](chapters/14-spatial-and-geographic-charts.md) |
+| 15 | Chapter 15 — Specialized and Financial Charts | [chapters/15-specialized-and-financial-charts.md](chapters/15-specialized-and-financial-charts.md) |
+| 16 | Chapter 16 — Design Principles in Practice | [chapters/16-design-principles-in-practice.md](chapters/16-design-principles-in-practice.md) |
+| 17 | Chapter 17 — Building a Complete Project | [chapters/17-building-a-complete-project.md](chapters/17-building-a-complete-project.md) |
+| 18 | Part II — Examples | [chapters/18-arc-diagram.md](chapters/18-arc-diagram.md) |
+| 18 | Chapter 16 — The Brutalist Claude Project | [chapters/18-brutalist-claude-project.md](chapters/18-brutalist-claude-project.md) |
+| 19 | Area Graph | [chapters/19-area-graph.md](chapters/19-area-graph.md) |
+| 20 | Bar Chart | [chapters/20-bar-chart.md](chapters/20-bar-chart.md) |
+| 21 | Box Plot | [chapters/21-box-plot.md](chapters/21-box-plot.md) |
+| 22 | Box and Whisker Plot | [chapters/22-box-whisker.md](chapters/22-box-whisker.md) |
+| 23 | Brainstorm | [chapters/23-brainstorm.md](chapters/23-brainstorm.md) |
+| 24 | Bubble Chart | [chapters/24-bubble-chart.md](chapters/24-bubble-chart.md) |
+| 25 | Bubble Map | [chapters/25-bubble-map.md](chapters/25-bubble-map.md) |
+| 26 | Bullet Graph | [chapters/26-bullet-graph.md](chapters/26-bullet-graph.md) |
+| 27 | Candlestick Chart | [chapters/27-candlestick-chart.md](chapters/27-candlestick-chart.md) |
+| 28 | Chord Diagram | [chapters/28-chord-diagram.md](chapters/28-chord-diagram.md) |
+| 29 | Choropleth | [chapters/29-choropleth.md](chapters/29-choropleth.md) |
+| 30 | Circle Packing | [chapters/30-circle-packing.md](chapters/30-circle-packing.md) |
+| 31 | Connection Map | [chapters/31-connection-map.md](chapters/31-connection-map.md) |
+| 32 | Density Plot | [chapters/32-density-plot.md](chapters/32-density-plot.md) |
+| 33 | Donut Chart | [chapters/33-donut-chart.md](chapters/33-donut-chart.md) |
+| 34 | Dot Map | [chapters/34-dot-map.md](chapters/34-dot-map.md) |
+| 35 | Dot Matrix | [chapters/35-dot-matrix.md](chapters/35-dot-matrix.md) |
+| 36 | Error Bars | [chapters/36-error-bars.md](chapters/36-error-bars.md) |
+| 37 | Flow Map | [chapters/37-flow-map.md](chapters/37-flow-map.md) |
+| 38 | Gantt Chart | [chapters/38-gantt-chart.md](chapters/38-gantt-chart.md) |
+| 39 | Heatmap | [chapters/39-heatmap.md](chapters/39-heatmap.md) |
+| 40 | Histogram | [chapters/40-histogram.md](chapters/40-histogram.md) |
+| 41 | Illustration Diagram | [chapters/41-illustration-diagram.md](chapters/41-illustration-diagram.md) |
+| 42 | Kagi Chart | [chapters/42-kagi-chart.md](chapters/42-kagi-chart.md) |
+| 43 | Line Graph | [chapters/43-line-graph.md](chapters/43-line-graph.md) |
+| 44 | Marimekko Chart | [chapters/44-marimekko-chart.md](chapters/44-marimekko-chart.md) |
+| 45 | Multimodal Distribution | [chapters/45-multimodal-distribution.md](chapters/45-multimodal-distribution.md) |
+| 46 | Multiset Bar | [chapters/46-multiset-bar.md](chapters/46-multiset-bar.md) |
+| 47 | Network Diagram | [chapters/47-network-diagram.md](chapters/47-network-diagram.md) |
+| 48 | Nightingale | [chapters/48-nightingale.md](chapters/48-nightingale.md) |
+| 49 | OHLC Chart | [chapters/49-ohlc-chart.md](chapters/49-ohlc-chart.md) |
+| 50 | Parallel Coordinates | [chapters/50-parallel-coordinates.md](chapters/50-parallel-coordinates.md) |
+| 51 | Parallel Sets | [chapters/51-parallel-sets.md](chapters/51-parallel-sets.md) |
+| 52 | Pictogram Chart | [chapters/52-pictogram-chart.md](chapters/52-pictogram-chart.md) |
+| 53 | Pie Chart | [chapters/53-pie-chart.md](chapters/53-pie-chart.md) |
+| 54 | Point Figure | [chapters/54-point-figure.md](chapters/54-point-figure.md) |
+| 55 | Population Pyramid | [chapters/55-population-pyramid.md](chapters/55-population-pyramid.md) |
+| 56 | Proportional Area | [chapters/56-proportional-area.md](chapters/56-proportional-area.md) |
+| 57 | Radar Chart | [chapters/57-radar-chart.md](chapters/57-radar-chart.md) |
+| 58 | Radial Bar | [chapters/58-radial-bar.md](chapters/58-radial-bar.md) |
+| 59 | Radial Bar Chart | [chapters/59-radial-bar-chart.md](chapters/59-radial-bar-chart.md) |
+| 60 | Radial Column | [chapters/60-radial-column.md](chapters/60-radial-column.md) |
+| 61 | Radial Column Chart | [chapters/61-radial-column-chart.md](chapters/61-radial-column-chart.md) |
+| 62 | Sankey Diagram | [chapters/62-sankey-diagram.md](chapters/62-sankey-diagram.md) |
+| 63 | Scatterplot | [chapters/63-scatterplot.md](chapters/63-scatterplot.md) |
+| 64 | Span Chart | [chapters/64-span-chart.md](chapters/64-span-chart.md) |
+| 65 | Spiral Plot | [chapters/65-spiral-plot.md](chapters/65-spiral-plot.md) |
+| 66 | Stacked Area | [chapters/66-stacked-area.md](chapters/66-stacked-area.md) |
+| 67 | Stacked Bar | [chapters/67-stacked-bar.md](chapters/67-stacked-bar.md) |
+| 68 | Stem Leaf | [chapters/68-stem-leaf.md](chapters/68-stem-leaf.md) |
+| 69 | Stream Graph | [chapters/69-stream-graph.md](chapters/69-stream-graph.md) |
+| 70 | Sunburst | [chapters/70-sunburst.md](chapters/70-sunburst.md) |
+| 71 | Tally Chart | [chapters/71-tally-chart.md](chapters/71-tally-chart.md) |
+| 72 | Timeline | [chapters/72-timeline.md](chapters/72-timeline.md) |
+| 73 | Timetable | [chapters/73-timetable.md](chapters/73-timetable.md) |
+| 74 | Tree Diagram | [chapters/74-tree-diagram.md](chapters/74-tree-diagram.md) |
+| 75 | Treemap | [chapters/75-treemap.md](chapters/75-treemap.md) |
+| 76 | Venn Diagram | [chapters/76-venn-diagram.md](chapters/76-venn-diagram.md) |
+| 77 | Violin Plot | [chapters/77-violin-plot.md](chapters/77-violin-plot.md) |
+| 78 | Word Cloud | [chapters/78-word-cloud.md](chapters/78-word-cloud.md) |
+
+---
+
+## Signature Simulations
+
+| Chapter | Topic | Simulation |
+|---------|-------|------------|
+| 18 | Part II | AI Wayback Machine |
+| 19 | Area Graph | AI Wayback Machine |
+| 20 | Bar Chart | AI Wayback Machine |
+| 21 | Box Plot | AI Wayback Machine |
+| 22 | Box and Whisker Plot | AI Wayback Machine |
+| 23 | Brainstorm | AI Wayback Machine |
+| 24 | Bubble Chart | AI Wayback Machine |
+| 25 | Bubble Map | AI Wayback Machine |
+| 26 | Bullet Graph | AI Wayback Machine |
+| 27 | Candlestick Chart | AI Wayback Machine |
+| 28 | Chord Diagram | AI Wayback Machine |
+| 29 | Choropleth | AI Wayback Machine |
+| 30 | Circle Packing | AI Wayback Machine |
+| 31 | Connection Map | AI Wayback Machine |
+| 32 | Density Plot | AI Wayback Machine |
+| 33 | Donut Chart | AI Wayback Machine |
+| 34 | Dot Map | AI Wayback Machine |
+| 35 | Dot Matrix | AI Wayback Machine |
+| 36 | Error Bars | AI Wayback Machine |
+| 37 | Flow Map | AI Wayback Machine |
+| 38 | Gantt Chart | AI Wayback Machine |
+| 39 | Heatmap | AI Wayback Machine |
+| 40 | Histogram | AI Wayback Machine |
+| 41 | Illustration Diagram | AI Wayback Machine |
+| 42 | Kagi Chart | AI Wayback Machine |
+| 43 | Line Graph | AI Wayback Machine |
+| 44 | Marimekko Chart | AI Wayback Machine |
+| 45 | Multimodal Distribution | AI Wayback Machine |
+| 46 | Multiset Bar | AI Wayback Machine |
+| 47 | Network Diagram | AI Wayback Machine |
+| 48 | Nightingale | AI Wayback Machine |
+| 49 | OHLC Chart | AI Wayback Machine |
+| 50 | Parallel Coordinates | AI Wayback Machine |
+| 51 | Parallel Sets | AI Wayback Machine |
+| 52 | Pictogram Chart | AI Wayback Machine |
+| 53 | Pie Chart | AI Wayback Machine |
+| 54 | Point Figure | AI Wayback Machine |
+| 55 | Population Pyramid | AI Wayback Machine |
+| 56 | Proportional Area | AI Wayback Machine |
+| 57 | Radar Chart | AI Wayback Machine |
+| 58 | Radial Bar | AI Wayback Machine |
+| 59 | Radial Bar Chart | AI Wayback Machine |
+| 60 | Radial Column | AI Wayback Machine |
+| 61 | Radial Column Chart | AI Wayback Machine |
+| 62 | Sankey Diagram | AI Wayback Machine |
+| 63 | Scatterplot | AI Wayback Machine |
+| 64 | Span Chart | AI Wayback Machine |
+| 65 | Spiral Plot | AI Wayback Machine |
+| 66 | Stacked Area | AI Wayback Machine |
+| 67 | Stacked Bar | AI Wayback Machine |
+| 68 | Stem Leaf | AI Wayback Machine |
+| 69 | Stream Graph | AI Wayback Machine |
+| 70 | Sunburst | AI Wayback Machine |
+| 71 | Tally Chart | AI Wayback Machine |
+| 72 | Timeline | AI Wayback Machine |
+| 73 | Timetable | AI Wayback Machine |
+| 74 | Tree Diagram | AI Wayback Machine |
+| 75 | Treemap | AI Wayback Machine |
+| 76 | Venn Diagram | AI Wayback Machine |
+| 77 | Violin Plot | AI Wayback Machine |
+| 78 | Word Cloud | AI Wayback Machine |
+
+---
+
+## About the Author
+
+**Nik Bear Brown** teaches data science, AI, and visualization at Northeastern University. His work spans machine learning, generative AI, data visualization, and the design of AI-assisted production pipelines. He is the author of the *with LLMs* textbook series and the architect of the **Brutalist** system for AI-assisted creative production — the renderer-agnostic framework whose D3 module is this book and whose other modules include *Brutalist After Effects x Claude*, *Brutalist Blender x Claude*, and *Brutalist Remotion x Claude*. The framework lives at [brutalist.art](https://www.brutalist.art/).
+
+He works in Boston and writes occasionally at his website. He is on most of the major social-media platforms under variations of his name.
+
+---
+
+## Copyright
+
+Copyright © 2026 Nik Bear Brown. All rights reserved.
+
+Published by Bear Brown, LLC.
+
+No part of this publication may be reproduced, distributed, or transmitted in any form or by any means without the prior written permission of the publisher, except in the case of brief quotations in critical reviews and certain other noncommercial uses permitted by copyright law.
+
+The visualizations referenced in this book are drawn from the Humanitarians AI D3 example set, used with permission. The pantry of working examples is available alongside the book as a companion repository.
+
+ISBN: [pending]
+
+First edition: 2026
+
