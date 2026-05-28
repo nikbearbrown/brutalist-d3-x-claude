@@ -2,7 +2,8 @@
 
 *Education Correlates With Longevity —But Population Scale Varies Dramatically*
 
-![Bubble Chart](../images/24-bubble-chart.jpg)
+![Bubble chart showing education years vs life expectancy with bubble size encoding population across eight countries](../images/24-bubble-chart.png)
+*Figure 24.1 — Education Correlates With Longevity — But Population Scale Varies Dramatically*
 
 ## What this chart is
 
@@ -47,6 +48,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/24-bubble-chart.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

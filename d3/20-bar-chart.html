@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bar Chart — AI Tool Adoption by Sector</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #121212;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-mark: #6B3520;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1a1a;
+      --color-ink: #e8e0d6;
+      --color-surface: #2a2420;
+      --color-secondary: #a0978e;
+      --color-border: #444;
+      --color-mark: #c28060;
+    }
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+  #chart-container {
+    width: 100%;
+    max-width: 900px;
+  }
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--color-ink);
+  }
+  .subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--color-secondary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .caption {
+    font-family: 'EB Garamond', serif;
+    font-size: 0.9rem;
+    color: var(--color-secondary);
+    font-style: italic;
+    margin-top: 12px;
+  }
+  .tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--color-ink);
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .axis text {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 12px;
+    fill: var(--color-ink);
+  }
+  .axis .domain { stroke: var(--color-ink); }
+  .grid line { stroke: var(--color-border); stroke-dasharray: 4,3; }
+  .grid .domain { display: none; }
+  .bar { cursor: pointer; }
+  .bar:hover { opacity: 0.85; }
+</style>
+</head>
+<body>
+<div id="chart-container">
+  <h1>AI Tool Adoption by Sector</h1>
+  <p class="subtitle">Adoption Rate (%)</p>
+  <div id="chart" role="img" aria-label="Horizontal bar chart showing AI tool adoption rates by sector"></div>
+  <p class="caption">Sorted descending. Zero baseline. Position encodes magnitude.</p>
+</div>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const fallbackData = [
+  { sector: "Technology", adoption: 87, note: "Early adopters with mature ML infrastructure" },
+  { sector: "Finance", adoption: 72, note: "Driven by algorithmic trading and fraud detection" },
+  { sector: "Healthcare", adoption: 58, note: "Growing use in diagnostics and drug discovery" },
+  { sector: "Education", adoption: 45, note: "Emerging adoption in adaptive learning platforms" },
+  { sector: "Manufacturing", adoption: 39, note: "Focused on predictive maintenance and QA" },
+  { sector: "Agriculture", adoption: 21, note: "Limited by connectivity and capital constraints" }
+];
+
+function render(data) {
+  const container = document.getElementById("chart");
+  container.innerHTML = "";
+
+  const rect = container.getBoundingClientRect();
+  const width = rect.width || 700;
+  const height = Math.min(width * 0.6, 480);
+  const margin = { top: 20, right: 60, bottom: 40, left: 120 };
+  const w = width - margin.left - margin.right;
+  const h = height - margin.top - margin.bottom;
+
+  // Sort descending
+  data.sort((a, b) => b.adoption - a.adoption);
+
+  const svg = d3.select("#chart")
+    .append("svg")
+    .attr("viewBox", `0 0 ${width} ${height}`)
+    .attr("role", "img")
+    .attr("aria-label", "Horizontal bar chart of AI tool adoption by sector");
+
+  svg.append("title").text("AI Tool Adoption by Sector");
+  svg.append("desc").text("A horizontal bar chart showing AI tool adoption rates across six industry sectors, sorted from Technology (87%) to Agriculture (21%).");
+
+  const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+  // Chart background
+  g.append("rect").attr("width", w).attr("height", h)
+    .attr("fill", "var(--color-surface)")
+    .attr("stroke", "var(--color-border)")
+    .attr("stroke-width", 0.75)
+    .attr("rx", 0);
+
+  const x = d3.scaleLinear().domain([0, 100]).range([0, w]);
+  const y = d3.scaleBand().domain(data.map(d => d.sector)).range([0, h]).padding(0.25);
+
+  // Gridlines
+  g.append("g").attr("class", "grid")
+    .call(d3.axisBottom(x).ticks(5).tickSize(h).tickFormat(""))
+    .attr("transform", "translate(0,0)");
+
+  // Zero baseline
+  g.append("line")
+    .attr("x1", 0).attr("y1", 0)
+    .attr("x2", 0).attr("y2", h)
+    .attr("stroke", "var(--color-ink)")
+    .attr("stroke-width", 1);
+
+  // Y axis (sector labels)
+  g.append("g").attr("class", "axis")
+    .call(d3.axisLeft(y).tickSize(0).tickPadding(8))
+    .select(".domain").remove();
+
+  // X axis
+  g.append("g").attr("class", "axis")
+    .attr("transform", `translate(0,${h})`)
+    .call(d3.axisBottom(x).ticks(5).tickFormat(d => d + "%"))
+    .select(".domain").attr("stroke", "var(--color-ink)");
+
+  const tooltip = d3.select("#tooltip");
+
+  // Bars
+  const maxVal = d3.max(data, d => d.adoption);
+  g.selectAll(".bar")
+    .data(data)
+    .join("rect")
+    .attr("class", "bar")
+    .attr("x", 0)
+    .attr("y", d => y(d.sector))
+    .attr("width", d => x(d.adoption))
+    .attr("height", y.bandwidth())
+    .attr("fill", "var(--color-mark)")
+    .attr("opacity", d => 0.4 + 0.6 * (d.adoption / maxVal))
+    .attr("rx", 0)
+    .attr("tabindex", 0)
+    .attr("role", "button")
+    .attr("aria-label", d => `${d.sector}: ${d.adoption}%`)
+    .on("mouseenter", function(event, d) {
+      tooltip.style("opacity", 1)
+        .html(`<strong>${d.sector}</strong><br>${d.adoption}%<br><em>${d.note}</em>`);
+    })
+    .on("mousemove", function(event) {
+      tooltip.style("left", (event.pageX + 12) + "px")
+        .style("top", (event.pageY - 28) + "px");
+    })
+    .on("mouseleave", () => tooltip.style("opacity", 0))
+    .on("focus", function(event, d) {
+      tooltip.style("opacity", 1)
+        .html(`<strong>${d.sector}</strong><br>${d.adoption}%<br><em>${d.note}</em>`);
+    })
+    .on("blur", () => tooltip.style("opacity", 0));
+
+  // Value labels at bar ends
+  g.selectAll(".value-label")
+    .data(data)
+    .join("text")
+    .attr("class", "value-label")
+    .attr("x", d => x(d.adoption) + 6)
+    .attr("y", d => y(d.sector) + y.bandwidth() / 2 + 4)
+    .attr("font-family", "'JetBrains Mono', monospace")
+    .attr("font-size", "11px")
+    .attr("fill", "var(--color-ink)")
+    .attr("font-weight", "600")
+    .text(d => d.adoption + "%");
+}
+
+d3.json("./bar-chart/data.json")
+  .then(data => render(data))
+  .catch(() => render(fallbackData));
+
+window.addEventListener("resize", () => render(fallbackData));
+</script>
+</body>
+</html>

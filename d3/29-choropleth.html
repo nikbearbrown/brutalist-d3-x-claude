@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Choropleth — GDP per Capita by Region</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #2a1a0e;
+    --mark: #6B3520;
+    --secondary: #545454;
+    --border: #D4D4D4;
+    --bg: #FFFFFF;
+    --chart-bg: #F5EFE8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  #chart { width: 100%; max-width: 960px; }
+  .tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--ink);
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<div class="tooltip" id="tooltip"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+<script>
+// World map choropleth with d3.geoEqualEarth
+// Country GDP per capita data (subset for illustration)
+const gdpData = {
+  "USA": 76300, "CAN": 52700, "MEX": 10900, "BRA": 8900, "ARG": 13600,
+  "GBR": 46500, "FRA": 44700, "DEU": 51200, "ITA": 34800, "ESP": 30500,
+  "NOR": 82800, "SWE": 55500, "CHE": 92400, "NLD": 57100, "BEL": 50100,
+  "POL": 18300, "UKR": 4500, "RUS": 12200, "TUR": 10600, "ROU": 15800,
+  "CHN": 12500, "JPN": 33800, "KOR": 32400, "IND": 2400, "IDN": 4300,
+  "THA": 7200, "VNM": 4100, "MYS": 12400, "PHL": 3500, "SGP": 65200,
+  "AUS": 64700, "NZL": 44100, "ZAF": 6100, "NGA": 2200, "KEN": 2100,
+  "EGY": 3800, "SAU": 27600, "ARE": 44300, "ISR": 52200, "PAK": 1500,
+  "BGD": 2700, "ETH": 1000, "COD": 600, "GHA": 2300, "TZA": 1200,
+  "COL": 6600, "PER": 7000, "CHL": 16300, "ECU": 6200, "VEN": 3700
+};
+
+const W = 960, H = 560;
+const margin = { top: 60, right: 32, bottom: 80, left: 32 };
+
+const svg = d3.select('#chart').append('svg')
+  .attr('viewBox', `0 0 ${W} ${H}`)
+  .attr('role', 'img')
+  .attr('aria-labelledby', 'chart-title chart-desc');
+
+svg.append('title').attr('id', 'chart-title').text('GDP per Capita by Region');
+svg.append('desc').attr('id', 'chart-desc').text('Choropleth world map showing GDP per capita using sequential luminance encoding from light to dark.');
+
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#FFFFFF');
+svg.append('rect').attr('x', 32).attr('y', 32).attr('width', W - 64).attr('height', H - 64).attr('fill', '#F5EFE8').attr('stroke', '#D4D4D4');
+
+svg.append('text')
+  .attr('x', W / 2).attr('y', 28)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, 'Times New Roman', serif")
+  .attr('font-size', 22).attr('fill', '#2a1a0e').attr('font-weight', 'bold')
+  .text('GDP per Capita by Region');
+
+svg.append('text')
+  .attr('x', W / 2).attr('y', H - 14)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, 'Times New Roman', serif")
+  .attr('font-size', 13).attr('fill', '#545454').attr('font-style', 'italic')
+  .text('Sequential luminance encodes magnitude. Equal-area projection required for geographic version.');
+
+const colorScale = d3.scaleSequentialLog()
+  .domain([500, 95000])
+  .interpolator(d3.interpolate("#F5EFE8", "#2a1a0e"));
+
+const projection = d3.geoEqualEarth()
+  .fitExtent([[margin.left + 20, margin.top + 10], [W - margin.right - 20, H - margin.bottom - 30]], { type: "Sphere" });
+
+const path = d3.geoPath().projection(projection);
+const tooltip = d3.select('#tooltip');
+
+// Load world topojson
+d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json").then(world => {
+  const countries = topojson.feature(world, world.objects.countries);
+
+  // Map numeric IDs to ISO codes (simplified lookup)
+  const idToIso = {};
+  // We'll use a numeric-to-iso map for common countries
+  const numToIso = {
+    840:"USA",124:"CAN",484:"MEX",76:"BRA",32:"ARG",826:"GBR",250:"FRA",
+    276:"DEU",380:"ITA",724:"ESP",578:"NOR",752:"SWE",756:"CHE",528:"NLD",
+    56:"BEL",616:"POL",804:"UKR",643:"RUS",792:"TUR",642:"ROU",156:"CHN",
+    392:"JPN",410:"KOR",356:"IND",360:"IDN",764:"THA",704:"VNM",458:"MYS",
+    608:"PHL",702:"SGP",36:"AUS",554:"NZL",710:"ZAF",566:"NGA",404:"KEN",
+    818:"EGY",682:"SAU",784:"ARE",376:"ISR",586:"PAK",50:"BGD",231:"ETH",
+    180:"COD",288:"GHA",834:"TZA",170:"COL",604:"PER",152:"CHL",218:"ECU",
+    862:"VEN"
+  };
+
+  const g = svg.append('g');
+
+  g.selectAll('path')
+    .data(countries.features)
+    .enter().append('path')
+    .attr('d', path)
+    .attr('fill', d => {
+      const iso = numToIso[d.id];
+      const val = iso ? gdpData[iso] : null;
+      return val ? colorScale(val) : '#E8E0D4';
+    })
+    .attr('stroke', '#D4D4D4')
+    .attr('stroke-width', 0.5)
+    .on('mouseover', function(event, d) {
+      const iso = numToIso[d.id];
+      const val = iso ? gdpData[iso] : null;
+      const name = d.properties ? d.properties.name : (iso || 'Unknown');
+      d3.select(this).attr('stroke', '#2a1a0e').attr('stroke-width', 1.5);
+      if (val) {
+        tooltip.style('opacity', 1)
+          .html(`<strong>${iso}</strong><br>GDP/capita: $${val.toLocaleString()}`);
+      }
+    })
+    .on('mousemove', function(event) {
+      tooltip.style('left', (event.pageX + 12) + 'px').style('top', (event.pageY - 28) + 'px');
+    })
+    .on('mouseout', function() {
+      d3.select(this).attr('stroke', '#D4D4D4').attr('stroke-width', 0.5);
+      tooltip.style('opacity', 0);
+    });
+
+  // Legend gradient
+  const legendW = 260, legendH = 12;
+  const legendX = W / 2 - legendW / 2;
+  const legendY = H - 60;
+
+  const defs = svg.append('defs');
+  const linearGrad = defs.append('linearGradient').attr('id', 'legendGrad');
+  const steps = 10;
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    const val = 500 * Math.pow(95000 / 500, t);
+    linearGrad.append('stop')
+      .attr('offset', `${t * 100}%`)
+      .attr('stop-color', colorScale(val));
+  }
+
+  svg.append('rect')
+    .attr('x', legendX).attr('y', legendY)
+    .attr('width', legendW).attr('height', legendH)
+    .attr('fill', 'url(#legendGrad)').attr('stroke', '#D4D4D4').attr('stroke-width', 0.5);
+
+  svg.append('text').attr('x', legendX).attr('y', legendY + 24)
+    .attr('font-family', "'IBM Plex Mono', monospace").attr('font-size', 9).attr('fill', '#545454')
+    .text('$500');
+  svg.append('text').attr('x', legendX + legendW / 2).attr('y', legendY + 24)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'IBM Plex Mono', monospace").attr('font-size', 9).attr('fill', '#545454')
+    .text('$10K');
+  svg.append('text').attr('x', legendX + legendW).attr('y', legendY + 24)
+    .attr('text-anchor', 'end')
+    .attr('font-family', "'IBM Plex Mono', monospace").attr('font-size', 9).attr('fill', '#545454')
+    .text('$95K');
+  svg.append('text').attr('x', legendX + legendW / 2).attr('y', legendY - 6)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'IBM Plex Mono', monospace").attr('font-size', 9).attr('fill', '#545454')
+    .attr('letter-spacing', '0.08em')
+    .text('GDP PER CAPITA (USD)');
+}).catch(() => {
+  // Fallback: show message if map data fails
+  svg.append('text')
+    .attr('x', W / 2).attr('y', H / 2)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'EB Garamond', Georgia, serif")
+    .attr('font-size', 16).attr('fill', '#545454')
+    .text('World map data could not be loaded. Open this file with an internet connection.');
+});
+</script>
+</body>
+</html>

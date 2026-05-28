@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dot Map — Library Density Across the US</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-ink: #2a1a0e;
+    --color-mark: #6B3520;
+    --color-red: #C8102E;
+    --color-slate: #1A3A5C;
+    --color-ochre: #C8860E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --font-body: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1410;
+      --color-surface: #2a2018;
+      --color-ink: #e8ddd0;
+      --color-mark: #c4886a;
+      --color-red: #e8525a;
+      --color-slate: #6a9cc8;
+      --color-ochre: #e8b84a;
+      --color-secondary: #a0968a;
+      --color-border: #4a4038;
+    }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+
+  h1 {
+    font-family: var(--font-body);
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-bottom: 4px;
+    text-align: center;
+  }
+
+  .subtitle {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-style: italic;
+    color: var(--color-secondary);
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  #chart-container {
+    width: 100%;
+    max-width: 960px;
+    position: relative;
+  }
+
+  svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .tooltip {
+    position: absolute;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--color-ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .dot:hover {
+    r: 5;
+    stroke: var(--color-red);
+    stroke-width: 1.5;
+  }
+</style>
+</head>
+<body>
+<h1>Library Density Across the US</h1>
+<p class="subtitle">Each dot is one library. Clustering reveals spatial pattern.</p>
+<div id="chart-container">
+  <div class="tooltip" id="tooltip"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+<script>
+const width = 960;
+const height = 600;
+const margin = { top: 32, right: 32, bottom: 48, left: 32 };
+
+const projection = d3.geoAlbersUsa()
+  .scale(1100)
+  .translate([width / 2, height / 2 - 20]);
+
+const path = d3.geoPath().projection(projection);
+
+const svg = d3.select("#chart-container")
+  .append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`);
+
+// Chart background
+svg.append("rect")
+  .attr("x", margin.left)
+  .attr("y", margin.top)
+  .attr("width", width - margin.left - margin.right)
+  .attr("height", height - margin.top - margin.bottom)
+  .attr("fill", "var(--color-surface)")
+  .attr("stroke", "var(--color-border)")
+  .attr("stroke-width", 0.75);
+
+const tooltip = d3.select("#tooltip");
+
+// Generate synthetic library data (approximate lon/lat)
+const libraries = [];
+const regions = [
+  // Northeast (dense cluster)
+  { centerLon: -73.5, centerLat: 41.5, spread: 1.5, count: 25, region: "Northeast" },
+  // Great Lakes
+  { centerLon: -84.5, centerLat: 42.5, spread: 2.5, count: 18, region: "Great Lakes" },
+  // West Coast
+  { centerLon: -121.0, centerLat: 38.0, spread: 3.0, count: 12, region: "West Coast" },
+  // South
+  { centerLon: -88.0, centerLat: 33.0, spread: 4.0, count: 12, region: "South" },
+  // Interior West (very sparse)
+  { centerLon: -110.0, centerLat: 42.0, spread: 5.0, count: 6, region: "Interior West" }
+];
+
+const rng = d3.randomNormal(0, 1);
+regions.forEach(r => {
+  for (let i = 0; i < r.count; i++) {
+    const lon = r.centerLon + rng() * r.spread * 0.7;
+    const lat = r.centerLat + rng() * r.spread * 0.4;
+    libraries.push({
+      lon, lat,
+      name: `${r.region} Library ${i + 1}`,
+      region: r.region
+    });
+  }
+});
+
+// Load US outline
+d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json").then(us => {
+  // Draw state borders
+  svg.append("path")
+    .datum(topojson.mesh(us, us.objects.states))
+    .attr("d", path)
+    .attr("fill", "none")
+    .attr("stroke", "var(--color-border)")
+    .attr("stroke-width", 0.5);
+
+  // Draw nation outline
+  svg.append("path")
+    .datum(topojson.feature(us, us.objects.nation))
+    .attr("d", path)
+    .attr("fill", "none")
+    .attr("stroke", "var(--color-border)")
+    .attr("stroke-width", 1);
+
+  // Plot dots
+  svg.selectAll(".dot")
+    .data(libraries.filter(d => projection([d.lon, d.lat])))
+    .join("circle")
+    .attr("class", "dot")
+    .attr("cx", d => { const p = projection([d.lon, d.lat]); return p ? p[0] : 0; })
+    .attr("cy", d => { const p = projection([d.lon, d.lat]); return p ? p[1] : 0; })
+    .attr("r", 3)
+    .attr("fill", "var(--color-mark)")
+    .attr("opacity", 0.7)
+    .on("mouseover", (event, d) => {
+      tooltip.style("opacity", 1)
+        .html(`<strong>${d.name}</strong><br>Region: ${d.region}`)
+        .style("left", (event.offsetX + 10) + "px")
+        .style("top", (event.offsetY - 10) + "px");
+    })
+    .on("mouseout", () => tooltip.style("opacity", 0));
+}).catch(() => {
+  // Fallback without TopoJSON
+  svg.selectAll(".dot")
+    .data(libraries.filter(d => projection([d.lon, d.lat])))
+    .join("circle")
+    .attr("class", "dot")
+    .attr("cx", d => { const p = projection([d.lon, d.lat]); return p ? p[0] : 0; })
+    .attr("cy", d => { const p = projection([d.lon, d.lat]); return p ? p[1] : 0; })
+    .attr("r", 3)
+    .attr("fill", "var(--color-mark)")
+    .attr("opacity", 0.7);
+});
+
+// Legend
+const legend = svg.append("g").attr("transform", `translate(${margin.left + 10}, ${height - margin.bottom - 20})`);
+legend.append("circle").attr("r", 3).attr("fill", "var(--color-mark)").attr("opacity", 0.7);
+legend.append("text").attr("x", 10).attr("y", 4).attr("font-family", "var(--font-body)").attr("font-size", "12px").attr("fill", "var(--color-secondary)").text("= 1 library");
+</script>
+</body>
+</html>

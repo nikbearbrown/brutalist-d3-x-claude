@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brainstorm — The Five Supervisory Capacities</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-ink: #2a1a0e;
+    --color-mark: #6B3520;
+    --color-red: #C8102E;
+    --color-slate: #1A3A5C;
+    --color-ochre: #C8860E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-fill: #F5EFE8;
+    --font-body: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    --font-sans: 'Inter', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1410;
+      --color-surface: #2a2018;
+      --color-ink: #e8ddd0;
+      --color-mark: #c4886a;
+      --color-red: #e8525a;
+      --color-slate: #6a9cc8;
+      --color-ochre: #e8b84a;
+      --color-secondary: #a0968a;
+      --color-border: #4a4038;
+      --color-fill: #2a2018;
+    }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+
+  h1 {
+    font-family: var(--font-body);
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-bottom: 4px;
+    text-align: center;
+  }
+
+  .subtitle {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-style: italic;
+    color: var(--color-secondary);
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  #chart-container {
+    width: 100%;
+    max-width: 800px;
+    position: relative;
+  }
+
+  svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .node-rect {
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .node-rect:hover, .node-rect.highlighted {
+    opacity: 0.85;
+  }
+
+  .link {
+    transition: stroke-opacity 0.2s;
+  }
+
+  .tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 10px 14px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-ink);
+    line-height: 1.5;
+    opacity: 0;
+    transition: opacity 0.15s;
+    max-width: 260px;
+  }
+
+  .tooltip .label {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+</style>
+</head>
+<body>
+<h1>Brainstorm</h1>
+<p class="subtitle">The five supervisory capacities of the Irreducibly Human framework</p>
+<div id="chart-container">
+  <div class="tooltip" id="tooltip"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const nodesData = [
+  { id: "center", label: "IRREDUCIBLY HUMAN", color: "#2a1a0e", desc: "The framework: what remains distinctively human when AI handles execution." },
+  { id: "judgment", label: "JUDGMENT", color: "var(--color-red)", desc: "Evaluating whether an AI output is coherent and credible given domain requirements." },
+  { id: "ethics", label: "ETHICS", color: "var(--color-slate)", desc: "Applying moral reasoning and value alignment that cannot be delegated to algorithms." },
+  { id: "creativity", label: "CREATIVITY", color: "var(--color-mark)", desc: "Generating novel combinations, reframing problems, and imagining what does not yet exist." },
+  { id: "empathy", label: "EMPATHY", color: "var(--color-ochre)", desc: "Understanding human needs, emotions, and context that data alone cannot capture." },
+  { id: "accountability", label: "ACCOUNTABILITY", color: "var(--color-secondary)", desc: "Taking responsibility for decisions and outcomes — the buck stops with a human." }
+];
+
+const linksData = [
+  { source: "center", target: "judgment" },
+  { source: "center", target: "ethics" },
+  { source: "center", target: "creativity" },
+  { source: "center", target: "empathy" },
+  { source: "center", target: "accountability" }
+];
+
+const container = document.getElementById('chart-container');
+const tooltip = document.getElementById('tooltip');
+
+function render() {
+  d3.select('#chart-container svg').remove();
+
+  const width = container.clientWidth;
+  const height = Math.min(width * 0.75, 600);
+  const cx = width / 2;
+  const cy = height / 2;
+  const radius = Math.min(width, height) * 0.32;
+
+  const svg = d3.select('#chart-container')
+    .append('svg')
+    .attr('viewBox', `0 0 ${width} ${height}`);
+
+  // Accessibility
+  svg.append('title').text('The Five Supervisory Capacities');
+  svg.append('desc').text('Radial mind-map showing the Irreducibly Human framework with five supervisory capacities: Judgment, Ethics, Creativity, Empathy, Accountability.');
+
+  // Background
+  svg.append('rect')
+    .attr('width', width)
+    .attr('height', height)
+    .attr('fill', 'var(--color-fill)')
+    .attr('stroke', 'var(--color-border)')
+    .attr('stroke-width', 0.75)
+    .attr('rx', 0);
+
+  // Position nodes radially
+  const outerNodes = nodesData.filter(d => d.id !== 'center');
+  const angleStep = (2 * Math.PI) / outerNodes.length;
+  const startAngle = -Math.PI / 2;
+
+  const positions = {};
+  positions["center"] = { x: cx, y: cy };
+  outerNodes.forEach((node, i) => {
+    const angle = startAngle + i * angleStep;
+    positions[node.id] = {
+      x: cx + radius * Math.cos(angle),
+      y: cy + radius * Math.sin(angle)
+    };
+  });
+
+  // Draw links
+  linksData.forEach(link => {
+    svg.append('line')
+      .attr('class', 'link')
+      .attr('x1', positions[link.source].x)
+      .attr('y1', positions[link.source].y)
+      .attr('x2', positions[link.target].x)
+      .attr('y2', positions[link.target].y)
+      .attr('stroke', 'var(--color-border)')
+      .attr('stroke-width', 1.5)
+      .attr('data-source', link.source)
+      .attr('data-target', link.target);
+  });
+
+  // Draw nodes
+  const nodeW = 140;
+  const nodeH = 34;
+  const centerW = 160;
+  const centerH = 40;
+
+  nodesData.forEach(node => {
+    const pos = positions[node.id];
+    const isCenter = node.id === 'center';
+    const w = isCenter ? centerW : nodeW;
+    const h = isCenter ? centerH : nodeH;
+
+    const g = svg.append('g')
+      .attr('tabindex', 0)
+      .attr('role', 'graphics-symbol')
+      .attr('aria-label', node.label)
+      .attr('cursor', 'pointer');
+
+    g.append('rect')
+      .attr('class', 'node-rect')
+      .attr('x', pos.x - w / 2)
+      .attr('y', pos.y - h / 2)
+      .attr('width', w)
+      .attr('height', h)
+      .attr('fill', node.color)
+      .attr('rx', 0);
+
+    g.append('text')
+      .attr('x', pos.x)
+      .attr('y', pos.y + 4)
+      .attr('text-anchor', 'middle')
+      .attr('font-family', "var(--font-mono)")
+      .attr('font-size', isCenter ? '11px' : '12px')
+      .attr('letter-spacing', '0.08em')
+      .attr('fill', '#FFFFFF')
+      .text(node.label);
+
+    g.on('mouseenter', (event) => {
+      // Highlight connected links
+      svg.selectAll('.link').attr('stroke-opacity', 0.2);
+      svg.selectAll(`.link[data-source="${node.id}"], .link[data-target="${node.id}"]`)
+        .attr('stroke-opacity', 1)
+        .attr('stroke', 'var(--color-ink)')
+        .attr('stroke-width', 2.5);
+
+      tooltip.innerHTML = `<div class="label">${node.label}</div><div>${node.desc}</div>`;
+      tooltip.style.opacity = 1;
+      moveTooltip(event);
+    })
+    .on('mousemove', moveTooltip)
+    .on('mouseleave', () => {
+      svg.selectAll('.link')
+        .attr('stroke-opacity', 1)
+        .attr('stroke', 'var(--color-border)')
+        .attr('stroke-width', 1.5);
+      tooltip.style.opacity = 0;
+    })
+    .on('focus', (event) => {
+      tooltip.innerHTML = `<div class="label">${node.label}</div><div>${node.desc}</div>`;
+      tooltip.style.opacity = 1;
+    })
+    .on('blur', () => { tooltip.style.opacity = 0; });
+  });
+}
+
+function moveTooltip(event) {
+  const rect = container.getBoundingClientRect();
+  let x = event.clientX - rect.left + 16;
+  let y = event.clientY - rect.top - 10;
+  if (x + 260 > rect.width) x = x - 280;
+  tooltip.style.left = x + 'px';
+  tooltip.style.top = y + 'px';
+}
+
+render();
+window.addEventListener('resize', render);
+</script>
+</body>
+</html>

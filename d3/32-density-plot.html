@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Density Plot — Response Delay by Crisis Type</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-ink: #2a1a0e;
+    --color-mark: #6B3520;
+    --color-red: #C8102E;
+    --color-slate: #1A3A5C;
+    --color-ochre: #C8860E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --font-body: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1410;
+      --color-surface: #2a2018;
+      --color-ink: #e8ddd0;
+      --color-mark: #c4886a;
+      --color-red: #e8525a;
+      --color-slate: #6a9cc8;
+      --color-ochre: #e8b84a;
+      --color-secondary: #a0968a;
+      --color-border: #4a4038;
+    }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+
+  h1 {
+    font-family: var(--font-body);
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-bottom: 4px;
+    text-align: center;
+  }
+
+  .subtitle {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-style: italic;
+    color: var(--color-secondary);
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  #chart-container {
+    width: 100%;
+    max-width: 960px;
+    position: relative;
+  }
+
+  svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .tooltip {
+    position: absolute;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--color-ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .controls {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+  }
+
+  .controls button {
+    padding: 4px 12px;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+  }
+
+  .controls button:hover {
+    background: var(--color-surface);
+  }
+
+  .controls span {
+    line-height: 28px;
+  }
+</style>
+</head>
+<body>
+<h1>Response Delay by Crisis Type</h1>
+<p class="subtitle">Conflict shows bimodal pattern. Displacement skews right.</p>
+<div class="controls">
+  <span>BANDWIDTH:</span>
+  <button id="bw-minus">BW &minus;</button>
+  <span id="bw-value">2.5</span>
+  <button id="bw-plus">BW +</button>
+</div>
+<div id="chart-container">
+  <div class="tooltip" id="tooltip"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script>
+// Generate synthetic data
+function generateConflictData() {
+  const data = [];
+  // Bimodal: cluster around day 5 and day 25
+  for (let i = 0; i < 40; i++) data.push(d3.randomNormal(5, 2.5)());
+  for (let i = 0; i < 35; i++) data.push(d3.randomNormal(25, 4)());
+  return data.filter(d => d >= 0 && d <= 45);
+}
+
+function generateDisplacementData() {
+  const data = [];
+  // Right-skewed: peak at day 8, long tail
+  for (let i = 0; i < 80; i++) {
+    const v = d3.randomGamma(2.5, 3.5)();
+    data.push(v);
+  }
+  return data.filter(d => d >= 0 && d <= 45);
+}
+
+const conflictData = generateConflictData();
+const displacementData = generateDisplacementData();
+
+const width = 960;
+const height = 500;
+const margin = { top: 40, right: 40, bottom: 60, left: 70 };
+const innerW = width - margin.left - margin.right;
+const innerH = height - margin.top - margin.bottom;
+
+const svg = d3.select("#chart-container")
+  .append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`);
+
+// Chart background
+svg.append("rect")
+  .attr("x", margin.left)
+  .attr("y", margin.top)
+  .attr("width", innerW)
+  .attr("height", innerH)
+  .attr("fill", "var(--color-surface)")
+  .attr("stroke", "var(--color-border)")
+  .attr("stroke-width", 0.75);
+
+const x = d3.scaleLinear().domain([0, 45]).range([margin.left, width - margin.right]);
+const y = d3.scaleLinear().range([height - margin.bottom, margin.top]);
+
+const g = svg.append("g");
+
+// Axes
+const xAxis = g.append("g")
+  .attr("transform", `translate(0,${height - margin.bottom})`)
+  .call(d3.axisBottom(x).ticks(9).tickFormat(d => d + "d"))
+  .call(g => g.select(".domain").attr("stroke", "var(--color-secondary)"))
+  .call(g => g.selectAll(".tick line").attr("stroke", "var(--color-border)"))
+  .call(g => g.selectAll(".tick text").attr("fill", "var(--color-secondary)").attr("font-family", "var(--font-body)").attr("font-size", "12px"));
+
+// X-axis label
+svg.append("text")
+  .attr("x", width / 2)
+  .attr("y", height - 10)
+  .attr("text-anchor", "middle")
+  .attr("font-family", "var(--font-mono)")
+  .attr("font-size", "10px")
+  .attr("letter-spacing", "0.08em")
+  .attr("fill", "var(--color-secondary)")
+  .text("RESPONSE DELAY (DAYS)");
+
+// Y-axis label
+svg.append("text")
+  .attr("transform", `rotate(-90)`)
+  .attr("x", -(height / 2))
+  .attr("y", 18)
+  .attr("text-anchor", "middle")
+  .attr("font-family", "var(--font-mono)")
+  .attr("font-size", "10px")
+  .attr("letter-spacing", "0.08em")
+  .attr("fill", "var(--color-secondary)")
+  .text("DENSITY");
+
+// KDE function (Epanechnikov kernel)
+function epanechnikov(bandwidth) {
+  return x => Math.abs(x /= bandwidth) <= 1 ? 0.75 * (1 - x * x) / bandwidth : 0;
+}
+
+function kde(kernel, thresholds, data) {
+  return thresholds.map(t => [t, d3.mean(data, d => kernel(t - d))]);
+}
+
+let bandwidth = 2.5;
+const thresholds = x.ticks(200);
+
+function update() {
+  const kernel = epanechnikov(bandwidth);
+  const conflictDensity = kde(kernel, thresholds, conflictData);
+  const displacementDensity = kde(kernel, thresholds, displacementData);
+
+  const maxY = d3.max([...conflictDensity, ...displacementDensity], d => d[1]);
+  y.domain([0, maxY * 1.1]);
+
+  // Update y-axis
+  g.selectAll(".y-axis").remove();
+  g.append("g")
+    .attr("class", "y-axis")
+    .attr("transform", `translate(${margin.left},0)`)
+    .call(d3.axisLeft(y).ticks(5).tickFormat(d3.format(".3f")))
+    .call(g => g.select(".domain").attr("stroke", "var(--color-secondary)"))
+    .call(g => g.selectAll(".tick line").attr("stroke", "var(--color-border)"))
+    .call(g => g.selectAll(".tick text").attr("fill", "var(--color-secondary)").attr("font-family", "var(--font-body)").attr("font-size", "11px"));
+
+  const area = d3.area()
+    .x(d => x(d[0]))
+    .y0(y(0))
+    .y1(d => y(d[1]))
+    .curve(d3.curveBasis);
+
+  const line = d3.line()
+    .x(d => x(d[0]))
+    .y(d => y(d[1]))
+    .curve(d3.curveBasis);
+
+  // Remove old paths
+  g.selectAll(".density-area").remove();
+  g.selectAll(".density-line").remove();
+
+  // Conflict area
+  g.append("path")
+    .attr("class", "density-area")
+    .datum(conflictDensity)
+    .attr("d", area)
+    .attr("fill", "var(--color-red)")
+    .attr("fill-opacity", 0.3);
+
+  g.append("path")
+    .attr("class", "density-line")
+    .datum(conflictDensity)
+    .attr("d", line)
+    .attr("fill", "none")
+    .attr("stroke", "var(--color-red)")
+    .attr("stroke-width", 2);
+
+  // Displacement area
+  g.append("path")
+    .attr("class", "density-area")
+    .datum(displacementDensity)
+    .attr("d", area)
+    .attr("fill", "var(--color-slate)")
+    .attr("fill-opacity", 0.3);
+
+  g.append("path")
+    .attr("class", "density-line")
+    .datum(displacementDensity)
+    .attr("d", line)
+    .attr("fill", "none")
+    .attr("stroke", "var(--color-slate)")
+    .attr("stroke-width", 2);
+
+  d3.select("#bw-value").text(bandwidth.toFixed(1));
+}
+
+update();
+
+// Legend
+const legend = svg.append("g").attr("transform", `translate(${width - margin.right - 140}, ${margin.top + 15})`);
+legend.append("rect").attr("width", 130).attr("height", 50).attr("fill", "var(--color-bg)").attr("stroke", "var(--color-border)").attr("stroke-width", 0.5);
+legend.append("rect").attr("x", 8).attr("y", 10).attr("width", 14).attr("height", 10).attr("fill", "var(--color-red)").attr("fill-opacity", 0.3).attr("stroke", "var(--color-red)");
+legend.append("text").attr("x", 28).attr("y", 19).attr("font-family", "var(--font-body)").attr("font-size", "12px").attr("fill", "var(--color-ink)").text("Conflict");
+legend.append("rect").attr("x", 8).attr("y", 28).attr("width", 14).attr("height", 10).attr("fill", "var(--color-slate)").attr("fill-opacity", 0.3).attr("stroke", "var(--color-slate)");
+legend.append("text").attr("x", 28).attr("y", 37).attr("font-family", "var(--font-body)").attr("font-size", "12px").attr("fill", "var(--color-ink)").text("Displacement");
+
+// Tooltip overlay
+const bisect = d3.bisector(d => d[0]).left;
+svg.append("rect")
+  .attr("x", margin.left)
+  .attr("y", margin.top)
+  .attr("width", innerW)
+  .attr("height", innerH)
+  .attr("fill", "none")
+  .attr("pointer-events", "all")
+  .on("mousemove", function(event) {
+    const [mx] = d3.pointer(event);
+    const day = x.invert(mx);
+    if (day < 0 || day > 45) return;
+    const kernel = epanechnikov(bandwidth);
+    const cDensity = d3.mean(conflictData, d => kernel(day - d)) || 0;
+    const dDensity = d3.mean(displacementData, d => kernel(day - d)) || 0;
+    d3.select("#tooltip")
+      .style("opacity", 1)
+      .html(`<strong>Day ${day.toFixed(1)}</strong><br>Conflict: ${cDensity.toFixed(4)}<br>Displacement: ${dDensity.toFixed(4)}`)
+      .style("left", (event.offsetX + 12) + "px")
+      .style("top", (event.offsetY - 12) + "px");
+  })
+  .on("mouseout", () => d3.select("#tooltip").style("opacity", 0));
+
+// Bandwidth controls
+d3.select("#bw-minus").on("click", () => { bandwidth = Math.max(0.5, bandwidth - 0.5); update(); });
+d3.select("#bw-plus").on("click", () => { bandwidth = Math.min(10, bandwidth + 0.5); update(); });
+</script>
+</body>
+</html>

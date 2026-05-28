@@ -1,0 +1,125 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 420">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap');
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect x="0" y="0" width="700" height="420" fill="#FFFFFF" rx="0"/>
+
+  <!-- Title -->
+  <text x="350" y="28" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="18" font-weight="600" fill="#2a1a0e">Education Correlates With Longevity</text>
+
+  <!-- Chart area -->
+  <!-- X: education 4-16, Y: life expectancy 55-85 -->
+  <!-- Chart rect: x=100, y=48, w=520, h=320 -->
+  <rect x="100" y="48" width="520" height="320" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="0.75" rx="0"/>
+
+  <!-- X-axis: Years of Education 4-16 -->
+  <!-- x(val) = 100 + (val - 4) * (520/12) = 100 + (val-4) * 43.33 -->
+  <!-- Y-axis: Life Expectancy 55-85 -->
+  <!-- y(val) = 368 - (val - 55) * (320/30) = 368 - (val-55) * 10.67 -->
+
+  <!-- X-axis line -->
+  <line x1="100" y1="368" x2="620" y2="368" stroke="#2a1a0e" stroke-width="0.75"/>
+  <!-- Y-axis line -->
+  <line x1="100" y1="48" x2="100" y2="368" stroke="#2a1a0e" stroke-width="0.75"/>
+
+  <!-- X-axis ticks and labels -->
+  <line x1="100" y1="368" x2="100" y2="373" stroke="#2a1a0e" stroke-width="0.75"/>
+  <text x="100" y="385" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" fill="#2a1a0e">4</text>
+
+  <line x1="187" y1="368" x2="187" y2="373" stroke="#2a1a0e" stroke-width="0.75"/>
+  <text x="187" y="385" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" fill="#2a1a0e">6</text>
+
+  <line x1="273" y1="368" x2="273" y2="373" stroke="#2a1a0e" stroke-width="0.75"/>
+  <text x="273" y="385" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" fill="#2a1a0e">8</text>
+
+  <line x1="360" y1="368" x2="360" y2="373" stroke="#2a1a0e" stroke-width="0.75"/>
+  <text x="360" y="385" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" fill="#2a1a0e">10</text>
+
+  <line x1="447" y1="368" x2="447" y2="373" stroke="#2a1a0e" stroke-width="0.75"/>
+  <text x="447" y="385" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" fill="#2a1a0e">12</text>
+
+  <line x1="533" y1="368" x2="533" y2="373" stroke="#2a1a0e" stroke-width="0.75"/>
+  <text x="533" y="385" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" fill="#2a1a0e">14</text>
+
+  <line x1="620" y1="368" x2="620" y2="373" stroke="#2a1a0e" stroke-width="0.75"/>
+  <text x="620" y="385" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" fill="#2a1a0e">16</text>
+
+  <!-- Y-axis ticks and labels -->
+  <line x1="95" y1="368" x2="100" y2="368" stroke="#2a1a0e" stroke-width="0.75"/>
+  <text x="90" y="372" text-anchor="end" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" fill="#2a1a0e">55</text>
+
+  <line x1="95" y1="315" x2="100" y2="315" stroke="#2a1a0e" stroke-width="0.75"/>
+  <text x="90" y="319" text-anchor="end" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" fill="#2a1a0e">60</text>
+
+  <line x1="95" y1="261" x2="100" y2="261" stroke="#2a1a0e" stroke-width="0.75"/>
+  <text x="90" y="265" text-anchor="end" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" fill="#2a1a0e">65</text>
+
+  <line x1="95" y1="208" x2="100" y2="208" stroke="#2a1a0e" stroke-width="0.75"/>
+  <text x="90" y="212" text-anchor="end" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" fill="#2a1a0e">70</text>
+
+  <line x1="95" y1="155" x2="100" y2="155" stroke="#2a1a0e" stroke-width="0.75"/>
+  <text x="90" y="159" text-anchor="end" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" fill="#2a1a0e">75</text>
+
+  <line x1="95" y1="101" x2="100" y2="101" stroke="#2a1a0e" stroke-width="0.75"/>
+  <text x="90" y="105" text-anchor="end" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" fill="#2a1a0e">80</text>
+
+  <line x1="95" y1="48" x2="100" y2="48" stroke="#2a1a0e" stroke-width="0.75"/>
+  <text x="90" y="52" text-anchor="end" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" fill="#2a1a0e">85</text>
+
+  <!-- X-axis label -->
+  <text x="360" y="403" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" letter-spacing="0.08em" fill="#545454">YEARS OF EDUCATION</text>
+
+  <!-- Y-axis label -->
+  <text x="38" y="208" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" letter-spacing="0.08em" fill="#545454" transform="rotate(-90, 38, 208)">LIFE EXPECTANCY</text>
+
+  <!-- Gridlines (subtle) -->
+  <line x1="100" y1="315" x2="620" y2="315" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+  <line x1="100" y1="261" x2="620" y2="261" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+  <line x1="100" y1="208" x2="620" y2="208" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+  <line x1="100" y1="155" x2="620" y2="155" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+  <line x1="100" y1="101" x2="620" y2="101" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+
+  <!-- Bubbles -->
+  <!-- Population sizes: very large=32, large=24, medium=16, small=10 (radius, scaled down to fit) -->
+  <!-- x(edu) = 100 + (edu-4) * 43.33 -->
+  <!-- y(life) = 368 - (life-55) * 10.67 -->
+
+  <!-- Nigeria: (5, 60, very large) x=143, y=315 -->
+  <circle cx="143" cy="315" r="32" fill="#6B3520" opacity="0.6" stroke="#2a1a0e" stroke-width="1"/>
+  <text x="143" y="356" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="9" fill="#2a1a0e">Nigeria</text>
+
+  <!-- India: (6, 64, very large) x=187, y=272 -->
+  <circle cx="187" cy="272" r="32" fill="#6B3520" opacity="0.6" stroke="#2a1a0e" stroke-width="1"/>
+  <text x="187" y="312" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="9" fill="#2a1a0e">India</text>
+
+  <!-- Brazil: (8, 69, large) x=273, y=218 -->
+  <circle cx="273" cy="218" r="24" fill="#6B3520" opacity="0.6" stroke="#2a1a0e" stroke-width="1"/>
+  <text x="273" y="250" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="9" fill="#2a1a0e">Brazil</text>
+
+  <!-- Mexico: (10, 74, medium) x=360, y=165 -->
+  <circle cx="360" cy="165" r="16" fill="#6B3520" opacity="0.6" stroke="#2a1a0e" stroke-width="1"/>
+  <text x="360" y="188" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="9" fill="#2a1a0e">Mexico</text>
+
+  <!-- UK: (12, 78, small) x=447, y=122 -->
+  <circle cx="447" cy="122" r="10" fill="#6B3520" opacity="0.6" stroke="#2a1a0e" stroke-width="1"/>
+  <text x="447" y="140" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="9" fill="#2a1a0e">UK</text>
+
+  <!-- Germany: (13, 80, medium) x=490, y=101 -->
+  <circle cx="490" cy="101" r="16" fill="#6B3520" opacity="0.6" stroke="#2a1a0e" stroke-width="1"/>
+  <text x="490" y="124" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="9" fill="#2a1a0e">Germany</text>
+
+  <!-- Japan: (14, 82, large) x=533, y=80 -->
+  <circle cx="533" cy="80" r="24" fill="#6B3520" opacity="0.6" stroke="#2a1a0e" stroke-width="1"/>
+  <text x="533" y="115" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="9" fill="#2a1a0e">Japan</text>
+
+  <!-- Australia: (15, 81, medium) x=577, y=91 -->
+  <circle cx="577" cy="91" r="16" fill="#6B3520" opacity="0.6" stroke="#2a1a0e" stroke-width="1"/>
+  <text x="577" y="114" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="9" fill="#2a1a0e">Australia</text>
+
+  <!-- Caption -->
+  <text x="350" y="416" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" font-style="italic" fill="#545454">Bubble area encodes population. d3.scaleSqrt required.</text>
+</svg>

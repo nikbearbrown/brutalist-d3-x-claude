@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Area Graph — Research Hours Climb Through the Year</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #121212;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-mark: #6B3520;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1a1a;
+      --color-ink: #e8e0d6;
+      --color-surface: #2a2420;
+      --color-secondary: #a0978e;
+      --color-border: #444;
+      --color-mark: #c28060;
+    }
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+  #chart-container {
+    width: 100%;
+    max-width: 900px;
+  }
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--color-ink);
+  }
+  .subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--color-secondary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .caption {
+    font-family: 'EB Garamond', serif;
+    font-size: 0.9rem;
+    color: var(--color-secondary);
+    font-style: italic;
+    margin-top: 12px;
+  }
+  .tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--color-ink);
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .axis text {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 12px;
+    fill: var(--color-ink);
+  }
+  .axis .domain { stroke: var(--color-ink); }
+  .grid line { stroke: var(--color-border); stroke-dasharray: 4,3; }
+  .grid .domain { display: none; }
+</style>
+</head>
+<body>
+<div id="chart-container">
+  <h1>Research Hours Climb Through the Year</h1>
+  <p class="subtitle">Monthly Research Hours</p>
+  <div id="chart" role="img" aria-label="Area graph showing monthly research hours climbing through the year"></div>
+  <p class="caption">Area fill encodes cumulative weight — zero baseline required.</p>
+</div>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const fallbackData = [
+  { month: "Jan", hours: 40 },
+  { month: "Feb", hours: 55 },
+  { month: "Mar", hours: 50 },
+  { month: "Apr", hours: 70 },
+  { month: "May", hours: 85 },
+  { month: "Jun", hours: 95 },
+  { month: "Jul", hours: 110 },
+  { month: "Aug", hours: 120 },
+  { month: "Sep", hours: 105 },
+  { month: "Oct", hours: 130 },
+  { month: "Nov", hours: 145 },
+  { month: "Dec", hours: 160 }
+];
+
+function render(data) {
+  const container = document.getElementById("chart");
+  container.innerHTML = "";
+
+  const rect = container.getBoundingClientRect();
+  const width = rect.width || 700;
+  const height = Math.min(width * 0.6, 480);
+  const margin = { top: 20, right: 32, bottom: 50, left: 56 };
+  const w = width - margin.left - margin.right;
+  const h = height - margin.top - margin.bottom;
+
+  const svg = d3.select("#chart")
+    .append("svg")
+    .attr("viewBox", `0 0 ${width} ${height}`)
+    .attr("role", "img")
+    .attr("aria-label", "Area chart of monthly research hours");
+
+  svg.append("title").text("Research Hours Climb Through the Year");
+  svg.append("desc").text("An area chart showing 12 months of research hours with a rising trend, using filled area to encode cumulative weight.");
+
+  const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+  // Chart background
+  g.append("rect").attr("width", w).attr("height", h)
+    .attr("fill", "var(--color-surface)")
+    .attr("stroke", "var(--color-border)")
+    .attr("stroke-width", 0.75)
+    .attr("rx", 0);
+
+  const x = d3.scalePoint().domain(data.map(d => d.month)).range([0, w]).padding(0.05);
+  const y = d3.scaleLinear().domain([0, 200]).range([h, 0]);
+
+  // Gridlines
+  g.append("g").attr("class", "grid")
+    .call(d3.axisLeft(y).ticks(5).tickSize(-w).tickFormat(""));
+
+  // X axis
+  g.append("g").attr("class", "axis")
+    .attr("transform", `translate(0,${h})`)
+    .call(d3.axisBottom(x).tickSize(0))
+    .select(".domain").attr("stroke", "var(--color-ink)");
+
+  // Y axis
+  g.append("g").attr("class", "axis")
+    .call(d3.axisLeft(y).ticks(5))
+    .select(".domain").attr("stroke", "var(--color-ink)");
+
+  // Area
+  const area = d3.area()
+    .x(d => x(d.month))
+    .y0(h)
+    .y1(d => y(d.hours))
+    .curve(d3.curveMonotoneX);
+
+  g.append("path")
+    .datum(data)
+    .attr("d", area)
+    .attr("fill", "var(--color-mark)")
+    .attr("opacity", 0.4);
+
+  // Line
+  const line = d3.line()
+    .x(d => x(d.month))
+    .y(d => y(d.hours))
+    .curve(d3.curveMonotoneX);
+
+  g.append("path")
+    .datum(data)
+    .attr("d", line)
+    .attr("fill", "none")
+    .attr("stroke", "var(--color-mark)")
+    .attr("stroke-width", 1.5);
+
+  // Dots and interaction
+  const tooltip = d3.select("#tooltip");
+
+  g.selectAll(".dot")
+    .data(data)
+    .join("circle")
+    .attr("class", "dot")
+    .attr("cx", d => x(d.month))
+    .attr("cy", d => y(d.hours))
+    .attr("r", 4)
+    .attr("fill", "var(--color-mark)")
+    .attr("tabindex", 0)
+    .attr("role", "button")
+    .attr("aria-label", d => `${d.month}: ${d.hours} hours`)
+    .on("mouseenter", function(event, d) {
+      tooltip.style("opacity", 1)
+        .html(`<strong>${d.month}</strong><br>${d.hours} hrs`);
+    })
+    .on("mousemove", function(event) {
+      tooltip.style("left", (event.pageX + 12) + "px")
+        .style("top", (event.pageY - 28) + "px");
+    })
+    .on("mouseleave", () => tooltip.style("opacity", 0))
+    .on("focus", function(event, d) {
+      tooltip.style("opacity", 1)
+        .html(`<strong>${d.month}</strong><br>${d.hours} hrs`)
+        .style("left", (x(d.month) + margin.left + 12) + "px")
+        .style("top", (y(d.hours) + margin.top - 28) + "px");
+    })
+    .on("blur", () => tooltip.style("opacity", 0));
+}
+
+// Try fetching data; fall back to inline
+d3.json("./area-graph/data.json")
+  .then(data => render(data))
+  .catch(() => render(fallbackData));
+
+window.addEventListener("resize", () => render(fallbackData));
+</script>
+</body>
+</html>

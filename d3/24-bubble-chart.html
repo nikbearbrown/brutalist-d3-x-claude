@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bubble Chart — Education Correlates With Longevity</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-ink: #2a1a0e;
+    --color-mark: #6B3520;
+    --color-red: #C8102E;
+    --color-slate: #1A3A5C;
+    --color-ochre: #C8860E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-fill: #F5EFE8;
+    --font-body: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    --font-sans: 'Inter', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1410;
+      --color-surface: #2a2018;
+      --color-ink: #e8ddd0;
+      --color-mark: #c4886a;
+      --color-red: #e8525a;
+      --color-slate: #6a9cc8;
+      --color-ochre: #e8b84a;
+      --color-secondary: #a0968a;
+      --color-border: #4a4038;
+      --color-fill: #2a2018;
+    }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+
+  h1 {
+    font-family: var(--font-body);
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-bottom: 4px;
+    text-align: center;
+  }
+
+  .subtitle {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-style: italic;
+    color: var(--color-secondary);
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  #chart-container {
+    width: 100%;
+    max-width: 900px;
+    position: relative;
+  }
+
+  svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .bubble {
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .bubble:hover {
+    opacity: 0.9;
+  }
+
+  .tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 10px 14px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-ink);
+    line-height: 1.6;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .tooltip .label {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+
+  .axis text {
+    font-family: var(--font-body);
+    font-size: 12px;
+    fill: var(--color-ink);
+  }
+
+  .axis-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    fill: var(--color-secondary);
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+<h1>Bubble Chart</h1>
+<p class="subtitle">Education Correlates With Longevity — But Population Scale Varies Dramatically</p>
+<div id="chart-container">
+  <div class="tooltip" id="tooltip"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const data = [
+  { country: "Japan", education: 14, lifeExpectancy: 82, population: 125 },
+  { country: "Germany", education: 13, lifeExpectancy: 80, population: 83 },
+  { country: "UK", education: 12, lifeExpectancy: 78, population: 67 },
+  { country: "Australia", education: 15, lifeExpectancy: 81, population: 26 },
+  { country: "India", education: 6, lifeExpectancy: 62, population: 1420 },
+  { country: "Brazil", education: 8, lifeExpectancy: 68, population: 215 },
+  { country: "Mexico", education: 10, lifeExpectancy: 74, population: 128 },
+  { country: "Nigeria", education: 5, lifeExpectancy: 58, population: 220 }
+];
+
+const container = document.getElementById('chart-container');
+const tooltip = document.getElementById('tooltip');
+
+function render() {
+  d3.select('#chart-container svg').remove();
+
+  const width = container.clientWidth;
+  const height = Math.min(width * 0.65, 560);
+  const margin = { top: 32, right: 48, bottom: 64, left: 72 };
+  const innerW = width - margin.left - margin.right;
+  const innerH = height - margin.top - margin.bottom;
+
+  const svg = d3.select('#chart-container')
+    .append('svg')
+    .attr('viewBox', `0 0 ${width} ${height}`);
+
+  svg.append('title').text('Bubble Chart: Education vs Life Expectancy');
+  svg.append('desc').text('Bubble chart showing education years vs life expectancy with bubble size encoding population across eight countries.');
+
+  const g = svg.append('g')
+    .attr('transform', `translate(${margin.left},${margin.top})`);
+
+  // Chart area
+  g.append('rect')
+    .attr('width', innerW)
+    .attr('height', innerH)
+    .attr('fill', 'var(--color-fill)')
+    .attr('stroke', 'var(--color-border)')
+    .attr('stroke-width', 0.75)
+    .attr('rx', 0);
+
+  const x = d3.scaleLinear().domain([4, 16]).range([0, innerW]);
+  const y = d3.scaleLinear().domain([55, 85]).range([innerH, 0]);
+  const r = d3.scaleSqrt().domain([0, 1420]).range([0, Math.min(innerW, innerH) * 0.12]);
+
+  // Gridlines
+  g.selectAll('.grid-y')
+    .data(y.ticks(6))
+    .join('line')
+    .attr('x1', 0).attr('x2', innerW)
+    .attr('y1', d => y(d)).attr('y2', d => y(d))
+    .attr('stroke', 'var(--color-border)')
+    .attr('stroke-width', 0.5)
+    .attr('stroke-dasharray', '3,3');
+
+  // Y-axis
+  const yAxis = g.append('g').attr('class', 'axis')
+    .call(d3.axisLeft(y).ticks(6));
+  yAxis.select('.domain').attr('stroke', 'var(--color-ink)').attr('stroke-width', 0.75);
+  yAxis.selectAll('.tick line').attr('stroke', 'var(--color-ink)').attr('stroke-width', 0.5);
+
+  // X-axis
+  const xAxis = g.append('g').attr('class', 'axis')
+    .attr('transform', `translate(0,${innerH})`)
+    .call(d3.axisBottom(x).ticks(6).tickFormat(d3.format('d')));
+  xAxis.select('.domain').attr('stroke', 'var(--color-ink)').attr('stroke-width', 0.75);
+  xAxis.selectAll('.tick line').attr('stroke', 'var(--color-ink)').attr('stroke-width', 0.5);
+
+  // Axis labels
+  g.append('text')
+    .attr('class', 'axis-label')
+    .attr('x', innerW / 2)
+    .attr('y', innerH + 48)
+    .attr('text-anchor', 'middle')
+    .text('YEARS OF EDUCATION');
+
+  g.append('text')
+    .attr('class', 'axis-label')
+    .attr('x', -innerH / 2)
+    .attr('y', -52)
+    .attr('transform', 'rotate(-90)')
+    .attr('text-anchor', 'middle')
+    .text('LIFE EXPECTANCY');
+
+  // Sort largest first so small bubbles render on top
+  const sorted = [...data].sort((a, b) => b.population - a.population);
+
+  sorted.forEach(d => {
+    const bg = g.append('g')
+      .attr('class', 'bubble')
+      .attr('tabindex', 0)
+      .attr('role', 'graphics-symbol')
+      .attr('aria-label', `${d.country}: Education ${d.education}, Life Exp ${d.lifeExpectancy}, Pop ${d.population}M`);
+
+    bg.append('circle')
+      .attr('cx', x(d.education))
+      .attr('cy', y(d.lifeExpectancy))
+      .attr('r', r(d.population))
+      .attr('fill', 'var(--color-mark)')
+      .attr('opacity', 0.6)
+      .attr('stroke', 'var(--color-ink)')
+      .attr('stroke-width', 1);
+
+    // Label
+    const labelX = x(d.education) + r(d.population) + 6;
+    const labelY = y(d.lifeExpectancy) + 4;
+    bg.append('text')
+      .attr('x', labelX > innerW - 50 ? x(d.education) - r(d.population) - 6 : labelX)
+      .attr('y', labelY)
+      .attr('text-anchor', labelX > innerW - 50 ? 'end' : 'start')
+      .attr('font-family', 'var(--font-body)')
+      .attr('font-size', '11px')
+      .attr('fill', 'var(--color-ink)')
+      .text(d.country);
+
+    bg.on('mouseenter', (event) => {
+      tooltip.innerHTML = `
+        <div class="label">${d.country}</div>
+        <div>Education: ${d.education} years</div>
+        <div>Life Expectancy: ${d.lifeExpectancy} years</div>
+        <div>Population: ${d.population}M</div>
+      `;
+      tooltip.style.opacity = 1;
+      moveTooltip(event);
+    })
+    .on('mousemove', moveTooltip)
+    .on('mouseleave', () => { tooltip.style.opacity = 0; })
+    .on('focus', (event) => {
+      tooltip.innerHTML = `<div class="label">${d.country}</div><div>Education: ${d.education} yrs | Life Exp: ${d.lifeExpectancy} | Pop: ${d.population}M</div>`;
+      tooltip.style.opacity = 1;
+    })
+    .on('blur', () => { tooltip.style.opacity = 0; });
+  });
+}
+
+function moveTooltip(event) {
+  const rect = container.getBoundingClientRect();
+  let xPos = event.clientX - rect.left + 16;
+  let yPos = event.clientY - rect.top - 10;
+  if (xPos + 220 > rect.width) xPos = xPos - 240;
+  tooltip.style.left = xPos + 'px';
+  tooltip.style.top = yPos + 'px';
+}
+
+render();
+window.addEventListener('resize', render);
+</script>
+</body>
+</html>

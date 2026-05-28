@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chord Diagram — Inter-Agency Coordination Strength</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #2a1a0e;
+    --mark: #6B3520;
+    --red: #C8102E;
+    --slate: #1A3A5C;
+    --ochre: #C8860E;
+    --secondary: #545454;
+    --border: #D4D4D4;
+    --bg: #FFFFFF;
+    --chart-bg: #F5EFE8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  #chart { width: 100%; max-width: 700px; }
+  .tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--ink);
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<div class="tooltip" id="tooltip"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const names = ["OCHA", "UNHCR", "UNICEF", "WFP", "WHO"];
+const colors = ["#C8102E", "#1A3A5C", "#6B3520", "#C8860E", "#545454"];
+
+// Symmetric coordination matrix
+const matrix = [
+  // OCHA  UNHCR UNICEF WFP   WHO
+  [0,     90,   50,    70,   40],  // OCHA
+  [90,    0,    65,    60,   35],  // UNHCR
+  [50,    65,   0,     40,   45],  // UNICEF
+  [70,    60,   40,    0,    55],  // WFP
+  [40,    35,   45,    55,   0]    // WHO
+];
+
+const W = 700, H = 640;
+const outerRadius = 230;
+const innerRadius = 210;
+
+const svg = d3.select('#chart').append('svg')
+  .attr('viewBox', `0 0 ${W} ${H}`)
+  .attr('role', 'img')
+  .attr('aria-labelledby', 'chart-title chart-desc');
+
+svg.append('title').attr('id', 'chart-title').text('Inter-Agency Coordination Strength');
+svg.append('desc').attr('id', 'chart-desc').text('Chord diagram showing coordination strength between five humanitarian organizations with OCHA and UNHCR as densest hubs.');
+
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#FFFFFF');
+svg.append('rect').attr('x', 32).attr('y', 32).attr('width', W - 64).attr('height', H - 64).attr('fill', '#F5EFE8').attr('stroke', '#D4D4D4');
+
+svg.append('text')
+  .attr('x', W / 2).attr('y', 28)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, 'Times New Roman', serif")
+  .attr('font-size', 22).attr('fill', '#2a1a0e').attr('font-weight', 'bold')
+  .text('Inter-Agency Coordination Strength');
+
+svg.append('text')
+  .attr('x', W / 2).attr('y', H - 16)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, 'Times New Roman', serif")
+  .attr('font-size', 13).attr('fill', '#545454').attr('font-style', 'italic')
+  .text('Chord thickness encodes coordination intensity');
+
+const g = svg.append('g').attr('transform', `translate(${W / 2}, ${H / 2})`);
+
+const chord = d3.chord()
+  .padAngle(0.06)
+  .sortSubgroups(d3.descending);
+
+const chords = chord(matrix);
+
+const arc = d3.arc().innerRadius(innerRadius).outerRadius(outerRadius);
+const ribbon = d3.ribbon().radius(innerRadius);
+
+const tooltip = d3.select('#tooltip');
+
+// Draw arcs (groups)
+g.selectAll('.group')
+  .data(chords.groups)
+  .enter().append('g')
+  .attr('class', 'group')
+  .each(function(d) {
+    d3.select(this).append('path')
+      .attr('d', arc(d))
+      .attr('fill', colors[d.index])
+      .attr('stroke', colors[d.index]);
+
+    // Label
+    const angle = (d.startAngle + d.endAngle) / 2;
+    const labelRadius = outerRadius + 18;
+    const lx = Math.sin(angle) * labelRadius;
+    const ly = -Math.cos(angle) * labelRadius;
+    d3.select(this).append('text')
+      .attr('x', lx).attr('y', ly)
+      .attr('text-anchor', 'middle')
+      .attr('dominant-baseline', 'central')
+      .attr('font-family', "'IBM Plex Mono', monospace")
+      .attr('font-size', 11)
+      .attr('fill', colors[d.index])
+      .attr('letter-spacing', '0.08em')
+      .text(names[d.index]);
+  });
+
+// Draw chords (ribbons)
+g.selectAll('.chord')
+  .data(chords)
+  .enter().append('path')
+  .attr('class', 'chord')
+  .attr('d', ribbon)
+  .attr('fill', d => colors[d.source.index])
+  .attr('fill-opacity', 0.3)
+  .attr('stroke', d => colors[d.source.index])
+  .attr('stroke-opacity', 0.5)
+  .attr('stroke-width', 0.5)
+  .on('mouseover', function(event, d) {
+    d3.select(this).attr('fill-opacity', 0.6);
+    tooltip.style('opacity', 1)
+      .html(`<strong>${names[d.source.index]} ↔ ${names[d.target.index]}</strong><br>Coordination strength: ${matrix[d.source.index][d.target.index]}`);
+  })
+  .on('mousemove', function(event) {
+    tooltip.style('left', (event.pageX + 12) + 'px').style('top', (event.pageY - 28) + 'px');
+  })
+  .on('mouseout', function() {
+    d3.select(this).attr('fill-opacity', 0.3);
+    tooltip.style('opacity', 0);
+  });
+</script>
+</body>
+</html>

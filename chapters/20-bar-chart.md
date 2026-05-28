@@ -2,7 +2,8 @@
 
 *AI tool adoption varies sharply by sector*
 
-![Bar Chart](../images/20-bar-chart.jpg)
+![Horizontal bar chart showing AI tool adoption rates by sector, sorted descending from Technology at 87% to Agriculture at 21%](../images/20-bar-chart.png)
+*Figure 20.1 — AI tool adoption varies sharply by sector*
 
 ## What this chart is
 
@@ -51,6 +52,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/20-bar-chart.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

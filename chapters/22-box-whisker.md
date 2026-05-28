@@ -2,7 +2,8 @@
 
 *Five Numbers, One Glyph — Tukey's Distribution Sketch*
 
-![Box and Whisker Plot](../images/22-box-whisker.jpg)
+![Annotated box-and-whisker plot showing five-number summary with labeled quartiles, whiskers, and outliers](../images/22-box-whisker.png)
+*Figure 22.1 — Five Numbers, One Glyph — Tukey's Distribution Sketch*
 
 ## What this chart is
 
@@ -54,6 +55,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/22-box-whisker.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

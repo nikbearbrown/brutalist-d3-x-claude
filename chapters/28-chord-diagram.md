@@ -2,7 +2,8 @@
 
 *OCHA and UNHCR Are the Network's Densest Hubs —Chord Thickness Encodes Coordination Strength*
 
-![Chord Diagram](../images/28-chord-diagram.jpg)
+![Chord diagram showing coordination strength between five humanitarian organizations with OCHA and UNHCR as densest hubs](../images/28-chord-diagram.png)
+*Figure 28.1 — OCHA and UNHCR Are the Network's Densest Hubs*
 
 ## What this chart is
 
@@ -47,6 +48,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/28-chord-diagram.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

@@ -2,7 +2,8 @@
 
 *Five Groups, One Frame — Reading a Distribution at a Glance*
 
-![Box Plot](../images/21-box-plot.jpg)
+![Five box plots side by side showing score distributions across five groups with medians, quartiles, whiskers, and outliers](../images/21-box-plot.png)
+*Figure 21.1 — Five Groups, One Frame — Reading a Distribution at a Glance*
 
 ## What this chart is
 
@@ -42,6 +43,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/21-box-plot.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

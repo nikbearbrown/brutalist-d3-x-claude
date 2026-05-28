@@ -2,7 +2,8 @@
 
 *Healthcare commands 34% — crisis response receives the smallest share*
 
-![Donut Chart](../images/33-donut-chart.jpg)
+![Donut chart showing budget allocation across five departments with Healthcare commanding 34 percent](../images/33-donut-chart.png)
+*Figure 33.1 — Healthcare commands 34% — crisis response receives the smallest share*
 
 ## What this chart is
 
@@ -55,6 +56,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/33-donut-chart.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

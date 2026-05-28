@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bullet Graph — Program Performance vs Target</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #2a1a0e;
+    --mark: #6B3520;
+    --red: #C8102E;
+    --slate: #1A3A5C;
+    --ochre: #C8860E;
+    --secondary: #545454;
+    --border: #D4D4D4;
+    --bg: #FFFFFF;
+    --chart-bg: #F5EFE8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  #chart { width: 100%; max-width: 900px; }
+  .tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--ink);
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<div class="tooltip" id="tooltip"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const data = [
+  { label: "Community Trust", actual: 92, target: 80, ranges: [40, 70, 100] },
+  { label: "Youth Outreach", actual: 58, target: 75, ranges: [40, 70, 100] },
+  { label: "Health Access", actual: 45, target: 70, ranges: [40, 70, 100] },
+  { label: "Digital Literacy", actual: 63, target: 65, ranges: [40, 70, 100] },
+  { label: "Rural Connect", actual: 38, target: 60, ranges: [40, 70, 100] }
+];
+
+const margin = { top: 60, right: 40, bottom: 60, left: 160 };
+const fullWidth = 900;
+const bulletHeight = 36;
+const bulletGap = 16;
+const chartHeight = data.length * (bulletHeight + bulletGap) - bulletGap;
+const fullHeight = margin.top + chartHeight + margin.bottom;
+
+const svg = d3.select('#chart').append('svg')
+  .attr('viewBox', `0 0 ${fullWidth} ${fullHeight}`)
+  .attr('role', 'img')
+  .attr('aria-labelledby', 'chart-title chart-desc');
+
+svg.append('title').attr('id', 'chart-title').text('Program Performance vs Target');
+svg.append('desc').attr('id', 'chart-desc').text('Five horizontal bullet graphs showing program performance versus targets, with Community Trust as the only program exceeding its target.');
+
+// Background
+svg.append('rect').attr('width', fullWidth).attr('height', fullHeight).attr('fill', '#FFFFFF');
+svg.append('rect')
+  .attr('x', 32).attr('y', 32)
+  .attr('width', fullWidth - 64).attr('height', fullHeight - 64)
+  .attr('fill', '#F5EFE8').attr('stroke', '#D4D4D4');
+
+// Title
+svg.append('text')
+  .attr('x', fullWidth / 2).attr('y', 28)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, 'Times New Roman', serif")
+  .attr('font-size', 22).attr('fill', '#2a1a0e').attr('font-weight', 'bold')
+  .text('Program Performance vs Target');
+
+// Subtitle
+svg.append('text')
+  .attr('x', fullWidth / 2).attr('y', fullHeight - 16)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, 'Times New Roman', serif")
+  .attr('font-size', 13).attr('fill', '#545454').attr('font-style', 'italic')
+  .text('Most programs trail their targets — Community Trust is the lone outlier');
+
+const x = d3.scaleLinear().domain([0, 100]).range([0, fullWidth - margin.left - margin.right]);
+
+const g = svg.append('g').attr('transform', `translate(${margin.left}, ${margin.top})`);
+
+const tooltip = d3.select('#tooltip');
+
+const bandColors = ['#B0B0B0', '#C8C8C8', '#DCDCDC'];
+
+data.forEach((d, i) => {
+  const yOffset = i * (bulletHeight + bulletGap);
+  const row = g.append('g').attr('transform', `translate(0, ${yOffset})`);
+
+  // Label
+  row.append('text')
+    .attr('x', -10).attr('y', bulletHeight / 2 + 5)
+    .attr('text-anchor', 'end')
+    .attr('font-family', "'EB Garamond', Georgia, 'Times New Roman', serif")
+    .attr('font-size', 14).attr('fill', '#2a1a0e')
+    .text(d.label);
+
+  // Range bands (drawn in reverse so poor is on top visually)
+  const ranges = [d.ranges[2], d.ranges[1], d.ranges[0]];
+  ranges.forEach((r, ri) => {
+    row.append('rect')
+      .attr('x', 0).attr('y', 0)
+      .attr('width', x(r)).attr('height', bulletHeight)
+      .attr('fill', bandColors[ri]);
+  });
+
+  // Actual bar
+  row.append('rect')
+    .attr('x', 0).attr('y', bulletHeight * 0.2)
+    .attr('width', x(d.actual)).attr('height', bulletHeight * 0.6)
+    .attr('fill', '#6B3520')
+    .attr('tabindex', 0)
+    .attr('role', 'graphics-symbol')
+    .attr('aria-label', `${d.label}: actual ${d.actual}, target ${d.target}`)
+    .on('mouseover', function(event) {
+      const met = d.actual >= d.target ? 'Met' : 'Below';
+      tooltip.style('opacity', 1)
+        .html(`<strong>${d.label}</strong><br>Actual: ${d.actual}<br>Target: ${d.target}<br>Status: ${met}`);
+    })
+    .on('mousemove', function(event) {
+      tooltip.style('left', (event.pageX + 12) + 'px').style('top', (event.pageY - 28) + 'px');
+    })
+    .on('mouseout', function() { tooltip.style('opacity', 0); });
+
+  // Target marker
+  row.append('line')
+    .attr('x1', x(d.target)).attr('x2', x(d.target))
+    .attr('y1', -4).attr('y2', bulletHeight + 4)
+    .attr('stroke', '#C8102E').attr('stroke-width', 2.5);
+});
+
+// X-axis
+const xAxis = d3.axisBottom(x).ticks(5).tickFormat(d => d);
+g.append('g')
+  .attr('transform', `translate(0, ${chartHeight + 10})`)
+  .call(xAxis)
+  .selectAll('text')
+  .attr('font-family', "'IBM Plex Mono', monospace")
+  .attr('font-size', 10).attr('fill', '#545454');
+
+// Legend
+const legend = svg.append('g').attr('transform', `translate(${margin.left}, ${fullHeight - 42})`);
+legend.append('rect').attr('x', 0).attr('y', 0).attr('width', 12).attr('height', 12).attr('fill', '#6B3520');
+legend.append('text').attr('x', 16).attr('y', 10).attr('font-family', "'IBM Plex Mono', monospace").attr('font-size', 9).attr('fill', '#2a1a0e').attr('letter-spacing', '0.08em').text('ACTUAL');
+legend.append('line').attr('x1', 80).attr('x2', 80).attr('y1', 0).attr('y2', 12).attr('stroke', '#C8102E').attr('stroke-width', 2.5);
+legend.append('text').attr('x', 86).attr('y', 10).attr('font-family', "'IBM Plex Mono', monospace").attr('font-size', 9).attr('fill', '#2a1a0e').attr('letter-spacing', '0.08em').text('TARGET');
+</script>
+</body>
+</html>

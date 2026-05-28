@@ -2,7 +2,8 @@
 
 *100 People — Who Has Access to Clean Energy?*
 
-![Dot Matrix](../images/35-dot-matrix.jpg)
+![Dot matrix of 100 circles showing 73 with access to clean energy and 27 without](../images/35-dot-matrix.png)
+*Figure 35.1 — 100 People — Who Has Access to Clean Energy?*
 
 ## What this chart is
 
@@ -43,6 +44,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/35-dot-matrix.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

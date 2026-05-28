@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 420">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap');
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+
+  <!-- Title -->
+  <text x="350" y="28" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="18" font-weight="600" fill="#2a1a0e">Hub-and-Spoke Aid Network</text>
+
+  <!-- Chart area -->
+  <rect x="32" y="42" width="636" height="330" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="0.75"/>
+
+  <!-- Abstract world outline: continental shapes suggested with rectangles and simple paths -->
+  <!-- Europe -->
+  <path d="M 280,110 L 310,105 L 340,108 L 355,115 L 350,130 L 340,140 L 320,145 L 295,140 L 280,130 Z" fill="none" stroke="#D4D4D4" stroke-width="1"/>
+  <!-- Africa -->
+  <path d="M 300,155 L 330,150 L 350,160 L 355,190 L 350,230 L 340,260 L 320,270 L 300,260 L 290,230 L 285,200 L 290,170 Z" fill="none" stroke="#D4D4D4" stroke-width="1"/>
+  <!-- North America -->
+  <path d="M 90,90 L 140,80 L 190,85 L 210,100 L 215,130 L 210,160 L 195,180 L 170,195 L 140,200 L 110,190 L 90,170 L 80,140 L 80,110 Z" fill="none" stroke="#D4D4D4" stroke-width="1"/>
+  <!-- Middle East -->
+  <path d="M 370,145 L 400,140 L 420,150 L 415,170 L 395,178 L 375,172 L 368,158 Z" fill="none" stroke="#D4D4D4" stroke-width="1"/>
+  <!-- South/Southeast Asia -->
+  <path d="M 470,155 L 510,150 L 545,160 L 555,180 L 545,205 L 520,215 L 490,210 L 475,195 L 468,175 Z" fill="none" stroke="#D4D4D4" stroke-width="1"/>
+  <!-- East Africa horn -->
+  <path d="M 360,200 L 380,195 L 395,205 L 390,225 L 375,230 L 360,220 Z" fill="none" stroke="#D4D4D4" stroke-width="1"/>
+
+  <!-- Connections (curved paths) -->
+  <!-- London → Nairobi (thick) -->
+  <path d="M 305,120 Q 280,190 335,240" fill="none" stroke="#2a1a0e" stroke-width="4" opacity="0.7"/>
+  <!-- Washington → Amman (thick) -->
+  <path d="M 155,140 Q 280,100 393,158" fill="none" stroke="#2a1a0e" stroke-width="4" opacity="0.7"/>
+  <!-- Geneva → Nairobi (medium) -->
+  <path d="M 310,132 Q 290,200 335,240" fill="none" stroke="#2a1a0e" stroke-width="2.5" opacity="0.5"/>
+  <!-- London → Addis Ababa (medium) -->
+  <path d="M 305,120 Q 330,170 370,210" fill="none" stroke="#2a1a0e" stroke-width="2.5" opacity="0.5"/>
+  <!-- Berlin → Amman (thin) -->
+  <path d="M 335,118 Q 370,120 393,158" fill="none" stroke="#2a1a0e" stroke-width="1.5" opacity="0.35"/>
+  <!-- Washington → Bangkok (thin) -->
+  <path d="M 155,140 Q 350,120 510,185" fill="none" stroke="#2a1a0e" stroke-width="1.5" opacity="0.35"/>
+
+  <!-- City dots and labels — white background rects behind labels for legibility over connection lines -->
+
+  <!-- London -->
+  <circle cx="305" cy="120" r="6" fill="#C8102E" stroke="#2a1a0e" stroke-width="0.75"/>
+  <rect x="270" y="96" width="70" height="12" fill="#F5EFE8" opacity="0.9"/>
+  <text x="305" y="106" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" letter-spacing="0.08em" fill="#2a1a0e">LONDON</text>
+
+  <!-- Washington -->
+  <circle cx="155" cy="140" r="6" fill="#C8102E" stroke="#2a1a0e" stroke-width="0.75"/>
+  <rect x="104" y="124" width="102" height="12" fill="#F5EFE8" opacity="0.9"/>
+  <text x="155" y="134" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" letter-spacing="0.08em" fill="#2a1a0e">WASHINGTON</text>
+
+  <!-- Nairobi -->
+  <circle cx="335" cy="240" r="5" fill="#1A3A5C" stroke="#2a1a0e" stroke-width="0.75"/>
+  <rect x="303" y="249" width="64" height="12" fill="#F5EFE8" opacity="0.9"/>
+  <text x="335" y="259" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" letter-spacing="0.08em" fill="#2a1a0e">NAIROBI</text>
+
+  <!-- Amman -->
+  <circle cx="393" cy="158" r="5" fill="#1A3A5C" stroke="#2a1a0e" stroke-width="0.75"/>
+  <rect x="400" y="150" width="48" height="12" fill="#F5EFE8" opacity="0.9"/>
+  <text x="403" y="160" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" letter-spacing="0.08em" fill="#2a1a0e">AMMAN</text>
+
+  <!-- Geneva -->
+  <circle cx="310" cy="132" r="4" fill="#6B3520" stroke="#2a1a0e" stroke-width="0.75"/>
+  <rect x="282" y="138" width="50" height="10" fill="#F5EFE8" opacity="0.9"/>
+  <text x="284" y="147" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" letter-spacing="0.08em" fill="#2a1a0e">GENEVA</text>
+
+  <!-- Berlin -->
+  <circle cx="335" cy="118" r="4" fill="#6B3520" stroke="#2a1a0e" stroke-width="0.75"/>
+  <rect x="343" y="104" width="48" height="10" fill="#F5EFE8" opacity="0.9"/>
+  <text x="345" y="113" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" letter-spacing="0.08em" fill="#2a1a0e">BERLIN</text>
+
+  <!-- Addis Ababa -->
+  <circle cx="370" cy="210" r="4" fill="#C8860E" stroke="#2a1a0e" stroke-width="0.75"/>
+  <rect x="340" y="217" width="75" height="10" fill="#F5EFE8" opacity="0.9"/>
+  <text x="342" y="226" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" letter-spacing="0.08em" fill="#2a1a0e">ADDIS ABABA</text>
+
+  <!-- Bangkok -->
+  <circle cx="510" cy="185" r="3" fill="#C8860E" stroke="#2a1a0e" stroke-width="0.75"/>
+  <rect x="518" y="180" width="56" height="10" fill="#F5EFE8" opacity="0.9"/>
+  <text x="520" y="189" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" letter-spacing="0.08em" fill="#2a1a0e">BANGKOK</text>
+
+  <!-- Legend -->
+  <text x="500" y="310" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" letter-spacing="0.08em" fill="#545454">LINE THICKNESS</text>
+  <line x1="500" y1="320" x2="540" y2="320" stroke="#2a1a0e" stroke-width="4" opacity="0.7"/>
+  <text x="546" y="324" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="9" fill="#545454">High volume</text>
+  <line x1="500" y1="334" x2="540" y2="334" stroke="#2a1a0e" stroke-width="2.5" opacity="0.5"/>
+  <text x="546" y="338" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="9" fill="#545454">Medium</text>
+  <line x1="500" y1="348" x2="540" y2="348" stroke="#2a1a0e" stroke-width="1.5" opacity="0.35"/>
+  <text x="546" y="352" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="9" fill="#545454">Low volume</text>
+
+  <!-- Caption -->
+  <text x="350" y="395" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" font-style="italic" fill="#545454">Line thickness encodes coordination volume. Europe and North America anchor the network.</text>
+</svg>
