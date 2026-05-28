@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 8.3 — Area chart baseline determines what the fill represents</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #121212;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--color-white);
+    color: var(--color-ink);
+    width: 1600px;
+    height: 900px;
+    overflow: hidden;
+  }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const W = 1600, H = 900;
+const svg = d3.select('#chart').append('svg')
+  .attr('width', W).attr('height', H)
+  .attr('role', 'img')
+  .attr('aria-labelledby', 'chart-title chart-desc');
+
+svg.append('title').attr('id', 'chart-title').text('Area encodes the wrong quantity when the baseline is wrong.');
+svg.append('desc').attr('id', 'chart-desc').text('Three-panel comparison showing how area chart baseline choice affects what the filled region represents: y from 50 degrees amplifies differences, y from 0 degrees is honest but wastes space, and a line chart with tight y-range avoids distortion entirely.');
+
+// Background
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#FFFFFF');
+
+// Main title
+svg.append('text')
+  .attr('x', W / 2).attr('y', 52)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-size', 34).attr('fill', '#121212')
+  .text('Area encodes the wrong quantity when the baseline is wrong.');
+
+// Subtitle
+svg.append('text')
+  .attr('x', W / 2).attr('y', 80)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 14).attr('fill', '#545454')
+  .text('Figure 8.3 \u2014 Area chart baseline determines what the fill represents');
+
+// Generate 30-day temperature data (sine-like wave, range ~65-85)
+const tempData = [];
+for (let i = 0; i < 30; i++) {
+  const temp = 75 + 10 * Math.sin((i / 30) * Math.PI * 2 - Math.PI / 2) + (Math.random() - 0.5) * 2;
+  tempData.push({ day: i + 1, temp: Math.round(temp * 10) / 10 });
+}
+// Ensure range is roughly 65-85
+// Adjust: shift so min ~65, max ~85
+const rawMin = d3.min(tempData, d => d.temp);
+const rawMax = d3.max(tempData, d => d.temp);
+const shift = 65 - rawMin;
+const scale = (85 - 65) / (rawMax - rawMin);
+tempData.forEach(d => {
+  d.temp = Math.round((65 + (d.temp - rawMin) * scale) * 10) / 10;
+});
+
+// Three panels
+const panelGap = 22;
+const panelCount = 3;
+const totalPadX = 60;
+const panelW = (W - totalPadX * 2 - panelGap * (panelCount - 1)) / panelCount;
+const panelStartY = 110;
+const panelH = H - panelStartY - 90;
+
+function drawPanel(panelIndex, config) {
+  const px = totalPadX + panelIndex * (panelW + panelGap);
+  const py = panelStartY;
+
+  const gPanel = svg.append('g')
+    .attr('transform', `translate(${px}, ${py})`);
+
+  // Panel border
+  gPanel.append('rect')
+    .attr('width', panelW).attr('height', panelH)
+    .attr('fill', 'none')
+    .attr('stroke', config.borderColor || '#D4D4D4')
+    .attr('stroke-width', config.borderWidth || 1.5)
+    .attr('rx', 3);
+
+  // Panel header background
+  gPanel.append('rect')
+    .attr('x', 1).attr('y', 1)
+    .attr('width', panelW - 2).attr('height', 38)
+    .attr('fill', config.headerBg || '#F5F5F5')
+    .attr('rx', 3);
+
+  // Panel title
+  gPanel.append('text')
+    .attr('x', panelW / 2).attr('y', 26)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 14).attr('font-weight', 700)
+    .attr('fill', config.titleColor || '#121212')
+    .text(config.title);
+
+  // Chart area inside panel
+  const chartMargin = { top: 54, right: 20, bottom: 120, left: 52 };
+  const cw = panelW - chartMargin.left - chartMargin.right;
+  const ch = panelH - chartMargin.top - chartMargin.bottom;
+
+  const gChart = gPanel.append('g')
+    .attr('transform', `translate(${chartMargin.left}, ${chartMargin.top})`);
+
+  const xScale = d3.scaleLinear()
+    .domain([1, 30])
+    .range([0, cw]);
+
+  const yScale = d3.scaleLinear()
+    .domain(config.yDomain)
+    .range([ch, 0]);
+
+  // Gridlines
+  gChart.selectAll('.gridline')
+    .data(yScale.ticks(5))
+    .join('line')
+      .attr('x1', 0).attr('x2', cw)
+      .attr('y1', d => yScale(d)).attr('y2', d => yScale(d))
+      .attr('stroke', '#ECECEC').attr('stroke-width', 1)
+      .attr('aria-hidden', 'true');
+
+  // Y-axis
+  const yAxis = d3.axisLeft(yScale).ticks(5).tickFormat(d => d + '\u00b0F');
+  gChart.append('g').call(yAxis)
+    .selectAll('text')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 10).attr('fill', '#545454');
+  gChart.selectAll('.domain, .tick line').attr('stroke', '#D4D4D4');
+
+  // X-axis
+  const xAxis = d3.axisBottom(xScale).ticks(6).tickFormat(d => 'D' + d);
+  gChart.append('g')
+    .attr('transform', `translate(0, ${ch})`)
+    .call(xAxis)
+    .selectAll('text')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 10).attr('fill', '#545454');
+  gChart.selectAll('.domain').attr('stroke', '#D4D4D4');
+
+  if (config.showArea) {
+    // Area fill
+    const areaGen = d3.area()
+      .x(d => xScale(d.day))
+      .y0(ch) // area always fills to bottom of chart
+      .y1(d => yScale(d.temp))
+      .curve(d3.curveMonotoneX);
+
+    gChart.append('path')
+      .datum(tempData)
+      .attr('d', areaGen)
+      .attr('fill', '#121212')
+      .attr('opacity', 0.12);
+  }
+
+  // Line
+  const lineGen = d3.line()
+    .x(d => xScale(d.day))
+    .y(d => yScale(d.temp))
+    .curve(d3.curveMonotoneX);
+
+  gChart.append('path')
+    .datum(tempData)
+    .attr('d', lineGen)
+    .attr('fill', 'none')
+    .attr('stroke', '#121212')
+    .attr('stroke-width', 2);
+
+  // Annotations below chart
+  const annoY = ch + 40;
+
+  if (config.annotation) {
+    gChart.append('text')
+      .attr('x', cw / 2).attr('y', annoY)
+      .attr('text-anchor', 'middle')
+      .attr('font-family', "'Inter', sans-serif")
+      .attr('font-size', 11).attr('font-style', 'italic')
+      .attr('fill', config.annotationColor || '#545454')
+      .text(config.annotation);
+  }
+
+  if (config.ratioLine1) {
+    gChart.append('text')
+      .attr('x', cw / 2).attr('y', annoY + 20)
+      .attr('text-anchor', 'middle')
+      .attr('font-family', "'JetBrains Mono', monospace")
+      .attr('font-size', 10)
+      .attr('fill', config.annotationColor || '#545454')
+      .text(config.ratioLine1);
+  }
+
+  if (config.ratioLine2) {
+    gChart.append('text')
+      .attr('x', cw / 2).attr('y', annoY + 36)
+      .attr('text-anchor', 'middle')
+      .attr('font-family', "'JetBrains Mono', monospace")
+      .attr('font-size', 10)
+      .attr('fill', config.annotationColor || '#545454')
+      .text(config.ratioLine2);
+  }
+
+  // Verdict badge
+  if (config.verdict) {
+    const verdictY = annoY + (config.ratioLine2 ? 58 : config.ratioLine1 ? 42 : 22);
+    const badgeBg = config.verdictBad ? '#C8102E' : '#121212';
+
+    gChart.append('rect')
+      .attr('x', cw / 2 - 80).attr('y', verdictY - 14)
+      .attr('width', 160).attr('height', 24)
+      .attr('fill', badgeBg).attr('rx', 12);
+
+    gChart.append('text')
+      .attr('x', cw / 2).attr('y', verdictY + 2)
+      .attr('text-anchor', 'middle')
+      .attr('font-family', "'JetBrains Mono', monospace")
+      .attr('font-size', 11).attr('font-weight', 700)
+      .attr('fill', '#FFFFFF')
+      .text(config.verdict);
+  }
+
+  return gChart;
+}
+
+// Panel 1: Area chart, y from 50
+drawPanel(0, {
+  title: 'Area chart, y from 50\u00b0F',
+  yDomain: [50, 90],
+  showArea: true,
+  headerBg: '#FFF0F0',
+  titleColor: '#C8102E',
+  borderColor: '#C8102E',
+  borderWidth: 2.5,
+  annotation: 'Visual area encodes temp \u2212 50, not temp',
+  annotationColor: '#C8102E',
+  ratioLine1: '70\u00b0F vs 80\u00b0F visual: (70\u221250):(80\u221250) = 20:30 = 1.5:1',
+  ratioLine2: '70\u00b0F vs 80\u00b0F actual: 70:80 = 1.14:1',
+  verdict: 'AMPLIFIES \u00d73',
+  verdictBad: true
+});
+
+// Panel 2: Area chart, y from 0
+drawPanel(1, {
+  title: 'Area chart, y from 0\u00b0F',
+  yDomain: [0, 90],
+  showArea: true,
+  headerBg: '#F5F5F5',
+  titleColor: '#121212',
+  borderColor: '#545454',
+  borderWidth: 1.5,
+  annotation: 'Honest encoding \u2014 but >70% of chart is empty',
+  annotationColor: '#545454',
+  ratioLine1: 'Data occupies only the top band of the area',
+  verdict: 'HONEST but wastes space',
+  verdictBad: false
+});
+
+// Panel 3: Line chart, y from 60-90
+drawPanel(2, {
+  title: 'Line chart, y from 60\u00b0F\u201390\u00b0F',
+  yDomain: [60, 90],
+  showArea: false,
+  headerBg: '#F5F5F5',
+  titleColor: '#121212',
+  borderColor: '#121212',
+  borderWidth: 2.5,
+  annotation: 'No fill \u2014 no area to distort',
+  annotationColor: '#545454',
+  ratioLine1: 'Position channel reads the true value directly',
+  verdict: 'HONEST \u2014 no area to distort',
+  verdictBad: false
+});
+
+// =========================================================
+// Bottom caption
+// =========================================================
+svg.append('line')
+  .attr('x1', 50).attr('y1', H - 42).attr('x2', W - 50).attr('y2', H - 42)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+
+svg.append('text')
+  .attr('x', W / 2).attr('y', H - 16)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-style', 'italic')
+  .attr('font-size', 15).attr('fill', '#545454')
+  .text('If the fill encodes the wrong quantity, the chart tells a different story than the data.');
+</script>
+</body>
+</html>

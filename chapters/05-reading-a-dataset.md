@@ -69,7 +69,8 @@ The MBTA project's three guiding questions make this concrete: "When and where a
 
 <!-- → [INFOGRAPHIC: two-column contrast diagram — left column labeled "Analyst's question," right column labeled "Reader's question." Three paired examples, one per row, using the MBTA questions: analyst version on the left (e.g., "What is the system's load distribution?"), reader version on the right (e.g., "When and where are the trains crowded?"). A center column labels the difference in each pair: "exploratory vs. summative," "producer's interest vs. audience's need," "open-ended vs. actionable." Caption: "Same data. Different framing. Different chart."] -->
 
-![Figure 5.1 — Same data. Different framing. Different chart.](../images/05-reading-a-dataset-fig-01.jpg)
+![Two-column contrast of analyst questions versus reader questions using three MBTA examples](../images/05-reading-a-dataset-fig-01.png)
+*Figure 5.1 — Same data. Different framing. Different chart.*
 
 ---
 
@@ -163,7 +164,8 @@ The move to avoid is the fourth one, which is not honest: producing a chart that
 
 <!-- → [INFOGRAPHIC: decision tree — starting node "Does the dataset support the reader's question?" branching to yes (proceed) and no; the no branch splits into three: "Can you get the missing data?" (yes → find better data), "Is there a related question worth answering?" (yes → reframe), "Must you proceed anyway?" (yes → acknowledge the gap). A fourth branch labeled "Substitute a different question without acknowledging it" leads off the diagram to a node labeled "This is the failure mode." Caption: "Three honest moves. One failure mode."] -->
 
-![Figure 5.2 — Three honest moves. One failure mode.](../images/05-reading-a-dataset-fig-02.jpg)
+![Decision tree for when the dataset does not support the reader's question — three honest moves and one failure mode](../images/05-reading-a-dataset-fig-02.png)
+*Figure 5.2 — Three honest moves. One failure mode.*
 
 ---
 
@@ -189,7 +191,8 @@ This chart honestly answers the question the data supports. The "compared with w
 
 <!-- → [INFOGRAPHIC: five-step vertical audit flow for the food assistance example — one box per step, labeled Step 1 through Step 5. Each box shows: the step name, the input (what you look at), and the output (what it tells you). Arrows connecting downward. The final box (Step 5) shows the chart specification that emerges from the audit, with key message, data structure, functional category, and chart form all filled in. Caption: "The audit is not overhead. It is how the specification gets built."] -->
 
-![Figure 5.3 — The audit is not overhead. It is how the specification gets built.](../images/05-reading-a-dataset-fig-03.jpg)
+![Five-step vertical audit flow from data dictionary through specification, with chart spec output panel](../images/05-reading-a-dataset-fig-03.png)
+*Figure 5.3 — The audit is not overhead. It is how the specification gets built.*
 
 ---
 
@@ -339,6 +342,42 @@ to the chart-selection step and the Claude Code prompt.
 ---
 
 *Tags: reading-data, data-types, categorical, ordinal, quantitative, temporal, geographic, analyst-question, reader-question, Cairo, compared-with-what, FT-visual-vocabulary, MBTA-project, FiveThirtyEight-Nigeria, gap-audit, pre-chart-audit*
+
+---
+
+## Prompts
+
+Use these prompts with Claude to generate interactive D3 v7 versions of the
+figures in this chapter. Each produces a standalone HTML file you can open
+in a browser and modify freely.
+
+**Prerequisites:** Load `brutalist/CLAUDE.md` and `brutalist/DESIGN.md` into
+your Claude project context before using these prompts. They define the stack,
+naming conventions, color system, and typography the figures use.
+
+---
+
+### Figure 5.1 — Analyst's question vs reader's question
+
+Two-column contrast diagram. Left column: "Analyst's question" with three MBTA examples (system load distribution, ridership weather response, per-route utilization). Right column: "Reader's question" with the corresponding reader-framed versions (when/where crowded, snowstorm effects, my route congestion). Center column labels the shift in each pair: exploratory → summative, producer → audience, open-ended → actionable. D3 v7 single HTML file, 1600×900.
+
+> Reference implementation: `d3/05-reading-a-dataset-fig-01.html`
+
+---
+
+### Figure 5.2 — Three honest moves, one failure mode
+
+Decision tree starting from "Does the dataset support the reader's question?" YES branch proceeds. NO branch splits three ways: find better data, reframe the question, acknowledge the gap. A fourth branch — substituting a different question without acknowledging it — leads to a failure-mode node. D3 v7 single HTML file, 1600×900.
+
+> Reference implementation: `d3/05-reading-a-dataset-fig-02.html`
+
+---
+
+### Figure 5.3 — Five-step dataset audit flow
+
+Vertical five-step flow: (1) Read the data dictionary, (2) Check coverage and gaps, (3) Match data to question, (4) Reframe if needed, (5) Build the specification. Each box shows input and output. Step 5 connects to a chart specification panel showing key message, data structure, functional category, and chart form filled in for a food assistance example. D3 v7 single HTML file, 1600×900.
+
+> Reference implementation: `d3/05-reading-a-dataset-fig-03.html`
 
 ---
 

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 4.5 — FT Visual Vocabulary</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #FFFFFF; color: #121212; width: 1600px; height: 900px; overflow: hidden; }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const W = 1600, H = 900;
+const svg = d3.select('#chart').append('svg')
+  .attr('width', W).attr('height', H)
+  .attr('role', 'img')
+  .attr('aria-labelledby', 'chart-title');
+
+svg.append('title').attr('id', 'chart-title').text('Figure 4.5 — FT Visual Vocabulary: Eight Functional Categories');
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#FFFFFF');
+
+svg.append('text')
+  .attr('x', W/2).attr('y', 44)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-size', 34).attr('fill', '#121212')
+  .text('The FT Visual Vocabulary: eight questions that contain every chart');
+
+svg.append('text')
+  .attr('x', W/2).attr('y', 72)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 14).attr('fill', '#545454')
+  .text('Figure 4.5 — Navigate from the reader\'s question to the chart family');
+
+const categories = [
+  {
+    name: 'COMPARISON',
+    question: 'How do values differ in magnitude?',
+    types: ['Bar chart', 'Column chart', 'Dot plot', 'Slope graph'],
+    color: '#C8102E'
+  },
+  {
+    name: 'CHANGE OVER TIME',
+    question: 'How does a value evolve across time?',
+    types: ['Line chart', 'Area chart', 'Stream graph', 'Candlestick'],
+    color: '#121212'
+  },
+  {
+    name: 'DISTRIBUTION',
+    question: 'What is the shape of the spread?',
+    types: ['Histogram', 'Density plot', 'Box plot', 'Violin plot'],
+    color: '#545454'
+  },
+  {
+    name: 'RELATIONSHIP',
+    question: 'How do two variables relate?',
+    types: ['Scatterplot', 'Bubble chart', 'Heatmap', 'Parallel coords'],
+    color: '#C8860E'
+  },
+  {
+    name: 'PART-TO-WHOLE',
+    question: 'How do components make a total?',
+    types: ['Stacked bar', 'Waffle chart', 'Treemap', 'Pie chart (≤5)'],
+    color: '#C8102E'
+  },
+  {
+    name: 'HIERARCHY',
+    question: 'How is this nested or structured?',
+    types: ['Treemap', 'Sunburst', 'Circle packing', 'Dendrogram'],
+    color: '#121212'
+  },
+  {
+    name: 'FLOW',
+    question: 'How does something move between states?',
+    types: ['Sankey diagram', 'Alluvial diagram', 'Chord diagram', 'Arc diagram'],
+    color: '#545454'
+  },
+  {
+    name: 'SPATIAL',
+    question: 'Where is something happening?',
+    types: ['Choropleth', 'Dot map', 'Bubble map', 'Cartogram'],
+    color: '#C8860E'
+  }
+];
+
+const cols = 4, rows = 2;
+const cellW = 360, cellH = 330;
+const gapX = 20, gapY = 20;
+const totalW = cols * cellW + (cols - 1) * gapX;
+const totalH = rows * cellH + (rows - 1) * gapY;
+const startX = (W - totalW) / 2;
+const startY = 98;
+
+// Small icon functions for each category
+const icons = {
+  'COMPARISON': (g, x, y) => {
+    [28, 20, 34, 14].forEach((h, i) => {
+      g.append('rect').attr('x', x + i*14).attr('y', y + 36 - h).attr('width', 10).attr('height', h).attr('fill', '#C8102E').attr('opacity', 0.6 + i*0.1).attr('rx', 1);
+    });
+    g.append('line').attr('x1', x).attr('y1', y+36).attr('x2', x+56).attr('y2', y+36).attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+  },
+  'CHANGE OVER TIME': (g, x, y) => {
+    const pts = [[0,28],[14,20],[28,24],[42,10],[56,16]];
+    g.append('path')
+      .attr('d', d3.line().x(d=>x+d[0]).y(d=>y+d[1]).curve(d3.curveMonotoneX)(pts))
+      .attr('fill', 'none').attr('stroke', '#121212').attr('stroke-width', 2);
+    pts.forEach(p => g.append('circle').attr('cx', x+p[0]).attr('cy', y+p[1]).attr('r', 2.5).attr('fill', '#121212'));
+  },
+  'DISTRIBUTION': (g, x, y) => {
+    const bars = [4,10,20,30,26,16,8,3];
+    bars.forEach((h, i) => {
+      g.append('rect').attr('x', x + i*7).attr('y', y + 36 - h).attr('width', 5.5).attr('height', h).attr('fill', '#545454').attr('opacity', 0.6).attr('rx', 1);
+    });
+  },
+  'RELATIONSHIP': (g, x, y) => {
+    const dots = [[8,26],[18,18],[28,22],[14,10],[38,14],[46,8],[32,30],[50,20]];
+    dots.forEach(d => g.append('circle').attr('cx', x+d[0]).attr('cy', y+d[1]).attr('r', 3).attr('fill', '#C8860E').attr('opacity', 0.6));
+  },
+  'PART-TO-WHOLE': (g, x, y) => {
+    const data = [40, 25, 20, 15];
+    let cum = 0;
+    data.forEach((d, i) => {
+      g.append('rect').attr('x', x).attr('y', y + cum * 0.36).attr('width', 56).attr('height', d * 0.36 - 1).attr('fill', '#C8102E').attr('opacity', 0.3 + i*0.2).attr('rx', 1);
+      cum += d;
+    });
+  },
+  'HIERARCHY': (g, x, y) => {
+    g.append('rect').attr('x', x).attr('y', y).attr('width', 56).attr('height', 36).attr('fill', 'none').attr('stroke', '#121212').attr('stroke-width', 1);
+    g.append('rect').attr('x', x+1).attr('y', y+1).attr('width', 30).attr('height', 20).attr('fill', '#121212').attr('opacity', 0.3);
+    g.append('rect').attr('x', x+32).attr('y', y+1).attr('width', 23).attr('height', 12).attr('fill', '#121212').attr('opacity', 0.5);
+    g.append('rect').attr('x', x+32).attr('y', y+14).attr('width', 23).attr('height', 7).attr('fill', '#121212').attr('opacity', 0.2);
+    g.append('rect').attr('x', x+1).attr('y', y+22).attr('width', 16).attr('height', 13).attr('fill', '#121212').attr('opacity', 0.15);
+    g.append('rect').attr('x', x+18).attr('y', y+22).attr('width', 13).attr('height', 13).attr('fill', '#121212').attr('opacity', 0.4);
+    g.append('rect').attr('x', x+32).attr('y', y+22).attr('width', 23).attr('height', 13).attr('fill', '#121212').attr('opacity', 0.6);
+  },
+  'FLOW': (g, x, y) => {
+    g.append('path').attr('d', `M${x},${y+4} C${x+20},${y+4} ${x+36},${y+14} ${x+56},${y+10}`).attr('fill', 'none').attr('stroke', '#545454').attr('stroke-width', 8).attr('opacity', 0.4);
+    g.append('path').attr('d', `M${x},${y+18} C${x+20},${y+18} ${x+36},${y+26} ${x+56},${y+24}`).attr('fill', 'none').attr('stroke', '#545454').attr('stroke-width', 5).attr('opacity', 0.6);
+    g.append('path').attr('d', `M${x},${y+30} C${x+20},${y+30} ${x+36},${y+20} ${x+56},${y+32}`).attr('fill', 'none').attr('stroke', '#545454').attr('stroke-width', 3).attr('opacity', 0.3);
+  },
+  'SPATIAL': (g, x, y) => {
+    // Simple map-like shapes
+    g.append('path').attr('d', `M${x+5},${y+10} L${x+20},${y+4} L${x+35},${y+8} L${x+40},${y+20} L${x+50},${y+18} L${x+52},${y+30} L${x+30},${y+34} L${x+10},${y+28} Z`).attr('fill', '#C8860E').attr('opacity', 0.3).attr('stroke', '#C8860E').attr('stroke-width', 1);
+    [[15,16],[30,14],[40,24],[25,28]].forEach(d => g.append('circle').attr('cx', x+d[0]).attr('cy', y+d[1]).attr('r', 3).attr('fill', '#C8860E').attr('opacity', 0.7));
+  }
+};
+
+categories.forEach((cat, i) => {
+  const col = i % cols;
+  const row = Math.floor(i / cols);
+  const x = startX + col * (cellW + gapX);
+  const y = startY + row * (cellH + gapY);
+
+  // Card
+  svg.append('rect')
+    .attr('x', x).attr('y', y).attr('width', cellW).attr('height', cellH)
+    .attr('fill', '#FFFFFF').attr('stroke', cat.color).attr('stroke-width', 2).attr('rx', 8);
+
+  // Header band
+  svg.append('rect')
+    .attr('x', x).attr('y', y).attr('width', cellW).attr('height', 52)
+    .attr('fill', cat.color).attr('rx', 8);
+  svg.append('rect')
+    .attr('x', x).attr('y', y + 40).attr('width', cellW).attr('height', 12)
+    .attr('fill', cat.color);
+
+  // Number badge
+  svg.append('circle')
+    .attr('cx', x + 28).attr('cy', y + 26).attr('r', 16)
+    .attr('fill', 'none').attr('stroke', '#FFFFFF').attr('stroke-width', 1.5);
+  svg.append('text')
+    .attr('x', x + 28).attr('y', y + 32)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'EB Garamond', Georgia, serif")
+    .attr('font-size', 20).attr('fill', '#FFFFFF')
+    .text(i + 1);
+
+  // Category name
+  svg.append('text')
+    .attr('x', x + 52).attr('y', y + 32)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 16).attr('font-weight', 700).attr('fill', '#FFFFFF')
+    .text(cat.name);
+
+  // Icon
+  const iconG = svg.append('g');
+  icons[cat.name](iconG, x + 24, y + 68);
+
+  // Question (italic)
+  svg.append('text')
+    .attr('x', x + 100).attr('y', y + 82)
+    .attr('font-family', "'EB Garamond', Georgia, serif")
+    .attr('font-size', 17).attr('font-style', 'italic').attr('fill', '#121212')
+    .text('"' + cat.question + '"');
+
+  // Divider
+  svg.append('line')
+    .attr('x1', x + 20).attr('y1', y + 120).attr('x2', x + cellW - 20).attr('y2', y + 120)
+    .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+
+  // Chart types label
+  svg.append('text')
+    .attr('x', x + 20).attr('y', y + 144)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 11).attr('font-weight', 700).attr('fill', '#545454')
+    .text('CANONICAL FORMS');
+
+  // Chart types list
+  cat.types.forEach((t, ti) => {
+    svg.append('rect')
+      .attr('x', x + 20).attr('y', y + 158 + ti * 36).attr('width', cellW - 40).attr('height', 28)
+      .attr('fill', ti === 0 ? '#F9F2F3' : '#F8F8F8').attr('rx', 4);
+
+    svg.append('circle')
+      .attr('cx', x + 34).attr('cy', y + 172 + ti * 36).attr('r', 4)
+      .attr('fill', ti === 0 ? cat.color : '#D4D4D4');
+
+    svg.append('text')
+      .attr('x', x + 46).attr('y', y + 176 + ti * 36)
+      .attr('font-family', "'JetBrains Mono', monospace")
+      .attr('font-size', 13).attr('fill', '#121212')
+      .text(t);
+  });
+});
+
+// Caption
+svg.append('line')
+  .attr('x1', 60).attr('y1', H - 36).attr('x2', W - 60).attr('y2', H - 36)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+svg.append('text')
+  .attr('x', W/2).attr('y', H - 14)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('fill', '#545454')
+  .text('Categories defined by the reader\'s question, not the data\'s structure. The message dominates the structure.');
+</script>
+</body>
+</html>

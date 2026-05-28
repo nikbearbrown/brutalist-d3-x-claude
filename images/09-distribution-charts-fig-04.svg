@@ -1,0 +1,116 @@
+<svg viewBox="0 0 700 480" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+<defs>
+  <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#2a1a0e"/>
+  </marker>
+</defs>
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="480" fill="#FFFFFF"/>
+
+<!-- LEFT PANEL: Tukey Box Plot Anatomy -->
+<rect x="32" y="32" width="400" height="416" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<text x="232" y="52" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="12" fill="#2a1a0e" letter-spacing="0.08em">TUKEY'S BOX PLOT</text>
+
+<!-- Outliers above (moved below the heading) -->
+<circle cx="220" cy="78" r="4" fill="#C8102E"/>
+<circle cx="235" cy="68" r="4" fill="#C8102E"/>
+
+<!-- Upper fence (dashed) -->
+<line x1="175" y1="95" x2="290" y2="95" stroke="#C8860E" stroke-width="1" stroke-dasharray="4,2"/>
+
+<!-- Upper whisker cap -->
+<line x1="200" y1="110" x2="264" y2="110" stroke="#2a1a0e" stroke-width="2"/>
+<!-- Upper whisker -->
+<line x1="232" y1="110" x2="232" y2="170" stroke="#2a1a0e" stroke-width="1.5"/>
+<!-- Box (Q1 to Q3) -->
+<rect x="192" y="170" width="80" height="120" fill="#F5EFE8" stroke="#2a1a0e" stroke-width="2"/>
+<!-- Median line -->
+<line x1="192" y1="230" x2="272" y2="230" stroke="#C8102E" stroke-width="3"/>
+<!-- Lower whisker -->
+<line x1="232" y1="290" x2="232" y2="350" stroke="#2a1a0e" stroke-width="1.5"/>
+<!-- Lower whisker cap -->
+<line x1="200" y1="350" x2="264" y2="350" stroke="#2a1a0e" stroke-width="2"/>
+
+<!-- Lower fence (dashed) -->
+<line x1="175" y1="365" x2="290" y2="365" stroke="#C8860E" stroke-width="1" stroke-dasharray="4,2"/>
+
+<!-- Outliers below -->
+<circle cx="225" cy="385" r="4" fill="#C8102E"/>
+<circle cx="238" cy="398" r="4" fill="#C8102E"/>
+
+<!-- Annotation callouts -->
+<!-- 1. Upper outliers -->
+<line x1="245" y1="73" x2="300" y2="73" stroke="#2a1a0e" stroke-width="0.75"/>
+<text x="305" y="77" font-size="10" fill="#2a1a0e">Outliers (> Q3 + 1.5 IQR)</text>
+
+<!-- 2. Upper fence -->
+<line x1="290" y1="95" x2="300" y2="95" stroke="#C8860E" stroke-width="0.75"/>
+<text x="305" y="99" font-size="10" fill="#C8860E">Upper fence (Q3 + 1.5 IQR)</text>
+
+<!-- 3. Upper whisker cap (max within fence) -->
+<line x1="264" y1="110" x2="300" y2="118" stroke="#2a1a0e" stroke-width="0.75"/>
+<text x="305" y="122" font-size="10" fill="#2a1a0e">Max (within fence)</text>
+
+<!-- 4. Q3 -->
+<line x1="272" y1="170" x2="300" y2="162" stroke="#2a1a0e" stroke-width="0.75"/>
+<text x="305" y="166" font-size="10" fill="#2a1a0e">Q3 (75th percentile)</text>
+
+<!-- 5. Median -->
+<line x1="272" y1="230" x2="300" y2="230" stroke="#C8102E" stroke-width="0.75"/>
+<text x="305" y="234" font-size="10" fill="#C8102E" font-weight="bold">Median (50th percentile)</text>
+
+<!-- 6. Q1 -->
+<line x1="272" y1="290" x2="300" y2="295" stroke="#2a1a0e" stroke-width="0.75"/>
+<text x="305" y="299" font-size="10" fill="#2a1a0e">Q1 (25th percentile)</text>
+
+<!-- 7. Lower fence -->
+<line x1="290" y1="365" x2="300" y2="365" stroke="#C8860E" stroke-width="0.75"/>
+<text x="305" y="369" font-size="9" fill="#C8860E">Lower fence (Q1 &#x2212; 1.5 IQR)</text>
+
+<!-- IQR bracket on left -->
+<line x1="180" y1="170" x2="170" y2="170" stroke="#2a1a0e" stroke-width="1"/>
+<line x1="170" y1="170" x2="170" y2="290" stroke="#2a1a0e" stroke-width="1"/>
+<line x1="180" y1="290" x2="170" y2="290" stroke="#2a1a0e" stroke-width="1"/>
+<text x="165" y="234" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">IQR</text>
+
+<!-- RIGHT PANEL: Range Chart (NOT THIS) -->
+<rect x="468" y="32" width="200" height="416" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<text x="568" y="52" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#2a1a0e" letter-spacing="0.08em">RANGE CHART</text>
+
+<!-- Chart area -->
+<rect x="488" y="68" width="160" height="320" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+
+<!-- Range whiskers (min-to-max, no boxes, no quartiles) -->
+<!-- Group A -->
+<line x1="514" y1="100" x2="514" y2="356" stroke="#2a1a0e" stroke-width="2"/>
+<line x1="504" y1="100" x2="524" y2="100" stroke="#2a1a0e" stroke-width="2"/>
+<line x1="504" y1="356" x2="524" y2="356" stroke="#2a1a0e" stroke-width="2"/>
+<text x="514" y="380" text-anchor="middle" font-size="9" fill="#545454">A</text>
+
+<!-- Group B -->
+<line x1="550" y1="130" x2="550" y2="340" stroke="#2a1a0e" stroke-width="2"/>
+<line x1="540" y1="130" x2="560" y2="130" stroke="#2a1a0e" stroke-width="2"/>
+<line x1="540" y1="340" x2="560" y2="340" stroke="#2a1a0e" stroke-width="2"/>
+<text x="550" y="380" text-anchor="middle" font-size="9" fill="#545454">B</text>
+
+<!-- Group C -->
+<line x1="586" y1="115" x2="586" y2="350" stroke="#2a1a0e" stroke-width="2"/>
+<line x1="576" y1="115" x2="596" y2="115" stroke="#2a1a0e" stroke-width="2"/>
+<line x1="576" y1="350" x2="596" y2="350" stroke="#2a1a0e" stroke-width="2"/>
+<text x="586" y="380" text-anchor="middle" font-size="9" fill="#545454">C</text>
+
+<!-- Group D -->
+<line x1="622" y1="140" x2="622" y2="330" stroke="#2a1a0e" stroke-width="2"/>
+<line x1="612" y1="140" x2="632" y2="140" stroke="#2a1a0e" stroke-width="2"/>
+<line x1="612" y1="330" x2="632" y2="330" stroke="#2a1a0e" stroke-width="2"/>
+<text x="622" y="380" text-anchor="middle" font-size="9" fill="#545454">D</text>
+
+<!-- "NOT THIS" badge -->
+<rect x="518" y="404" width="100" height="24" fill="#C8102E"/>
+<text x="568" y="420" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#FFFFFF" letter-spacing="0.08em">NOT THIS</text>
+
+<!-- Explanation -->
+<text x="568" y="436" text-anchor="middle" font-size="8" fill="#545454" font-style="italic">No quartiles, no</text>
+<text x="568" y="446" text-anchor="middle" font-size="8" fill="#545454" font-style="italic">outlier detection</text>
+</svg>

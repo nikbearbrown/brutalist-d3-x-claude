@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 9.2 — Same five-number summary. Different shapes.</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #121212;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--color-white);
+    color: var(--color-ink);
+    width: 1600px;
+    height: 900px;
+    overflow: hidden;
+  }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const W = 1600, H = 900;
+const svg = d3.select('#chart').append('svg')
+  .attr('width', W).attr('height', H)
+  .attr('role', 'img')
+  .attr('aria-labelledby', 'chart-title chart-desc');
+
+svg.append('title').attr('id', 'chart-title').text('Same five-number summary. Different shapes.');
+svg.append('desc').attr('id', 'chart-desc').text('Comparing a normal and bimodal distribution that share identical five-number summaries: box plots look the same but violin plots reveal the difference in shape.');
+
+// Background
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#FFFFFF');
+
+// Main title
+svg.append('text')
+  .attr('x', W / 2).attr('y', 52)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-size', 38).attr('fill', '#121212')
+  .text('Same five-number summary. Different shapes.');
+
+// Subtitle
+svg.append('text')
+  .attr('x', W / 2).attr('y', 82)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 15).attr('fill', '#545454')
+  .text('Figure 9.2 \u2014 The box plot cannot tell them apart');
+
+// Caption at bottom
+svg.append('text')
+  .attr('x', W / 2).attr('y', H - 28)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-size', 16).attr('font-style', 'italic').attr('fill', '#545454')
+  .text('The violin plot exists to address the box plot\u2019s shape blindness.');
+
+// =========================================================
+// Generate density data
+// =========================================================
+// Both distributions have same five-number summary:
+// min~20, Q1~40, median~50, Q3~60, max~80
+
+// Normal distribution density (bell curve centered at 50, sd~12)
+function normalDensity(x, mu, sigma) {
+  return (1 / (sigma * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * ((x - mu) / sigma) ** 2);
+}
+
+// Bimodal distribution density (two peaks at 35 and 65)
+function bimodalDensity(x) {
+  return 0.5 * normalDensity(x, 35, 8) + 0.5 * normalDensity(x, 65, 8);
+}
+
+// Generate density curves
+const xMin = 10, xMax = 90;
+const steps = 200;
+const normalData = [];
+const bimodalData = [];
+
+for (let i = 0; i <= steps; i++) {
+  const x = xMin + (xMax - xMin) * (i / steps);
+  normalData.push({ x, y: normalDensity(x, 50, 12) });
+  bimodalData.push({ x, y: bimodalDensity(x) });
+}
+
+// Five-number summary (same for both)
+const fiveNum = { min: 20, q1: 40, median: 50, q3: 60, max: 80 };
+
+// =========================================================
+// Layout: LEFT HALF = density + box plots, RIGHT HALF = violin plots
+// =========================================================
+const leftCenterX = 400;
+const rightCenterX = 1200;
+const dividerX = W / 2;
+
+// Vertical divider
+svg.append('line')
+  .attr('x1', dividerX).attr('y1', 100).attr('x2', dividerX).attr('y2', H - 60)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 2);
+
+// Section headers
+// LEFT
+svg.append('rect')
+  .attr('x', 60).attr('y', 100).attr('width', dividerX - 120).attr('height', 38)
+  .attr('fill', '#F5F5F5').attr('rx', 0);
+svg.append('text')
+  .attr('x', leftCenterX).attr('y', 125)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 16).attr('font-weight', 700).attr('fill', '#121212')
+  .text('Density curve + Box plot');
+
+// RIGHT
+svg.append('rect')
+  .attr('x', dividerX + 60).attr('y', 100).attr('width', dividerX - 120).attr('height', 38)
+  .attr('fill', '#F5F5F5').attr('rx', 0);
+svg.append('text')
+  .attr('x', rightCenterX).attr('y', 125)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 16).attr('font-weight', 700).attr('fill', '#121212')
+  .text('Violin plot');
+
+// =========================================================
+// LEFT PAIR: Normal + Bimodal with density on top, box below
+// =========================================================
+const leftPairY = 160;
+const pairH = 280;
+const densityH = 160;
+const boxY = leftPairY + densityH + 30;
+const boxH = 60;
+
+// Shared value scale (horizontal, value axis)
+const valueScale = d3.scaleLinear().domain([10, 90]).range([0, 280]);
+
+// Density height scale
+const maxDensity = d3.max([...normalData, ...bimodalData], d => d.y);
+const densityScale = d3.scaleLinear().domain([0, maxDensity]).range([0, densityH * 0.8]);
+
+// ---- NORMAL distribution (left side, left pair) ----
+const normX = 140;
+const normCenterX = normX + 140;
+const biX = 460;
+const biCenterX = biX + 140;
+
+// Label
+svg.append('text')
+  .attr('x', normCenterX).attr('y', leftPairY)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 13).attr('font-weight', 600).attr('fill', '#545454')
+  .text('Normal (unimodal)');
+
+// Density curve — normal
+const normalArea = d3.area()
+  .x(d => normX + valueScale(d.x))
+  .y0(leftPairY + densityH)
+  .y1(d => leftPairY + densityH - densityScale(d.y))
+  .curve(d3.curveBasis);
+
+svg.append('path')
+  .datum(normalData.filter(d => d.x >= 18 && d.x <= 82))
+  .attr('d', normalArea)
+  .attr('fill', '#E8E8E8').attr('stroke', '#121212').attr('stroke-width', 1.5);
+
+// ---- BIMODAL distribution (right side, left pair) ----
+svg.append('text')
+  .attr('x', biCenterX).attr('y', leftPairY)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 13).attr('font-weight', 600).attr('fill', '#545454')
+  .text('Bimodal (two peaks)');
+
+const bimodalArea = d3.area()
+  .x(d => biX + valueScale(d.x))
+  .y0(leftPairY + densityH)
+  .y1(d => leftPairY + densityH - densityScale(d.y))
+  .curve(d3.curveBasis);
+
+svg.append('path')
+  .datum(bimodalData.filter(d => d.x >= 18 && d.x <= 82))
+  .attr('d', bimodalArea)
+  .attr('fill', '#E8E8E8').attr('stroke', '#121212').attr('stroke-width', 1.5);
+
+// ---- BOX PLOTS (identical for both) ----
+function drawBoxPlot(g, cx, bw, bh, yTop) {
+  const s = d3.scaleLinear().domain([10, 90]).range([0, bw]);
+  // Whisker line
+  g.append('line')
+    .attr('x1', cx + s(fiveNum.min)).attr('x2', cx + s(fiveNum.max))
+    .attr('y1', yTop + bh / 2).attr('y2', yTop + bh / 2)
+    .attr('stroke', '#121212').attr('stroke-width', 1.5);
+  // Whisker caps
+  [fiveNum.min, fiveNum.max].forEach(v => {
+    g.append('line')
+      .attr('x1', cx + s(v)).attr('x2', cx + s(v))
+      .attr('y1', yTop + bh * 0.2).attr('y2', yTop + bh * 0.8)
+      .attr('stroke', '#121212').attr('stroke-width', 1.5);
+  });
+  // IQR box
+  g.append('rect')
+    .attr('x', cx + s(fiveNum.q1)).attr('y', yTop + bh * 0.1)
+    .attr('width', s(fiveNum.q3) - s(fiveNum.q1))
+    .attr('height', bh * 0.8)
+    .attr('fill', '#7A7A7A').attr('stroke', '#121212').attr('stroke-width', 1.5);
+  // Median line
+  g.append('line')
+    .attr('x1', cx + s(fiveNum.median)).attr('x2', cx + s(fiveNum.median))
+    .attr('y1', yTop + bh * 0.1).attr('y2', yTop + bh * 0.9)
+    .attr('stroke', '#FFFFFF').attr('stroke-width', 2.5);
+}
+
+drawBoxPlot(svg, normX, 280, boxH, boxY);
+drawBoxPlot(svg, biX, 280, boxH, boxY);
+
+// "=" badge between box plots
+const eqX = (normX + 280 + biX) / 2;
+svg.append('rect')
+  .attr('x', eqX - 20).attr('y', boxY + boxH / 2 - 16)
+  .attr('width', 40).attr('height', 32)
+  .attr('fill', '#545454').attr('rx', 16);
+svg.append('text')
+  .attr('x', eqX).attr('y', boxY + boxH / 2 + 6)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 20).attr('font-weight', 700).attr('fill', '#FFFFFF')
+  .text('=');
+
+// Label under box plots
+svg.append('text')
+  .attr('x', leftCenterX).attr('y', boxY + boxH + 28)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'JetBrains Mono', monospace")
+  .attr('font-size', 14).attr('fill', '#121212')
+  .text('Same five-number summary');
+
+// Value axis labels for left pair
+[20, 40, 50, 60, 80].forEach(v => {
+  svg.append('text')
+    .attr('x', normX + valueScale(v)).attr('y', boxY + boxH + 50)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 10).attr('fill', '#545454')
+    .text(v);
+  svg.append('text')
+    .attr('x', biX + valueScale(v)).attr('y', boxY + boxH + 50)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 10).attr('fill', '#545454')
+    .text(v);
+});
+
+// =========================================================
+// RIGHT PAIR: Violin plots
+// =========================================================
+const violinY = 170;
+const violinH = 500;
+const violinMaxW = 120; // max half-width
+
+// Vertical value scale for violins
+const violinValueScale = d3.scaleLinear().domain([10, 90]).range([violinH, 0]);
+const violinDensityScale = d3.scaleLinear().domain([0, maxDensity]).range([0, violinMaxW]);
+
+const violinNormCx = dividerX + 210;
+const violinBiCx = dividerX + 530;
+
+// Labels
+svg.append('text')
+  .attr('x', violinNormCx).attr('y', violinY - 4)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 13).attr('font-weight', 600).attr('fill', '#545454')
+  .text('Normal');
+
+svg.append('text')
+  .attr('x', violinBiCx).attr('y', violinY - 4)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 13).attr('font-weight', 600).attr('fill', '#545454')
+  .text('Bimodal');
+
+// Draw violin shapes
+function drawViolin(cx, data, fill, label) {
+  const filtered = data.filter(d => d.x >= 18 && d.x <= 82);
+
+  // Symmetric area
+  const areaPath = d3.area()
+    .x0(d => cx - violinDensityScale(d.y))
+    .x1(d => cx + violinDensityScale(d.y))
+    .y(d => violinY + violinValueScale(d.x))
+    .curve(d3.curveBasis);
+
+  svg.append('path')
+    .datum(filtered)
+    .attr('d', areaPath)
+    .attr('fill', fill)
+    .attr('stroke', '#121212').attr('stroke-width', 1.5)
+    .attr('tabindex', 0)
+    .attr('aria-label', `Violin plot showing ${label} distribution`);
+
+  // Median line inside violin
+  const medianY = violinY + violinValueScale(fiveNum.median);
+  const medDensity = filtered.find(d => Math.abs(d.x - fiveNum.median) < 1);
+  const medW = medDensity ? violinDensityScale(medDensity.y) : 30;
+  svg.append('line')
+    .attr('x1', cx - medW).attr('x2', cx + medW)
+    .attr('y1', medianY).attr('y2', medianY)
+    .attr('stroke', '#FFFFFF').attr('stroke-width', 2)
+    .attr('stroke-dasharray', '4,2');
+
+  // Q1 and Q3 thin lines
+  [fiveNum.q1, fiveNum.q3].forEach(q => {
+    const qY = violinY + violinValueScale(q);
+    const qDensity = filtered.find(d => Math.abs(d.x - q) < 1);
+    const qW = qDensity ? violinDensityScale(qDensity.y) * 0.6 : 20;
+    svg.append('line')
+      .attr('x1', cx - qW).attr('x2', cx + qW)
+      .attr('y1', qY).attr('y2', qY)
+      .attr('stroke', '#FFFFFF').attr('stroke-width', 1)
+      .attr('stroke-dasharray', '2,2');
+  });
+}
+
+drawViolin(violinNormCx, normalData, '#D0D0D0', 'normal');
+drawViolin(violinBiCx, bimodalData, '#D0D0D0', 'bimodal');
+
+// Value axis labels on left side of violins
+const violinAxisX = dividerX + 80;
+[20, 30, 40, 50, 60, 70, 80].forEach(v => {
+  svg.append('text')
+    .attr('x', violinAxisX).attr('y', violinY + violinValueScale(v) + 4)
+    .attr('text-anchor', 'end')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 11).attr('fill', '#545454')
+    .text(v);
+  svg.append('line')
+    .attr('x1', violinAxisX + 4).attr('x2', violinAxisX + 10)
+    .attr('y1', violinY + violinValueScale(v)).attr('y2', violinY + violinValueScale(v))
+    .attr('stroke', '#D4D4D4').attr('stroke-width', 0.5)
+    .attr('aria-hidden', 'true');
+});
+
+// "\u2260" (not equal) badge between the two violins
+const neqX = (violinNormCx + violinBiCx) / 2;
+const neqY = violinY + violinH * 0.35;
+
+svg.append('rect')
+  .attr('x', neqX - 38).attr('y', neqY - 20)
+  .attr('width', 76).attr('height', 40)
+  .attr('fill', '#C8102E').attr('rx', 20);
+svg.append('text')
+  .attr('x', neqX).attr('y', neqY + 8)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 16).attr('font-weight', 700).attr('fill', '#FFFFFF')
+  .text('\u2260  DIFF');
+
+// Label under violins
+svg.append('text')
+  .attr('x', rightCenterX).attr('y', violinY + violinH + 38)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'JetBrains Mono', monospace")
+  .attr('font-size', 14).attr('fill', '#121212')
+  .text('Violin reveals the shape');
+
+// =========================================================
+// Highlight annotations
+// =========================================================
+// Red bracket/annotation on right side for bimodal violin showing two bulges
+const bulge1Y = violinY + violinValueScale(35);
+const bulge2Y = violinY + violinValueScale(65);
+
+svg.append('text')
+  .attr('x', violinBiCx + violinMaxW + 20).attr('y', bulge1Y + 4)
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 11).attr('fill', '#C8102E')
+  .text('\u2190 peak 1');
+
+svg.append('text')
+  .attr('x', violinBiCx + violinMaxW + 20).attr('y', bulge2Y + 4)
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 11).attr('fill', '#C8102E')
+  .text('\u2190 peak 2');
+
+// Bracket line between peaks
+svg.append('line')
+  .attr('x1', violinBiCx + violinMaxW + 14).attr('x2', violinBiCx + violinMaxW + 14)
+  .attr('y1', bulge2Y + 6).attr('y2', bulge1Y - 6)
+  .attr('stroke', '#C8102E').attr('stroke-width', 1.5);
+
+svg.append('text')
+  .attr('x', violinBiCx + violinMaxW + 32).attr('y', (bulge1Y + bulge2Y) / 2 + 4)
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 10).attr('fill', '#C8102E')
+  .text('gap');
+
+</script>
+</body>
+</html>

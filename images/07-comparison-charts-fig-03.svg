@@ -1,0 +1,124 @@
+<svg viewBox="0 0 700 360" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+<defs>
+  <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#2a1a0e"/>
+  </marker>
+</defs>
+
+<!-- Background -->
+<rect width="700" height="360" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="28" text-anchor="middle" font-size="15" fill="#2a1a0e" font-weight="bold">Three Ways to Show Small Differences: 12.4%, 12.8%, 13.2%</text>
+
+<!-- PANEL 1: Truncated Bars -->
+<rect x="32" y="44" width="196" height="250" fill="#F5EFE8" stroke="#C8102E" stroke-width="2" rx="0"/>
+<text x="130" y="62" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#545454" letter-spacing="0.08em">TRUNCATED BARS</text>
+
+<!-- Y-axis: 12.0 to 13.5, range 1.5 units, chart y=74 to y=244, 170px => 113.3px/unit -->
+<text x="52" y="80" font-size="8" fill="#545454" text-anchor="end">13.5%</text>
+<line x1="54" y1="76" x2="216" y2="76" stroke="#D4D4D4" stroke-dasharray="4 3"/>
+<text x="52" y="137" font-size="8" fill="#545454" text-anchor="end">13.0%</text>
+<line x1="54" y1="133" x2="216" y2="133" stroke="#D4D4D4" stroke-dasharray="4 3"/>
+<text x="52" y="194" font-size="8" fill="#545454" text-anchor="end">12.5%</text>
+<line x1="54" y1="190" x2="216" y2="190" stroke="#D4D4D4" stroke-dasharray="4 3"/>
+<text x="52" y="251" font-size="8" fill="#545454" text-anchor="end">12.0%</text>
+<line x1="54" y1="247" x2="216" y2="247" stroke="#2a1a0e" stroke-width="1"/>
+
+<!-- Bars: 12.0 baseline at y=247, 113.3px/unit -->
+<!-- 12.4: (12.4-12.0)=0.4 => h=45.3 => y=201.7 -->
+<rect x="72" y="201.7" width="32" height="45.3" fill="#6B3520" rx="0"/>
+<text x="88" y="197" text-anchor="middle" font-size="8" fill="#2a1a0e">12.4%</text>
+<!-- 12.8: 0.8 => h=90.6 => y=156.4 -->
+<rect x="116" y="156.4" width="32" height="90.6" fill="#6B3520" rx="0"/>
+<text x="132" y="152" text-anchor="middle" font-size="8" fill="#2a1a0e">12.8%</text>
+<!-- 13.2: 1.2 => h=136 => y=111 -->
+<rect x="160" y="111" width="32" height="136" fill="#6B3520" rx="0"/>
+<text x="176" y="107" text-anchor="middle" font-size="8" fill="#2a1a0e">13.2%</text>
+
+<text x="100" y="262" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">POSITION + LENGTH</text>
+
+<!-- Verdict -->
+<rect x="68" y="272" width="84" height="20" fill="#C8102E" rx="0"/>
+<text x="110" y="286" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#FFFFFF" letter-spacing="0.08em">DISTORTS</text>
+
+<!-- PANEL 2: Dot Plot -->
+<rect x="252" y="44" width="196" height="250" fill="#F5EFE8" stroke="#1A3A5C" stroke-width="2" rx="0"/>
+<text x="350" y="62" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#545454" letter-spacing="0.08em">DOT PLOT</text>
+
+<!-- X-axis: 12.0 to 13.5, range 1.5, chart x=270 to x=432, 162px => 108px/unit -->
+<line x1="270" y1="200" x2="432" y2="200" stroke="#2a1a0e" stroke-width="1"/>
+<text x="270" y="216" font-size="8" fill="#545454" text-anchor="middle">12.0%</text>
+<text x="324" y="216" font-size="8" fill="#545454" text-anchor="middle">12.5%</text>
+<text x="378" y="216" font-size="8" fill="#545454" text-anchor="middle">13.0%</text>
+<text x="432" y="216" font-size="8" fill="#545454" text-anchor="middle">13.5%</text>
+
+<!-- Grid lines -->
+<line x1="270" y1="80" x2="270" y2="200" stroke="#D4D4D4" stroke-dasharray="4 3"/>
+<line x1="324" y1="80" x2="324" y2="200" stroke="#D4D4D4" stroke-dasharray="4 3"/>
+<line x1="378" y1="80" x2="378" y2="200" stroke="#D4D4D4" stroke-dasharray="4 3"/>
+<line x1="432" y1="80" x2="432" y2="200" stroke="#D4D4D4" stroke-dasharray="4 3"/>
+
+<!-- Dots: 12.4 => x=270+(0.4*108)=313.2, 12.8 => 356.4, 13.2 => 399.6 -->
+<!-- Labels -->
+<text x="260" y="110" font-size="9" fill="#2a1a0e" text-anchor="end">A</text>
+<circle cx="313.2" cy="107" r="5" fill="#6B3520"/>
+<text x="313.2" y="98" text-anchor="middle" font-size="8" fill="#2a1a0e">12.4%</text>
+
+<text x="260" y="145" font-size="9" fill="#2a1a0e" text-anchor="end">B</text>
+<circle cx="356.4" cy="142" r="5" fill="#6B3520"/>
+<text x="356.4" y="133" text-anchor="middle" font-size="8" fill="#2a1a0e">12.8%</text>
+
+<text x="260" y="180" font-size="9" fill="#2a1a0e" text-anchor="end">C</text>
+<circle cx="399.6" cy="177" r="5" fill="#6B3520"/>
+<text x="399.6" y="168" text-anchor="middle" font-size="8" fill="#2a1a0e">13.2%</text>
+
+<text x="350" y="234" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">POSITION ONLY</text>
+
+<!-- Verdict -->
+<rect x="308" y="244" width="84" height="20" fill="#1A3A5C" rx="0"/>
+<text x="350" y="258" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#FFFFFF" letter-spacing="0.08em">HONEST</text>
+
+<!-- PANEL 3: Difference Chart -->
+<rect x="472" y="44" width="196" height="250" fill="#F5EFE8" stroke="#1A3A5C" stroke-width="2" rx="0"/>
+<text x="570" y="62" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#545454" letter-spacing="0.08em">DIFFERENCE CHART</text>
+
+<!-- Show difference from 12.4% baseline -->
+<text x="570" y="80" text-anchor="middle" font-size="9" fill="#545454">Difference from A (12.4%)</text>
+
+<!-- X-axis: 0 to +1.0, chart x=498 to y=650, 152px/1.0 -->
+<line x1="498" y1="200" x2="650" y2="200" stroke="#2a1a0e" stroke-width="1"/>
+<text x="498" y="216" font-size="8" fill="#545454" text-anchor="middle">0</text>
+<text x="574" y="216" font-size="8" fill="#545454" text-anchor="middle">+0.5%</text>
+<text x="650" y="216" font-size="8" fill="#545454" text-anchor="middle">+1.0%</text>
+
+<!-- Grid lines -->
+<line x1="498" y1="90" x2="498" y2="200" stroke="#D4D4D4" stroke-dasharray="4 3"/>
+<line x1="574" y1="90" x2="574" y2="200" stroke="#D4D4D4" stroke-dasharray="4 3"/>
+<line x1="650" y1="90" x2="650" y2="200" stroke="#D4D4D4" stroke-dasharray="4 3"/>
+
+<!-- Bars: A=0, B=+0.4, C=+0.8 -->
+<!-- A: 0 width -->
+<text x="490" y="118" font-size="9" fill="#2a1a0e" text-anchor="end">A</text>
+<rect x="498" y="108" width="2" height="16" fill="#6B3520" rx="0"/>
+<text x="506" y="120" font-size="8" fill="#2a1a0e">0</text>
+
+<!-- B: 0.4 => 0.4*152=60.8 -->
+<text x="490" y="150" font-size="9" fill="#2a1a0e" text-anchor="end">B</text>
+<rect x="498" y="140" width="60.8" height="16" fill="#6B3520" rx="0"/>
+<text x="564" y="152" font-size="8" fill="#2a1a0e">+0.4%</text>
+
+<!-- C: 0.8 => 0.8*152=121.6 -->
+<text x="490" y="182" font-size="9" fill="#2a1a0e" text-anchor="end">C</text>
+<rect x="498" y="172" width="121.6" height="16" fill="#6B3520" rx="0"/>
+<text x="625" y="184" font-size="8" fill="#2a1a0e">+0.8%</text>
+
+<text x="570" y="234" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">LENGTH FROM ZERO</text>
+
+<!-- Verdict -->
+<rect x="528" y="244" width="84" height="20" fill="#1A3A5C" rx="0"/>
+<text x="570" y="258" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#FFFFFF" letter-spacing="0.08em">HONEST</text>
+
+<!-- Caption -->
+<text x="350" y="340" text-anchor="middle" font-size="10" fill="#545454" font-style="italic">Fig. 7-3. Dot plots and difference charts reveal small differences without distorting proportions.</text>
+</svg>

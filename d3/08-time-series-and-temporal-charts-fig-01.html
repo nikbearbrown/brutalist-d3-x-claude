@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 8.1 — Bar length requires zero baseline. Point position does not.</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #121212;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--color-white);
+    color: var(--color-ink);
+    width: 1600px;
+    height: 900px;
+    overflow: hidden;
+  }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const W = 1600, H = 900;
+const svg = d3.select('#chart').append('svg')
+  .attr('width', W).attr('height', H)
+  .attr('role', 'img')
+  .attr('aria-labelledby', 'chart-title chart-desc');
+
+svg.append('title').attr('id', 'chart-title').text('Same y-axis range. The channel determines the rule.');
+svg.append('desc').attr('id', 'chart-desc').text('Two side-by-side charts comparing a column bar chart with a truncated y-axis versus a line chart with the same y-axis range, showing that bar length requires a zero baseline while point position does not.');
+
+// Background
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#FFFFFF');
+
+// Main title
+svg.append('text')
+  .attr('x', W / 2).attr('y', 52)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-size', 34).attr('fill', '#121212')
+  .text('Same y-axis range. The channel determines the rule.');
+
+// Subtitle
+svg.append('text')
+  .attr('x', W / 2).attr('y', 80)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 14).attr('fill', '#545454')
+  .text('Figure 8.1 \u2014 Bar length requires zero baseline. Point position does not.');
+
+// Data — 12 months of revenue
+const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const values = [83, 85, 84, 87, 86, 88, 89, 87, 90, 88, 91, 89]; // in $k
+const data = months.map((m, i) => ({ month: m, value: values[i] }));
+
+// Divider line
+svg.append('line')
+  .attr('x1', W / 2).attr('y1', 96).attr('x2', W / 2).attr('y2', H - 70)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 2);
+
+// =========================================================
+// LEFT PANEL — Column bar chart (truncated y from $80k)
+// =========================================================
+const leftPanelX = 50;
+const leftPanelW = W / 2 - 70;
+
+// Panel header — red tinted (violation)
+svg.append('rect')
+  .attr('x', leftPanelX).attr('y', 98).attr('width', leftPanelW).attr('height', 40)
+  .attr('fill', '#FFF0F0').attr('rx', 4);
+svg.append('text')
+  .attr('x', leftPanelX + leftPanelW / 2).attr('y', 124)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 17).attr('font-weight', 700).attr('fill', '#C8102E')
+  .text('Column bar chart');
+
+// Red border badge
+svg.append('rect')
+  .attr('x', leftPanelX + leftPanelW - 100).attr('y', 103).attr('width', 84).attr('height', 28)
+  .attr('fill', '#C8102E').attr('rx', 14);
+svg.append('text')
+  .attr('x', leftPanelX + leftPanelW - 58).attr('y', 122)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('font-weight', 700).attr('fill', '#FFFFFF')
+  .text('y: $80k+');
+
+const leftChartX = leftPanelX + 80;
+const leftChartY = 168;
+const leftChartW = leftPanelW - 110;
+const leftChartH = 440;
+
+const xScaleLeft = d3.scaleBand()
+  .domain(months)
+  .range([0, leftChartW])
+  .padding(0.18);
+
+const yScaleLeft = d3.scaleLinear()
+  .domain([80, 92])
+  .range([leftChartH, 0]);
+
+const gLeft = svg.append('g')
+  .attr('transform', `translate(${leftChartX}, ${leftChartY})`);
+
+// Red border around left chart area
+gLeft.append('rect')
+  .attr('x', -2).attr('y', -2)
+  .attr('width', leftChartW + 4).attr('height', leftChartH + 4)
+  .attr('fill', 'none').attr('stroke', '#C8102E').attr('stroke-width', 2.5)
+  .attr('rx', 3);
+
+// Gridlines
+gLeft.selectAll('.gridline-left')
+  .data(yScaleLeft.ticks(6))
+  .join('line')
+    .attr('class', 'gridline-left')
+    .attr('x1', 0).attr('x2', leftChartW)
+    .attr('y1', d => yScaleLeft(d)).attr('y2', d => yScaleLeft(d))
+    .attr('stroke', '#ECECEC').attr('stroke-width', 1)
+    .attr('aria-hidden', 'true');
+
+// Y-axis
+const yAxisLeft = d3.axisLeft(yScaleLeft).ticks(6).tickFormat(d => '$' + d + 'k');
+gLeft.append('g').call(yAxisLeft)
+  .selectAll('text')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 11).attr('fill', '#545454');
+gLeft.selectAll('.domain, .tick line').attr('stroke', '#D4D4D4');
+
+// Zigzag break on y-axis
+const breakY = leftChartH + 2;
+const zigzag = `M -12,${breakY} l 6,-6 l 6,6 l 6,-6 l 6,6`;
+gLeft.append('path')
+  .attr('d', zigzag)
+  .attr('fill', 'none')
+  .attr('stroke', '#C8102E')
+  .attr('stroke-width', 2);
+
+// Bars
+gLeft.selectAll('.bar-left')
+  .data(data)
+  .join('rect')
+    .attr('class', 'bar-left')
+    .attr('x', d => xScaleLeft(d.month))
+    .attr('y', d => yScaleLeft(d.value))
+    .attr('width', xScaleLeft.bandwidth())
+    .attr('height', d => leftChartH - yScaleLeft(d.value))
+    .attr('fill', '#121212')
+    .attr('rx', 1)
+    .attr('tabindex', 0)
+    .attr('aria-label', d => `${d.month}: $${d.value}k`);
+
+// Value labels
+gLeft.selectAll('.val-left')
+  .data(data)
+  .join('text')
+    .attr('class', 'val-left')
+    .attr('x', d => xScaleLeft(d.month) + xScaleLeft.bandwidth() / 2)
+    .attr('y', d => yScaleLeft(d.value) - 6)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 10).attr('font-weight', 600).attr('fill', '#121212')
+    .text(d => '$' + d.value + 'k');
+
+// X-axis labels
+const xAxisLeft2 = d3.axisBottom(xScaleLeft).tickSize(0);
+gLeft.append('g')
+  .attr('transform', `translate(0, ${leftChartH})`)
+  .call(xAxisLeft2)
+  .selectAll('text')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 10).attr('fill', '#545454');
+gLeft.select('.domain').attr('stroke', '#D4D4D4');
+
+// Labels below left panel
+const leftLabelY = leftChartY + leftChartH + 50;
+svg.append('text')
+  .attr('x', leftChartX + leftChartW / 2).attr('y', leftLabelY)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'JetBrains Mono', monospace")
+  .attr('font-size', 13).attr('fill', '#121212')
+  .text('Channel: bar length (area)');
+
+svg.append('text')
+  .attr('x', leftChartX + leftChartW / 2).attr('y', leftLabelY + 24)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('font-style', 'italic').attr('fill', '#C8102E')
+  .text('Proportional ink violation \u2014 lengths from $80k, not from $0');
+
+// =========================================================
+// RIGHT PANEL — Line chart (same y from $80k — this is fine)
+// =========================================================
+const rightPanelX = W / 2 + 20;
+const rightPanelW = W / 2 - 70;
+
+// Panel header — ink/neutral (legitimate)
+svg.append('rect')
+  .attr('x', rightPanelX).attr('y', 98).attr('width', rightPanelW).attr('height', 40)
+  .attr('fill', '#F5F5F5').attr('rx', 4);
+svg.append('text')
+  .attr('x', rightPanelX + rightPanelW / 2).attr('y', 124)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 17).attr('font-weight', 700).attr('fill', '#121212')
+  .text('Line chart');
+
+// Ink border badge
+svg.append('rect')
+  .attr('x', rightPanelX + rightPanelW - 100).attr('y', 103).attr('width', 84).attr('height', 28)
+  .attr('fill', '#121212').attr('rx', 14);
+svg.append('text')
+  .attr('x', rightPanelX + rightPanelW - 58).attr('y', 122)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('font-weight', 700).attr('fill', '#FFFFFF')
+  .text('y: $80k+');
+
+const rightChartX = rightPanelX + 80;
+const rightChartY = 168;
+const rightChartW = rightPanelW - 110;
+const rightChartH = 440;
+
+const xScaleRight = d3.scaleBand()
+  .domain(months)
+  .range([0, rightChartW])
+  .padding(0.18);
+
+const yScaleRight = d3.scaleLinear()
+  .domain([80, 92])
+  .range([rightChartH, 0]);
+
+const gRight = svg.append('g')
+  .attr('transform', `translate(${rightChartX}, ${rightChartY})`);
+
+// Ink border around right chart area
+gRight.append('rect')
+  .attr('x', -2).attr('y', -2)
+  .attr('width', rightChartW + 4).attr('height', rightChartH + 4)
+  .attr('fill', 'none').attr('stroke', '#121212').attr('stroke-width', 2.5)
+  .attr('rx', 3);
+
+// Gridlines
+gRight.selectAll('.gridline-right')
+  .data(yScaleRight.ticks(6))
+  .join('line')
+    .attr('class', 'gridline-right')
+    .attr('x1', 0).attr('x2', rightChartW)
+    .attr('y1', d => yScaleRight(d)).attr('y2', d => yScaleRight(d))
+    .attr('stroke', '#ECECEC').attr('stroke-width', 1)
+    .attr('aria-hidden', 'true');
+
+// Y-axis
+const yAxisRight = d3.axisLeft(yScaleRight).ticks(6).tickFormat(d => '$' + d + 'k');
+gRight.append('g').call(yAxisRight)
+  .selectAll('text')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 11).attr('fill', '#545454');
+gRight.selectAll('.domain, .tick line').attr('stroke', '#D4D4D4');
+
+// Line
+const lineGen = d3.line()
+  .x(d => xScaleRight(d.month) + xScaleRight.bandwidth() / 2)
+  .y(d => yScaleRight(d.value))
+  .curve(d3.curveMonotoneX);
+
+gRight.append('path')
+  .datum(data)
+  .attr('d', lineGen)
+  .attr('fill', 'none')
+  .attr('stroke', '#121212')
+  .attr('stroke-width', 2.5);
+
+// Dots
+gRight.selectAll('.dot-right')
+  .data(data)
+  .join('circle')
+    .attr('class', 'dot-right')
+    .attr('cx', d => xScaleRight(d.month) + xScaleRight.bandwidth() / 2)
+    .attr('cy', d => yScaleRight(d.value))
+    .attr('r', 4.5)
+    .attr('fill', '#121212')
+    .attr('stroke', '#FFFFFF')
+    .attr('stroke-width', 2)
+    .attr('tabindex', 0)
+    .attr('aria-label', d => `${d.month}: $${d.value}k`);
+
+// Value labels on dots
+gRight.selectAll('.val-right')
+  .data(data)
+  .join('text')
+    .attr('class', 'val-right')
+    .attr('x', d => xScaleRight(d.month) + xScaleRight.bandwidth() / 2)
+    .attr('y', d => yScaleRight(d.value) - 12)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 10).attr('font-weight', 600).attr('fill', '#121212')
+    .text(d => '$' + d.value + 'k');
+
+// X-axis labels
+const xAxisRight2 = d3.axisBottom(xScaleRight).tickSize(0);
+gRight.append('g')
+  .attr('transform', `translate(0, ${rightChartH})`)
+  .call(xAxisRight2)
+  .selectAll('text')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 10).attr('fill', '#545454');
+gRight.select('.domain').attr('stroke', '#D4D4D4');
+
+// Labels below right panel
+const rightLabelY = rightChartY + rightChartH + 50;
+svg.append('text')
+  .attr('x', rightChartX + rightChartW / 2).attr('y', rightLabelY)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'JetBrains Mono', monospace")
+  .attr('font-size', 13).attr('fill', '#121212')
+  .text('Channel: point position');
+
+svg.append('text')
+  .attr('x', rightChartX + rightChartW / 2).attr('y', rightLabelY + 24)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('font-style', 'italic').attr('fill', '#545454')
+  .text('Legitimate design choice \u2014 position doesn\u2019t require zero baseline');
+
+// =========================================================
+// Bottom caption
+// =========================================================
+svg.append('line')
+  .attr('x1', 50).attr('y1', H - 42).attr('x2', W - 50).attr('y2', H - 42)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+
+svg.append('text')
+  .attr('x', W / 2).attr('y', H - 16)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-style', 'italic')
+  .attr('font-size', 15).attr('fill', '#545454')
+  .text('Left is a proportional ink violation; right is a legitimate design choice.');
+</script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+<defs>
+  <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#2a1a0e"/>
+  </marker>
+</defs>
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="30" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="12" fill="#2a1a0e" letter-spacing="0.08em">STACKED AREA CHART</text>
+
+<!-- Chart area -->
+<rect x="72" y="48" width="480" height="310" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+
+<!-- Y-axis labels -->
+<text x="68" y="58" text-anchor="end" font-size="9" fill="#545454">500</text>
+<text x="68" y="120" text-anchor="end" font-size="9" fill="#545454">400</text>
+<text x="68" y="182" text-anchor="end" font-size="9" fill="#545454">300</text>
+<text x="68" y="244" text-anchor="end" font-size="9" fill="#545454">200</text>
+<text x="68" y="306" text-anchor="end" font-size="9" fill="#545454">100</text>
+<text x="68" y="356" text-anchor="end" font-size="9" fill="#545454">0</text>
+
+<!-- X-axis labels -->
+<text x="82" y="372" text-anchor="middle" font-size="8" fill="#545454">2018</text>
+<text x="178" y="372" text-anchor="middle" font-size="8" fill="#545454">2019</text>
+<text x="274" y="372" text-anchor="middle" font-size="8" fill="#545454">2020</text>
+<text x="370" y="372" text-anchor="middle" font-size="8" fill="#545454">2021</text>
+<text x="466" y="372" text-anchor="middle" font-size="8" fill="#545454">2022</text>
+<text x="542" y="372" text-anchor="middle" font-size="8" fill="#545454">2023</text>
+
+<!-- Layer 1 (bottom): #2a1a0e -->
+<polygon points="82,358 178,352 274,345 370,338 466,330 542,325 542,358 82,358" fill="#2a1a0e"/>
+
+<!-- Layer 2: #6B3520 -->
+<polygon points="82,328 178,318 274,305 370,295 466,282 542,272 542,325 466,330 370,338 274,345 178,352 82,358" fill="#6B3520"/>
+
+<!-- Layer 3: #1A3A5C -->
+<polygon points="82,278 178,262 274,240 370,225 466,210 542,195 542,272 466,282 370,295 274,305 178,318 82,328" fill="#1A3A5C"/>
+
+<!-- Layer 4: #C8860E -->
+<polygon points="82,228 178,210 274,185 370,165 466,148 542,132 542,195 466,210 370,225 274,240 178,262 82,278" fill="#C8860E"/>
+
+<!-- Layer 5 (top): #D4D4D4 -->
+<polygon points="82,195 178,170 274,145 370,120 466,100 542,82 542,132 466,148 370,165 274,185 178,210 82,228" fill="#D4D4D4"/>
+
+<!-- Total top edge dashed -->
+<polyline points="82,195 178,170 274,145 370,120 466,100 542,82" fill="none" stroke="#2a1a0e" stroke-width="1.5" stroke-dasharray="6,3"/>
+
+<!-- Right-side accuracy brackets -->
+<!-- Bottom bracket: HIGH -->
+<line x1="560" y1="358" x2="575" y2="358" stroke="#1A3A5C" stroke-width="1.5"/>
+<line x1="575" y1="358" x2="575" y2="280" stroke="#1A3A5C" stroke-width="1.5"/>
+<line x1="560" y1="280" x2="575" y2="280" stroke="#1A3A5C" stroke-width="1.5"/>
+<text x="580" y="316" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#1A3A5C" letter-spacing="0.08em">ACCURACY:</text>
+<text x="580" y="328" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#1A3A5C" letter-spacing="0.08em">HIGH</text>
+
+<!-- Middle bracket: MEDIUM -->
+<line x1="560" y1="275" x2="575" y2="275" stroke="#C8860E" stroke-width="1.5"/>
+<line x1="575" y1="275" x2="575" y2="195" stroke="#C8860E" stroke-width="1.5"/>
+<line x1="560" y1="195" x2="575" y2="195" stroke="#C8860E" stroke-width="1.5"/>
+<text x="580" y="238" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#C8860E" letter-spacing="0.08em">MEDIUM</text>
+
+<!-- Top bracket: LOW -->
+<line x1="560" y1="190" x2="575" y2="190" stroke="#C8102E" stroke-width="1.5"/>
+<line x1="575" y1="190" x2="575" y2="85" stroke="#C8102E" stroke-width="1.5"/>
+<line x1="560" y1="85" x2="575" y2="85" stroke="#C8102E" stroke-width="1.5"/>
+<text x="580" y="140" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#C8102E" letter-spacing="0.08em">LOW</text>
+
+<!-- Legend note -->
+<text x="350" y="400" text-anchor="middle" font-size="10" fill="#545454" font-style="italic">Reading accuracy degrades for upper layers in stacked area charts</text>
+</svg>

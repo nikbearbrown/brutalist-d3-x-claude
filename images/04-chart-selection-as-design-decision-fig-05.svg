@@ -1,0 +1,100 @@
+<svg viewBox="0 0 700 480" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+<defs>
+  <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#2a1a0e"/>
+  </marker>
+</defs>
+
+<!-- Background -->
+<rect width="700" height="480" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="28" text-anchor="middle" font-size="13" font-weight="700" fill="#2a1a0e">The FT Visual Vocabulary: Eight Functional Categories</text>
+
+<!-- Grid layout: 4 columns x 2 rows -->
+<!-- Column widths: ~155 each, with gaps -->
+<!-- Row 1: y=42..232, Row 2: y=248..438 -->
+
+<!-- ====== PANEL 1: Comparison (row1, col1) — #C8102E ====== -->
+<rect x="32" y="42" width="152" height="192" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<rect x="32" y="42" width="152" height="22" fill="#C8102E"/>
+<text x="108" y="57" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8.5" font-weight="700" fill="#FFFFFF" letter-spacing="0.08em">COMPARISON</text>
+<text x="42" y="80" font-size="9.5" fill="#2a1a0e" font-style="italic">How do values differ?</text>
+<circle cx="48" cy="97" r="3" fill="#C8102E"/><text x="56" y="100" font-size="9.5" fill="#2a1a0e">Bar chart</text>
+<circle cx="48" cy="113" r="3" fill="#D4D4D4"/><text x="56" y="116" font-size="9.5" fill="#2a1a0e">Paired bar chart</text>
+<circle cx="48" cy="129" r="3" fill="#D4D4D4"/><text x="56" y="132" font-size="9.5" fill="#2a1a0e">Dot plot</text>
+<circle cx="48" cy="145" r="3" fill="#D4D4D4"/><text x="56" y="148" font-size="9.5" fill="#2a1a0e">Lollipop chart</text>
+
+<!-- ====== PANEL 2: Change over time (row1, col2) — #2a1a0e ====== -->
+<rect x="196" y="42" width="152" height="192" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<rect x="196" y="42" width="152" height="22" fill="#2a1a0e"/>
+<text x="272" y="57" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8.5" font-weight="700" fill="#FFFFFF" letter-spacing="0.08em">CHANGE OVER TIME</text>
+<text x="206" y="80" font-size="9.5" fill="#2a1a0e" font-style="italic">How have values evolved?</text>
+<circle cx="212" cy="97" r="3" fill="#2a1a0e"/><text x="220" y="100" font-size="9.5" fill="#2a1a0e">Line chart</text>
+<circle cx="212" cy="113" r="3" fill="#D4D4D4"/><text x="220" y="116" font-size="9.5" fill="#2a1a0e">Area chart</text>
+<circle cx="212" cy="129" r="3" fill="#D4D4D4"/><text x="220" y="132" font-size="9.5" fill="#2a1a0e">Slope chart</text>
+<circle cx="212" cy="145" r="3" fill="#D4D4D4"/><text x="220" y="148" font-size="9.5" fill="#2a1a0e">Sparkline</text>
+
+<!-- ====== PANEL 3: Distribution (row1, col3) — #1A3A5C ====== -->
+<rect x="360" y="42" width="152" height="192" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<rect x="360" y="42" width="152" height="22" fill="#1A3A5C"/>
+<text x="436" y="57" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8.5" font-weight="700" fill="#FFFFFF" letter-spacing="0.08em">DISTRIBUTION</text>
+<text x="370" y="80" font-size="9.5" fill="#2a1a0e" font-style="italic">What does the spread look like?</text>
+<circle cx="376" cy="97" r="3" fill="#1A3A5C"/><text x="384" y="100" font-size="9.5" fill="#2a1a0e">Histogram</text>
+<circle cx="376" cy="113" r="3" fill="#D4D4D4"/><text x="384" y="116" font-size="9.5" fill="#2a1a0e">Box plot</text>
+<circle cx="376" cy="129" r="3" fill="#D4D4D4"/><text x="384" y="132" font-size="9.5" fill="#2a1a0e">Violin plot</text>
+<circle cx="376" cy="145" r="3" fill="#D4D4D4"/><text x="384" y="148" font-size="9.5" fill="#2a1a0e">Beeswarm</text>
+
+<!-- ====== PANEL 4: Relationship (row1, col4) — #C8860E ====== -->
+<rect x="524" y="42" width="152" height="192" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<rect x="524" y="42" width="152" height="22" fill="#C8860E"/>
+<text x="600" y="57" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8.5" font-weight="700" fill="#FFFFFF" letter-spacing="0.08em">RELATIONSHIP</text>
+<text x="534" y="80" font-size="9.5" fill="#2a1a0e" font-style="italic">How do variables correlate?</text>
+<circle cx="540" cy="97" r="3" fill="#C8860E"/><text x="548" y="100" font-size="9.5" fill="#2a1a0e">Scatterplot</text>
+<circle cx="540" cy="113" r="3" fill="#D4D4D4"/><text x="548" y="116" font-size="9.5" fill="#2a1a0e">Bubble chart</text>
+<circle cx="540" cy="129" r="3" fill="#D4D4D4"/><text x="548" y="132" font-size="9.5" fill="#2a1a0e">Connected scatter</text>
+<circle cx="540" cy="145" r="3" fill="#D4D4D4"/><text x="548" y="148" font-size="9.5" fill="#2a1a0e">Heatmap</text>
+
+<!-- ====== PANEL 5: Part-to-whole (row2, col1) — #C8102E ====== -->
+<rect x="32" y="248" width="152" height="192" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<rect x="32" y="248" width="152" height="22" fill="#C8102E"/>
+<text x="108" y="263" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8.5" font-weight="700" fill="#FFFFFF" letter-spacing="0.08em">PART-TO-WHOLE</text>
+<text x="42" y="286" font-size="9.5" fill="#2a1a0e" font-style="italic">How is the total divided?</text>
+<circle cx="48" cy="303" r="3" fill="#C8102E"/><text x="56" y="306" font-size="9.5" fill="#2a1a0e">Stacked bar</text>
+<circle cx="48" cy="319" r="3" fill="#D4D4D4"/><text x="56" y="322" font-size="9.5" fill="#2a1a0e">Pie / donut chart</text>
+<circle cx="48" cy="335" r="3" fill="#D4D4D4"/><text x="56" y="338" font-size="9.5" fill="#2a1a0e">Treemap</text>
+<circle cx="48" cy="351" r="3" fill="#D4D4D4"/><text x="56" y="354" font-size="9.5" fill="#2a1a0e">Waterfall chart</text>
+
+<!-- ====== PANEL 6: Hierarchy (row2, col2) — #2a1a0e ====== -->
+<rect x="196" y="248" width="152" height="192" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<rect x="196" y="248" width="152" height="22" fill="#2a1a0e"/>
+<text x="272" y="263" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8.5" font-weight="700" fill="#FFFFFF" letter-spacing="0.08em">HIERARCHY</text>
+<text x="206" y="286" font-size="9.5" fill="#2a1a0e" font-style="italic">How are items nested?</text>
+<circle cx="212" cy="303" r="3" fill="#2a1a0e"/><text x="220" y="306" font-size="9.5" fill="#2a1a0e">Treemap</text>
+<circle cx="212" cy="319" r="3" fill="#D4D4D4"/><text x="220" y="322" font-size="9.5" fill="#2a1a0e">Sunburst</text>
+<circle cx="212" cy="335" r="3" fill="#D4D4D4"/><text x="220" y="338" font-size="9.5" fill="#2a1a0e">Dendogram</text>
+<circle cx="212" cy="351" r="3" fill="#D4D4D4"/><text x="220" y="354" font-size="9.5" fill="#2a1a0e">Circle packing</text>
+
+<!-- ====== PANEL 7: Flow (row2, col3) — #1A3A5C ====== -->
+<rect x="360" y="248" width="152" height="192" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<rect x="360" y="248" width="152" height="22" fill="#1A3A5C"/>
+<text x="436" y="263" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8.5" font-weight="700" fill="#FFFFFF" letter-spacing="0.08em">FLOW</text>
+<text x="370" y="286" font-size="9.5" fill="#2a1a0e" font-style="italic">Where do things move?</text>
+<circle cx="376" cy="303" r="3" fill="#1A3A5C"/><text x="384" y="306" font-size="9.5" fill="#2a1a0e">Sankey diagram</text>
+<circle cx="376" cy="319" r="3" fill="#D4D4D4"/><text x="384" y="322" font-size="9.5" fill="#2a1a0e">Chord diagram</text>
+<circle cx="376" cy="335" r="3" fill="#D4D4D4"/><text x="384" y="338" font-size="9.5" fill="#2a1a0e">Alluvial diagram</text>
+<circle cx="376" cy="351" r="3" fill="#D4D4D4"/><text x="384" y="354" font-size="9.5" fill="#2a1a0e">Network graph</text>
+
+<!-- ====== PANEL 8: Spatial (row2, col4) — #C8860E ====== -->
+<rect x="524" y="248" width="152" height="192" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<rect x="524" y="248" width="152" height="22" fill="#C8860E"/>
+<text x="600" y="263" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8.5" font-weight="700" fill="#FFFFFF" letter-spacing="0.08em">SPATIAL</text>
+<text x="534" y="286" font-size="9.5" fill="#2a1a0e" font-style="italic">Where is it located?</text>
+<circle cx="540" cy="303" r="3" fill="#C8860E"/><text x="548" y="306" font-size="9.5" fill="#2a1a0e">Choropleth</text>
+<circle cx="540" cy="319" r="3" fill="#D4D4D4"/><text x="548" y="322" font-size="9.5" fill="#2a1a0e">Dot map</text>
+<circle cx="540" cy="335" r="3" fill="#D4D4D4"/><text x="548" y="338" font-size="9.5" fill="#2a1a0e">Proportional symbol</text>
+<circle cx="540" cy="351" r="3" fill="#D4D4D4"/><text x="548" y="354" font-size="9.5" fill="#2a1a0e">Cartogram</text>
+
+<!-- Figure label -->
+<text x="350" y="465" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#545454" letter-spacing="0.08em">FIGURE 4-5</text>
+</svg>

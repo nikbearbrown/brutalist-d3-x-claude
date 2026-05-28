@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 2.1 — Prompt Comparison</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #121212;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--color-white);
+    color: var(--color-ink);
+    width: 1600px;
+    height: 900px;
+    overflow: hidden;
+  }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const W = 1600, H = 900;
+const svg = d3.select('#chart').append('svg')
+  .attr('width', W).attr('height', H)
+  .attr('role', 'img')
+  .attr('aria-labelledby', 'chart-title');
+
+svg.append('title').attr('id', 'chart-title').text('Figure 2.1 — Vague vs Specific Prompt Comparison');
+
+// Background
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#FFFFFF');
+
+// Title
+svg.append('text')
+  .attr('x', W/2).attr('y', 52)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-size', 36).attr('fill', '#121212')
+  .text('Every decision the vague prompt omits is a decision the model makes for you');
+
+// Subtitle
+svg.append('text')
+  .attr('x', W/2).attr('y', 82)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 14).attr('fill', '#545454')
+  .text('Figure 2.1 — Side-by-side comparison of two prompts for the same dataset');
+
+// Divider line
+svg.append('line')
+  .attr('x1', W/2).attr('y1', 110).attr('x2', W/2).attr('y2', H - 60)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 2);
+
+// Column headers
+const leftX = W * 0.25, rightX = W * 0.75;
+
+// Left column header — VAGUE
+svg.append('rect')
+  .attr('x', 60).attr('y', 108).attr('width', W/2 - 80).attr('height', 44)
+  .attr('fill', '#F5F5F5').attr('rx', 4);
+svg.append('text')
+  .attr('x', leftX).attr('y', 137)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 18).attr('font-weight', 700).attr('fill', '#545454')
+  .text('VAGUE PROMPT — model decides');
+
+// Right column header — SPECIFIC
+svg.append('rect')
+  .attr('x', W/2 + 20).attr('y', 108).attr('width', W/2 - 80).attr('height', 44)
+  .attr('fill', '#F9F2F3').attr('rx', 4);
+svg.append('text')
+  .attr('x', rightX).attr('y', 137)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 18).attr('font-weight', 700).attr('fill', '#C8102E')
+  .text('SPECIFIC PROMPT — author controls');
+
+// Prompt text boxes
+const leftPrompt = svg.append('g').attr('transform', 'translate(60, 172)');
+leftPrompt.append('rect')
+  .attr('width', W/2 - 80).attr('height', 60)
+  .attr('fill', '#F8F8F8').attr('stroke', '#D4D4D4').attr('rx', 4);
+leftPrompt.append('text')
+  .attr('x', 16).attr('y', 36)
+  .attr('font-family', "'JetBrains Mono', monospace")
+  .attr('font-size', 14).attr('fill', '#121212')
+  .text('"Make a chart showing AI capability across cognitive domains."');
+
+const rightPrompt = svg.append('g').attr('transform', `translate(${W/2 + 20}, 172)`);
+rightPrompt.append('rect')
+  .attr('width', W/2 - 80).attr('height', 120)
+  .attr('fill', '#FFF8F8').attr('stroke', '#C8102E').attr('stroke-width', 1.5).attr('rx', 4);
+const rpLines = [
+  '"Vertical bar chart of AI capability scores across',
+  '8 cognitive domains. x-position encodes domain',
+  '(categorical, sorted by score descending). y-position',
+  'from a zero baseline encodes score (quantitative,',
+  'range 0–100). Color luminance encodes score. x-axis',
+  'labels rotated -30°. Score values above each bar."'
+];
+rpLines.forEach((line, i) => {
+  rightPrompt.append('text')
+    .attr('x', 16).attr('y', 22 + i * 17)
+    .attr('font-family', "'JetBrains Mono', monospace")
+    .attr('font-size', 12.5).attr('fill', '#121212')
+    .text(line);
+});
+
+// Decision annotations
+const decisions = [
+  { label: 'Chart type', vague: 'Model chose scatterplot', specific: 'Vertical bar chart' },
+  { label: 'Marks', vague: 'Model chose circles', specific: 'Rectangular bars' },
+  { label: 'Channels', vague: 'Size for score, hue for domain', specific: 'x-position, y-position, luminance' },
+  { label: 'Sort order', vague: 'No sort (random layout)', specific: 'Sorted by score descending' },
+  { label: 'Baseline', vague: 'No zero baseline', specific: 'Zero baseline, domain [0, 100]' },
+];
+
+const annY = 340;
+const rowH = 80;
+
+decisions.forEach((d, i) => {
+  const y = annY + i * rowH;
+
+  // Label pill (center)
+  const labelW = d.label.length * 10 + 30;
+  svg.append('rect')
+    .attr('x', W/2 - labelW/2).attr('y', y - 14)
+    .attr('width', labelW).attr('height', 28)
+    .attr('fill', '#121212').attr('rx', 4);
+  svg.append('text')
+    .attr('x', W/2).attr('y', y + 5)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 13).attr('font-weight', 700)
+    .attr('fill', '#FFFFFF')
+    .text(d.label);
+
+  // Left annotation (vague — gray)
+  svg.append('rect')
+    .attr('x', 80).attr('y', y + 20).attr('width', W/2 - 120).attr('height', 36)
+    .attr('fill', '#F5F5F5').attr('stroke', '#D4D4D4').attr('rx', 4);
+  svg.append('circle')
+    .attr('cx', 100).attr('cy', y + 38).attr('r', 6).attr('fill', '#545454');
+  svg.append('text')
+    .attr('x', 116).attr('y', y + 43)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 14).attr('fill', '#545454')
+    .text(d.vague);
+  // "Model decides" tag
+  svg.append('text')
+    .attr('x', W/2 - 60).attr('y', y + 43)
+    .attr('text-anchor', 'end')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 11).attr('font-weight', 600).attr('fill', '#545454')
+    .text('MODEL DECIDES');
+
+  // Right annotation (specific — red accent)
+  svg.append('rect')
+    .attr('x', W/2 + 40).attr('y', y + 20).attr('width', W/2 - 120).attr('height', 36)
+    .attr('fill', '#FFF8F8').attr('stroke', '#C8102E').attr('stroke-width', 1).attr('rx', 4);
+  svg.append('circle')
+    .attr('cx', W/2 + 60).attr('cy', y + 38).attr('r', 6).attr('fill', '#C8102E');
+  svg.append('text')
+    .attr('x', W/2 + 76).attr('y', y + 43)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 14).attr('fill', '#121212')
+    .text(d.specific);
+  // "Author controls" tag
+  svg.append('text')
+    .attr('x', W - 60).attr('y', y + 43)
+    .attr('text-anchor', 'end')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 11).attr('font-weight', 600).attr('fill', '#C8102E')
+    .text('AUTHOR CONTROLS');
+});
+
+// Result comparison at bottom
+const resultY = annY + 5 * rowH + 20;
+
+// Left result
+svg.append('rect')
+  .attr('x', 80).attr('y', resultY).attr('width', W/2 - 120).attr('height', 52)
+  .attr('fill', '#F5F5F5').attr('stroke', '#D4D4D4').attr('rx', 4);
+svg.append('text')
+  .attr('x', leftX).attr('y', resultY + 22)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 15).attr('font-weight', 600).attr('fill', '#545454')
+  .text('Result: unreadable scatterplot');
+svg.append('text')
+  .attr('x', leftX).attr('y', resultY + 42)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('fill', '#545454')
+  .text('Cannot rank domains by eye');
+
+// Right result
+svg.append('rect')
+  .attr('x', W/2 + 40).attr('y', resultY).attr('width', W/2 - 120).attr('height', 52)
+  .attr('fill', '#FFF8F8').attr('stroke', '#C8102E').attr('stroke-width', 1.5).attr('rx', 4);
+svg.append('text')
+  .attr('x', rightX).attr('y', resultY + 22)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 15).attr('font-weight', 600).attr('fill', '#C8102E')
+  .text('Result: sorted bar chart, readable in 0.25s');
+svg.append('text')
+  .attr('x', rightX).attr('y', resultY + 42)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('fill', '#121212')
+  .text('Ranking visible instantly');
+
+// Bottom caption
+svg.append('line')
+  .attr('x1', 60).attr('y1', H - 40).attr('x2', W - 60).attr('y2', H - 40)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+svg.append('text')
+  .attr('x', W/2).attr('y', H - 16)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('fill', '#545454')
+  .text('5 decisions unspecified = 5 decisions the model makes for you. Specificity is the difference.');
+</script>
+</body>
+</html>

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 2.3 — The Four-Move Prompt</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #FFFFFF;
+    color: #121212;
+    width: 1600px;
+    height: 900px;
+    overflow: hidden;
+  }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const W = 1600, H = 900;
+const svg = d3.select('#chart').append('svg')
+  .attr('width', W).attr('height', H)
+  .attr('role', 'img')
+  .attr('aria-labelledby', 'chart-title');
+
+svg.append('title').attr('id', 'chart-title').text('Figure 2.3 — The Four-Move Prompt Structure');
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#FFFFFF');
+
+// Title
+svg.append('text')
+  .attr('x', W/2).attr('y', 48)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-size', 34).attr('fill', '#121212')
+  .text('Move 3 is the move most people skip. It determines whether the output is right on the first attempt.');
+
+svg.append('text')
+  .attr('x', W/2).attr('y', 76)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 14).attr('fill', '#545454')
+  .text('Figure 2.3 — The four-move prompt structure for D3 chart generation');
+
+const moves = [
+  {
+    num: '1',
+    name: 'SHOW',
+    desc: 'Show what you have',
+    detail: 'Data shape, columns, types, a 3-row sample',
+    example: '"8 rows. domain (string) and score (number, 0–100). Sample: Pattern Recognition, 94."',
+    skipCost: 'Model guesses data types, column count, value range',
+    color: '#E8E8E8',
+    textColor: '#121212'
+  },
+  {
+    num: '2',
+    name: 'SAY',
+    desc: 'Say what you want',
+    detail: 'Chart type, marks, D3 version, deliverable format',
+    example: '"Vertical bar chart in D3 v7. Single HTML file, inline CSS, CDN."',
+    skipCost: 'Model picks chart type — often wrong for the question',
+    color: '#D4D4D4',
+    textColor: '#121212'
+  },
+  {
+    num: '3',
+    name: 'CONSTRAIN',
+    desc: 'Constrain the encoding',
+    detail: 'Channel-to-attribute mappings, sort, baseline, margins, dark mode',
+    example: '"x: domain sorted descending. y: score from zero baseline. Luminance redundant."',
+    skipCost: 'Model assigns channels by convention — hue for quant, area for rank',
+    color: '#C8102E',
+    textColor: '#FFFFFF'
+  },
+  {
+    num: '4',
+    name: 'VERIFY',
+    desc: 'Ask for verification',
+    detail: 'Restate channel decomposition, comment each line, list unspecified decisions',
+    example: '"Restate the decomposition. Comment each line. List any decisions I did not specify."',
+    skipCost: 'Silent misinterpretations ship unchecked',
+    color: '#121212',
+    textColor: '#FFFFFF'
+  },
+];
+
+const panelH = 150;
+const panelW = 780;
+const startY = 110;
+const leftX = 80;
+const rightX = 880;
+
+moves.forEach((m, i) => {
+  const y = startY + i * (panelH + 20);
+
+  // Main panel
+  svg.append('rect')
+    .attr('x', leftX).attr('y', y).attr('width', panelW).attr('height', panelH)
+    .attr('fill', '#FFFFFF').attr('stroke', m.color === '#E8E8E8' ? '#D4D4D4' : m.color)
+    .attr('stroke-width', 2).attr('rx', 8);
+
+  // Number circle
+  svg.append('circle')
+    .attr('cx', leftX + 40).attr('cy', y + panelH/2).attr('r', 28)
+    .attr('fill', m.color);
+  svg.append('text')
+    .attr('x', leftX + 40).attr('y', y + panelH/2 + 8)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'EB Garamond', Georgia, serif")
+    .attr('font-size', 32).attr('font-weight', 400).attr('fill', m.textColor)
+    .text(m.num);
+
+  // Move name
+  svg.append('text')
+    .attr('x', leftX + 90).attr('y', y + 32)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 22).attr('font-weight', 700)
+    .attr('fill', m.color === '#E8E8E8' ? '#121212' : m.color)
+    .text(m.name);
+
+  // Description
+  svg.append('text')
+    .attr('x', leftX + 90).attr('y', y + 56)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 15).attr('fill', '#121212')
+    .text(m.desc);
+
+  // Detail
+  svg.append('text')
+    .attr('x', leftX + 90).attr('y', y + 80)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 13).attr('fill', '#545454')
+    .text(m.detail);
+
+  // Example
+  svg.append('text')
+    .attr('x', leftX + 90).attr('y', y + 110)
+    .attr('font-family', "'JetBrains Mono', monospace")
+    .attr('font-size', 11.5).attr('fill', '#545454')
+    .text(m.example);
+
+  // Emphasis bar for Move 3
+  if (m.num === '3') {
+    svg.append('rect')
+      .attr('x', leftX).attr('y', y).attr('width', 6).attr('height', panelH)
+      .attr('fill', '#C8102E').attr('rx', 3);
+    svg.append('text')
+      .attr('x', leftX + 90).attr('y', y + 136)
+      .attr('font-family', "'Inter', sans-serif")
+      .attr('font-size', 12).attr('font-weight', 700).attr('fill', '#C8102E')
+      .text('This is the move that matters most. Most people skip it.');
+  }
+
+  // Arrow between panels
+  if (i < moves.length - 1) {
+    const arrowY = y + panelH + 10;
+    svg.append('line')
+      .attr('x1', leftX + panelW/2).attr('y1', y + panelH + 2)
+      .attr('x2', leftX + panelW/2).attr('y2', arrowY + 14)
+      .attr('stroke', '#D4D4D4').attr('stroke-width', 2);
+    svg.append('polygon')
+      .attr('points', `${leftX + panelW/2 - 6},${arrowY + 8} ${leftX + panelW/2 + 6},${arrowY + 8} ${leftX + panelW/2},${arrowY + 18}`)
+      .attr('fill', '#D4D4D4');
+  }
+
+  // Right side: "What Claude decides without this move"
+  svg.append('rect')
+    .attr('x', rightX).attr('y', y + 10).attr('width', 620).attr('height', panelH - 20)
+    .attr('fill', '#FAFAFA').attr('stroke', '#D4D4D4').attr('stroke-width', 1).attr('rx', 6);
+
+  // Warning icon
+  svg.append('rect')
+    .attr('x', rightX + 12).attr('y', y + 28).attr('width', 4).attr('height', panelH - 56)
+    .attr('fill', '#C8860E').attr('rx', 2);
+
+  svg.append('text')
+    .attr('x', rightX + 30).attr('y', y + 38)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 11).attr('font-weight', 700).attr('fill', '#C8860E')
+    .text('IF SKIPPED, MODEL DECIDES:');
+
+  svg.append('text')
+    .attr('x', rightX + 30).attr('y', y + 64)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 14).attr('fill', '#121212')
+    .text(m.skipCost);
+
+  // Connect panels to right callout
+  svg.append('line')
+    .attr('x1', leftX + panelW).attr('y1', y + panelH/2)
+    .attr('x2', rightX).attr('y2', y + panelH/2)
+    .attr('stroke', '#D4D4D4').attr('stroke-width', 1).attr('stroke-dasharray', '4,3');
+});
+
+// Caption
+svg.append('line')
+  .attr('x1', 80).attr('y1', H - 40).attr('x2', W - 80).attr('y2', H - 40)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+svg.append('text')
+  .attr('x', W/2).attr('y', H - 16)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('fill', '#545454')
+  .text('The four moves take 90 seconds longer to write than a vague prompt. They reliably produce charts that are correct on the first attempt.');
+</script>
+</body>
+</html>

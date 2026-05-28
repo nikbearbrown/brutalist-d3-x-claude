@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 7.2 — Cleveland & McGill's perceptual accuracy ranking (1984)</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #121212;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--color-white);
+    color: var(--color-ink);
+    width: 1600px;
+    height: 900px;
+    overflow: hidden;
+  }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const W = 1600, H = 900;
+const svg = d3.select('#chart').append('svg')
+  .attr('width', W).attr('height', H)
+  .attr('role', 'img')
+  .attr('aria-labelledby', 'chart-title chart-desc');
+
+svg.append('title').attr('id', 'chart-title').text('Why bars outperform angles, areas, and color for comparison');
+svg.append('desc').attr('id', 'chart-desc').text('Horizontal ranking diagram of Cleveland and McGill\'s perceptual accuracy hierarchy, showing position along a common scale as the most accurate visual channel and explaining why truncating a bar chart\'s baseline undermines this advantage.');
+
+// Background
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#FFFFFF');
+
+// Main title
+svg.append('text')
+  .attr('x', W / 2).attr('y', 52)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-size', 36).attr('fill', '#121212')
+  .text('Why bars outperform angles, areas, and color for comparison');
+
+// Subtitle
+svg.append('text')
+  .attr('x', W / 2).attr('y', 82)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 14).attr('fill', '#545454')
+  .text("Figure 7.2 \u2014 Cleveland & McGill\u2019s perceptual accuracy ranking (1984)");
+
+// Data
+const channels = [
+  { rank: 1, name: 'Position along common scale', accuracy: 100, highlight: true, note: 'Bar chart uses this' },
+  { rank: 2, name: 'Position along non-aligned scales', accuracy: 86, highlight: false, note: '' },
+  { rank: 3, name: 'Length', accuracy: 72, highlight: false, note: '' },
+  { rank: 4, name: 'Angle / slope', accuracy: 58, highlight: false, note: '' },
+  { rank: 5, name: 'Area', accuracy: 44, highlight: false, note: '' },
+  { rank: 6, name: 'Color luminance', accuracy: 30, highlight: false, note: '' },
+  { rank: 7, name: 'Color hue / saturation', accuracy: 18, highlight: false, note: '' }
+];
+
+const margin = { top: 120, right: 340, bottom: 100, left: 380 };
+const chartW = W - margin.left - margin.right;
+const chartH = H - margin.top - margin.bottom;
+
+const yScaleBand = d3.scaleBand()
+  .domain(channels.map(d => d.name))
+  .range([0, chartH])
+  .padding(0.22);
+
+const xScaleLinear = d3.scaleLinear()
+  .domain([0, 100])
+  .range([0, chartW]);
+
+const g = svg.append('g')
+  .attr('transform', `translate(${margin.left}, ${margin.top})`);
+
+// Gridlines
+g.selectAll('.gridline')
+  .data(xScaleLinear.ticks(5))
+  .join('line')
+    .attr('class', 'gridline')
+    .attr('x1', d => xScaleLinear(d)).attr('x2', d => xScaleLinear(d))
+    .attr('y1', 0).attr('y2', chartH)
+    .attr('stroke', '#ECECEC').attr('stroke-width', 1)
+    .attr('aria-hidden', 'true');
+
+// Zero baseline
+g.append('line')
+  .attr('x1', 0).attr('y1', 0).attr('x2', 0).attr('y2', chartH)
+  .attr('stroke', '#121212').attr('stroke-width', 1.5);
+
+// Bars
+g.selectAll('.bar-channel')
+  .data(channels)
+  .join('rect')
+    .attr('class', 'bar-channel')
+    .attr('x', 0)
+    .attr('y', d => yScaleBand(d.name))
+    .attr('width', d => xScaleLinear(d.accuracy))
+    .attr('height', yScaleBand.bandwidth())
+    .attr('fill', d => d.highlight ? '#C8102E' : '#121212')
+    .attr('opacity', d => d.highlight ? 1 : 0.15 + (d.accuracy / 100) * 0.55)
+    .attr('rx', 2)
+    .attr('tabindex', 0)
+    .attr('aria-label', d => `Rank ${d.rank}: ${d.name} \u2014 accuracy ${d.accuracy}`);
+
+// Rank number badges
+channels.forEach(d => {
+  const cy = yScaleBand(d.name) + yScaleBand.bandwidth() / 2;
+
+  // Rank circle
+  g.append('circle')
+    .attr('cx', -34).attr('cy', cy)
+    .attr('r', 14)
+    .attr('fill', d.highlight ? '#C8102E' : '#F0F0F0')
+    .attr('stroke', d.highlight ? '#C8102E' : '#D4D4D4')
+    .attr('stroke-width', 1.5);
+
+  g.append('text')
+    .attr('x', -34).attr('y', cy + 5)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 13).attr('font-weight', 700)
+    .attr('fill', d.highlight ? '#FFFFFF' : '#545454')
+    .text(d.rank);
+
+  // Channel name
+  g.append('text')
+    .attr('x', -56).attr('y', cy + 5)
+    .attr('text-anchor', 'end')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 15)
+    .attr('font-weight', d.highlight ? 700 : 400)
+    .attr('fill', d.highlight ? '#C8102E' : '#121212')
+    .text(d.name);
+});
+
+// Callout for #1 — "Bar chart uses this"
+const topBarY = yScaleBand('Position along common scale') + yScaleBand.bandwidth() / 2;
+const calloutX = xScaleLinear(100) + 14;
+
+g.append('line')
+  .attr('x1', xScaleLinear(100) + 4).attr('y1', topBarY)
+  .attr('x2', calloutX + 6).attr('y2', topBarY)
+  .attr('stroke', '#C8102E').attr('stroke-width', 1.5);
+
+g.append('rect')
+  .attr('x', calloutX + 8).attr('y', topBarY - 18)
+  .attr('width', 218).attr('height', 36)
+  .attr('fill', '#C8102E').attr('rx', 4);
+
+g.append('text')
+  .attr('x', calloutX + 16).attr('y', topBarY + 5)
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 14).attr('font-weight', 700).attr('fill', '#FFFFFF')
+  .text('Bar chart uses this channel');
+
+// Dashed line showing where truncation makes position unreliable
+const dashedY = yScaleBand('Position along non-aligned scales');
+g.append('line')
+  .attr('x1', -50).attr('y1', dashedY - 4)
+  .attr('x2', chartW + 10).attr('y2', dashedY - 4)
+  .attr('stroke', '#C8102E').attr('stroke-width', 1.5)
+  .attr('stroke-dasharray', '8,5');
+
+// Annotation for dashed line
+g.append('text')
+  .attr('x', chartW + 14).attr('y', dashedY - 8)
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('font-weight', 600).attr('fill', '#C8102E')
+  .text('Truncation drops');
+g.append('text')
+  .attr('x', chartW + 14).attr('y', dashedY + 8)
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('font-weight', 600).attr('fill', '#C8102E')
+  .text('bars below this line');
+
+// Big callout text in right margin
+const callout2Y = chartH / 2 + 60;
+const calloutGroup = svg.append('g')
+  .attr('transform', `translate(${W - 290}, ${callout2Y})`);
+
+calloutGroup.append('rect')
+  .attr('x', 0).attr('y', -40).attr('width', 260).attr('height', 90)
+  .attr('fill', '#FFF8F0').attr('stroke', '#C8860E').attr('stroke-width', 1.5).attr('rx', 4);
+
+calloutGroup.append('text')
+  .attr('x', 130).attr('y', -14)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-size', 15).attr('fill', '#C8860E')
+  .text('This is why bars work for');
+calloutGroup.append('text')
+  .attr('x', 130).attr('y', 6)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-size', 15).attr('fill', '#C8860E')
+  .text('comparison \u2014 and why');
+calloutGroup.append('text')
+  .attr('x', 130).attr('y', 26)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-size', 15).attr('font-weight', 700).attr('fill', '#C8860E')
+  .text('truncation breaks them.');
+
+// X-axis
+const xAxis = d3.axisBottom(xScaleLinear).ticks(5).tickFormat(d => d === 0 ? '' : d);
+g.append('g')
+  .attr('transform', `translate(0, ${chartH})`)
+  .call(xAxis)
+  .selectAll('text')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 11).attr('fill', '#545454');
+g.selectAll('.domain').attr('stroke', '#D4D4D4');
+
+// X-axis label
+g.append('text')
+  .attr('x', chartW / 2).attr('y', chartH + 44)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('fill', '#545454')
+  .text('Relative perceptual accuracy (higher = more accurate judgment)');
+
+// Most / Least accurate labels
+g.append('text')
+  .attr('x', -56).attr('y', -16)
+  .attr('text-anchor', 'end')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 11).attr('font-weight', 600).attr('fill', '#545454')
+  .text('MOST ACCURATE');
+
+g.append('text')
+  .attr('x', -56).attr('y', chartH + 20)
+  .attr('text-anchor', 'end')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 11).attr('font-weight', 600).attr('fill', '#545454')
+  .text('LEAST ACCURATE');
+
+// Arrow on left side
+const defs = svg.append('defs');
+defs.append('marker').attr('id', 'arrowDownGray')
+  .attr('viewBox', '0 0 10 10').attr('refX', 5).attr('refY', 0)
+  .attr('markerWidth', 6).attr('markerHeight', 6)
+  .append('path').attr('d', 'M 0 0 L 5 10 L 10 0').attr('fill', '#545454');
+
+g.append('line')
+  .attr('x1', -76).attr('y1', 0)
+  .attr('x2', -76).attr('y2', chartH)
+  .attr('stroke', '#545454').attr('stroke-width', 1.5)
+  .attr('marker-end', 'url(#arrowDownGray)');
+
+// =========================================================
+// Bottom caption
+// =========================================================
+svg.append('line')
+  .attr('x1', 50).attr('y1', H - 42).attr('x2', W - 50).attr('y2', H - 42)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+
+svg.append('text')
+  .attr('x', W / 2).attr('y', H - 16)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-style', 'italic')
+  .attr('font-size', 15).attr('fill', '#545454')
+  .text('Position is the strongest channel we have. A truncated baseline wastes it.');
+</script>
+</body>
+</html>

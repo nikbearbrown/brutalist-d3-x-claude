@@ -1,0 +1,82 @@
+<svg viewBox="0 0 700 540" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#2a1a0e"/>
+  </marker>
+</defs>
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="540" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="38" font-family="'EB Garamond', Georgia, serif" font-size="14" font-weight="bold" fill="#2a1a0e" text-anchor="middle">The Four-Move Prompt</text>
+
+<!-- ═══════════════ BOX 1: SHOW ═══════════════ -->
+<rect x="52" y="58" width="320" height="64" rx="0" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+<text x="68" y="80" font-family="'IBM Plex Mono', monospace" font-size="12" font-weight="bold" fill="#2a1a0e" letter-spacing="0.08em">SHOW</text>
+<text x="68" y="100" font-family="'EB Garamond', Georgia, serif" font-size="11" fill="#2a1a0e">Data shape, columns, types, sample</text>
+
+<!-- Right-side callout for SHOW -->
+<line x1="372" y1="90" x2="410" y2="90" stroke="#2a1a0e" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+<rect x="418" y="70" width="250" height="40" rx="0" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+<text x="428" y="86" font-family="'EB Garamond', Georgia, serif" font-size="10" fill="#545454">If skipped, model decides:</text>
+<text x="428" y="100" font-family="'EB Garamond', Georgia, serif" font-size="10" fill="#2a1a0e">infers schema, may hallucinate columns</text>
+
+<!-- Arrow 1 to 2 -->
+<line x1="212" y1="122" x2="212" y2="150" stroke="#2a1a0e" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+
+<!-- ═══════════════ BOX 2: SAY ═══════════════ -->
+<rect x="52" y="156" width="320" height="64" rx="0" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+<text x="68" y="178" font-family="'IBM Plex Mono', monospace" font-size="12" font-weight="bold" fill="#2a1a0e" letter-spacing="0.08em">SAY</text>
+<text x="68" y="198" font-family="'EB Garamond', Georgia, serif" font-size="11" fill="#2a1a0e">Chart type, marks, D3 version, format</text>
+
+<!-- Right-side callout for SAY -->
+<line x1="372" y1="188" x2="410" y2="188" stroke="#2a1a0e" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+<rect x="418" y="168" width="250" height="40" rx="0" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+<text x="428" y="184" font-family="'EB Garamond', Georgia, serif" font-size="10" fill="#545454">If skipped, model decides:</text>
+<text x="428" y="198" font-family="'EB Garamond', Georgia, serif" font-size="10" fill="#2a1a0e">picks chart type, often wrong for task</text>
+
+<!-- Arrow 2 to 3 -->
+<line x1="212" y1="220" x2="212" y2="248" stroke="#2a1a0e" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+
+<!-- ═══════════════ BOX 3: CONSTRAIN (emphasized) ═══════════════ -->
+<rect x="52" y="254" width="320" height="80" rx="0" fill="#F5EFE8" stroke="#C8102E" stroke-width="2"/>
+<text x="68" y="278" font-family="'IBM Plex Mono', monospace" font-size="12" font-weight="bold" fill="#2a1a0e" letter-spacing="0.08em">CONSTRAIN</text>
+<text x="68" y="298" font-family="'EB Garamond', Georgia, serif" font-size="11" fill="#2a1a0e">Channel mappings, sort, baseline, margins</text>
+<text x="68" y="318" font-family="'EB Garamond', Georgia, serif" font-size="10" fill="#545454" font-style="italic">This is the move most people skip.</text>
+
+<!-- Left bracket emphasizing Move 3 -->
+<line x1="40" y1="254" x2="40" y2="334" stroke="#C8102E" stroke-width="1.5"/>
+<line x1="40" y1="254" x2="46" y2="254" stroke="#C8102E" stroke-width="1.5"/>
+<line x1="40" y1="334" x2="46" y2="334" stroke="#C8102E" stroke-width="1.5"/>
+
+<!-- Right-side callout for CONSTRAIN -->
+<line x1="372" y1="294" x2="410" y2="294" stroke="#2a1a0e" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+<rect x="418" y="270" width="250" height="48" rx="0" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+<text x="428" y="286" font-family="'EB Garamond', Georgia, serif" font-size="10" fill="#545454">If skipped, model decides:</text>
+<text x="428" y="300" font-family="'EB Garamond', Georgia, serif" font-size="10" fill="#2a1a0e">default sort, arbitrary margins,</text>
+<text x="428" y="314" font-family="'EB Garamond', Georgia, serif" font-size="10" fill="#2a1a0e">wrong encoding channels</text>
+
+<!-- Arrow 3 to 4 -->
+<line x1="212" y1="334" x2="212" y2="362" stroke="#2a1a0e" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+
+<!-- ═══════════════ BOX 4: VERIFY ═══════════════ -->
+<rect x="52" y="368" width="320" height="64" rx="0" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+<text x="68" y="390" font-family="'IBM Plex Mono', monospace" font-size="12" font-weight="bold" fill="#2a1a0e" letter-spacing="0.08em">VERIFY</text>
+<text x="68" y="410" font-family="'EB Garamond', Georgia, serif" font-size="11" fill="#2a1a0e">Restate decomposition, flag unspecified decisions</text>
+
+<!-- Right-side callout for VERIFY -->
+<line x1="372" y1="400" x2="410" y2="400" stroke="#2a1a0e" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+<rect x="418" y="380" width="250" height="40" rx="0" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+<text x="428" y="396" font-family="'EB Garamond', Georgia, serif" font-size="10" fill="#545454">If skipped, model decides:</text>
+<text x="428" y="410" font-family="'EB Garamond', Georgia, serif" font-size="10" fill="#2a1a0e">silent errors compound downstream</text>
+
+<!-- Caption -->
+<text x="350" y="470" font-family="'EB Garamond', Georgia, serif" font-size="11" fill="#2a1a0e" text-anchor="middle" font-style="italic">Move 3 is the move most people skip.</text>
+
+<!-- Bottom hairline -->
+<line x1="32" y1="488" x2="668" y2="488" stroke="#D4D4D4" stroke-dasharray="4 3" stroke-width="0.75"/>
+
+<!-- Footer note -->
+<text x="350" y="510" font-family="'EB Garamond', Georgia, serif" font-size="10" fill="#545454" text-anchor="middle">Each skipped move transfers one design decision from author to model.</text>
+</svg>

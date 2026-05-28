@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 8.2 — Temporal chart-type reference</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #121212;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--color-white);
+    color: var(--color-ink);
+    width: 1600px;
+    height: 900px;
+    overflow: hidden;
+  }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const W = 1600, H = 900;
+const svg = d3.select('#chart').append('svg')
+  .attr('width', W).attr('height', H)
+  .attr('role', 'img')
+  .attr('aria-labelledby', 'chart-title chart-desc');
+
+svg.append('title').attr('id', 'chart-title').text('Seven temporal forms. The question determines the channel.');
+svg.append('desc').attr('id', 'chart-desc').text('A seven-panel reference grid showing line chart, area chart, stacked area, stream graph, spiral plot, Gantt chart, and timeline, each with its primary channel and use-case condition.');
+
+// Background
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#FFFFFF');
+
+// Main title
+svg.append('text')
+  .attr('x', W / 2).attr('y', 52)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-size', 34).attr('fill', '#121212')
+  .text('Seven temporal forms. The question determines the channel.');
+
+// Subtitle
+svg.append('text')
+  .attr('x', W / 2).attr('y', 80)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 14).attr('fill', '#545454')
+  .text('Figure 8.2 \u2014 Temporal chart-type reference');
+
+// Panel definitions
+const panels = [
+  {
+    name: 'LINE CHART',
+    channel: 'point position',
+    useWhen: 'Use when: trajectory / trend',
+    drawSketch: (g, w, h) => {
+      const pts = [[0, h*0.7], [w*0.15, h*0.5], [w*0.3, h*0.6], [w*0.5, h*0.3], [w*0.65, h*0.45], [w*0.8, h*0.2], [w, h*0.25]];
+      const line = d3.line().x(d => d[0]).y(d => d[1]).curve(d3.curveMonotoneX);
+      g.append('path').attr('d', line(pts)).attr('fill', 'none').attr('stroke', '#121212').attr('stroke-width', 2.5);
+      pts.forEach(p => g.append('circle').attr('cx', p[0]).attr('cy', p[1]).attr('r', 3).attr('fill', '#121212'));
+    }
+  },
+  {
+    name: 'AREA CHART',
+    channel: 'area (filled)',
+    useWhen: 'Use when: magnitude over time',
+    drawSketch: (g, w, h) => {
+      const pts = [[0, h*0.7], [w*0.2, h*0.5], [w*0.4, h*0.35], [w*0.6, h*0.45], [w*0.8, h*0.25], [w, h*0.3]];
+      const area = d3.area().x(d => d[0]).y0(h).y1(d => d[1]).curve(d3.curveMonotoneX);
+      g.append('path').attr('d', area(pts)).attr('fill', '#121212').attr('opacity', 0.15);
+      const line = d3.line().x(d => d[0]).y(d => d[1]).curve(d3.curveMonotoneX);
+      g.append('path').attr('d', line(pts)).attr('fill', 'none').attr('stroke', '#121212').attr('stroke-width', 2);
+    }
+  },
+  {
+    name: 'STACKED AREA',
+    channel: 'position + area',
+    useWhen: 'Use when: composition + total',
+    drawSketch: (g, w, h) => {
+      const colors = ['#121212', '#545454', '#D4D4D4'];
+      const layers = [
+        [[0, h*0.8], [w*0.25, h*0.7], [w*0.5, h*0.65], [w*0.75, h*0.6], [w, h*0.55]],
+        [[0, h*0.55], [w*0.25, h*0.45], [w*0.5, h*0.4], [w*0.75, h*0.38], [w, h*0.32]],
+        [[0, h*0.3], [w*0.25, h*0.22], [w*0.5, h*0.2], [w*0.75, h*0.15], [w, h*0.12]]
+      ];
+      const bottoms = [
+        [[0, h], [w*0.25, h], [w*0.5, h], [w*0.75, h], [w, h]],
+        layers[0],
+        layers[1]
+      ];
+      layers.forEach((layer, i) => {
+        const areaPath = d3.area()
+          .x((d, j) => d[0])
+          .y0((d, j) => bottoms[i][j][1])
+          .y1(d => d[1])
+          .curve(d3.curveMonotoneX);
+        g.append('path').attr('d', areaPath(layer)).attr('fill', colors[i]).attr('opacity', 0.2 + i * 0.15);
+      });
+    }
+  },
+  {
+    name: 'STREAM GRAPH',
+    channel: 'area, centered',
+    useWhen: 'Use when: rhetorical rise/fall',
+    drawSketch: (g, w, h) => {
+      const mid = h / 2;
+      const topPts = [[0, mid-h*0.08], [w*0.2, mid-h*0.15], [w*0.4, mid-h*0.3], [w*0.6, mid-h*0.25], [w*0.8, mid-h*0.18], [w, mid-h*0.1]];
+      const botPts = [[0, mid+h*0.08], [w*0.2, mid+h*0.15], [w*0.4, mid+h*0.3], [w*0.6, mid+h*0.25], [w*0.8, mid+h*0.18], [w, mid+h*0.1]];
+      const topLine = d3.line().x(d => d[0]).y(d => d[1]).curve(d3.curveBasis);
+      const botLine = d3.line().x(d => d[0]).y(d => d[1]).curve(d3.curveBasis);
+      const pathD = topLine(topPts) + 'L' + botPts.map(d => d.join(',')).reverse().join('L') + 'Z';
+      g.append('path').attr('d', pathD).attr('fill', '#121212').attr('opacity', 0.15);
+      // Inner layer
+      const topInner = topPts.map(d => [d[0], d[1] + h*0.08]);
+      const botInner = botPts.map(d => [d[0], d[1] - h*0.08]);
+      const pathD2 = topLine(topInner) + 'L' + botInner.map(d => d.join(',')).reverse().join('L') + 'Z';
+      g.append('path').attr('d', pathD2).attr('fill', '#121212').attr('opacity', 0.25);
+    }
+  },
+  {
+    name: 'SPIRAL PLOT',
+    channel: 'curved position',
+    useWhen: 'Use when: cyclic seasonal structure',
+    drawSketch: (g, w, h) => {
+      const cx = w / 2, cy = h / 2;
+      const spiralPts = [];
+      for (let t = 0; t < Math.PI * 4.5; t += 0.1) {
+        const r = 6 + t * 5.5;
+        spiralPts.push([cx + r * Math.cos(t), cy + r * Math.sin(t)]);
+      }
+      const line = d3.line().x(d => d[0]).y(d => d[1]).curve(d3.curveBasis);
+      g.append('path').attr('d', line(spiralPts)).attr('fill', 'none').attr('stroke', '#121212').attr('stroke-width', 2);
+      // Dot at the end
+      const last = spiralPts[spiralPts.length - 1];
+      g.append('circle').attr('cx', last[0]).attr('cy', last[1]).attr('r', 3).attr('fill', '#C8102E');
+    }
+  },
+  {
+    name: 'GANTT CHART',
+    channel: 'position + length',
+    useWhen: 'Use when: intervals + duration',
+    drawSketch: (g, w, h) => {
+      const bars = [
+        { y: h*0.1, x: 0, w: w*0.45 },
+        { y: h*0.3, x: w*0.2, w: w*0.5 },
+        { y: h*0.5, x: w*0.35, w: w*0.4 },
+        { y: h*0.7, x: w*0.55, w: w*0.45 }
+      ];
+      const barH = h * 0.12;
+      bars.forEach(b => {
+        g.append('rect').attr('x', b.x).attr('y', b.y).attr('width', b.w).attr('height', barH)
+          .attr('fill', '#121212').attr('rx', 2).attr('opacity', 0.7);
+      });
+    }
+  },
+  {
+    name: 'TIMELINE',
+    channel: 'position only',
+    useWhen: 'Use when: narrative sequence',
+    drawSketch: (g, w, h) => {
+      const midY = h / 2;
+      g.append('line').attr('x1', 0).attr('y1', midY).attr('x2', w).attr('y2', midY)
+        .attr('stroke', '#D4D4D4').attr('stroke-width', 2);
+      const events = [w*0.1, w*0.28, w*0.42, w*0.6, w*0.75, w*0.92];
+      events.forEach((ex, i) => {
+        g.append('circle').attr('cx', ex).attr('cy', midY).attr('r', 5)
+          .attr('fill', i === 3 ? '#C8102E' : '#121212');
+        g.append('line').attr('x1', ex).attr('y1', midY - 14).attr('x2', ex).attr('y2', midY - 5)
+          .attr('stroke', '#545454').attr('stroke-width', 1);
+      });
+    }
+  }
+];
+
+// Grid layout: 4 cols x 2 rows
+const cols = 4, rows = 2;
+const gridX = 50, gridY = 110;
+const gridW = W - 100, gridH = H - 180;
+const cellW = gridW / cols;
+const cellH = gridH / rows;
+const cellPadX = 14, cellPadY = 10;
+
+panels.forEach((panel, i) => {
+  const col = i % cols;
+  const row = Math.floor(i / cols);
+  const cx = gridX + col * cellW;
+  const cy = gridY + row * cellH;
+
+  const gPanel = svg.append('g')
+    .attr('transform', `translate(${cx + cellPadX}, ${cy + cellPadY})`);
+
+  const innerW = cellW - cellPadX * 2;
+  const innerH = cellH - cellPadY * 2;
+
+  // Panel border
+  gPanel.append('rect')
+    .attr('width', innerW).attr('height', innerH)
+    .attr('fill', 'none').attr('stroke', '#D4D4D4').attr('stroke-width', 1.5)
+    .attr('rx', 3);
+
+  // Panel number
+  gPanel.append('text')
+    .attr('x', 12).attr('y', 26)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 12).attr('font-weight', 700).attr('fill', '#FFFFFF');
+
+  gPanel.append('rect')
+    .attr('x', 8).attr('y', 10).attr('width', 26).attr('height', 22)
+    .attr('fill', '#121212').attr('rx', 4);
+  gPanel.append('text')
+    .attr('x', 21).attr('y', 26)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 12).attr('font-weight', 700).attr('fill', '#FFFFFF')
+    .text(i + 1);
+
+  // Form name (uppercase, JetBrains Mono)
+  gPanel.append('text')
+    .attr('x', 42).attr('y', 27)
+    .attr('font-family', "'JetBrains Mono', monospace")
+    .attr('font-size', 13).attr('font-weight', 700).attr('fill', '#121212')
+    .text(panel.name);
+
+  // Sketch area
+  const sketchX = 16, sketchY = 40;
+  const sketchW = innerW - 32, sketchH = innerH - 120;
+  const gSketch = gPanel.append('g')
+    .attr('transform', `translate(${sketchX}, ${sketchY})`);
+
+  // Light background for sketch
+  gSketch.append('rect')
+    .attr('width', sketchW).attr('height', sketchH)
+    .attr('fill', '#FAFAFA').attr('rx', 2);
+
+  panel.drawSketch(gSketch, sketchW, sketchH);
+
+  // Channel label
+  gPanel.append('text')
+    .attr('x', innerW / 2).attr('y', innerH - 46)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'JetBrains Mono', monospace")
+    .attr('font-size', 11).attr('fill', '#C8102E')
+    .text(panel.channel);
+
+  // Separator line
+  gPanel.append('line')
+    .attr('x1', 16).attr('y1', innerH - 36)
+    .attr('x2', innerW - 16).attr('y2', innerH - 36)
+    .attr('stroke', '#ECECEC').attr('stroke-width', 1);
+
+  // Use-when label
+  gPanel.append('text')
+    .attr('x', innerW / 2).attr('y', innerH - 16)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 11).attr('fill', '#545454')
+    .text(panel.useWhen);
+});
+
+// Fill the 8th cell (row 1, col 3) with a subtle note
+const blankCol = 3, blankRow = 1;
+const blankX = gridX + blankCol * cellW + cellPadX;
+const blankY = gridY + blankRow * cellH + cellPadY;
+const blankW = cellW - cellPadX * 2;
+const blankH = cellH - cellPadY * 2;
+
+svg.append('rect')
+  .attr('x', blankX).attr('y', blankY).attr('width', blankW).attr('height', blankH)
+  .attr('fill', '#FAFAFA').attr('stroke', '#D4D4D4').attr('stroke-width', 1.5)
+  .attr('rx', 3).attr('stroke-dasharray', '6,4');
+
+svg.append('text')
+  .attr('x', blankX + blankW / 2).attr('y', blankY + blankH / 2 - 20)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-style', 'italic')
+  .attr('font-size', 16).attr('fill', '#545454')
+  .text('Each form is a different');
+
+svg.append('text')
+  .attr('x', blankX + blankW / 2).attr('y', blankY + blankH / 2 + 4)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-style', 'italic')
+  .attr('font-size', 16).attr('fill', '#545454')
+  .text('answer to a different');
+
+svg.append('text')
+  .attr('x', blankX + blankW / 2).attr('y', blankY + blankH / 2 + 28)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-style', 'italic')
+  .attr('font-size', 16).attr('fill', '#545454')
+  .text('temporal question.');
+
+// =========================================================
+// Bottom caption
+// =========================================================
+svg.append('line')
+  .attr('x1', 50).attr('y1', H - 42).attr('x2', W - 50).attr('y2', H - 42)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+
+svg.append('text')
+  .attr('x', W / 2).attr('y', H - 16)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-style', 'italic')
+  .attr('font-size', 15).attr('fill', '#545454')
+  .text('The question determines the form. The form determines the channel. The channel determines the rules.');
+</script>
+</body>
+</html>

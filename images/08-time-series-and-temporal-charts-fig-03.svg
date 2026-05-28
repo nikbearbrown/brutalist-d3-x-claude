@@ -1,0 +1,82 @@
+<svg viewBox="0 0 700 360" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+<defs>
+  <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#2a1a0e"/>
+  </marker>
+</defs>
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="360" fill="#FFFFFF"/>
+
+<!-- LEFT PANEL: Area from 50°F (truncated) — AMPLIFIES -->
+<rect x="32" y="32" width="200" height="296" fill="#FFFFFF" stroke="#C8102E" stroke-width="2"/>
+<text x="132" y="56" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#2a1a0e" letter-spacing="0.08em">AREA FROM 50°F</text>
+
+<!-- Chart area -->
+<rect x="56" y="68" width="156" height="200" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+
+<!-- Y-axis: 50°F to 85°F -->
+<text x="52" y="76" text-anchor="end" font-size="8" fill="#545454">85°F</text>
+<text x="52" y="133" text-anchor="end" font-size="8" fill="#545454">75°F</text>
+<text x="52" y="190" text-anchor="end" font-size="8" fill="#545454">65°F</text>
+<text x="52" y="266" text-anchor="end" font-size="8" fill="#545454">50°F</text>
+
+<!-- Area fill from 50°F baseline (bottom of chart) -->
+<polygon points="62,180 82,170 102,155 122,140 142,150 162,165 182,175 202,185 202,268 62,268" fill="#6B3520" opacity="0.4"/>
+<polyline points="62,180 82,170 102,155 122,140 142,150 162,165 182,175 202,185" fill="none" stroke="#6B3520" stroke-width="2"/>
+
+<!-- Verdict -->
+<rect x="72" y="290" width="120" height="24" fill="#C8102E"/>
+<text x="132" y="306" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#FFFFFF" letter-spacing="0.08em">AMPLIFIES</text>
+
+<!-- CENTER PANEL: Area from 0°F — HONEST -->
+<rect x="250" y="32" width="200" height="296" fill="#FFFFFF" stroke="#1A3A5C" stroke-width="2"/>
+<text x="350" y="56" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#2a1a0e" letter-spacing="0.08em">AREA FROM 0°F</text>
+
+<!-- Chart area -->
+<rect x="274" y="68" width="156" height="200" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+
+<!-- Y-axis: 0°F to 85°F -->
+<text x="270" y="76" text-anchor="end" font-size="8" fill="#545454">85°F</text>
+<text x="270" y="126" text-anchor="end" font-size="8" fill="#545454">65°F</text>
+<text x="270" y="172" text-anchor="end" font-size="8" fill="#545454">45°F</text>
+<text x="270" y="220" text-anchor="end" font-size="8" fill="#545454">25°F</text>
+<text x="270" y="266" text-anchor="end" font-size="8" fill="#545454">0°F</text>
+
+<!-- Area fill from 0°F baseline — data near top, small visual variation -->
+<polygon points="280,110 300,105 320,96 340,88 360,95 380,105 400,110 420,115 420,268 280,268" fill="#6B3520" opacity="0.4"/>
+<polyline points="280,110 300,105 320,96 340,88 360,95 380,105 400,110 420,115" fill="none" stroke="#6B3520" stroke-width="2"/>
+
+<!-- Verdict -->
+<rect x="290" y="290" width="120" height="24" fill="#1A3A5C"/>
+<text x="350" y="306" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#FFFFFF" letter-spacing="0.08em">HONEST</text>
+
+<!-- RIGHT PANEL: Line only — HONEST -->
+<rect x="468" y="32" width="200" height="296" fill="#FFFFFF" stroke="#1A3A5C" stroke-width="2"/>
+<text x="568" y="56" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#2a1a0e" letter-spacing="0.08em">LINE ONLY</text>
+
+<!-- Chart area -->
+<rect x="492" y="68" width="156" height="200" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+
+<!-- Y-axis: 65°F to 85°F -->
+<text x="488" y="76" text-anchor="end" font-size="8" fill="#545454">85°F</text>
+<text x="488" y="126" text-anchor="end" font-size="8" fill="#545454">80°F</text>
+<text x="488" y="172" text-anchor="end" font-size="8" fill="#545454">75°F</text>
+<text x="488" y="220" text-anchor="end" font-size="8" fill="#545454">70°F</text>
+<text x="488" y="266" text-anchor="end" font-size="8" fill="#545454">65°F</text>
+
+<!-- Line only, no fill -->
+<polyline points="498,195 518,175 538,145 558,105 578,140 598,180 618,200 642,220" fill="none" stroke="#2a1a0e" stroke-width="2"/>
+<circle cx="498" cy="195" r="3" fill="#6B3520"/>
+<circle cx="518" cy="175" r="3" fill="#6B3520"/>
+<circle cx="538" cy="145" r="3" fill="#6B3520"/>
+<circle cx="558" cy="105" r="3" fill="#6B3520"/>
+<circle cx="578" cy="140" r="3" fill="#6B3520"/>
+<circle cx="598" cy="180" r="3" fill="#6B3520"/>
+<circle cx="618" cy="200" r="3" fill="#6B3520"/>
+<circle cx="642" cy="220" r="3" fill="#6B3520"/>
+
+<!-- Verdict -->
+<rect x="508" y="290" width="120" height="24" fill="#1A3A5C"/>
+<text x="568" y="306" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#FFFFFF" letter-spacing="0.08em">HONEST</text>
+</svg>

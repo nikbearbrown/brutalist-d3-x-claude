@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 7.3 — Alternatives when differences are small</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #121212;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--color-white);
+    color: var(--color-ink);
+    width: 1600px;
+    height: 900px;
+    overflow: hidden;
+  }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const W = 1600, H = 900;
+const svg = d3.select('#chart').append('svg')
+  .attr('width', W).attr('height', H)
+  .attr('role', 'img')
+  .attr('aria-labelledby', 'chart-title chart-desc');
+
+svg.append('title').attr('id', 'chart-title').text('Three values. One wrong response. Three right ones.');
+svg.append('desc').attr('id', 'chart-desc').text('Three-panel comparison showing a truncated bar chart that distorts small differences alongside two honest alternatives: a dot plot and a difference chart.');
+
+// Background
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#FFFFFF');
+
+// Main title
+svg.append('text')
+  .attr('x', W / 2).attr('y', 50)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-size', 36).attr('fill', '#121212')
+  .text('Three values. One wrong response. Three right ones.');
+
+// Subtitle
+svg.append('text')
+  .attr('x', W / 2).attr('y', 80)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 14).attr('fill', '#545454')
+  .text('Figure 7.3 \u2014 Alternatives when differences are small');
+
+// Data
+const data = [
+  { category: 'Category A', value: 12.4 },
+  { category: 'Category B', value: 12.8 },
+  { category: 'Category C', value: 13.2 }
+];
+
+const panelW = 440;
+const panelH = 520;
+const panelY = 110;
+const gap = 40;
+const panelStartX = (W - (panelW * 3 + gap * 2)) / 2;
+
+function panelX(i) { return panelStartX + i * (panelW + gap); }
+
+// Shared colors
+const redBorder = '#C8102E';
+const greenBorder = '#2E8B57';
+
+// =========================================================
+// PANEL 1: Truncated bar chart (DISTORTS)
+// =========================================================
+const p1x = panelX(0);
+const p1g = svg.append('g').attr('transform', `translate(${p1x}, ${panelY})`);
+
+// Panel border — red
+p1g.append('rect')
+  .attr('width', panelW).attr('height', panelH)
+  .attr('fill', 'none').attr('stroke', redBorder).attr('stroke-width', 2.5).attr('rx', 6);
+
+// Panel header
+p1g.append('rect')
+  .attr('x', 1).attr('y', 1).attr('width', panelW - 2).attr('height', 44)
+  .attr('fill', '#FFF0F0').attr('rx', 5);
+p1g.append('text')
+  .attr('x', panelW / 2).attr('y', 30)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 16).attr('font-weight', 700).attr('fill', '#C8102E')
+  .text('Truncated bar chart');
+
+// Chart area within panel
+const p1margin = { top: 70, right: 60, bottom: 120, left: 80 };
+const p1cW = panelW - p1margin.left - p1margin.right;
+const p1cH = panelH - p1margin.top - p1margin.bottom;
+
+const p1chart = p1g.append('g').attr('transform', `translate(${p1margin.left}, ${p1margin.top})`);
+
+const xScale1 = d3.scaleBand()
+  .domain(data.map(d => d.category))
+  .range([0, p1cW])
+  .padding(0.3);
+
+const yScale1 = d3.scaleLinear()
+  .domain([12, 14])
+  .range([p1cH, 0]);
+
+// Gridlines
+p1chart.selectAll('.grid1')
+  .data(yScale1.ticks(4))
+  .join('line')
+    .attr('x1', 0).attr('x2', p1cW)
+    .attr('y1', d => yScale1(d)).attr('y2', d => yScale1(d))
+    .attr('stroke', '#ECECEC').attr('stroke-width', 1).attr('aria-hidden', 'true');
+
+// Y-axis
+p1chart.append('g')
+  .call(d3.axisLeft(yScale1).ticks(4).tickFormat(d => d + '%'))
+  .selectAll('text')
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 12).attr('fill', '#545454');
+p1chart.selectAll('.domain, .tick line').attr('stroke', '#D4D4D4');
+
+// Zigzag break
+const zz1 = `M -8,${p1cH + 2} l 4,-5 l 4,5 l 4,-5 l 4,5`;
+p1chart.append('path').attr('d', zz1).attr('fill', 'none').attr('stroke', '#C8102E').attr('stroke-width', 2);
+
+// Bars
+p1chart.selectAll('.bar-trunc')
+  .data(data)
+  .join('rect')
+    .attr('class', 'bar-trunc')
+    .attr('x', d => xScale1(d.category))
+    .attr('y', d => yScale1(d.value))
+    .attr('width', xScale1.bandwidth())
+    .attr('height', d => p1cH - yScale1(d.value))
+    .attr('fill', '#121212')
+    .attr('rx', 1)
+    .attr('tabindex', 0)
+    .attr('aria-label', d => `${d.category}: ${d.value}%`);
+
+// Value labels
+data.forEach(d => {
+  p1chart.append('text')
+    .attr('x', xScale1(d.category) + xScale1.bandwidth() / 2)
+    .attr('y', yScale1(d.value) - 8)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 13).attr('font-weight', 600).attr('fill', '#121212')
+    .text(d.value + '%');
+});
+
+// X-axis labels
+data.forEach(d => {
+  p1chart.append('text')
+    .attr('x', xScale1(d.category) + xScale1.bandwidth() / 2)
+    .attr('y', p1cH + 20)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 12).attr('fill', '#545454')
+    .text(d.category);
+});
+
+// Verdict label
+p1g.append('text')
+  .attr('x', panelW / 2).attr('y', panelH - 64)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 22).attr('font-weight', 700).attr('fill', '#C8102E')
+  .text('DISTORTS');
+
+// Channel note
+p1g.append('text')
+  .attr('x', panelW / 2).attr('y', panelH - 36)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'JetBrains Mono', monospace")
+  .attr('font-size', 11).attr('fill', '#545454')
+  .text('Channel: length from');
+p1g.append('text')
+  .attr('x', panelW / 2).attr('y', panelH - 20)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'JetBrains Mono', monospace")
+  .attr('font-size', 11).attr('fill', '#C8102E')
+  .text('false baseline');
+
+// =========================================================
+// PANEL 2: Dot plot (HONEST)
+// =========================================================
+const p2x = panelX(1);
+const p2g = svg.append('g').attr('transform', `translate(${p2x}, ${panelY})`);
+
+// Panel border — green
+p2g.append('rect')
+  .attr('width', panelW).attr('height', panelH)
+  .attr('fill', 'none').attr('stroke', greenBorder).attr('stroke-width', 2.5).attr('rx', 6);
+
+// Panel header
+p2g.append('rect')
+  .attr('x', 1).attr('y', 1).attr('width', panelW - 2).attr('height', 44)
+  .attr('fill', '#F0FFF4').attr('rx', 5);
+p2g.append('text')
+  .attr('x', panelW / 2).attr('y', 30)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 16).attr('font-weight', 700).attr('fill', greenBorder)
+  .text('Dot plot');
+
+// Chart area
+const p2margin = { top: 70, right: 60, bottom: 120, left: 80 };
+const p2cW = panelW - p2margin.left - p2margin.right;
+const p2cH = panelH - p2margin.top - p2margin.bottom;
+
+const p2chart = p2g.append('g').attr('transform', `translate(${p2margin.left}, ${p2margin.top})`);
+
+const yScale2 = d3.scaleBand()
+  .domain(data.map(d => d.category))
+  .range([0, p2cH])
+  .padding(0.5);
+
+const xScale2 = d3.scaleLinear()
+  .domain([12, 14])
+  .range([0, p2cW]);
+
+// Gridlines
+p2chart.selectAll('.grid2')
+  .data(xScale2.ticks(4))
+  .join('line')
+    .attr('x1', d => xScale2(d)).attr('x2', d => xScale2(d))
+    .attr('y1', 0).attr('y2', p2cH)
+    .attr('stroke', '#ECECEC').attr('stroke-width', 1).attr('aria-hidden', 'true');
+
+// X-axis
+p2chart.append('g')
+  .attr('transform', `translate(0, ${p2cH})`)
+  .call(d3.axisBottom(xScale2).ticks(4).tickFormat(d => d + '%'))
+  .selectAll('text')
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 12).attr('fill', '#545454');
+p2chart.selectAll('.domain, .tick line').attr('stroke', '#D4D4D4');
+
+// Horizontal reference lines
+data.forEach(d => {
+  const cy = yScale2(d.category) + yScale2.bandwidth() / 2;
+  p2chart.append('line')
+    .attr('x1', 0).attr('x2', p2cW)
+    .attr('y1', cy).attr('y2', cy)
+    .attr('stroke', '#E8E8E8').attr('stroke-width', 1)
+    .attr('aria-hidden', 'true');
+});
+
+// Dots
+p2chart.selectAll('.dot-plot')
+  .data(data)
+  .join('circle')
+    .attr('class', 'dot-plot')
+    .attr('cx', d => xScale2(d.value))
+    .attr('cy', d => yScale2(d.category) + yScale2.bandwidth() / 2)
+    .attr('r', 8)
+    .attr('fill', '#121212')
+    .attr('tabindex', 0)
+    .attr('aria-label', d => `${d.category}: ${d.value}%`);
+
+// Category labels
+data.forEach(d => {
+  p2chart.append('text')
+    .attr('x', -10)
+    .attr('y', yScale2(d.category) + yScale2.bandwidth() / 2 + 5)
+    .attr('text-anchor', 'end')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 13).attr('fill', '#121212')
+    .text(d.category);
+});
+
+// Value labels
+data.forEach(d => {
+  p2chart.append('text')
+    .attr('x', xScale2(d.value) + 14)
+    .attr('y', yScale2(d.category) + yScale2.bandwidth() / 2 + 5)
+    .attr('text-anchor', 'start')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 13).attr('font-weight', 600).attr('fill', '#121212')
+    .text(d.value + '%');
+});
+
+// Verdict label
+p2g.append('text')
+  .attr('x', panelW / 2).attr('y', panelH - 64)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 22).attr('font-weight', 700).attr('fill', greenBorder)
+  .text('HONEST');
+
+// Channel note
+p2g.append('text')
+  .attr('x', panelW / 2).attr('y', panelH - 36)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'JetBrains Mono', monospace")
+  .attr('font-size', 11).attr('fill', '#545454')
+  .text('Channel: position,');
+p2g.append('text')
+  .attr('x', panelW / 2).attr('y', panelH - 20)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'JetBrains Mono', monospace")
+  .attr('font-size', 11).attr('fill', greenBorder)
+  .text('no area fill');
+
+// =========================================================
+// PANEL 3: Difference chart (HONEST)
+// =========================================================
+const p3x = panelX(2);
+const p3g = svg.append('g').attr('transform', `translate(${p3x}, ${panelY})`);
+
+// Panel border — green
+p3g.append('rect')
+  .attr('width', panelW).attr('height', panelH)
+  .attr('fill', 'none').attr('stroke', greenBorder).attr('stroke-width', 2.5).attr('rx', 6);
+
+// Panel header
+p3g.append('rect')
+  .attr('x', 1).attr('y', 1).attr('width', panelW - 2).attr('height', 44)
+  .attr('fill', '#F0FFF4').attr('rx', 5);
+p3g.append('text')
+  .attr('x', panelW / 2).attr('y', 30)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 16).attr('font-weight', 700).attr('fill', greenBorder)
+  .text('Difference chart');
+
+// Chart area
+const p3margin = { top: 70, right: 60, bottom: 120, left: 100 };
+const p3cW = panelW - p3margin.left - p3margin.right;
+const p3cH = panelH - p3margin.top - p3margin.bottom;
+
+const p3chart = p3g.append('g').attr('transform', `translate(${p3margin.left}, ${p3margin.top})`);
+
+const diffData = data.map(d => ({
+  category: d.category,
+  diff: +(d.value - 12.4).toFixed(1)
+}));
+
+const xScale3 = d3.scaleBand()
+  .domain(diffData.map(d => d.category))
+  .range([0, p3cW])
+  .padding(0.3);
+
+const yScale3 = d3.scaleLinear()
+  .domain([0, 1.0])
+  .range([p3cH, 0]);
+
+// Gridlines
+p3chart.selectAll('.grid3')
+  .data(yScale3.ticks(4))
+  .join('line')
+    .attr('x1', 0).attr('x2', p3cW)
+    .attr('y1', d => yScale3(d)).attr('y2', d => yScale3(d))
+    .attr('stroke', '#ECECEC').attr('stroke-width', 1).attr('aria-hidden', 'true');
+
+// Y-axis
+p3chart.append('g')
+  .call(d3.axisLeft(yScale3).ticks(4).tickFormat(d => '+' + d.toFixed(1) + 'pp'))
+  .selectAll('text')
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 12).attr('fill', '#545454');
+p3chart.selectAll('.domain, .tick line').attr('stroke', '#D4D4D4');
+
+// Zero baseline — strong
+p3chart.append('line')
+  .attr('x1', -4).attr('x2', p3cW + 4)
+  .attr('y1', p3cH).attr('y2', p3cH)
+  .attr('stroke', '#121212').attr('stroke-width', 2);
+
+// Baseline label
+p3chart.append('text')
+  .attr('x', p3cW + 8).attr('y', p3cH + 4)
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 10).attr('fill', '#545454')
+  .text('12.4% base');
+
+// Bars
+p3chart.selectAll('.bar-diff')
+  .data(diffData)
+  .join('rect')
+    .attr('class', 'bar-diff')
+    .attr('x', d => xScale3(d.category))
+    .attr('y', d => yScale3(d.diff))
+    .attr('width', xScale3.bandwidth())
+    .attr('height', d => p3cH - yScale3(d.diff))
+    .attr('fill', '#121212')
+    .attr('rx', 1)
+    .attr('tabindex', 0)
+    .attr('aria-label', d => `${d.category}: +${d.diff}pp from baseline`);
+
+// Value labels
+diffData.forEach(d => {
+  p3chart.append('text')
+    .attr('x', xScale3(d.category) + xScale3.bandwidth() / 2)
+    .attr('y', yScale3(d.diff) - 8)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 13).attr('font-weight', 600).attr('fill', '#121212')
+    .text('+' + d.diff.toFixed(1) + 'pp');
+});
+
+// X-axis labels
+diffData.forEach(d => {
+  p3chart.append('text')
+    .attr('x', xScale3(d.category) + xScale3.bandwidth() / 2)
+    .attr('y', p3cH + 20)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 12).attr('fill', '#545454')
+    .text(d.category);
+});
+
+// Verdict label
+p3g.append('text')
+  .attr('x', panelW / 2).attr('y', panelH - 64)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 22).attr('font-weight', 700).attr('fill', greenBorder)
+  .text('HONEST');
+
+// Channel note
+p3g.append('text')
+  .attr('x', panelW / 2).attr('y', panelH - 36)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'JetBrains Mono', monospace")
+  .attr('font-size', 11).attr('fill', '#545454')
+  .text('Channel: length from');
+p3g.append('text')
+  .attr('x', panelW / 2).attr('y', panelH - 20)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'JetBrains Mono', monospace")
+  .attr('font-size', 11).attr('fill', greenBorder)
+  .text('true zero');
+
+// =========================================================
+// Bottom caption
+// =========================================================
+svg.append('line')
+  .attr('x1', 50).attr('y1', H - 42).attr('x2', W - 50).attr('y2', H - 42)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+
+svg.append('text')
+  .attr('x', W / 2).attr('y', H - 16)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-style', 'italic')
+  .attr('font-size', 15).attr('fill', '#545454')
+  .text('When differences are small, the chart type must change \u2014 not the baseline.');
+</script>
+</body>
+</html>

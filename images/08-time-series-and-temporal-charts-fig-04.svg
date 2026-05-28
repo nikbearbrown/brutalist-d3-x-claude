@@ -1,0 +1,86 @@
+<svg viewBox="0 0 700 360" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+<defs>
+  <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#2a1a0e"/>
+  </marker>
+</defs>
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="360" fill="#FFFFFF"/>
+
+<!-- LEFT PANEL: Compressed Axis -->
+<rect x="32" y="32" width="308" height="296" fill="#FFFFFF" stroke="#C8102E" stroke-width="2"/>
+<text x="186" y="56" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#2a1a0e" letter-spacing="0.08em">COMPRESSED AXIS</text>
+
+<!-- Chart area -->
+<rect x="72" y="70" width="248" height="210" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+
+<!-- Y-axis -->
+<text x="68" y="80" text-anchor="end" font-size="8" fill="#545454">200</text>
+<text x="68" y="140" text-anchor="end" font-size="8" fill="#545454">150</text>
+<text x="68" y="200" text-anchor="end" font-size="8" fill="#545454">100</text>
+<text x="68" y="275" text-anchor="end" font-size="8" fill="#545454">50</text>
+
+<!-- X-axis labels (24 months, March 2021 missing but compressed) -->
+<text x="82" y="292" text-anchor="middle" font-size="7" fill="#545454">J20</text>
+<text x="115" y="292" text-anchor="middle" font-size="7" fill="#545454">J20</text>
+<text x="148" y="292" text-anchor="middle" font-size="7" fill="#545454">J21</text>
+<text x="181" y="292" text-anchor="middle" font-size="7" fill="#545454">J21</text>
+<text x="214" y="292" text-anchor="middle" font-size="7" fill="#545454">J22</text>
+<text x="247" y="292" text-anchor="middle" font-size="7" fill="#545454">J22</text>
+<text x="280" y="292" text-anchor="middle" font-size="7" fill="#545454">J23</text>
+<text x="310" y="292" text-anchor="middle" font-size="7" fill="#545454">D23</text>
+
+<!-- Line with artificially steep slope at missing point -->
+<polyline points="82,240 98,235 115,225 131,220 148,210 160,205 175,190 181,140 198,135 214,130 231,125 247,120 264,115 280,105 296,100 310,95" fill="none" stroke="#6B3520" stroke-width="2"/>
+
+<!-- Annotation for steep slope -->
+<line x1="166" y1="150" x2="175" y2="175" stroke="#C8102E" stroke-width="1" marker-end="url(#arrow)"/>
+<text x="148" y="145" text-anchor="middle" font-size="9" fill="#C8102E" font-style="italic">Artificial steep</text>
+<text x="148" y="135" text-anchor="middle" font-size="9" fill="#C8102E" font-style="italic">slope here</text>
+
+<!-- Label -->
+<text x="186" y="318" text-anchor="middle" font-size="10" fill="#C8102E" font-style="italic">Missing March 2021 hidden</text>
+
+<!-- RIGHT PANEL: Gap-Marked Axis -->
+<rect x="360" y="32" width="308" height="296" fill="#FFFFFF" stroke="#1A3A5C" stroke-width="2"/>
+<text x="514" y="56" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#2a1a0e" letter-spacing="0.08em">GAP-MARKED AXIS</text>
+
+<!-- Chart area -->
+<rect x="400" y="70" width="248" height="210" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+
+<!-- Y-axis -->
+<text x="396" y="80" text-anchor="end" font-size="8" fill="#545454">200</text>
+<text x="396" y="140" text-anchor="end" font-size="8" fill="#545454">150</text>
+<text x="396" y="200" text-anchor="end" font-size="8" fill="#545454">100</text>
+<text x="396" y="275" text-anchor="end" font-size="8" fill="#545454">50</text>
+
+<!-- X-axis labels -->
+<text x="410" y="292" text-anchor="middle" font-size="7" fill="#545454">J20</text>
+<text x="443" y="292" text-anchor="middle" font-size="7" fill="#545454">J20</text>
+<text x="476" y="292" text-anchor="middle" font-size="7" fill="#545454">F21</text>
+<text x="519" y="292" text-anchor="middle" font-size="7" fill="#545454">A21</text>
+<text x="552" y="292" text-anchor="middle" font-size="7" fill="#545454">J21</text>
+<text x="585" y="292" text-anchor="middle" font-size="7" fill="#545454">J22</text>
+<text x="618" y="292" text-anchor="middle" font-size="7" fill="#545454">J23</text>
+<text x="640" y="292" text-anchor="middle" font-size="7" fill="#545454">D23</text>
+
+<!-- Shaded gap region for missing March 2021 -->
+<rect x="487" y="70" width="22" height="210" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1" stroke-dasharray="4,2"/>
+
+<!-- "MAR 21" label in gap -->
+<text x="498" y="178" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#545454" letter-spacing="0.08em" transform="rotate(-90,498,178)">MAR 21</text>
+
+<!-- Line before gap -->
+<polyline points="410,240 426,235 443,225 460,220 476,210" fill="none" stroke="#6B3520" stroke-width="2"/>
+
+<!-- Line after gap -->
+<polyline points="519,195 535,190 552,180 568,170 585,155 601,140 618,125 640,115" fill="none" stroke="#6B3520" stroke-width="2"/>
+
+<!-- End dots at gap edges -->
+<circle cx="476" cy="210" r="3.5" fill="#6B3520"/>
+<circle cx="519" cy="195" r="3.5" fill="#6B3520"/>
+
+<!-- Label -->
+<text x="514" y="318" text-anchor="middle" font-size="10" fill="#1A3A5C" font-style="italic">Missing data clearly marked</text>
+</svg>

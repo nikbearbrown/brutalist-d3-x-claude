@@ -1,0 +1,75 @@
+<svg viewBox="0 0 700 360" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+<defs>
+  <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#2a1a0e"/>
+  </marker>
+</defs>
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="360" fill="#FFFFFF"/>
+
+<!-- LEFT PANEL: Box Plot Only -->
+<rect x="32" y="32" width="200" height="296" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<text x="132" y="56" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#2a1a0e" letter-spacing="0.08em">BOX PLOT</text>
+
+<!-- Chart area -->
+<rect x="52" y="68" width="160" height="200" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+
+<!-- Box plot -->
+<line x1="132" y1="85" x2="132" y2="115" stroke="#2a1a0e" stroke-width="1.5"/>
+<line x1="117" y1="85" x2="147" y2="85" stroke="#2a1a0e" stroke-width="1.5"/>
+<rect x="107" y="115" width="50" height="100" fill="#F5EFE8" stroke="#2a1a0e" stroke-width="1.5"/>
+<line x1="107" y1="165" x2="157" y2="165" stroke="#C8102E" stroke-width="2"/>
+<line x1="132" y1="215" x2="132" y2="250" stroke="#2a1a0e" stroke-width="1.5"/>
+<line x1="117" y1="250" x2="147" y2="250" stroke="#2a1a0e" stroke-width="1.5"/>
+
+<!-- Badge -->
+<rect x="62" y="280" width="140" height="18" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<text x="132" y="293" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">SHAPE: HIDDEN</text>
+
+<!-- CENTER PANEL: Violin Only -->
+<rect x="250" y="32" width="200" height="296" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<text x="350" y="56" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#2a1a0e" letter-spacing="0.08em">VIOLIN PLOT</text>
+
+<!-- Chart area -->
+<rect x="270" y="68" width="160" height="200" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+
+<!-- Violin shape (bimodal) -->
+<path d="M350,80 C330,100 315,115 310,135 C315,150 330,152 335,160 C330,168 315,175 310,195 C315,215 330,240 350,260 C370,240 385,215 390,195 C385,175 370,168 365,160 C370,152 385,150 390,135 C385,115 370,100 350,80 Z" fill="#6B3520" opacity="0.3" stroke="#6B3520" stroke-width="1.5"/>
+
+<!-- Badges -->
+<rect x="280" y="280" width="140" height="18" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<text x="350" y="293" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">SHAPE: VISIBLE</text>
+
+<rect x="272" y="302" width="156" height="18" fill="#FFFFFF" stroke="#C8102E" stroke-width="1"/>
+<text x="350" y="315" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#C8102E" letter-spacing="0.08em">QUARTILES: NOT READABLE</text>
+
+<!-- RIGHT PANEL: Hybrid Box-Violin -->
+<rect x="468" y="32" width="200" height="296" fill="#FFFFFF" stroke="#C8102E" stroke-width="2"/>
+<text x="568" y="56" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#2a1a0e" letter-spacing="0.08em">HYBRID</text>
+
+<!-- Chart area -->
+<rect x="488" y="68" width="160" height="200" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+
+<!-- Violin shape (bimodal) -->
+<path d="M568,80 C548,100 533,115 528,135 C533,150 548,152 553,160 C548,168 533,175 528,195 C533,215 548,240 568,260 C588,240 603,215 608,195 C603,175 588,168 583,160 C588,152 603,150 608,135 C603,115 588,100 568,80 Z" fill="#6B3520" opacity="0.3" stroke="#6B3520" stroke-width="1.5"/>
+
+<!-- Box plot overlaid -->
+<line x1="568" y1="95" x2="568" y2="120" stroke="#2a1a0e" stroke-width="1.5"/>
+<line x1="558" y1="95" x2="578" y2="95" stroke="#2a1a0e" stroke-width="1.5"/>
+<rect x="553" y="120" width="30" height="80" fill="#F5EFE8" stroke="#2a1a0e" stroke-width="1.5"/>
+<line x1="553" y1="160" x2="583" y2="160" stroke="#C8102E" stroke-width="2"/>
+<line x1="568" y1="200" x2="568" y2="235" stroke="#2a1a0e" stroke-width="1.5"/>
+<line x1="558" y1="235" x2="578" y2="235" stroke="#2a1a0e" stroke-width="1.5"/>
+
+<!-- Badges -->
+<rect x="498" y="280" width="140" height="18" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<text x="568" y="293" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">SHAPE: VISIBLE</text>
+
+<rect x="498" y="302" width="140" height="18" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<text x="568" y="315" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">QUARTILES: READABLE</text>
+
+<!-- PREFERRED badge -->
+<rect x="533" y="335" width="70" height="20" fill="#C8860E"/>
+<text x="568" y="349" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#FFFFFF" letter-spacing="0.08em">PREFERRED</text>
+</svg>

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 7.1 — The zero-baseline rule for bar charts</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #121212;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--color-white);
+    color: var(--color-ink);
+    width: 1600px;
+    height: 900px;
+    overflow: hidden;
+  }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const W = 1600, H = 900;
+const svg = d3.select('#chart').append('svg')
+  .attr('width', W).attr('height', H)
+  .attr('role', 'img')
+  .attr('aria-labelledby', 'chart-title chart-desc');
+
+svg.append('title').attr('id', 'chart-title').text('Same data. The truncated baseline makes a 2.7x difference look like a 5x difference.');
+svg.append('desc').attr('id', 'chart-desc').text('Two side-by-side bar charts of 8 cognitive domains. The left panel uses an honest zero baseline while the right panel truncates the y-axis at 30, exaggerating differences between bars.');
+
+// Background
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#FFFFFF');
+
+// Main title
+svg.append('text')
+  .attr('x', W / 2).attr('y', 52)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-size', 34).attr('fill', '#121212')
+  .text('Same data. The truncated baseline makes a 2.7\u00d7 difference look like a 5\u00d7 difference.');
+
+// Subtitle
+svg.append('text')
+  .attr('x', W / 2).attr('y', 80)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 14).attr('fill', '#545454')
+  .text('Figure 7.1 \u2014 The zero-baseline rule for bar charts');
+
+// Data
+const data = [
+  { domain: 'Memory Retrieval', value: 96 },
+  { domain: 'Pattern Recognition', value: 94 },
+  { domain: 'Language', value: 87 },
+  { domain: 'Reasoning', value: 82 },
+  { domain: 'Common Sense', value: 68 },
+  { domain: 'Social Intelligence', value: 55 },
+  { domain: 'Creativity', value: 47 },
+  { domain: 'Embodied Teaching', value: 36 }
+];
+
+// Divider line
+svg.append('line')
+  .attr('x1', W / 2).attr('y1', 96).attr('x2', W / 2).attr('y2', H - 50)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 2);
+
+// =========================================================
+// LEFT PANEL — Honest baseline (0 to 100)
+// =========================================================
+const leftPanelX = 50;
+const leftPanelW = W / 2 - 70;
+
+// Panel header
+svg.append('rect')
+  .attr('x', leftPanelX).attr('y', 98).attr('width', leftPanelW).attr('height', 40)
+  .attr('fill', '#F5F5F5').attr('rx', 4);
+svg.append('text')
+  .attr('x', leftPanelX + leftPanelW / 2).attr('y', 124)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 17).attr('font-weight', 700).attr('fill', '#121212')
+  .text('Honest baseline');
+
+// Badge
+svg.append('rect')
+  .attr('x', leftPanelX + leftPanelW - 100).attr('y', 103).attr('width', 84).attr('height', 28)
+  .attr('fill', '#121212').attr('rx', 14);
+svg.append('text')
+  .attr('x', leftPanelX + leftPanelW - 58).attr('y', 122)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('font-weight', 700).attr('fill', '#FFFFFF')
+  .text('y: 0\u2013100');
+
+const leftChartX = leftPanelX + 80;
+const leftChartY = 168;
+const leftChartW = leftPanelW - 110;
+const leftChartH = 520;
+
+const xScaleLeft = d3.scaleBand()
+  .domain(data.map(d => d.domain))
+  .range([0, leftChartW])
+  .padding(0.18);
+
+const yScaleLeft = d3.scaleLinear()
+  .domain([0, 100])
+  .range([leftChartH, 0]);
+
+const gLeft = svg.append('g')
+  .attr('transform', `translate(${leftChartX}, ${leftChartY})`);
+
+// Gridlines
+gLeft.selectAll('.gridline-left')
+  .data(yScaleLeft.ticks(5))
+  .join('line')
+    .attr('class', 'gridline-left')
+    .attr('x1', 0).attr('x2', leftChartW)
+    .attr('y1', d => yScaleLeft(d)).attr('y2', d => yScaleLeft(d))
+    .attr('stroke', '#ECECEC').attr('stroke-width', 1)
+    .attr('aria-hidden', 'true');
+
+// Y-axis
+const yAxisLeft = d3.axisLeft(yScaleLeft).ticks(5).tickFormat(d => d);
+gLeft.append('g').call(yAxisLeft)
+  .selectAll('text')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('fill', '#545454');
+gLeft.selectAll('.domain, .tick line').attr('stroke', '#D4D4D4');
+
+// Bars — sequential luminance
+const colorScale = d3.scaleLinear()
+  .domain([30, 100])
+  .range(['#C8C0B8', '#121212']);
+
+gLeft.selectAll('.bar-left')
+  .data(data)
+  .join('rect')
+    .attr('class', 'bar-left')
+    .attr('x', d => xScaleLeft(d.domain))
+    .attr('y', d => yScaleLeft(d.value))
+    .attr('width', xScaleLeft.bandwidth())
+    .attr('height', d => leftChartH - yScaleLeft(d.value))
+    .attr('fill', d => colorScale(d.value))
+    .attr('rx', 1)
+    .attr('tabindex', 0)
+    .attr('aria-label', d => `${d.domain}: ${d.value}`);
+
+// Value labels
+gLeft.selectAll('.val-left')
+  .data(data)
+  .join('text')
+    .attr('class', 'val-left')
+    .attr('x', d => xScaleLeft(d.domain) + xScaleLeft.bandwidth() / 2)
+    .attr('y', d => yScaleLeft(d.value) - 6)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 11).attr('font-weight', 600).attr('fill', '#121212')
+    .text(d => d.value);
+
+// X-axis labels — rotated
+const xAxisLeft = d3.axisBottom(xScaleLeft).tickSize(0);
+gLeft.append('g')
+  .attr('transform', `translate(0, ${leftChartH})`)
+  .call(xAxisLeft)
+  .selectAll('text')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 10).attr('fill', '#545454')
+  .attr('text-anchor', 'end')
+  .attr('transform', 'rotate(-35)')
+  .attr('dx', '-6px').attr('dy', '6px');
+
+gLeft.select('.domain').attr('stroke', '#D4D4D4');
+
+// Annotation: visual ratio callout
+const memY_L = yScaleLeft(96);
+const embY_L = yScaleLeft(36);
+const annoX_L = leftChartW + 16;
+
+gLeft.append('line')
+  .attr('x1', annoX_L).attr('y1', memY_L)
+  .attr('x2', annoX_L).attr('y2', embY_L)
+  .attr('stroke', '#545454').attr('stroke-width', 1.5)
+  .attr('marker-start', 'url(#arrowUp)')
+  .attr('marker-end', 'url(#arrowDown)');
+
+gLeft.append('text')
+  .attr('x', annoX_L + 6).attr('y', (memY_L + embY_L) / 2 + 4)
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('font-weight', 600).attr('fill', '#545454')
+  .text('2.7\u00d7');
+
+// =========================================================
+// RIGHT PANEL — Truncated baseline (30 to 100)
+// =========================================================
+const rightPanelX = W / 2 + 20;
+const rightPanelW = W / 2 - 70;
+
+// Panel header — red tinted
+svg.append('rect')
+  .attr('x', rightPanelX).attr('y', 98).attr('width', rightPanelW).attr('height', 40)
+  .attr('fill', '#FFF0F0').attr('rx', 4);
+svg.append('text')
+  .attr('x', rightPanelX + rightPanelW / 2).attr('y', 124)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 17).attr('font-weight', 700).attr('fill', '#C8102E')
+  .text('Truncated baseline');
+
+// Badge
+svg.append('rect')
+  .attr('x', rightPanelX + rightPanelW - 106).attr('y', 103).attr('width', 90).attr('height', 28)
+  .attr('fill', '#C8102E').attr('rx', 14);
+svg.append('text')
+  .attr('x', rightPanelX + rightPanelW - 61).attr('y', 122)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('font-weight', 700).attr('fill', '#FFFFFF')
+  .text('y: 30\u2013100');
+
+const rightChartX = rightPanelX + 80;
+const rightChartY = 168;
+const rightChartW = rightPanelW - 110;
+const rightChartH = 520;
+
+const xScaleRight = d3.scaleBand()
+  .domain(data.map(d => d.domain))
+  .range([0, rightChartW])
+  .padding(0.18);
+
+const yScaleRight = d3.scaleLinear()
+  .domain([30, 100])
+  .range([rightChartH, 0]);
+
+const gRight = svg.append('g')
+  .attr('transform', `translate(${rightChartX}, ${rightChartY})`);
+
+// Gridlines
+gRight.selectAll('.gridline-right')
+  .data(yScaleRight.ticks(7))
+  .join('line')
+    .attr('class', 'gridline-right')
+    .attr('x1', 0).attr('x2', rightChartW)
+    .attr('y1', d => yScaleRight(d)).attr('y2', d => yScaleRight(d))
+    .attr('stroke', '#ECECEC').attr('stroke-width', 1)
+    .attr('aria-hidden', 'true');
+
+// Y-axis
+const yAxisRight = d3.axisLeft(yScaleRight).ticks(7).tickFormat(d => d);
+gRight.append('g').call(yAxisRight)
+  .selectAll('text')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('fill', '#545454');
+gRight.selectAll('.domain, .tick line').attr('stroke', '#D4D4D4');
+
+// Zigzag break on y-axis
+const breakY = rightChartH + 2;
+const zigzag = `M -12,${breakY} l 6,-6 l 6,6 l 6,-6 l 6,6`;
+gRight.append('path')
+  .attr('d', zigzag)
+  .attr('fill', 'none')
+  .attr('stroke', '#C8102E')
+  .attr('stroke-width', 2);
+
+// Bars
+gRight.selectAll('.bar-right')
+  .data(data)
+  .join('rect')
+    .attr('class', 'bar-right')
+    .attr('x', d => xScaleRight(d.domain))
+    .attr('y', d => yScaleRight(d.value))
+    .attr('width', xScaleRight.bandwidth())
+    .attr('height', d => rightChartH - yScaleRight(d.value))
+    .attr('fill', d => colorScale(d.value))
+    .attr('rx', 1)
+    .attr('tabindex', 0)
+    .attr('aria-label', d => `${d.domain}: ${d.value} (truncated view)`);
+
+// Value labels
+gRight.selectAll('.val-right')
+  .data(data)
+  .join('text')
+    .attr('class', 'val-right')
+    .attr('x', d => xScaleRight(d.domain) + xScaleRight.bandwidth() / 2)
+    .attr('y', d => yScaleRight(d.value) - 6)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 11).attr('font-weight', 600).attr('fill', '#121212')
+    .text(d => d.value);
+
+// X-axis labels — rotated
+const xAxisRight2 = d3.axisBottom(xScaleRight).tickSize(0);
+gRight.append('g')
+  .attr('transform', `translate(0, ${rightChartH})`)
+  .call(xAxisRight2)
+  .selectAll('text')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 10).attr('fill', '#545454')
+  .attr('text-anchor', 'end')
+  .attr('transform', 'rotate(-35)')
+  .attr('dx', '-6px').attr('dy', '6px');
+
+gRight.select('.domain').attr('stroke', '#D4D4D4');
+
+// Annotation: visual ratio callout — exaggerated
+const memY_R = yScaleRight(96);
+const embY_R = yScaleRight(36);
+const annoX_R = rightChartW + 16;
+
+gRight.append('line')
+  .attr('x1', annoX_R).attr('y1', memY_R)
+  .attr('x2', annoX_R).attr('y2', embY_R)
+  .attr('stroke', '#C8102E').attr('stroke-width', 2)
+  .attr('marker-start', 'url(#arrowUpRed)')
+  .attr('marker-end', 'url(#arrowDownRed)');
+
+// Visual ratio text
+const midY_R = (memY_R + embY_R) / 2;
+gRight.append('text')
+  .attr('x', annoX_R + 6).attr('y', midY_R - 10)
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 13).attr('font-weight', 700).attr('fill', '#C8102E')
+  .text('Looks ~5\u00d7');
+
+gRight.append('text')
+  .attr('x', annoX_R + 6).attr('y', midY_R + 8)
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 11).attr('fill', '#545454')
+  .text('True ratio: 2.7\u00d7');
+
+// Defs for arrow markers
+const defs = svg.append('defs');
+
+// Gray arrows (left panel)
+defs.append('marker').attr('id', 'arrowUp')
+  .attr('viewBox', '0 0 10 10').attr('refX', 5).attr('refY', 10)
+  .attr('markerWidth', 6).attr('markerHeight', 6)
+  .append('path').attr('d', 'M 0 10 L 5 0 L 10 10').attr('fill', '#545454');
+defs.append('marker').attr('id', 'arrowDown')
+  .attr('viewBox', '0 0 10 10').attr('refX', 5).attr('refY', 0)
+  .attr('markerWidth', 6).attr('markerHeight', 6)
+  .append('path').attr('d', 'M 0 0 L 5 10 L 10 0').attr('fill', '#545454');
+
+// Red arrows (right panel)
+defs.append('marker').attr('id', 'arrowUpRed')
+  .attr('viewBox', '0 0 10 10').attr('refX', 5).attr('refY', 10)
+  .attr('markerWidth', 6).attr('markerHeight', 6)
+  .append('path').attr('d', 'M 0 10 L 5 0 L 10 10').attr('fill', '#C8102E');
+defs.append('marker').attr('id', 'arrowDownRed')
+  .attr('viewBox', '0 0 10 10').attr('refX', 5).attr('refY', 0)
+  .attr('markerWidth', 6).attr('markerHeight', 6)
+  .append('path').attr('d', 'M 0 0 L 5 10 L 10 0').attr('fill', '#C8102E');
+
+// =========================================================
+// Bottom caption
+// =========================================================
+svg.append('line')
+  .attr('x1', 50).attr('y1', H - 42).attr('x2', W - 50).attr('y2', H - 42)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+
+svg.append('text')
+  .attr('x', W / 2).attr('y', H - 16)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-style', 'italic')
+  .attr('font-size', 15).attr('fill', '#545454')
+  .text('The numbers are identical. Only the baseline changed. The visual lie is the gap you invented.');
+</script>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+<defs>
+  <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#2a1a0e"/>
+  </marker>
+</defs>
+
+<!-- Background -->
+<rect width="700" height="420" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="28" text-anchor="middle" font-size="15" fill="#2a1a0e" font-weight="bold">Baseline Manipulation Changes Perceived Differences</text>
+
+<!-- LEFT PANEL: Honest Baseline -->
+<rect x="32" y="44" width="310" height="310" fill="#F5EFE8" stroke="#D4D4D4" rx="0"/>
+<text x="187" y="62" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#2a1a0e" letter-spacing="0.08em">HONEST BASELINE</text>
+
+<!-- Y-axis 0-100 left panel -->
+<text x="48" y="82" font-size="9" fill="#545454" text-anchor="end">100</text>
+<line x1="50" y1="78" x2="330" y2="78" stroke="#D4D4D4" stroke-dasharray="4 3"/>
+<text x="48" y="140" font-size="9" fill="#545454" text-anchor="end">80</text>
+<line x1="50" y1="136" x2="330" y2="136" stroke="#D4D4D4" stroke-dasharray="4 3"/>
+<text x="48" y="198" font-size="9" fill="#545454" text-anchor="end">60</text>
+<line x1="50" y1="194" x2="330" y2="194" stroke="#D4D4D4" stroke-dasharray="4 3"/>
+<text x="48" y="256" font-size="9" fill="#545454" text-anchor="end">40</text>
+<line x1="50" y1="252" x2="330" y2="252" stroke="#D4D4D4" stroke-dasharray="4 3"/>
+<text x="48" y="314" font-size="9" fill="#545454" text-anchor="end">20</text>
+<line x1="50" y1="310" x2="330" y2="310" stroke="#D4D4D4" stroke-dasharray="4 3"/>
+<text x="48" y="346" font-size="9" fill="#545454" text-anchor="end">0</text>
+<line x1="50" y1="342" x2="330" y2="342" stroke="#2a1a0e" stroke-width="1"/>
+
+<!-- Bars: baseline 0, max 100, bar area y=78 to y=342 => 264px for 100 units => 2.64px/unit -->
+<!-- Memory 96 => h=253.4 => y=342-253.4=88.6 -->
+<rect x="56" y="88.6" width="28" height="253.4" fill="#6B3520" rx="0"/>
+<text x="70" y="84" text-anchor="middle" font-size="8" fill="#2a1a0e">96</text>
+<!-- Pattern 94 => h=248.2 => y=93.8 -->
+<rect x="91" y="93.8" width="28" height="248.2" fill="#6B3520" rx="0"/>
+<text x="105" y="89" text-anchor="middle" font-size="8" fill="#2a1a0e">94</text>
+<!-- Language 87 => h=229.7 => y=112.3 -->
+<rect x="126" y="112.3" width="28" height="229.7" fill="#6B3520" rx="0"/>
+<text x="140" y="108" text-anchor="middle" font-size="8" fill="#2a1a0e">87</text>
+<!-- Reasoning 82 => h=216.5 => y=125.5 -->
+<rect x="161" y="125.5" width="28" height="216.5" fill="#6B3520" rx="0"/>
+<text x="175" y="121" text-anchor="middle" font-size="8" fill="#2a1a0e">82</text>
+<!-- Common Sense 68 => h=179.5 => y=162.5 -->
+<rect x="196" y="162.5" width="28" height="179.5" fill="#6B3520" rx="0"/>
+<text x="210" y="158" text-anchor="middle" font-size="8" fill="#2a1a0e">68</text>
+<!-- Social 55 => h=145.2 => y=196.8 -->
+<rect x="231" y="196.8" width="28" height="145.2" fill="#6B3520" rx="0"/>
+<text x="245" y="192" text-anchor="middle" font-size="8" fill="#2a1a0e">55</text>
+<!-- Creativity 47 => h=124.1 => y=217.9 -->
+<rect x="266" y="217.9" width="28" height="124.1" fill="#6B3520" rx="0"/>
+<text x="280" y="213" text-anchor="middle" font-size="8" fill="#2a1a0e">47</text>
+<!-- Embodied 36 => h=95.0 => y=247 -->
+<rect x="301" y="247" width="28" height="95" fill="#6B3520" rx="0"/>
+<text x="315" y="243" text-anchor="middle" font-size="8" fill="#2a1a0e">36</text>
+
+<!-- X-axis labels left -->
+<text x="70" y="350" text-anchor="middle" font-size="7" fill="#545454">Mem</text>
+<text x="105" y="350" text-anchor="middle" font-size="7" fill="#545454">Pat</text>
+<text x="140" y="350" text-anchor="middle" font-size="7" fill="#545454">Lang</text>
+<text x="175" y="350" text-anchor="middle" font-size="7" fill="#545454">Reas</text>
+<text x="210" y="350" text-anchor="middle" font-size="7" fill="#545454">CS</text>
+<text x="245" y="350" text-anchor="middle" font-size="7" fill="#545454">Soc</text>
+<text x="280" y="350" text-anchor="middle" font-size="7" fill="#545454">Crea</text>
+<text x="315" y="350" text-anchor="middle" font-size="7" fill="#545454">Emb</text>
+
+<!-- RIGHT PANEL: Truncated Baseline -->
+<rect x="358" y="44" width="310" height="310" fill="#F5EFE8" stroke="#D4D4D4" rx="0"/>
+<text x="513" y="62" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#2a1a0e" letter-spacing="0.08em">TRUNCATED BASELINE</text>
+
+<!-- Y-axis 30-100 right panel: range 70, area y=78 to y=342 => 264px for 70 units => 3.77px/unit -->
+<text x="374" y="82" font-size="9" fill="#545454" text-anchor="end">100</text>
+<line x1="376" y1="78" x2="656" y2="78" stroke="#D4D4D4" stroke-dasharray="4 3"/>
+<text x="374" y="120" font-size="9" fill="#545454" text-anchor="end">90</text>
+<line x1="376" y1="116" x2="656" y2="116" stroke="#D4D4D4" stroke-dasharray="4 3"/>
+<text x="374" y="158" font-size="9" fill="#545454" text-anchor="end">80</text>
+<line x1="376" y1="154" x2="656" y2="154" stroke="#D4D4D4" stroke-dasharray="4 3"/>
+<text x="374" y="196" font-size="9" fill="#545454" text-anchor="end">70</text>
+<line x1="376" y1="192" x2="656" y2="192" stroke="#D4D4D4" stroke-dasharray="4 3"/>
+<text x="374" y="234" font-size="9" fill="#545454" text-anchor="end">60</text>
+<line x1="376" y1="230" x2="656" y2="230" stroke="#D4D4D4" stroke-dasharray="4 3"/>
+<text x="374" y="272" font-size="9" fill="#545454" text-anchor="end">50</text>
+<line x1="376" y1="268" x2="656" y2="268" stroke="#D4D4D4" stroke-dasharray="4 3"/>
+<text x="374" y="310" font-size="9" fill="#545454" text-anchor="end">40</text>
+<line x1="376" y1="306" x2="656" y2="306" stroke="#D4D4D4" stroke-dasharray="4 3"/>
+<text x="374" y="346" font-size="9" fill="#545454" text-anchor="end">30</text>
+<line x1="376" y1="342" x2="656" y2="342" stroke="#2a1a0e" stroke-width="1"/>
+
+<!-- Truncated bars: baseline 30, range 70, 264px/70units=3.77px/unit -->
+<!-- Memory 96 => (96-30)=66 => h=248.9 => y=342-248.9=93.1 -->
+<rect x="382" y="93.1" width="28" height="248.9" fill="#9B6555" rx="0"/>
+<text x="396" y="89" text-anchor="middle" font-size="8" fill="#2a1a0e">96</text>
+<!-- Pattern 94 => 64 => h=241.3 => y=100.7 -->
+<rect x="417" y="100.7" width="28" height="241.3" fill="#9B6555" rx="0"/>
+<text x="431" y="96" text-anchor="middle" font-size="8" fill="#2a1a0e">94</text>
+<!-- Language 87 => 57 => h=214.9 => y=127.1 -->
+<rect x="452" y="127.1" width="28" height="214.9" fill="#9B6555" rx="0"/>
+<text x="466" y="123" text-anchor="middle" font-size="8" fill="#2a1a0e">87</text>
+<!-- Reasoning 82 => 52 => h=196 => y=146 -->
+<rect x="487" y="146" width="28" height="196" fill="#9B6555" rx="0"/>
+<text x="501" y="142" text-anchor="middle" font-size="8" fill="#2a1a0e">82</text>
+<!-- Common Sense 68 => 38 => h=143.3 => y=198.7 -->
+<rect x="522" y="198.7" width="28" height="143.3" fill="#9B6555" rx="0"/>
+<text x="536" y="194" text-anchor="middle" font-size="8" fill="#2a1a0e">68</text>
+<!-- Social 55 => 25 => h=94.3 => y=247.7 -->
+<rect x="557" y="247.7" width="28" height="94.3" fill="#9B6555" rx="0"/>
+<text x="571" y="243" text-anchor="middle" font-size="8" fill="#2a1a0e">55</text>
+<!-- Creativity 47 => 17 => h=64.1 => y=277.9 -->
+<rect x="592" y="277.9" width="28" height="64.1" fill="#9B6555" rx="0"/>
+<text x="606" y="273" text-anchor="middle" font-size="8" fill="#2a1a0e">47</text>
+<!-- Embodied 36 => 6 => h=22.6 => y=319.4 -->
+<rect x="627" y="319.4" width="28" height="22.6" fill="#9B6555" rx="0"/>
+<text x="641" y="315" text-anchor="middle" font-size="8" fill="#2a1a0e">36</text>
+
+<!-- X-axis labels right -->
+<text x="396" y="350" text-anchor="middle" font-size="7" fill="#545454">Mem</text>
+<text x="431" y="350" text-anchor="middle" font-size="7" fill="#545454">Pat</text>
+<text x="466" y="350" text-anchor="middle" font-size="7" fill="#545454">Lang</text>
+<text x="501" y="350" text-anchor="middle" font-size="7" fill="#545454">Reas</text>
+<text x="536" y="350" text-anchor="middle" font-size="7" fill="#545454">CS</text>
+<text x="571" y="350" text-anchor="middle" font-size="7" fill="#545454">Soc</text>
+<text x="606" y="350" text-anchor="middle" font-size="7" fill="#545454">Crea</text>
+<text x="641" y="350" text-anchor="middle" font-size="7" fill="#545454">Emb</text>
+
+<!-- Annotation: ratio comparison -->
+<text x="187" y="378" text-anchor="middle" font-size="11" fill="#C8102E" font-weight="bold">Actual ratio: 2.7x</text>
+<text x="187" y="392" text-anchor="middle" font-size="9" fill="#545454">(Memory is 2.7x Embodied)</text>
+
+<text x="513" y="378" text-anchor="middle" font-size="11" fill="#C8102E" font-weight="bold">Perceived ratio: ~5x</text>
+<text x="513" y="392" text-anchor="middle" font-size="9" fill="#545454">(Truncation exaggerates difference)</text>
+
+<!-- Caption -->
+<text x="350" y="412" text-anchor="middle" font-size="10" fill="#545454" font-style="italic">Fig. 7-1. Truncating the y-axis inflates perceived differences between values.</text>
+</svg>

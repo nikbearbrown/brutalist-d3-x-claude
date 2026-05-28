@@ -10,9 +10,8 @@ Now look at the Inner Suburbs box. There is a cluster of points sitting well abo
 
 This is the central tension of the whole chapter. Every distribution chart is a compression. Some compressions preserve the shape. Others preserve the quartiles. Others preserve the raw values. No single form preserves everything, and the right choice depends on what the reader needs to see and what they are able to read.
 
-<!-- → [IMAGE: the pantry's box-whisker.html rendered in a browser — five box plots side by side for the five residential zones, with an annotation arrow pointing to the Inner Suburbs outlier cluster above the upper whisker. A second annotation asks "bimodal sub-population, or just a long tail?" and notes that the box plot cannot answer. Caption: "The cluster is visible. What it means is not."] -->
-
-![Figure 9.1 — The cluster is visible. What it means is not.](../images/09-distribution-charts-fig-01.jpg)
+![Five box plots for residential zones with annotation arrow pointing to Inner Suburbs outlier cluster — bimodal sub-population or just a long tail, the box plot cannot answer](../images/09-distribution-charts-fig-01.png)
+*Figure 9.1 — The cluster is visible. What it means is not.*
 
 ---
 
@@ -28,9 +27,8 @@ John Tukey understood this when he designed the box plot in 1977. His goal was a
 
 What it cannot show is shape. This is the limitation the violin plot exists to address.
 
-<!-- → [INFOGRAPHIC: two side-by-side distribution comparisons — left pair shows a normal distribution and a bimodal distribution that have identical five-number summaries (Q1, median, Q3, whiskers all match); their box plots are shown beneath each and are visually indistinguishable. Right pair shows the same two distributions as violin plots, where the bimodal shape is unmistakable. Caption: "Same five-number summary. Different shapes. The box plot cannot tell them apart."] -->
-
-![Figure 9.2 — Same five-number summary. Different shapes.](../images/09-distribution-charts-fig-02.jpg)
+![Left pair shows normal and bimodal distributions with identical box plots and equals badge, right pair shows same distributions as violin plots with not-equals badge — shapes differ clearly](../images/09-distribution-charts-fig-02.png)
+*Figure 9.2 — Same five-number summary. Different shapes. The box plot cannot tell them apart.*
 
 ---
 
@@ -50,9 +48,8 @@ For Claude Code work, the implication is direct: specify the bin width or the se
 
 The practical test for bimodality is to build three histograms at different bin widths — narrow, medium, wide — and ask whether the two peaks survive across all three. A bimodality that appears at narrow bins and vanishes at wider ones is sampling noise. A bimodality that persists across all three bin widths is real, and at that point the histogram form may be less informative than a density-based alternative.
 
-<!-- → [IMAGE: three-panel histogram of the same bimodal income dataset — left panel: very wide bins ($50K intervals, two peaks merge into one broad shape), center panel: Freedman-Diaconis binning (both peaks visible, gap between them legible), right panel: very narrow bins ($1K intervals, noise produces dozens of spurious wiggles). Annotations label each panel with the failure mode (too wide: bimodality hidden / right: structure visible / too narrow: noise amplified). Caption: "Three bin widths. Two of them lie."] -->
-
-![Figure 9.3 — Three bin widths. Two of them lie.](../images/09-distribution-charts-fig-03.jpg)
+![Three histograms of bimodal income data — too wide bins hide bimodality, Freedman-Diaconis bins show structure, too narrow bins amplify noise](../images/09-distribution-charts-fig-03.png)
+*Figure 9.3 — Three bin widths. Two of them lie.*
 
 ---
 
@@ -72,9 +69,8 @@ What the box plot hides: distribution shape. Two distributions with the same Q1,
 
 Two additional things the standard box plot hides: sample size and within-quartile structure. Two box plots from samples of ten and ten thousand look identical. The reader cannot tell whether the summary is based on a handful of observations or a robust population. The variable-width box plot addresses this by encoding sample size as box width — wider boxes for larger samples — but the standard form does not.
 
-<!-- → [INFOGRAPHIC: annotated box plot anatomy — one box plot with labeled callouts for each element: "Box top = Q3 (75th percentile)," "Median line = Q2 (50th percentile)," "Box bottom = Q1 (25th percentile)," "IQR = height of box," "Whisker = most extreme value within Q3 + 1.5×IQR," "Points beyond whisker = outliers by Tukey's rule." A second panel shows the min-to-max whisker failure mode with the label "This is NOT Tukey's box plot — it is a range chart." Caption: "Tukey's design is specific. The fence is what makes the outlier visible."] -->
-
-![Figure 9.4 — Tukey's design is specific. The fence is what makes the outlier visible.](../images/09-distribution-charts-fig-04.jpg)
+![Left panel shows large annotated Tukey box plot anatomy with Q1 Q2 Q3 IQR whiskers and outliers labeled, right panel shows range chart with min-to-max whiskers labeled NOT THIS](../images/09-distribution-charts-fig-04.png)
+*Figure 9.4 — Tukey's design is specific. The fence is what makes the outlier visible.*
 
 ---
 
@@ -92,9 +88,8 @@ The violin's weakness is that the reader cannot extract precise quartile values 
 
 The standard resolution is the hybrid form: a thin box plot overlaid inside the violin. The box gives the precise quartiles; the violin gives the shape. The hybrid is denser but more informative. It is best suited to audiences with high graphicacy — readers who have encountered both forms and can decode each independently.
 
-<!-- → [IMAGE: three-panel comparison of the same bimodal distribution — left: box plot alone (two-bulge shape invisible, only outlier cluster hints at it), center: violin plot alone (bimodality unmistakable, but no precise quartile values readable), right: hybrid box-violin (bimodal shape visible AND quartile lines readable). Caption: "Each form reveals what the others hide. The hybrid pays a density cost for completeness."] -->
-
-![Figure 9.5 — Each form reveals what the others hide.](../images/09-distribution-charts-fig-05.jpg)
+![Three panels showing same bimodal distribution — box plot alone with shape hidden, violin alone with quartiles not readable, hybrid box-violin with both visible and readable](../images/09-distribution-charts-fig-05.png)
+*Figure 9.5 — Each form reveals what the others hide. The hybrid pays a density cost for completeness.*
 
 ---
 
@@ -309,6 +304,68 @@ Flag any audit failure and write the follow-up prompt that corrects it.
 ---
 
 *Tags: distribution-charts, histogram, box-plot, violin-plot, KDE, kernel-density-estimation, stem-and-leaf, Tukey, bin-width, bandwidth, graphicacy, Cairo, Heer-Bostock, multimodality, D3, Claude-Code*
+
+---
+
+## Prompts
+
+Use these prompts with Claude to generate interactive D3 v7 versions of the
+figures in this chapter. Each produces a standalone HTML file you can open
+in a browser and modify freely.
+
+**Prerequisites:** Load `brutalist/CLAUDE.md` and `brutalist/DESIGN.md` into
+your Claude project context before using these prompts. They define the stack,
+naming conventions, color system, and typography the figures use.
+
+---
+
+### Figure 9.1 — Box plot limits
+
+*Hand-authored SVG (converted to PNG at 300 dpi)*
+
+Five box plots for residential zones (Downtown, Inner Suburbs, Outer Suburbs, Rural Edge, Exurban). Inner Suburbs has an outlier cluster above the upper whisker. Annotation: "Bimodal sub-population, or just a long tail? The box plot cannot answer."
+
+> Reference implementation: `d3/09-distribution-charts-fig-01.html`
+
+---
+
+### Figure 9.2 — Box plot vs violin plot
+
+*Hand-authored SVG (converted to PNG at 300 dpi)*
+
+Left pair: normal and bimodal distributions with identical box plots (visually indistinguishable), with an "=" badge between them. Right pair: the same two distributions as violin plots (shapes differ clearly), with a "not-equal" badge between them.
+
+> Reference implementation: `d3/09-distribution-charts-fig-02.html`
+
+---
+
+### Figure 9.3 — Bin width effect
+
+*Hand-authored SVG (converted to PNG at 300 dpi)*
+
+Three histograms of the same bimodal income distribution. Left: too-wide bins where bimodality is hidden (LIES). Center: Freedman-Diaconis binning where structure is visible (HONEST). Right: too-narrow bins where noise is amplified (LIES).
+
+> Reference implementation: `d3/09-distribution-charts-fig-03.html`
+
+---
+
+### Figure 9.4 — Box plot anatomy
+
+*Hand-authored SVG (converted to PNG at 300 dpi)*
+
+Left: large annotated Tukey box plot with labeled callouts for Q1, Q2 (median), Q3, IQR, whiskers at 1.5 times IQR fences, and individual outlier points. Right: range chart with min-to-max whiskers and no outlier handling, labeled "NOT THIS."
+
+> Reference implementation: `d3/09-distribution-charts-fig-04.html`
+
+---
+
+### Figure 9.5 — Box-violin hybrid
+
+*Hand-authored SVG (converted to PNG at 300 dpi)*
+
+Three panels showing the same bimodal distribution. Left: box plot alone — shape hidden, quartiles readable. Center: violin plot alone — shape visible, quartiles not readable. Right: hybrid box-violin — both shape and quartiles visible. Labels: HIDDEN / VISIBLE / VISIBLE+READABLE.
+
+> Reference implementation: `d3/09-distribution-charts-fig-05.html`
 
 ---
 

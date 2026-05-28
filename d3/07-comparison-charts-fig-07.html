@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 7.7 — Six Design Decisions in One Bar Chart</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #121212;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--color-white);
+    color: var(--color-ink);
+    width: 1600px;
+    height: 900px;
+    overflow: hidden;
+  }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const W = 1600, H = 900;
+const svg = d3.select('#chart').append('svg')
+  .attr('width', W).attr('height', H)
+  .attr('role', 'img')
+  .attr('aria-labelledby', 'chart-title chart-desc');
+
+svg.append('title').attr('id', 'chart-title').text('Every element is doing work. Nothing is decorative.');
+svg.append('desc').attr('id', 'chart-desc').text('An annotated horizontal bar chart of eight cognitive domains with six callout arrows pointing to specific design decisions, explaining the rationale behind each choice.');
+
+// Background
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#FFFFFF');
+
+// Main title
+svg.append('text')
+  .attr('x', W / 2).attr('y', 52)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-size', 38).attr('fill', '#121212')
+  .text('Every element is doing work. Nothing is decorative.');
+
+// Subtitle
+svg.append('text')
+  .attr('x', W / 2).attr('y', 82)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 14).attr('fill', '#545454')
+  .text('Figure 7.7 \u2014 Six design decisions in one bar chart, annotated');
+
+// Data (sorted descending)
+const data = [
+  { domain: 'Memory', value: 96 },
+  { domain: 'Pattern', value: 94 },
+  { domain: 'Language', value: 87 },
+  { domain: 'Reasoning', value: 82 },
+  { domain: 'Common Sense', value: 68 },
+  { domain: 'Social', value: 55 },
+  { domain: 'Creativity', value: 47 },
+  { domain: 'Embodied', value: 36 }
+];
+
+// Chart dimensions — centered but shifted left to leave room for right annotations
+const chartX = 320;
+const chartY = 130;
+const chartW = 560;
+const chartH = 520;
+
+const yScaleBand = d3.scaleBand()
+  .domain(data.map(d => d.domain))
+  .range([0, chartH])
+  .padding(0.18);
+
+const xScaleLinear = d3.scaleLinear()
+  .domain([0, 100])
+  .range([0, chartW]);
+
+// Sequential luminance — dark for high values, lighter for low
+const colorScale = d3.scaleLinear()
+  .domain([30, 100])
+  .range(['#D4D4D4', '#121212']);
+
+const gChart = svg.append('g')
+  .attr('transform', `translate(${chartX}, ${chartY})`);
+
+// Gridlines
+const gridTicks = [0, 20, 40, 60, 80, 100];
+gChart.selectAll('.gridline')
+  .data(gridTicks)
+  .join('line')
+    .attr('class', 'gridline')
+    .attr('x1', d => xScaleLinear(d)).attr('x2', d => xScaleLinear(d))
+    .attr('y1', 0).attr('y2', chartH)
+    .attr('stroke', '#E8E8E8').attr('stroke-width', 1)
+    .attr('aria-hidden', 'true');
+
+// Zero baseline
+gChart.append('line')
+  .attr('x1', 0).attr('y1', 0)
+  .attr('x2', 0).attr('y2', chartH)
+  .attr('stroke', '#121212').attr('stroke-width', 2);
+
+// X-axis at bottom
+gChart.append('g')
+  .attr('transform', `translate(0, ${chartH})`)
+  .call(d3.axisBottom(xScaleLinear).tickValues(gridTicks))
+  .selectAll('text')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 11).attr('fill', '#545454');
+gChart.selectAll('.domain').attr('stroke', '#D4D4D4');
+
+// Bars with sequential luminance
+gChart.selectAll('.bar-rect')
+  .data(data)
+  .join('rect')
+    .attr('class', 'bar-rect')
+    .attr('x', 0)
+    .attr('y', d => yScaleBand(d.domain))
+    .attr('width', d => xScaleLinear(d.value))
+    .attr('height', yScaleBand.bandwidth())
+    .attr('fill', d => colorScale(d.value))
+    .attr('rx', 2)
+    .attr('tabindex', 0)
+    .attr('aria-label', d => `${d.domain}: ${d.value}`);
+
+// Left-aligned labels
+data.forEach(d => {
+  gChart.append('text')
+    .attr('x', -12)
+    .attr('y', yScaleBand(d.domain) + yScaleBand.bandwidth() / 2 + 5)
+    .attr('text-anchor', 'end')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 14).attr('fill', '#121212')
+    .text(d.domain);
+});
+
+// Direct value labels
+data.forEach(d => {
+  gChart.append('text')
+    .attr('x', xScaleLinear(d.value) + 8)
+    .attr('y', yScaleBand(d.domain) + yScaleBand.bandwidth() / 2 + 5)
+    .attr('text-anchor', 'start')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 13).attr('font-weight', 600).attr('fill', '#121212')
+    .text(d.value);
+});
+
+// =========================================================
+// Arrow marker definitions
+// =========================================================
+const defs = svg.append('defs');
+
+defs.append('marker')
+  .attr('id', 'arrow-ink')
+  .attr('viewBox', '0 0 10 10')
+  .attr('refX', 10).attr('refY', 5)
+  .attr('markerWidth', 7).attr('markerHeight', 7)
+  .attr('orient', 'auto-start-reverse')
+  .append('path')
+    .attr('d', 'M 0 0 L 10 5 L 0 10 z')
+    .attr('fill', '#C8102E');
+
+// =========================================================
+// Six annotation callouts
+// =========================================================
+// Helper function to draw annotation
+function drawAnnotation(fromX, fromY, toX, toY, labelX, labelY, title, body, anchor) {
+  // Line from label area to chart element
+  svg.append('line')
+    .attr('x1', fromX).attr('y1', fromY)
+    .attr('x2', toX).attr('y2', toY)
+    .attr('stroke', '#C8102E').attr('stroke-width', 1.5)
+    .attr('stroke-dasharray', '4,3')
+    .attr('marker-end', 'url(#arrow-ink)');
+
+  // Circle at start of annotation line
+  svg.append('circle')
+    .attr('cx', fromX).attr('cy', fromY)
+    .attr('r', 4).attr('fill', '#C8102E');
+
+  // Title text
+  svg.append('text')
+    .attr('x', labelX).attr('y', labelY)
+    .attr('text-anchor', anchor || 'start')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 12).attr('font-weight', 700).attr('fill', '#C8102E')
+    .text(title);
+
+  // Body text — wrap manually
+  const words = body.split(' ');
+  let lines = [];
+  let currentLine = '';
+  const maxChars = anchor === 'end' ? 42 : 42;
+  words.forEach(w => {
+    if ((currentLine + ' ' + w).trim().length > maxChars) {
+      lines.push(currentLine.trim());
+      currentLine = w;
+    } else {
+      currentLine = (currentLine + ' ' + w).trim();
+    }
+  });
+  if (currentLine) lines.push(currentLine.trim());
+
+  lines.forEach((line, i) => {
+    svg.append('text')
+      .attr('x', labelX).attr('y', labelY + 16 + i * 15)
+      .attr('text-anchor', anchor || 'start')
+      .attr('font-family', "'Inter', sans-serif")
+      .attr('font-size', 11).attr('fill', '#545454')
+      .text(line);
+  });
+}
+
+// Annotation positions relative to chart features
+// Bar positions for reference
+const firstBarY = chartY + yScaleBand(data[0].domain) + yScaleBand.bandwidth() / 2;
+const lastBarY = chartY + yScaleBand(data[data.length - 1].domain) + yScaleBand.bandwidth() / 2;
+const midBarY = chartY + yScaleBand(data[3].domain) + yScaleBand.bandwidth() / 2;
+const zeroX = chartX;
+const barEndX = chartX + xScaleLinear(data[0].value);
+
+// 1. Sort order — arrow pointing to the top bar from the right
+drawAnnotation(
+  barEndX + 90, firstBarY - 20,
+  barEndX + 14, firstBarY,
+  barEndX + 100, firstBarY - 36,
+  'Sort by value descending',
+  'Munzner effectiveness: derive order from primary attribute.',
+  'start'
+);
+
+// 2. Zero baseline — arrow pointing to zero line from the left
+drawAnnotation(
+  zeroX - 170, chartY + chartH * 0.65,
+  zeroX - 2, chartY + chartH * 0.65,
+  zeroX - 310, chartY + chartH * 0.65 - 16,
+  'Zero baseline',
+  'Proportional ink preserved. Reversing this: visual ratios become lies.',
+  'start'
+);
+
+// 3. Luminance gradient — arrow pointing to middle bars from the right
+drawAnnotation(
+  barEndX + 90, midBarY + 50,
+  chartX + xScaleLinear(data[4].value) / 2, chartY + yScaleBand(data[4].domain) + yScaleBand.bandwidth() / 2,
+  barEndX + 100, midBarY + 34,
+  'Sequential luminance',
+  'Redundant encoding reinforces rank. Without it: bars are undifferentiated.',
+  'start'
+);
+
+// 4. Score labels — arrow pointing to a value label from the right
+drawAnnotation(
+  barEndX + 90, midBarY + 140,
+  chartX + xScaleLinear(data[5].value) + 24, chartY + yScaleBand(data[5].domain) + yScaleBand.bandwidth() / 2,
+  barEndX + 100, midBarY + 124,
+  'Direct value labels',
+  'Eliminates mental math. Without it: reader estimates from axis.',
+  'start'
+);
+
+// 5. Gridlines — arrow pointing to a gridline from the left
+drawAnnotation(
+  zeroX - 170, chartY + chartH * 0.30,
+  chartX + xScaleLinear(60), chartY + chartH * 0.30,
+  zeroX - 310, chartY + chartH * 0.30 - 16,
+  'Light gridlines at ticks',
+  'Supports estimation without competing. Without it: harder to read mid-range values.',
+  'start'
+);
+
+// 6. Left-aligned labels — arrow pointing to labels from the left
+drawAnnotation(
+  zeroX - 170, chartY + chartH * 0.10,
+  chartX - 14, chartY + yScaleBand(data[1].domain) + yScaleBand.bandwidth() / 2,
+  zeroX - 310, chartY + chartH * 0.10 - 16,
+  'Left-aligned labels',
+  'Gestalt proximity preserved. Without it: reader scans back and forth.',
+  'start'
+);
+
+// =========================================================
+// Numbered badges for annotations
+// =========================================================
+const badges = [
+  { x: barEndX + 78, y: firstBarY - 20 },
+  { x: zeroX - 182, y: chartY + chartH * 0.65 },
+  { x: barEndX + 78, y: midBarY + 50 },
+  { x: barEndX + 78, y: midBarY + 140 },
+  { x: zeroX - 182, y: chartY + chartH * 0.30 },
+  { x: zeroX - 182, y: chartY + chartH * 0.10 }
+];
+
+badges.forEach((b, i) => {
+  svg.append('circle')
+    .attr('cx', b.x).attr('cy', b.y)
+    .attr('r', 11).attr('fill', '#C8102E');
+  svg.append('text')
+    .attr('x', b.x).attr('y', b.y + 4)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 11).attr('font-weight', 700).attr('fill', '#FFFFFF')
+    .text(i + 1);
+});
+
+// =========================================================
+// Caption
+// =========================================================
+svg.append('line')
+  .attr('x1', 60).attr('y1', H - 44).attr('x2', W - 60).attr('y2', H - 44)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+
+svg.append('text')
+  .attr('x', W / 2).attr('y', H - 18)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-style', 'italic')
+  .attr('font-size', 15).attr('fill', '#545454')
+  .text('Every element is doing work. Nothing is decorative.');
+</script>
+</body>
+</html>

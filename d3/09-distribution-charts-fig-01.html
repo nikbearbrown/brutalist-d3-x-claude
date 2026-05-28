@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 9.1 — The cluster is visible. What it means is not.</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #121212;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--color-white);
+    color: var(--color-ink);
+    width: 1600px;
+    height: 900px;
+    overflow: hidden;
+  }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const W = 1600, H = 900;
+const svg = d3.select('#chart').append('svg')
+  .attr('width', W).attr('height', H)
+  .attr('role', 'img')
+  .attr('aria-labelledby', 'chart-title chart-desc');
+
+svg.append('title').attr('id', 'chart-title').text('The cluster is visible. What it means is not.');
+svg.append('desc').attr('id', 'chart-desc').text('Five box plots showing housing price distributions across residential zones, with a visible outlier cluster in Inner Suburbs that the box plot cannot explain.');
+
+// Background
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#FFFFFF');
+
+// Main title
+svg.append('text')
+  .attr('x', W / 2).attr('y', 56)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-size', 38).attr('fill', '#121212')
+  .text('The cluster is visible. What it means is not.');
+
+// Subtitle
+svg.append('text')
+  .attr('x', W / 2).attr('y', 86)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 15).attr('fill', '#545454')
+  .text('Figure 9.1 \u2014 Five residential zones, box-whisker encoding');
+
+// Data
+const zones = [
+  { name: 'Downtown',       q1: 350, median: 420, q3: 510, whiskerLow: 250, whiskerHigh: 620, outliers: [] },
+  { name: 'Inner\nSuburbs', q1: 280, median: 340, q3: 400, whiskerLow: 180, whiskerHigh: 520, outliers: [580, 600, 620, 640, 660, 675] },
+  { name: 'Outer\nSuburbs', q1: 220, median: 270, q3: 320, whiskerLow: 150, whiskerHigh: 420, outliers: [] },
+  { name: 'Rural\nEdge',    q1: 150, median: 190, q3: 240, whiskerLow: 90,  whiskerHigh: 340, outliers: [] },
+  { name: 'Exurban',        q1: 120, median: 160, q3: 210, whiskerLow: 70,  whiskerHigh: 310, outliers: [] }
+];
+
+// Chart dimensions
+const margin = { top: 120, right: 280, bottom: 100, left: 120 };
+const chartW = W - margin.left - margin.right;
+const chartH = H - margin.top - margin.bottom;
+
+const gChart = svg.append('g')
+  .attr('transform', `translate(${margin.left}, ${margin.top})`);
+
+// Scales
+const xScaleBand = d3.scaleBand()
+  .domain(zones.map(d => d.name))
+  .range([0, chartW])
+  .padding(0.3);
+
+const yScaleLinear = d3.scaleLinear()
+  .domain([0, 720])
+  .range([chartH, 0]);
+
+// Sequential gray fills from dark to light
+const grayScale = d3.scaleOrdinal()
+  .domain(zones.map(d => d.name))
+  .range(['#3A3A3A', '#5A5A5A', '#7A7A7A', '#9A9A9A', '#BABABA']);
+
+// Gridlines
+const yTicks = [0, 100, 200, 300, 400, 500, 600, 700];
+gChart.selectAll('.gridline')
+  .data(yTicks)
+  .join('line')
+    .attr('class', 'gridline')
+    .attr('x1', 0).attr('x2', chartW)
+    .attr('y1', d => yScaleLinear(d)).attr('y2', d => yScaleLinear(d))
+    .attr('stroke', '#D4D4D4').attr('stroke-width', 0.8)
+    .attr('stroke-dasharray', '3,3')
+    .attr('aria-hidden', 'true');
+
+// Y-axis labels
+gChart.selectAll('.y-label')
+  .data(yTicks)
+  .join('text')
+    .attr('x', -14).attr('y', d => yScaleLinear(d) + 4)
+    .attr('text-anchor', 'end')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 12).attr('fill', '#545454')
+    .text(d => `$${d}k`);
+
+// Y-axis title
+gChart.append('text')
+  .attr('transform', `rotate(-90)`)
+  .attr('x', -chartH / 2).attr('y', -72)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 13).attr('font-weight', 600).attr('fill', '#545454')
+  .text('Housing Price ($k)');
+
+// Box width
+const boxW = xScaleBand.bandwidth();
+
+// Draw each box plot
+zones.forEach((z, i) => {
+  const cx = xScaleBand(z.name) + boxW / 2;
+  const x0 = xScaleBand(z.name);
+
+  // Whisker vertical line
+  gChart.append('line')
+    .attr('x1', cx).attr('x2', cx)
+    .attr('y1', yScaleLinear(z.whiskerHigh)).attr('y2', yScaleLinear(z.whiskerLow))
+    .attr('stroke', '#121212').attr('stroke-width', 1.5);
+
+  // Top whisker cap
+  gChart.append('line')
+    .attr('x1', cx - boxW * 0.25).attr('x2', cx + boxW * 0.25)
+    .attr('y1', yScaleLinear(z.whiskerHigh)).attr('y2', yScaleLinear(z.whiskerHigh))
+    .attr('stroke', '#121212').attr('stroke-width', 1.5);
+
+  // Bottom whisker cap
+  gChart.append('line')
+    .attr('x1', cx - boxW * 0.25).attr('x2', cx + boxW * 0.25)
+    .attr('y1', yScaleLinear(z.whiskerLow)).attr('y2', yScaleLinear(z.whiskerLow))
+    .attr('stroke', '#121212').attr('stroke-width', 1.5);
+
+  // IQR box
+  gChart.append('rect')
+    .attr('x', x0).attr('y', yScaleLinear(z.q3))
+    .attr('width', boxW)
+    .attr('height', yScaleLinear(z.q1) - yScaleLinear(z.q3))
+    .attr('fill', grayScale(z.name))
+    .attr('stroke', '#121212').attr('stroke-width', 1.5)
+    .attr('tabindex', 0)
+    .attr('aria-label', `${z.name.replace('\n', ' ')}: Q1=$${z.q1}k, Median=$${z.median}k, Q3=$${z.q3}k`);
+
+  // Median line
+  gChart.append('line')
+    .attr('x1', x0).attr('x2', x0 + boxW)
+    .attr('y1', yScaleLinear(z.median)).attr('y2', yScaleLinear(z.median))
+    .attr('stroke', '#FFFFFF').attr('stroke-width', 2.5);
+
+  // Outlier dots (deterministic jitter)
+  const jitterOffsets = [-0.12, 0.08, -0.05, 0.14, -0.1, 0.03];
+  z.outliers.forEach((val, oi) => {
+    gChart.append('circle')
+      .attr('cx', cx + jitterOffsets[oi % jitterOffsets.length] * boxW)
+      .attr('cy', yScaleLinear(val))
+      .attr('r', 5)
+      .attr('fill', '#C8102E')
+      .attr('stroke', '#121212').attr('stroke-width', 1)
+      .attr('opacity', 0.85);
+  });
+
+  // X-axis label
+  const labelLines = z.name.split('\n');
+  labelLines.forEach((line, li) => {
+    gChart.append('text')
+      .attr('x', cx).attr('y', chartH + 22 + li * 16)
+      .attr('text-anchor', 'middle')
+      .attr('font-family', "'Inter', sans-serif")
+      .attr('font-size', 13).attr('font-weight', 600).attr('fill', '#121212')
+      .text(line);
+  });
+});
+
+// =========================================================
+// ANNOTATION 1: Red arrow pointing to outlier cluster
+// =========================================================
+const innerSubCx = xScaleBand('Inner\nSuburbs') + boxW / 2;
+const outlierTopY = yScaleLinear(675);
+
+// Arrow line from right side pointing to cluster
+const arrowStartX = innerSubCx + boxW * 0.8 + 30;
+const arrowStartY = outlierTopY - 10;
+const arrowEndX = innerSubCx + boxW * 0.35;
+const arrowEndY = yScaleLinear(630);
+
+// Arrow marker
+svg.append('defs').append('marker')
+  .attr('id', 'arrowhead-red')
+  .attr('markerWidth', 10).attr('markerHeight', 8)
+  .attr('refX', 9).attr('refY', 4)
+  .attr('orient', 'auto')
+  .append('polygon')
+    .attr('points', '0 0, 10 4, 0 8')
+    .attr('fill', '#C8102E');
+
+gChart.append('line')
+  .attr('x1', arrowStartX).attr('y1', arrowStartY)
+  .attr('x2', arrowEndX).attr('y2', arrowEndY)
+  .attr('stroke', '#C8102E').attr('stroke-width', 2)
+  .attr('marker-end', 'url(#arrowhead-red)');
+
+// Arrow label
+gChart.append('text')
+  .attr('x', arrowStartX + 8).attr('y', arrowStartY - 8)
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 13).attr('font-weight', 600).attr('fill', '#C8102E')
+  .text('Outlier cluster');
+
+gChart.append('text')
+  .attr('x', arrowStartX + 8).attr('y', arrowStartY + 8)
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 11).attr('fill', '#C8102E')
+  .text('above upper whisker');
+
+// =========================================================
+// ANNOTATION 2: Ochre callout box
+// =========================================================
+const calloutX = W - margin.right + 20;
+const calloutY = 200;
+const calloutW = 240;
+const calloutH = 120;
+
+svg.append('rect')
+  .attr('x', calloutX).attr('y', calloutY)
+  .attr('width', calloutW).attr('height', calloutH)
+  .attr('fill', '#FFFFFF')
+  .attr('stroke', '#C8860E').attr('stroke-width', 2.5)
+  .attr('rx', 0);
+
+// Ochre top accent bar
+svg.append('rect')
+  .attr('x', calloutX).attr('y', calloutY)
+  .attr('width', calloutW).attr('height', 4)
+  .attr('fill', '#C8860E');
+
+// Callout question text
+const calloutTextX = calloutX + 16;
+svg.append('text')
+  .attr('x', calloutTextX).attr('y', calloutY + 30)
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-size', 15).attr('font-style', 'italic').attr('fill', '#C8860E')
+  .text('Bimodal sub-population,');
+
+svg.append('text')
+  .attr('x', calloutTextX).attr('y', calloutY + 48)
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-size', 15).attr('font-style', 'italic').attr('fill', '#C8860E')
+  .text('or just a long tail?');
+
+// Divider inside callout
+svg.append('line')
+  .attr('x1', calloutX + 12).attr('x2', calloutX + calloutW - 12)
+  .attr('y1', calloutY + 62).attr('y2', calloutY + 62)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+
+// Callout note
+svg.append('text')
+  .attr('x', calloutTextX).attr('y', calloutY + 84)
+  .attr('font-family', "'JetBrains Mono', monospace")
+  .attr('font-size', 11).attr('fill', '#545454')
+  .text('The box plot');
+
+svg.append('text')
+  .attr('x', calloutTextX).attr('y', calloutY + 100)
+  .attr('font-family', "'JetBrains Mono', monospace")
+  .attr('font-size', 11).attr('fill', '#C8102E')
+  .attr('font-weight', 700)
+  .text('cannot answer.');
+
+// Connector line from callout to the Inner Suburbs area
+svg.append('line')
+  .attr('x1', calloutX).attr('y1', calloutY + calloutH / 2)
+  .attr('x2', margin.left + innerSubCx + boxW * 0.8 + 30 + 8).attr('y2', margin.top + outlierTopY - 10)
+  .attr('stroke', '#C8860E').attr('stroke-width', 1.2)
+  .attr('stroke-dasharray', '5,4')
+  .attr('opacity', 0.6);
+
+// =========================================================
+// Legend / annotation bar at bottom
+// =========================================================
+const legendY = H - 44;
+
+svg.append('text')
+  .attr('x', margin.left).attr('y', legendY)
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 11).attr('fill', '#545454')
+  .text('Five-number summary: minimum \u2022 Q1 \u2022 median \u2022 Q3 \u2022 maximum. Outliers shown as red dots beyond 1.5\u00d7IQR.');
+
+// Gradient legend
+const legendStartX = W - 380;
+svg.append('text')
+  .attr('x', legendStartX).attr('y', legendY)
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 11).attr('fill', '#545454')
+  .text('Fill:');
+
+const grayColors = ['#3A3A3A', '#5A5A5A', '#7A7A7A', '#9A9A9A', '#BABABA'];
+const shortLabels = ['DT', 'IS', 'OS', 'RE', 'EX'];
+grayColors.forEach((c, i) => {
+  svg.append('rect')
+    .attr('x', legendStartX + 32 + i * 56).attr('y', legendY - 12)
+    .attr('width', 14).attr('height', 14)
+    .attr('fill', c).attr('stroke', '#121212').attr('stroke-width', 0.5);
+  svg.append('text')
+    .attr('x', legendStartX + 50 + i * 56).attr('y', legendY)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 10).attr('fill', '#545454')
+    .text(shortLabels[i]);
+});
+
+</script>
+</body>
+</html>
