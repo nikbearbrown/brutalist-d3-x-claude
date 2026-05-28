@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 420">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap');
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+
+  <!-- Title -->
+  <text x="350" y="28" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="18" font-weight="600" fill="#2a1a0e">Treatment Effect with 95% Confidence Intervals</text>
+
+  <!-- Chart area -->
+  <rect x="32" y="42" width="636" height="330" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="0.75" rx="0"/>
+
+  <!-- Axes labels -->
+  <!-- X-axis: measured value 0-100 -->
+  <!-- Chart inner area: x from 120 to 640 (520px for 0-100), y from 62 to 352 (290px for 6 categories) -->
+  <!-- Category spacing: 290/6 = ~48px each, centers at 62+24=86, 134, 182, 230, 278, 326 -->
+
+  <!-- X-axis gridlines (dashed) and labels -->
+  <line x1="120" y1="352" x2="640" y2="352" stroke="#D4D4D4" stroke-width="0.75"/>
+  <line x1="120" y1="62" x2="120" y2="352" stroke="#D4D4D4" stroke-width="0.75"/>
+
+  <!-- Gridlines at 0, 20, 40, 60, 80, 100 -->
+  <line x1="120" y1="62" x2="120" y2="352" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+  <line x1="224" y1="62" x2="224" y2="352" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+  <line x1="328" y1="62" x2="328" y2="352" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+  <line x1="432" y1="62" x2="432" y2="352" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+  <line x1="536" y1="62" x2="536" y2="352" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+  <line x1="640" y1="62" x2="640" y2="352" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+
+  <!-- X-axis tick labels -->
+  <text x="120" y="368" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">0</text>
+  <text x="224" y="368" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">20</text>
+  <text x="328" y="368" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">40</text>
+  <text x="432" y="368" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">60</text>
+  <text x="536" y="368" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">80</text>
+  <text x="640" y="368" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">100</text>
+
+  <!-- X-axis label -->
+  <text x="380" y="388" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#545454" letter-spacing="0.08em" text-transform="uppercase">MEASURED VALUE</text>
+
+  <!-- Y-axis category labels -->
+  <!-- 6 categories, evenly spaced: Drug F at top, Drug A at bottom -->
+  <!-- y centers: 86, 134, 182, 230, 278, 326 -->
+  <text x="115" y="90" text-anchor="end" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="13" fill="#2a1a0e">Drug A</text>
+  <text x="115" y="138" text-anchor="end" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="13" fill="#2a1a0e">Drug B</text>
+  <text x="115" y="186" text-anchor="end" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="13" fill="#2a1a0e">Drug C</text>
+  <text x="115" y="234" text-anchor="end" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="13" fill="#2a1a0e">Drug D</text>
+  <text x="115" y="282" text-anchor="end" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="13" fill="#2a1a0e">Drug E</text>
+  <text x="115" y="330" text-anchor="end" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="13" fill="#2a1a0e">Drug F</text>
+
+  <!-- Horizontal separator lines for categories -->
+  <line x1="120" y1="110" x2="640" y2="110" stroke="#D4D4D4" stroke-width="0.3"/>
+  <line x1="120" y1="158" x2="640" y2="158" stroke="#D4D4D4" stroke-width="0.3"/>
+  <line x1="120" y1="206" x2="640" y2="206" stroke="#D4D4D4" stroke-width="0.3"/>
+  <line x1="120" y1="254" x2="640" y2="254" stroke="#D4D4D4" stroke-width="0.3"/>
+  <line x1="120" y1="302" x2="640" y2="302" stroke="#D4D4D4" stroke-width="0.3"/>
+
+  <!-- Data points with error bars -->
+  <!-- Scale: x = 120 + value * 5.2 -->
+  <!-- Drug A: mean=72, CI=72±8 => 64-80 => x_mean=494.4, x_lo=452.8, x_hi=536 -->
+  <!-- Drug B: mean=65, CI=65±12 => 53-77 => x_mean=458, x_lo=395.6, x_hi=520.4 -->
+  <!-- Drug C: mean=58, CI=58±6 => 52-64 => x_mean=421.6, x_lo=390.4, x_hi=452.8 -->
+  <!-- Drug D: mean=51, CI=51±15 => 36-66 => x_mean=385.2, x_lo=307.2, x_hi=463.2 -->
+  <!-- Drug E: mean=45, CI=45±9 => 36-54 => x_mean=354, x_lo=307.2, x_hi=400.8 -->
+  <!-- Drug F: mean=38, CI=38±11 => 27-49 => x_mean=317.6, x_lo=260.4, x_hi=374.8 -->
+
+  <!-- Drug A: mean=72, lo=64, hi=80 -->
+  <line x1="452.8" y1="86" x2="536" y2="86" stroke="#2a1a0e" stroke-width="1.5"/>
+  <line x1="452.8" y1="80" x2="452.8" y2="92" stroke="#2a1a0e" stroke-width="1.5"/>
+  <line x1="536" y1="80" x2="536" y2="92" stroke="#2a1a0e" stroke-width="1.5"/>
+  <circle cx="494.4" cy="86" r="5" fill="#6B3520"/>
+
+  <!-- Drug B: mean=65, lo=53, hi=77 -->
+  <line x1="395.6" y1="134" x2="520.4" y2="134" stroke="#2a1a0e" stroke-width="1.5"/>
+  <line x1="395.6" y1="128" x2="395.6" y2="140" stroke="#2a1a0e" stroke-width="1.5"/>
+  <line x1="520.4" y1="128" x2="520.4" y2="140" stroke="#2a1a0e" stroke-width="1.5"/>
+  <circle cx="458" cy="134" r="5" fill="#6B3520"/>
+
+  <!-- Drug C: mean=58, lo=52, hi=64 -->
+  <line x1="390.4" y1="182" x2="452.8" y2="182" stroke="#2a1a0e" stroke-width="1.5"/>
+  <line x1="390.4" y1="176" x2="390.4" y2="188" stroke="#2a1a0e" stroke-width="1.5"/>
+  <line x1="452.8" y1="176" x2="452.8" y2="188" stroke="#2a1a0e" stroke-width="1.5"/>
+  <circle cx="421.6" cy="182" r="5" fill="#6B3520"/>
+
+  <!-- Drug D: mean=51, lo=36, hi=66 -->
+  <line x1="307.2" y1="230" x2="463.2" y2="230" stroke="#2a1a0e" stroke-width="1.5"/>
+  <line x1="307.2" y1="224" x2="307.2" y2="236" stroke="#2a1a0e" stroke-width="1.5"/>
+  <line x1="463.2" y1="224" x2="463.2" y2="236" stroke="#2a1a0e" stroke-width="1.5"/>
+  <circle cx="385.2" cy="230" r="5" fill="#6B3520"/>
+
+  <!-- Drug E: mean=45, lo=36, hi=54 -->
+  <line x1="307.2" y1="278" x2="400.8" y2="278" stroke="#2a1a0e" stroke-width="1.5"/>
+  <line x1="307.2" y1="272" x2="307.2" y2="284" stroke="#2a1a0e" stroke-width="1.5"/>
+  <line x1="400.8" y1="272" x2="400.8" y2="284" stroke="#2a1a0e" stroke-width="1.5"/>
+  <circle cx="354" cy="278" r="5" fill="#6B3520"/>
+
+  <!-- Drug F: mean=38, lo=27, hi=49 -->
+  <line x1="260.4" y1="326" x2="374.8" y2="326" stroke="#2a1a0e" stroke-width="1.5"/>
+  <line x1="260.4" y1="320" x2="260.4" y2="332" stroke="#2a1a0e" stroke-width="1.5"/>
+  <line x1="374.8" y1="320" x2="374.8" y2="332" stroke="#2a1a0e" stroke-width="1.5"/>
+  <circle cx="317.6" cy="326" r="5" fill="#6B3520"/>
+
+  <!-- Caption -->
+  <text x="350" y="408" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" font-style="italic" fill="#545454">Horizontal whiskers show 95% confidence intervals around each treatment mean.</text>
+</svg>

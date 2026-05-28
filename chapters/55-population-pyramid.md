@@ -2,7 +2,8 @@
 
 *Age & Sex Distribution — Two Population Profiles Side by Side*
 
-![Population Pyramid](../images/55-population-pyramid.jpg)
+![Population pyramid showing age and sex distribution with male bars extending left and female bars extending right](../images/55-population-pyramid.png)
+*Figure 55.1 — Age & Sex Distribution — Two Population Profiles Side by Side*
 
 ## What this chart is
 
@@ -46,6 +47,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/55-population-pyramid.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

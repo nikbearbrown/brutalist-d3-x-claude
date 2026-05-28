@@ -2,7 +2,8 @@
 
 *January Wheat Selloff Hit 9.6% Peak-to-Trough in Three Weeks — Futures Recovered Through February as Supply Concerns Eased*
 
-![OHLC Chart](../images/49-ohlc-chart.jpg)
+![OHLC chart showing 15 days of wheat futures with selloff and recovery pattern](../images/49-ohlc-chart.png)
+*Figure 49.1 — January Wheat Selloff and Recovery*
 
 ## What this chart is
 
@@ -60,6 +61,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/49-ohlc-chart.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

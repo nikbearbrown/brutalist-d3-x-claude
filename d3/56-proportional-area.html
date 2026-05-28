@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Proportional Area — Global AI for Good Investment</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #2a1a0e;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-mark: #6B3520;
+    --color-slate: #1A3A5C;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1a1a;
+      --color-ink: #e8e0d6;
+      --color-surface: #2a2420;
+      --color-secondary: #a0978e;
+      --color-border: #444;
+      --color-mark: #c28060;
+      --color-red: #e05040;
+      --color-slate: #5a9ad6;
+      --color-ochre: #d4a030;
+    }
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+  #chart-container {
+    width: 100%;
+    max-width: 900px;
+  }
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--color-ink);
+  }
+  .subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--color-secondary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .caption {
+    font-size: 0.9rem;
+    color: var(--color-secondary);
+    font-style: italic;
+    margin-top: 12px;
+  }
+  .tooltip {
+    position: absolute;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--color-ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+</style>
+</head>
+<body>
+<div id="chart-container">
+  <h1>Global AI for Good Investment by Region</h1>
+  <div class="subtitle">PROPORTIONAL AREA CHART — HOVER FOR DETAILS</div>
+  <div id="chart" role="img" aria-label="Proportional area chart showing five circles sized by AI investment with North America and East Asia as largest"></div>
+  <div class="caption">North America + East Asia hold 62% of global investment. Area encodes magnitude.</div>
+</div>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const data = [
+  { region: "North America", value: 4.2, color: "var(--color-red)" },
+  { region: "East Asia", value: 3.8, color: "var(--color-slate)" },
+  { region: "Europe", value: 2.1, color: "var(--color-mark)" },
+  { region: "South Asia", value: 0.9, color: "var(--color-ochre)" },
+  { region: "Africa", value: 0.5, color: "var(--color-secondary)" }
+];
+
+const total = d3.sum(data, d => d.value);
+
+const width = 800;
+const height = 460;
+const margin = { top: 40, right: 40, bottom: 80, left: 40 };
+
+const svg = d3.select("#chart")
+  .append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("preserveAspectRatio", "xMidYMid meet")
+  .style("width", "100%")
+  .style("height", "auto");
+
+svg.append("rect")
+  .attr("width", width)
+  .attr("height", height)
+  .attr("fill", "var(--color-bg)");
+
+// Chart area
+svg.append("rect")
+  .attr("x", margin.left)
+  .attr("y", margin.top)
+  .attr("width", width - margin.left - margin.right)
+  .attr("height", height - margin.top - margin.bottom)
+  .attr("fill", "var(--color-surface)")
+  .attr("stroke", "var(--color-border)")
+  .attr("stroke-width", 0.75);
+
+const maxRadius = 100;
+const rScale = d3.scaleSqrt()
+  .domain([0, d3.max(data, d => d.value)])
+  .range([0, maxRadius]);
+
+const centerY = (height - margin.bottom + margin.top) / 2 + 10;
+
+// Compute positions: space circles evenly considering their radii
+const xPositions = [];
+let xCursor = margin.left + 60;
+data.forEach((d, i) => {
+  const r = rScale(d.value);
+  if (i === 0) {
+    xCursor += r;
+  } else {
+    xCursor += r + 20;
+  }
+  xPositions.push(xCursor);
+  xCursor += r;
+});
+// Scale to fit
+const totalWidth = xCursor + 60;
+const availableWidth = width - margin.left - margin.right;
+const scaleFactor = availableWidth / (totalWidth - margin.left);
+
+const tooltip = d3.select("#tooltip");
+
+const g = svg.append("g");
+
+data.forEach((d, i) => {
+  const r = rScale(d.value);
+  const cx = margin.left + (xPositions[i] - margin.left) * scaleFactor + 20;
+  const cy = centerY;
+  const pct = ((d.value / total) * 100).toFixed(0);
+
+  const circle = g.append("circle")
+    .attr("cx", cx)
+    .attr("cy", cy)
+    .attr("r", r * scaleFactor * 0.85)
+    .attr("fill", d.color)
+    .attr("opacity", 0.85)
+    .attr("tabindex", 0)
+    .attr("role", "img")
+    .attr("aria-label", `${d.region}: $${d.value}B (${pct}% of total)`);
+
+  circle.on("mouseenter", function(event) {
+      d3.select(this).attr("opacity", 1).attr("stroke", "var(--color-ink)").attr("stroke-width", 2);
+      tooltip.style("opacity", 1)
+        .html(`<strong>${d.region}</strong><br>$${d.value}B<br>${pct}% of total`);
+    })
+    .on("mousemove", function(event) {
+      tooltip.style("left", (event.pageX + 12) + "px")
+        .style("top", (event.pageY - 28) + "px");
+    })
+    .on("mouseleave", function() {
+      d3.select(this).attr("opacity", 0.85).attr("stroke", "none");
+      tooltip.style("opacity", 0);
+    });
+
+  // Value label on circle
+  g.append("text")
+    .attr("x", cx)
+    .attr("y", cy + 4)
+    .attr("text-anchor", "middle")
+    .attr("font-size", r > 40 ? "14px" : "11px")
+    .attr("font-weight", "bold")
+    .attr("fill", "var(--color-white)")
+    .attr("pointer-events", "none")
+    .text(`$${d.value}B`);
+
+  // Region label below circle
+  const labelY = cy + r * scaleFactor * 0.85 + 20;
+  g.append("text")
+    .attr("x", cx)
+    .attr("y", labelY)
+    .attr("text-anchor", "middle")
+    .attr("font-family", "'JetBrains Mono', monospace")
+    .attr("font-size", "9px")
+    .attr("fill", "var(--color-ink)")
+    .attr("letter-spacing", "0.08em")
+    .text(d.region.toUpperCase());
+});
+</script>
+</body>
+</html>

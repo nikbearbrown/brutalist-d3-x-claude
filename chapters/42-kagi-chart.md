@@ -2,7 +2,8 @@
 
 *Kagi Chart — Supply & Demand*
 
-![Kagi Chart](../images/42-kagi-chart.jpg)
+![Kagi chart showing price reversals with thick lines for uptrends and thin lines for downtrends](../images/42-kagi-chart.png)
+*Figure 42.1 — Kagi Chart — Supply & Demand*
 
 ## The perceptual mechanism
 
@@ -54,6 +55,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/42-kagi-chart.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

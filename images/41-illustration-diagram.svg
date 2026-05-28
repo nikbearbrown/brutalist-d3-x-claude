@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 420">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap');
+    </style>
+    <marker id="arrow-deoxy" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#1A3A5C"/>
+    </marker>
+    <marker id="arrow-oxy" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#C8102E"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+
+  <!-- Title -->
+  <text x="350" y="28" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="18" font-weight="600" fill="#2a1a0e">The Human Heart — Anatomy &amp; Blood Flow</text>
+
+  <!-- Chart area -->
+  <rect x="32" y="42" width="636" height="340" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="0.75"/>
+
+  <!-- Heart outline - simplified stylized shape -->
+  <!-- Outer heart shape -->
+  <path d="M350,340 C350,340 210,280 180,220 C150,160 160,110 200,90 C240,70 290,80 320,110 C335,125 345,145 350,160 C355,145 365,125 380,110 C410,80 460,70 500,90 C540,110 550,160 520,220 C490,280 350,340 350,340 Z" fill="none" stroke="#2a1a0e" stroke-width="2"/>
+
+  <!-- Septum - vertical divider -->
+  <line x1="350" y1="100" x2="350" y2="310" stroke="#2a1a0e" stroke-width="1.5"/>
+
+  <!-- Horizontal divider (AV valves) -->
+  <line x1="200" y1="195" x2="350" y2="195" stroke="#2a1a0e" stroke-width="1"/>
+  <line x1="350" y1="195" x2="500" y2="195" stroke="#2a1a0e" stroke-width="1"/>
+
+  <!-- Right side fill (deoxygenated - slate blue) -->
+  <!-- Right Atrium -->
+  <path d="M350,100 C350,100 290,80 250,90 C220,100 195,130 190,165 C188,180 192,192 200,195 L350,195 Z" fill="#1A3A5C" opacity="0.15" stroke="none"/>
+  <!-- Right Ventricle -->
+  <path d="M200,195 L350,195 L350,310 C350,310 280,275 240,240 C210,210 195,205 200,195 Z" fill="#1A3A5C" opacity="0.2" stroke="none"/>
+
+  <!-- Left side fill (oxygenated - red) -->
+  <!-- Left Atrium -->
+  <path d="M350,100 C350,100 410,80 450,90 C480,100 505,130 510,165 C512,180 508,192 500,195 L350,195 Z" fill="#C8102E" opacity="0.15" stroke="none"/>
+  <!-- Left Ventricle -->
+  <path d="M500,195 L350,195 L350,310 C350,310 420,275 460,240 C490,210 505,205 500,195 Z" fill="#C8102E" opacity="0.2" stroke="none"/>
+
+  <!-- Chamber labels -->
+  <text x="255" y="155" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="8" font-weight="500" fill="#1A3A5C" letter-spacing="0.08em">RIGHT</text>
+  <text x="255" y="166" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="8" font-weight="500" fill="#1A3A5C" letter-spacing="0.08em">ATRIUM</text>
+
+  <text x="299" y="255" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="8" font-weight="500" fill="#1A3A5C" letter-spacing="0.08em">RIGHT</text>
+  <text x="299" y="266" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="8" font-weight="500" fill="#1A3A5C" letter-spacing="0.08em">VENTRICLE</text>
+
+  <text x="450" y="155" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="8" font-weight="500" fill="#C8102E" letter-spacing="0.08em">LEFT</text>
+  <text x="450" y="166" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="8" font-weight="500" fill="#C8102E" letter-spacing="0.08em">ATRIUM</text>
+
+  <text x="390" y="255" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="8" font-weight="500" fill="#C8102E" letter-spacing="0.08em">LEFT</text>
+  <text x="390" y="266" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="8" font-weight="500" fill="#C8102E" letter-spacing="0.08em">VENTRICLE</text>
+
+  <!-- Pulmonary Artery - from right ventricle upward-left -->
+  <path d="M280,195 C280,175 260,80 220,60" fill="none" stroke="#1A3A5C" stroke-width="2" marker-end="url(#arrow-deoxy)"/>
+  <text x="140" y="62" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="7.5" font-weight="500" fill="#1A3A5C" letter-spacing="0.08em">PULMONARY</text>
+  <text x="140" y="73" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="7.5" font-weight="500" fill="#1A3A5C" letter-spacing="0.08em">ARTERY</text>
+  <line x1="170" y1="63" x2="215" y2="62" stroke="#1A3A5C" stroke-width="0.75" stroke-dasharray="2,2"/>
+
+  <!-- Aorta - from left ventricle upward-right -->
+  <path d="M420,195 C420,175 440,80 480,60" fill="none" stroke="#C8102E" stroke-width="2.5" marker-end="url(#arrow-oxy)"/>
+  <text x="558" y="62" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="7.5" font-weight="500" fill="#C8102E" letter-spacing="0.08em">AORTA</text>
+  <line x1="540" y1="62" x2="485" y2="62" stroke="#C8102E" stroke-width="0.75" stroke-dasharray="2,2"/>
+
+  <!-- Flow arrows inside chambers -->
+  <!-- Right atrium down to right ventricle -->
+  <path d="M275,178 L275,215" fill="none" stroke="#1A3A5C" stroke-width="1.5" marker-end="url(#arrow-deoxy)"/>
+  <!-- Right ventricle up toward pulmonary -->
+  <path d="M260,230 L260,210" fill="none" stroke="#1A3A5C" stroke-width="1.5" marker-end="url(#arrow-deoxy)"/>
+
+  <!-- Left atrium down to left ventricle -->
+  <path d="M425,178 L425,215" fill="none" stroke="#C8102E" stroke-width="1.5" marker-end="url(#arrow-oxy)"/>
+  <!-- Left ventricle up toward aorta -->
+  <path d="M440,230 L440,210" fill="none" stroke="#C8102E" stroke-width="1.5" marker-end="url(#arrow-oxy)"/>
+
+  <!-- Inflow arrows (veins) -->
+  <!-- Superior/inferior vena cava into right atrium -->
+  <path d="M120,130 L195,130" fill="none" stroke="#1A3A5C" stroke-width="1.5" marker-end="url(#arrow-deoxy)" stroke-dasharray="4,3"/>
+  <text x="100" y="125" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="6.5" font-weight="400" fill="#1A3A5C" letter-spacing="0.08em">VENA</text>
+  <text x="100" y="135" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="6.5" font-weight="400" fill="#1A3A5C" letter-spacing="0.08em">CAVA</text>
+
+  <!-- Pulmonary veins into left atrium -->
+  <path d="M580,130 L505,130" fill="none" stroke="#C8102E" stroke-width="1.5" marker-end="url(#arrow-oxy)" stroke-dasharray="4,3"/>
+  <text x="606" y="125" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="6.5" font-weight="400" fill="#C8102E" letter-spacing="0.08em">PULMONARY</text>
+  <text x="606" y="135" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="6.5" font-weight="400" fill="#C8102E" letter-spacing="0.08em">VEINS</text>
+
+  <!-- Legend -->
+  <rect x="32" y="382" width="636" height="30" fill="#FFFFFF" stroke="none"/>
+  <rect x="50" y="390" width="16" height="8" fill="#1A3A5C" opacity="0.5" rx="0"/>
+  <text x="72" y="398" font-family="'IBM Plex Mono', monospace" font-size="7.5" fill="#545454" letter-spacing="0.08em">DEOXYGENATED</text>
+  <rect x="185" y="390" width="16" height="8" fill="#C8102E" opacity="0.5" rx="0"/>
+  <text x="207" y="398" font-family="'IBM Plex Mono', monospace" font-size="7.5" fill="#545454" letter-spacing="0.08em">OXYGENATED</text>
+
+  <!-- Caption -->
+  <text x="350" y="410" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" font-style="italic" fill="#545454">Arrows encode flow direction. Color encodes oxygenation state.</text>
+</svg>

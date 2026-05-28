@@ -1,0 +1,68 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#2a1a0e">Market Share by Product</text>
+
+<!-- Subtitle label -->
+<text x="350" y="46" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">PIE CHART</text>
+
+<!-- Chart area -->
+<rect x="32" y="60" width="636" height="300" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="0.75" rx="0"/>
+
+<!-- Pie centered at (350, 200), radius 120 -->
+<!-- Product A: 42% = 151.2 deg, start at -90deg (top) -->
+<!-- Product B: 28% = 100.8 deg -->
+<!-- Product C: 18% = 64.8 deg -->
+<!-- Product D: 12% = 43.2 deg -->
+
+<!-- Slice A: 42% from -90deg to 61.2deg (#C8102E) -->
+<!-- Start: (350 + 120*cos(-90), 200 + 120*sin(-90)) = (350, 80) -->
+<!-- End angle: -90 + 151.2 = 61.2deg. cos(61.2)=0.4818, sin(61.2)=0.8763 -->
+<!-- End: (350 + 120*0.4818, 200 + 120*0.8763) = (407.8, 305.2) -->
+<path d="M350,200 L350,80 A120,120 0 0,1 407.8,305.2 Z" fill="#C8102E"/>
+
+<!-- Slice B: 28% from 61.2deg to 162deg (#1A3A5C) -->
+<!-- cos(162)=-0.9511, sin(162)=0.3090 -->
+<!-- End: (350 + 120*(-0.9511), 200 + 120*0.3090) = (235.9, 237.1) -->
+<path d="M350,200 L407.8,305.2 A120,120 0 0,1 235.9,237.1 Z" fill="#1A3A5C"/>
+
+<!-- Slice C: 18% from 162deg to 226.8deg (#6B3520) -->
+<!-- cos(226.8)=-0.6820, sin(226.8)=-0.7314 -->
+<!-- End: (350 + 120*(-0.6820), 200 + 120*(-0.7314)) = (268.2, 112.2) -->
+<path d="M350,200 L235.9,237.1 A120,120 0 0,1 268.2,112.2 Z" fill="#6B3520"/>
+
+<!-- Slice D: 12% from 226.8deg to 270deg (#C8860E) -->
+<!-- 270deg = top = (350, 80) -->
+<path d="M350,200 L268.2,112.2 A120,120 0 0,1 350,80 Z" fill="#C8860E"/>
+
+<!-- Labels outside slices -->
+<!-- Product A label: midpoint angle = (-90+61.2)/2 = -14.4deg, label at radius 150 -->
+<!-- cos(-14.4)=0.9686, sin(-14.4)=-0.2487 -->
+<text x="495" y="170" text-anchor="start" font-size="12" fill="#2a1a0e" font-weight="bold">Product A</text>
+<text x="495" y="185" text-anchor="start" font-size="11" fill="#545454">42%</text>
+
+<!-- Product B label: midpoint angle = (61.2+162)/2 = 111.6deg -->
+<!-- cos(111.6)=-0.3681, sin(111.6)=0.9298 -->
+<text x="130" y="320" text-anchor="start" font-size="12" fill="#2a1a0e" font-weight="bold">Product B</text>
+<text x="130" y="335" text-anchor="start" font-size="11" fill="#545454">28%</text>
+
+<!-- Product C label: midpoint angle = (162+226.8)/2 = 194.4deg -->
+<!-- cos(194.4)=-0.9686, sin(194.4)=-0.2487 -->
+<text x="130" y="160" text-anchor="start" font-size="12" fill="#2a1a0e" font-weight="bold">Product C</text>
+<text x="130" y="175" text-anchor="start" font-size="11" fill="#545454">18%</text>
+
+<!-- Product D label: midpoint angle = (226.8+270)/2 = 248.4deg -->
+<!-- cos(248.4)=-0.3681, sin(248.4)=-0.9298 -->
+<text x="230" y="80" text-anchor="start" font-size="12" fill="#2a1a0e" font-weight="bold">Product D</text>
+<text x="230" y="95" text-anchor="start" font-size="11" fill="#545454">12%</text>
+
+<!-- Caption -->
+<text x="350" y="385" text-anchor="middle" font-size="11" fill="#545454" font-style="italic">Four segments. Five is the maximum for readability.</text>
+
+<!-- Source line -->
+<text x="350" y="410" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#545454" letter-spacing="0.08em">FIGURE 53.1</text>
+
+</svg>

@@ -2,7 +2,8 @@
 
 *Health programs lead on efficiency —emergency response moves fastest but costs most*
 
-![Parallel Coordinates](../images/50-parallel-coordinates.jpg)
+![Parallel coordinates plot comparing five programs across cost, speed, efficiency, coverage, and impact](../images/50-parallel-coordinates.png)
+*Figure 50.1 — Health programs lead on efficiency — emergency response moves fastest but costs most*
 
 ## What this chart is
 
@@ -56,6 +57,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/50-parallel-coordinates.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

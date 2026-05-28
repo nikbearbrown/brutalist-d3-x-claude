@@ -1,0 +1,94 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#2a1a0e">Funding Requested vs Received by Region</text>
+
+<!-- Subtitle label -->
+<text x="350" y="46" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">HUMANITARIAN FUNDING GAP (USD BILLIONS)</text>
+
+<!-- Chart area: x=120..668, y=60..355 => w=548, h=295 -->
+<rect x="120" y="60" width="548" height="295" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="0.75"/>
+
+<!-- Data:
+  Middle East:  Requested=4.80B, Received=2.47B  (gap=2.33B)
+  East Africa:  Requested=3.20B, Received=1.85B  (gap=1.35B)
+  South Asia:   Requested=2.50B, Received=1.60B  (gap=0.90B)
+  West Africa:  Requested=1.80B, Received=1.10B  (gap=0.70B)
+-->
+
+<!-- Y positions: 4 groups, each ~60px tall with 14px gap
+  Group centers at y=97, y=167, y=237, y=307
+  Bar height=24, two bars per group: top bar at cy-14 (h=24), bottom bar at cy+14-24=cy-10?
+  Let's do: Requested bar top=cy-26, bottom=cy-2 (h=24). Received bar top=cy+2, bottom=cy+26 (h=24).
+-->
+
+<!-- X scale: 0=$0, 548=$5B => 1B=109.6px -->
+<!-- Vertical gridlines at $1B, $2B, $3B, $4B, $5B -->
+<line x1="229.6" y1="60" x2="229.6" y2="355" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="4,3"/>
+<line x1="339.2" y1="60" x2="339.2" y2="355" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="4,3"/>
+<line x1="448.8" y1="60" x2="448.8" y2="355" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="4,3"/>
+<line x1="558.4" y1="60" x2="558.4" y2="355" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="4,3"/>
+<line x1="668" y1="60" x2="668" y2="355" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="4,3"/>
+
+<!-- X-axis labels -->
+<text x="120" y="375" text-anchor="middle" font-size="10" fill="#545454">$0</text>
+<text x="229.6" y="375" text-anchor="middle" font-size="10" fill="#545454">$1B</text>
+<text x="339.2" y="375" text-anchor="middle" font-size="10" fill="#545454">$2B</text>
+<text x="448.8" y="375" text-anchor="middle" font-size="10" fill="#545454">$3B</text>
+<text x="558.4" y="375" text-anchor="middle" font-size="10" fill="#545454">$4B</text>
+<text x="668" y="375" text-anchor="middle" font-size="10" fill="#545454">$5B</text>
+
+<!-- Baseline -->
+<line x1="120" y1="60" x2="120" y2="355" stroke="#2a1a0e" stroke-width="1"/>
+
+<!-- Group 1: Middle East (cy=97) — Requested=4.80B=526.08px, Received=2.47B=270.71px -->
+<text x="116" y="100" text-anchor="end" font-size="12" fill="#2a1a0e">Middle East</text>
+
+<!-- Requested bar -->
+<rect x="120" y="75" width="526.08" height="20" fill="#D4D4D4" stroke="#2a1a0e" stroke-width="0.75" rx="0"/>
+<text x="640" y="89" text-anchor="end" font-size="9" fill="#2a1a0e">$4.80B</text>
+
+<!-- Received bar -->
+<rect x="120" y="99" width="270.71" height="20" fill="#6B3520" rx="0"/>
+<text x="395" y="113" text-anchor="start" font-size="9" fill="#2a1a0e">$2.47B</text>
+
+<!-- Group 2: East Africa (cy=170) — Requested=3.20B=350.72px, Received=1.85B=202.76px -->
+<text x="116" y="173" text-anchor="end" font-size="12" fill="#2a1a0e">East Africa</text>
+
+<rect x="120" y="148" width="350.72" height="20" fill="#D4D4D4" stroke="#2a1a0e" stroke-width="0.75" rx="0"/>
+<text x="475" y="162" text-anchor="start" font-size="9" fill="#2a1a0e">$3.20B</text>
+
+<rect x="120" y="172" width="202.76" height="20" fill="#6B3520" rx="0"/>
+<text x="327" y="186" text-anchor="start" font-size="9" fill="#2a1a0e">$1.85B</text>
+
+<!-- Group 3: South Asia (cy=243) — Requested=2.50B=274px, Received=1.60B=175.36px -->
+<text x="116" y="246" text-anchor="end" font-size="12" fill="#2a1a0e">South Asia</text>
+
+<rect x="120" y="221" width="274" height="20" fill="#D4D4D4" stroke="#2a1a0e" stroke-width="0.75" rx="0"/>
+<text x="398" y="235" text-anchor="start" font-size="9" fill="#2a1a0e">$2.50B</text>
+
+<rect x="120" y="245" width="175.36" height="20" fill="#6B3520" rx="0"/>
+<text x="300" y="259" text-anchor="start" font-size="9" fill="#2a1a0e">$1.60B</text>
+
+<!-- Group 4: West Africa (cy=316) — Requested=1.80B=197.28px, Received=1.10B=120.56px -->
+<text x="116" y="319" text-anchor="end" font-size="12" fill="#2a1a0e">West Africa</text>
+
+<rect x="120" y="294" width="197.28" height="20" fill="#D4D4D4" stroke="#2a1a0e" stroke-width="0.75" rx="0"/>
+<text x="322" y="308" text-anchor="start" font-size="9" fill="#2a1a0e">$1.80B</text>
+
+<rect x="120" y="318" width="120.56" height="20" fill="#6B3520" rx="0"/>
+<text x="245" y="332" text-anchor="start" font-size="9" fill="#2a1a0e">$1.10B</text>
+
+<!-- Legend -->
+<rect x="420" y="388" width="14" height="10" fill="#D4D4D4" stroke="#2a1a0e" stroke-width="0.75" rx="0"/>
+<text x="438" y="397" font-size="10" fill="#2a1a0e">Requested</text>
+<rect x="500" y="388" width="14" height="10" fill="#6B3520" rx="0"/>
+<text x="518" y="397" font-size="10" fill="#2a1a0e">Received</text>
+
+<!-- Caption -->
+<text x="350" y="412" text-anchor="middle" font-size="10" fill="#545454" font-style="italic">No region receives what it requests. Middle East faces largest gap at $2.33B.</text>
+
+</svg>

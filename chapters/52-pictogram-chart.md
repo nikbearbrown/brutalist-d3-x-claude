@@ -2,7 +2,8 @@
 
 *Energy Mix by Region — Each Icon = 2% of Portfolio*
 
-![Pictogram Chart](../images/52-pictogram-chart.jpg)
+![Pictogram chart of 50 icons showing energy mix with solar, wind, hydro, nuclear, and fossil fuel shares](../images/52-pictogram-chart.png)
+*Figure 52.1 — Energy Mix by Region — Each Icon = 2% of Portfolio*
 
 ## What this chart is
 
@@ -45,6 +46,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/52-pictogram-chart.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

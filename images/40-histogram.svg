@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 420">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap');
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+
+  <!-- Title -->
+  <text x="350" y="28" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="18" font-weight="600" fill="#2a1a0e">Distribution of Commute Times</text>
+
+  <!-- Chart area -->
+  <rect x="32" y="42" width="636" height="330" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="0.75" rx="0"/>
+
+  <!-- Chart inner area: x-axis 80-640 (560px for 0-80 min = 7px/min, 35px per 5-min bin) -->
+  <!-- y-axis: 62-345 (283px for 0-42 count = 6.74px per count unit) -->
+  <!-- Zero baseline at y=345 -->
+
+  <!-- Y-axis gridlines (dashed) -->
+  <!-- Count ticks: 0, 10, 20, 30, 40 -->
+  <line x1="80" y1="345" x2="640" y2="345" stroke="#D4D4D4" stroke-width="0.5"/>
+  <line x1="80" y1="277.6" x2="640" y2="277.6" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+  <line x1="80" y1="210.2" x2="640" y2="210.2" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+  <line x1="80" y1="142.8" x2="640" y2="142.8" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+  <line x1="80" y1="75.4" x2="640" y2="75.4" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+
+  <!-- Y-axis labels -->
+  <text x="75" y="349" text-anchor="end" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">0</text>
+  <text x="75" y="281" text-anchor="end" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">10</text>
+  <text x="75" y="214" text-anchor="end" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">20</text>
+  <text x="75" y="146" text-anchor="end" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">30</text>
+  <text x="75" y="79" text-anchor="end" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">40</text>
+
+  <!-- Y-axis title -->
+  <text x="40" y="207" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#545454" letter-spacing="0.08em" transform="rotate(-90, 40, 207)">COUNT</text>
+
+  <!-- X-axis labels at bin edges: 0, 10, 20, 30, 40, 50, 60, 70, 80 -->
+  <!-- x = 80 + minutes * 7 -->
+  <text x="80" y="362" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">0</text>
+  <text x="150" y="362" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">10</text>
+  <text x="220" y="362" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">20</text>
+  <text x="290" y="362" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">30</text>
+  <text x="360" y="362" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">40</text>
+  <text x="430" y="362" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">50</text>
+  <text x="500" y="362" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">60</text>
+  <text x="570" y="362" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">70</text>
+  <text x="640" y="362" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">80</text>
+
+  <!-- X-axis title -->
+  <text x="360" y="380" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">COMMUTE MINUTES</text>
+
+  <!-- Histogram bars (adjacent, no gaps) -->
+  <!-- bin width = 35px, scale = 6.74px per count -->
+  <!-- Data: 0-5:2, 5-10:5, 10-15:12, 15-20:22, 20-25:35, 25-30:42, 30-35:38, 35-40:28, 40-45:18, 45-50:12, 50-55:8, 55-60:5, 60-65:3, 65-70:2, 70-75:1, 75-80:1 -->
+
+  <!-- 0-5: count=2, height=13.48, y=331.52 -->
+  <rect x="80" y="331.5" width="35" height="13.5" fill="#6B3520" rx="0"/>
+
+  <!-- 5-10: count=5, height=33.7, y=311.3 -->
+  <rect x="115" y="311.3" width="35" height="33.7" fill="#6B3520" rx="0"/>
+
+  <!-- 10-15: count=12, height=80.88, y=264.12 -->
+  <rect x="150" y="264.1" width="35" height="80.9" fill="#6B3520" rx="0"/>
+
+  <!-- 15-20: count=22, height=148.28, y=196.72 -->
+  <rect x="185" y="196.7" width="35" height="148.3" fill="#6B3520" rx="0"/>
+
+  <!-- 20-25: count=35, height=235.9, y=109.1 -->
+  <rect x="220" y="109.1" width="35" height="235.9" fill="#6B3520" rx="0"/>
+
+  <!-- 25-30: count=42, height=283.08, y=61.92 -->
+  <rect x="255" y="62" width="35" height="283" fill="#6B3520" rx="0"/>
+
+  <!-- 30-35: count=38, height=256.12, y=88.88 -->
+  <rect x="290" y="88.9" width="35" height="256.1" fill="#6B3520" rx="0"/>
+
+  <!-- 35-40: count=28, height=188.72, y=156.28 -->
+  <rect x="325" y="156.3" width="35" height="188.7" fill="#6B3520" rx="0"/>
+
+  <!-- 40-45: count=18, height=121.32, y=223.68 -->
+  <rect x="360" y="223.7" width="35" height="121.3" fill="#6B3520" rx="0"/>
+
+  <!-- 45-50: count=12, height=80.88, y=264.12 -->
+  <rect x="395" y="264.1" width="35" height="80.9" fill="#6B3520" rx="0"/>
+
+  <!-- 50-55: count=8, height=53.92, y=291.08 -->
+  <rect x="430" y="291.1" width="35" height="53.9" fill="#6B3520" rx="0"/>
+
+  <!-- 55-60: count=5, height=33.7, y=311.3 -->
+  <rect x="465" y="311.3" width="35" height="33.7" fill="#6B3520" rx="0"/>
+
+  <!-- 60-65: count=3, height=20.22, y=324.78 -->
+  <rect x="500" y="324.8" width="35" height="20.2" fill="#6B3520" rx="0"/>
+
+  <!-- 65-70: count=2, height=13.48, y=331.52 -->
+  <rect x="535" y="331.5" width="35" height="13.5" fill="#6B3520" rx="0"/>
+
+  <!-- 70-75: count=1, height=6.74, y=338.26 -->
+  <rect x="570" y="338.3" width="35" height="6.7" fill="#6B3520" rx="0"/>
+
+  <!-- 75-80: count=1, height=6.74, y=338.26 -->
+  <rect x="605" y="338.3" width="35" height="6.7" fill="#6B3520" rx="0"/>
+
+  <!-- Baseline -->
+  <line x1="80" y1="345" x2="640" y2="345" stroke="#2a1a0e" stroke-width="0.75"/>
+  <line x1="80" y1="62" x2="80" y2="345" stroke="#2a1a0e" stroke-width="0.75"/>
+
+  <!-- Caption -->
+  <text x="350" y="405" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" font-style="italic" fill="#545454">Most commutes cluster 20-40 minutes. Long tail of extreme commuters.</text>
+</svg>

@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 420">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap');
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+
+  <!-- Title -->
+  <text x="350" y="28" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="18" font-weight="600" fill="#2a1a0e">Aid Allocation: Region × Sector</text>
+
+  <!-- Chart area -->
+  <rect x="72" y="42" width="596" height="310" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="0.75"/>
+
+  <!-- Y-axis: 0%-100%. Top=42 (100%), Bottom=352 (0%). 1% = 3.1px -->
+  <!-- Y-axis labels -->
+  <text x="66" y="46" text-anchor="end" font-family="'IBM Plex Mono', monospace" font-size="8" fill="#545454">100%</text>
+  <text x="66" y="123.5" text-anchor="end" font-family="'IBM Plex Mono', monospace" font-size="8" fill="#545454">75%</text>
+  <text x="66" y="200" text-anchor="end" font-family="'IBM Plex Mono', monospace" font-size="8" fill="#545454">50%</text>
+  <text x="66" y="277.5" text-anchor="end" font-family="'IBM Plex Mono', monospace" font-size="8" fill="#545454">25%</text>
+  <text x="66" y="356" text-anchor="end" font-family="'IBM Plex Mono', monospace" font-size="8" fill="#545454">0%</text>
+
+  <!-- Y gridlines -->
+  <line x1="72" y1="119.5" x2="668" y2="119.5" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+  <line x1="72" y1="197" x2="668" y2="197" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+  <line x1="72" y1="274.5" x2="668" y2="274.5" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+
+  <!-- 4 columns with variable widths encoding total aid share -->
+  <!-- MENA: 35% of total = 208.6px, SSA: 30% = 178.8px, East Africa: 20% = 119.2px, South Asia: 15% = 89.4px -->
+  <!-- Total width: 596px (from x=72 to x=668) -->
+  <!-- Gap between columns: 4px each (3 gaps = 12px), usable width = 584px -->
+  <!-- MENA: 35% of 584 = 204.4px, SSA: 30% = 175.2px, E.Africa: 20% = 116.8px, S.Asia: 15% = 87.6px -->
+
+  <!-- Column 1: MENA (x=72, width=204.4) -->
+  <!-- Sectors: Shelter 50%, Food 30%, Health 20% -->
+  <!-- Shelter: height=155px (y=42 to y=197), Food: height=93px (y=197 to y=290), Health: height=62px (y=290 to y=352) -->
+  <rect x="72" y="42" width="204.4" height="155" fill="#C8102E" opacity="0.85" rx="0"/>
+  <rect x="72" y="197" width="204.4" height="93" fill="#1A3A5C" opacity="0.85" rx="0"/>
+  <rect x="72" y="290" width="204.4" height="62" fill="#6B3520" opacity="0.85" rx="0"/>
+  <!-- MENA segment labels -->
+  <text x="174.2" y="125" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="9" font-weight="500" fill="#FFFFFF" letter-spacing="0.08em">SHELTER</text>
+  <text x="174.2" y="138" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="8" fill="#FFFFFF">50%</text>
+  <text x="174.2" y="248" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="9" font-weight="500" fill="#FFFFFF" letter-spacing="0.08em">FOOD</text>
+  <text x="174.2" y="261" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="8" fill="#FFFFFF">30%</text>
+  <text x="174.2" y="324" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="9" font-weight="500" fill="#FFFFFF" letter-spacing="0.08em">HEALTH</text>
+  <text x="174.2" y="337" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="8" fill="#FFFFFF">20%</text>
+
+  <!-- Column 2: SSA (x=280.4, width=175.2) -->
+  <!-- Sectors: Shelter 25%, Food 40%, Health 35% -->
+  <!-- Shelter: height=77.5px (y=42 to y=119.5), Food: height=124px (y=119.5 to y=243.5), Health: height=108.5px (y=243.5 to y=352) -->
+  <rect x="280.4" y="42" width="175.2" height="77.5" fill="#C8102E" opacity="0.85" rx="0"/>
+  <rect x="280.4" y="119.5" width="175.2" height="124" fill="#1A3A5C" opacity="0.85" rx="0"/>
+  <rect x="280.4" y="243.5" width="175.2" height="108.5" fill="#6B3520" opacity="0.85" rx="0"/>
+  <!-- SSA segment labels -->
+  <text x="368" y="85" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="9" font-weight="500" fill="#FFFFFF" letter-spacing="0.08em">SHELTER</text>
+  <text x="368" y="98" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="8" fill="#FFFFFF">25%</text>
+  <text x="368" y="185" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="9" font-weight="500" fill="#FFFFFF" letter-spacing="0.08em">FOOD</text>
+  <text x="368" y="198" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="8" fill="#FFFFFF">40%</text>
+  <text x="368" y="301" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="9" font-weight="500" fill="#FFFFFF" letter-spacing="0.08em">HEALTH</text>
+  <text x="368" y="314" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="8" fill="#FFFFFF">35%</text>
+
+  <!-- Column 3: East Africa (x=459.6, width=116.8) -->
+  <!-- Sectors: Shelter 30%, Food 45%, Health 25% -->
+  <!-- Shelter: height=93px (y=42 to y=135), Food: height=139.5px (y=135 to y=274.5), Health: height=77.5px (y=274.5 to y=352) -->
+  <rect x="459.6" y="42" width="116.8" height="93" fill="#C8102E" opacity="0.85" rx="0"/>
+  <rect x="459.6" y="135" width="116.8" height="139.5" fill="#1A3A5C" opacity="0.85" rx="0"/>
+  <rect x="459.6" y="274.5" width="116.8" height="77.5" fill="#6B3520" opacity="0.85" rx="0"/>
+  <!-- East Africa segment labels -->
+  <text x="518" y="93" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="8" font-weight="500" fill="#FFFFFF" letter-spacing="0.08em">SHELTER</text>
+  <text x="518" y="105" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="7" fill="#FFFFFF">30%</text>
+  <text x="518" y="209" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="8" font-weight="500" fill="#FFFFFF" letter-spacing="0.08em">FOOD</text>
+  <text x="518" y="221" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="7" fill="#FFFFFF">45%</text>
+  <text x="518" y="317" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="8" font-weight="500" fill="#FFFFFF" letter-spacing="0.08em">HEALTH</text>
+  <text x="518" y="329" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="7" fill="#FFFFFF">25%</text>
+
+  <!-- Column 4: South Asia (x=580.4, width=87.6) -->
+  <!-- Sectors: Shelter 20%, Food 35%, Health 45% -->
+  <!-- Shelter: height=62px (y=42 to y=104), Food: height=108.5px (y=104 to y=212.5), Health: height=139.5px (y=212.5 to y=352) -->
+  <rect x="580.4" y="42" width="87.6" height="62" fill="#C8102E" opacity="0.85" rx="0"/>
+  <rect x="580.4" y="104" width="87.6" height="108.5" fill="#1A3A5C" opacity="0.85" rx="0"/>
+  <rect x="580.4" y="212.5" width="87.6" height="139.5" fill="#6B3520" opacity="0.85" rx="0"/>
+  <!-- South Asia segment labels -->
+  <text x="624.2" y="78" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="7" font-weight="500" fill="#FFFFFF" letter-spacing="0.08em">SHELTER</text>
+  <text x="624.2" y="89" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="6.5" fill="#FFFFFF">20%</text>
+  <text x="624.2" y="162" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="7" font-weight="500" fill="#FFFFFF" letter-spacing="0.08em">FOOD</text>
+  <text x="624.2" y="173" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="6.5" fill="#FFFFFF">35%</text>
+  <text x="624.2" y="286" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="7" font-weight="500" fill="#FFFFFF" letter-spacing="0.08em">HEALTH</text>
+  <text x="624.2" y="297" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="6.5" fill="#FFFFFF">45%</text>
+
+  <!-- Column labels (region names below) -->
+  <text x="174.2" y="368" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="8" font-weight="500" fill="#2a1a0e" letter-spacing="0.08em">MENA</text>
+  <text x="174.2" y="378" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="7" fill="#545454">35%</text>
+  <text x="368" y="368" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="8" font-weight="500" fill="#2a1a0e" letter-spacing="0.08em">SSA</text>
+  <text x="368" y="378" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="7" fill="#545454">30%</text>
+  <text x="518" y="368" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="8" font-weight="500" fill="#2a1a0e" letter-spacing="0.08em">E. AFRICA</text>
+  <text x="518" y="378" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="7" fill="#545454">20%</text>
+  <text x="624.2" y="368" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="8" font-weight="500" fill="#2a1a0e" letter-spacing="0.08em">S. ASIA</text>
+  <text x="624.2" y="378" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="7" fill="#545454">15%</text>
+
+  <!-- Legend -->
+  <rect x="200" y="392" width="12" height="8" fill="#C8102E" opacity="0.85" rx="0"/>
+  <text x="218" y="400" font-family="'IBM Plex Mono', monospace" font-size="7.5" fill="#545454" letter-spacing="0.08em">SHELTER</text>
+  <rect x="300" y="392" width="12" height="8" fill="#1A3A5C" opacity="0.85" rx="0"/>
+  <text x="318" y="400" font-family="'IBM Plex Mono', monospace" font-size="7.5" fill="#545454" letter-spacing="0.08em">FOOD</text>
+  <rect x="380" y="392" width="12" height="8" fill="#6B3520" opacity="0.85" rx="0"/>
+  <text x="398" y="400" font-family="'IBM Plex Mono', monospace" font-size="7.5" fill="#545454" letter-spacing="0.08em">HEALTH</text>
+
+  <!-- Caption -->
+  <text x="350" y="416" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" font-style="italic" fill="#545454">Column width encodes total aid share. Height encodes sector mix.</text>
+</svg>

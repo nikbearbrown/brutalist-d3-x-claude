@@ -2,7 +2,8 @@
 
 *The Human Heart — Anatomy & Blood Flow Direction*
 
-![Illustration Diagram](../images/41-illustration-diagram.jpg)
+![Anatomical diagram of the human heart showing four chambers with arrows encoding blood flow direction](../images/41-illustration-diagram.png)
+*Figure 41.1 — The Human Heart — Anatomy & Blood Flow Direction*
 
 ## What this chart type is
 
@@ -49,6 +50,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/41-illustration-diagram.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

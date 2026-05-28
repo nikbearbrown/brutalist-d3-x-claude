@@ -1,0 +1,113 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#2a1a0e">Age &amp; Sex Distribution</text>
+
+<!-- Subtitle label -->
+<text x="350" y="46" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">POPULATION PYRAMID</text>
+
+<!-- Chart area -->
+<rect x="32" y="60" width="636" height="300" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="0.75" rx="0"/>
+
+<!-- Center axis at x=350 -->
+<line x1="350" y1="80" x2="350" y2="340" stroke="#2a1a0e" stroke-width="0.75"/>
+
+<!-- Labels: MALE (left) and FEMALE (right) -->
+<text x="200" y="76" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#1A3A5C" letter-spacing="0.08em" font-weight="bold">MALE</text>
+<text x="500" y="76" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#C8102E" letter-spacing="0.08em" font-weight="bold">FEMALE</text>
+
+<!-- Age bands (9 bands), each bar height = 26px, gap = 2px, total = 252px -->
+<!-- y positions: band center from y=93 to y=333, step=28 -->
+<!-- Bands bottom to top: 0-9, 10-19, 20-29, 30-39, 40-49, 50-59, 60-69, 70-79, 80+ -->
+<!-- Chart y: 80 to 340, 9 bands of 28px each = 252, start at y=82 -->
+<!-- Bar max width = 250px (each side), scale: max population ~ 180 units -->
+
+<!-- X-axis scale ticks (male side, going left from center) -->
+<text x="350" y="352" text-anchor="middle" font-size="8" fill="#545454">0</text>
+<text x="280" y="352" text-anchor="middle" font-size="8" fill="#545454">50k</text>
+<text x="210" y="352" text-anchor="middle" font-size="8" fill="#545454">100k</text>
+<text x="140" y="352" text-anchor="middle" font-size="8" fill="#545454">150k</text>
+
+<!-- X-axis scale ticks (female side, going right from center) -->
+<text x="420" y="352" text-anchor="middle" font-size="8" fill="#545454">50k</text>
+<text x="490" y="352" text-anchor="middle" font-size="8" fill="#545454">100k</text>
+<text x="560" y="352" text-anchor="middle" font-size="8" fill="#545454">150k</text>
+
+<!-- Data: bell-shaped distribution, wider at 20-39 -->
+<!-- Population (thousands): 0-9: 90/88, 10-19: 110/108, 20-29: 155/150, 30-39: 170/165, 40-49: 140/142, 50-59: 115/118, 60-69: 80/85, 70-79: 50/55, 80+: 25/30 -->
+<!-- Scale: 1k = 1.4px (so 170k = 238px) -->
+
+<!-- Age band labels (center) -->
+<!-- 80+ (top) y=86 -->
+<text x="350" y="92" text-anchor="middle" font-size="9" fill="#2a1a0e">80+</text>
+<!-- Male bar: 25k = 35px -->
+<rect x="315" y="82" width="35" height="22" fill="#1A3A5C" rx="0"/>
+<!-- Female bar: 30k = 42px -->
+<rect x="350" y="82" width="42" height="22" fill="#C8102E" rx="0"/>
+
+<!-- 70-79 y=114 -->
+<text x="350" y="120" text-anchor="middle" font-size="9" fill="#2a1a0e">70-79</text>
+<!-- Male: 50k = 70px -->
+<rect x="280" y="110" width="70" height="22" fill="#1A3A5C" rx="0"/>
+<!-- Female: 55k = 77px -->
+<rect x="350" y="110" width="77" height="22" fill="#C8102E" rx="0"/>
+
+<!-- 60-69 y=142 -->
+<text x="350" y="148" text-anchor="middle" font-size="9" fill="#2a1a0e">60-69</text>
+<!-- Male: 80k = 112px -->
+<rect x="238" y="138" width="112" height="22" fill="#1A3A5C" rx="0"/>
+<!-- Female: 85k = 119px -->
+<rect x="350" y="138" width="119" height="22" fill="#C8102E" rx="0"/>
+
+<!-- 50-59 y=170 -->
+<text x="350" y="176" text-anchor="middle" font-size="9" fill="#2a1a0e">50-59</text>
+<!-- Male: 115k = 161px -->
+<rect x="189" y="166" width="161" height="22" fill="#1A3A5C" rx="0"/>
+<!-- Female: 118k = 165px -->
+<rect x="350" y="166" width="165" height="22" fill="#C8102E" rx="0"/>
+
+<!-- 40-49 y=198 -->
+<text x="350" y="204" text-anchor="middle" font-size="9" fill="#2a1a0e">40-49</text>
+<!-- Male: 140k = 196px -->
+<rect x="154" y="194" width="196" height="22" fill="#1A3A5C" rx="0"/>
+<!-- Female: 142k = 199px -->
+<rect x="350" y="194" width="199" height="22" fill="#C8102E" rx="0"/>
+
+<!-- 30-39 y=226 -->
+<text x="350" y="232" text-anchor="middle" font-size="9" fill="#2a1a0e">30-39</text>
+<!-- Male: 170k = 238px -->
+<rect x="112" y="222" width="238" height="22" fill="#1A3A5C" rx="0"/>
+<!-- Female: 165k = 231px -->
+<rect x="350" y="222" width="231" height="22" fill="#C8102E" rx="0"/>
+
+<!-- 20-29 y=254 -->
+<text x="350" y="260" text-anchor="middle" font-size="9" fill="#2a1a0e">20-29</text>
+<!-- Male: 155k = 217px -->
+<rect x="133" y="250" width="217" height="22" fill="#1A3A5C" rx="0"/>
+<!-- Female: 150k = 210px -->
+<rect x="350" y="250" width="210" height="22" fill="#C8102E" rx="0"/>
+
+<!-- 10-19 y=282 -->
+<text x="350" y="288" text-anchor="middle" font-size="9" fill="#2a1a0e">10-19</text>
+<!-- Male: 110k = 154px -->
+<rect x="196" y="278" width="154" height="22" fill="#1A3A5C" rx="0"/>
+<!-- Female: 108k = 151px -->
+<rect x="350" y="278" width="151" height="22" fill="#C8102E" rx="0"/>
+
+<!-- 0-9 y=310 (bottom) -->
+<text x="350" y="316" text-anchor="middle" font-size="9" fill="#2a1a0e">0-9</text>
+<!-- Male: 90k = 126px -->
+<rect x="224" y="306" width="126" height="22" fill="#1A3A5C" rx="0"/>
+<!-- Female: 88k = 123px -->
+<rect x="350" y="306" width="123" height="22" fill="#C8102E" rx="0"/>
+
+<!-- Caption -->
+<text x="350" y="385" text-anchor="middle" font-size="11" fill="#545454" font-style="italic">Two profiles side by side. Symmetry reveals demographic balance.</text>
+
+<!-- Source line -->
+<text x="350" y="410" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#545454" letter-spacing="0.08em">FIGURE 55.1</text>
+
+</svg>

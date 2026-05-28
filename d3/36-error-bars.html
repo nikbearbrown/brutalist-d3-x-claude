@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Error Bars — Treatment Effect with 95% Confidence Intervals</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-ink: #2a1a0e;
+    --color-mark: #6B3520;
+    --color-red: #C8102E;
+    --color-slate: #1A3A5C;
+    --color-ochre: #C8860E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --font-body: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    --font-sans: 'Inter', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', 'IBM Plex Mono', 'Courier New', monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1410;
+      --color-surface: #2a2018;
+      --color-ink: #e8ddd0;
+      --color-mark: #c4886a;
+      --color-red: #e8525a;
+      --color-slate: #6a9cc8;
+      --color-ochre: #e8b84a;
+      --color-secondary: #a0968a;
+      --color-border: #4a4038;
+    }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+
+  h1 {
+    font-family: var(--font-body);
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-bottom: 4px;
+    text-align: center;
+  }
+
+  .subtitle {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-style: italic;
+    color: var(--color-secondary);
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  #chart-container {
+    width: 100%;
+    max-width: 700px;
+    position: relative;
+  }
+
+  svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .tooltip {
+    position: absolute;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--color-ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 10;
+  }
+
+  .tooltip strong {
+    font-weight: 600;
+  }
+
+  .error-group:hover .error-point {
+    r: 7;
+  }
+
+  .error-group:focus {
+    outline: none;
+  }
+
+  .error-group:focus .error-point {
+    stroke: var(--color-red);
+    stroke-width: 2;
+  }
+</style>
+</head>
+<body>
+<h1>Treatment Effect with 95% Confidence Intervals</h1>
+<p class="subtitle">Horizontal whiskers show uncertainty around each treatment mean.</p>
+<div id="chart-container">
+  <div class="tooltip" id="tooltip"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const data = [
+  { drug: "Drug A", mean: 72, ci: 8 },
+  { drug: "Drug B", mean: 65, ci: 12 },
+  { drug: "Drug C", mean: 58, ci: 6 },
+  { drug: "Drug D", mean: 51, ci: 15 },
+  { drug: "Drug E", mean: 45, ci: 9 },
+  { drug: "Drug F", mean: 38, ci: 11 }
+];
+
+data.forEach(d => {
+  d.lo = d.mean - d.ci;
+  d.hi = d.mean + d.ci;
+});
+
+const width = 700;
+const height = 420;
+const margin = { top: 32, right: 40, bottom: 50, left: 110 };
+
+const innerWidth = width - margin.left - margin.right;
+const innerHeight = height - margin.top - margin.bottom;
+
+const svg = d3.select("#chart-container")
+  .append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("role", "img")
+  .attr("aria-label", "Error bar chart showing treatment effects with 95% confidence intervals for six drugs");
+
+// Chart background
+svg.append("rect")
+  .attr("x", margin.left)
+  .attr("y", margin.top)
+  .attr("width", innerWidth)
+  .attr("height", innerHeight)
+  .attr("fill", "var(--color-surface)")
+  .attr("stroke", "var(--color-border)")
+  .attr("stroke-width", 0.75);
+
+const xScale = d3.scaleLinear()
+  .domain([0, 100])
+  .range([margin.left, width - margin.right]);
+
+const yScale = d3.scaleBand()
+  .domain(data.map(d => d.drug))
+  .range([margin.top, height - margin.bottom])
+  .padding(0.4);
+
+// Gridlines
+const xTicks = [0, 20, 40, 60, 80, 100];
+svg.selectAll(".gridline")
+  .data(xTicks)
+  .join("line")
+  .attr("x1", d => xScale(d))
+  .attr("x2", d => xScale(d))
+  .attr("y1", margin.top)
+  .attr("y2", height - margin.bottom)
+  .attr("stroke", "var(--color-border)")
+  .attr("stroke-width", 0.5)
+  .attr("stroke-dasharray", "3,3");
+
+// X-axis
+svg.selectAll(".x-label")
+  .data(xTicks)
+  .join("text")
+  .attr("x", d => xScale(d))
+  .attr("y", height - margin.bottom + 18)
+  .attr("text-anchor", "middle")
+  .attr("font-family", "var(--font-mono)")
+  .attr("font-size", "11px")
+  .attr("fill", "var(--color-secondary)")
+  .text(d => d);
+
+svg.append("text")
+  .attr("x", (margin.left + width - margin.right) / 2)
+  .attr("y", height - 6)
+  .attr("text-anchor", "middle")
+  .attr("font-family", "var(--font-mono)")
+  .attr("font-size", "10px")
+  .attr("fill", "var(--color-secondary)")
+  .attr("letter-spacing", "0.08em")
+  .text("MEASURED VALUE");
+
+// Y-axis labels
+svg.selectAll(".y-label")
+  .data(data)
+  .join("text")
+  .attr("x", margin.left - 12)
+  .attr("y", d => yScale(d.drug) + yScale.bandwidth() / 2 + 4)
+  .attr("text-anchor", "end")
+  .attr("font-family", "var(--font-body)")
+  .attr("font-size", "14px")
+  .attr("fill", "var(--color-ink)")
+  .text(d => d.drug);
+
+// Separator lines
+svg.selectAll(".sep")
+  .data(data.slice(0, -1))
+  .join("line")
+  .attr("x1", margin.left)
+  .attr("x2", width - margin.right)
+  .attr("y1", d => yScale(d.drug) + yScale.step())
+  .attr("y2", d => yScale(d.drug) + yScale.step())
+  .attr("stroke", "var(--color-border)")
+  .attr("stroke-width", 0.3);
+
+const tooltip = d3.select("#tooltip");
+
+// Error bar groups
+const groups = svg.selectAll(".error-group")
+  .data(data)
+  .join("g")
+  .attr("class", "error-group")
+  .attr("tabindex", 0)
+  .attr("role", "img")
+  .attr("aria-label", d => `${d.drug}: mean ${d.mean}, 95% CI ${d.lo} to ${d.hi}`)
+  .on("mouseover", function(event, d) {
+    tooltip.style("opacity", 1)
+      .html(`<strong>${d.drug}</strong><br>Mean: ${d.mean}<br>95% CI: [${d.lo}, ${d.hi}]`)
+      .style("left", (event.offsetX + 14) + "px")
+      .style("top", (event.offsetY - 14) + "px");
+  })
+  .on("mousemove", function(event) {
+    tooltip.style("left", (event.offsetX + 14) + "px")
+      .style("top", (event.offsetY - 14) + "px");
+  })
+  .on("mouseout", () => tooltip.style("opacity", 0))
+  .on("focus", function(event, d) {
+    tooltip.style("opacity", 1)
+      .html(`<strong>${d.drug}</strong><br>Mean: ${d.mean}<br>95% CI: [${d.lo}, ${d.hi}]`)
+      .style("left", (xScale(d.mean) + 14) + "px")
+      .style("top", (yScale(d.drug) - 14) + "px");
+  })
+  .on("blur", () => tooltip.style("opacity", 0));
+
+const capHeight = 8;
+
+// Whisker lines
+groups.append("line")
+  .attr("x1", d => xScale(d.lo))
+  .attr("x2", d => xScale(d.hi))
+  .attr("y1", d => yScale(d.drug) + yScale.bandwidth() / 2)
+  .attr("y2", d => yScale(d.drug) + yScale.bandwidth() / 2)
+  .attr("stroke", "var(--color-ink)")
+  .attr("stroke-width", 1.5);
+
+// Left caps
+groups.append("line")
+  .attr("x1", d => xScale(d.lo))
+  .attr("x2", d => xScale(d.lo))
+  .attr("y1", d => yScale(d.drug) + yScale.bandwidth() / 2 - capHeight)
+  .attr("y2", d => yScale(d.drug) + yScale.bandwidth() / 2 + capHeight)
+  .attr("stroke", "var(--color-ink)")
+  .attr("stroke-width", 1.5);
+
+// Right caps
+groups.append("line")
+  .attr("x1", d => xScale(d.hi))
+  .attr("x2", d => xScale(d.hi))
+  .attr("y1", d => yScale(d.drug) + yScale.bandwidth() / 2 - capHeight)
+  .attr("y2", d => yScale(d.drug) + yScale.bandwidth() / 2 + capHeight)
+  .attr("stroke", "var(--color-ink)")
+  .attr("stroke-width", 1.5);
+
+// Mean points
+groups.append("circle")
+  .attr("class", "error-point")
+  .attr("cx", d => xScale(d.mean))
+  .attr("cy", d => yScale(d.drug) + yScale.bandwidth() / 2)
+  .attr("r", 5)
+  .attr("fill", "var(--color-mark)");
+</script>
+</body>
+</html>

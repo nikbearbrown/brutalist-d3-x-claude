@@ -2,7 +2,8 @@
 
 *Data Integration and Crisis Mappingare the central hubs of the AI ecosystem*
 
-![Network Diagram](../images/47-network-diagram.jpg)
+![Network diagram showing AI humanitarian ecosystem with Data Integration and Crisis Mapping as central hub nodes](../images/47-network-diagram.png)
+*Figure 47.1 — Data Integration and Crisis Mapping are the central hubs*
 
 ## What this chart is
 
@@ -60,6 +61,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/47-network-diagram.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

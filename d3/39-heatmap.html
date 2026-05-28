@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Heatmap — AI Adoption Score by Region and Sector</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-ink: #2a1a0e;
+    --color-mark: #6B3520;
+    --color-red: #C8102E;
+    --color-slate: #1A3A5C;
+    --color-ochre: #C8860E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --font-body: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    --font-sans: 'Inter', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', 'IBM Plex Mono', 'Courier New', monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1410;
+      --color-surface: #2a2018;
+      --color-ink: #e8ddd0;
+      --color-mark: #c4886a;
+      --color-red: #e8525a;
+      --color-slate: #6a9cc8;
+      --color-ochre: #e8b84a;
+      --color-secondary: #a0968a;
+      --color-border: #4a4038;
+    }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+
+  h1 {
+    font-family: var(--font-body);
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-bottom: 4px;
+    text-align: center;
+  }
+
+  .subtitle {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-style: italic;
+    color: var(--color-secondary);
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  #chart-container {
+    width: 100%;
+    max-width: 700px;
+    position: relative;
+  }
+
+  svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .tooltip {
+    position: absolute;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--color-ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 10;
+  }
+
+  .heat-cell {
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .heat-cell:hover {
+    stroke: var(--color-ink);
+    stroke-width: 2;
+  }
+
+  .heat-cell:focus {
+    outline: none;
+    stroke: var(--color-red);
+    stroke-width: 2;
+  }
+</style>
+</head>
+<body>
+<h1>AI Adoption Score by Region and Sector</h1>
+<p class="subtitle">Sequential luminance encodes intensity. Finance and research lead.</p>
+<div id="chart-container">
+  <div class="tooltip" id="tooltip"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const regions = ["North America", "Europe", "East Asia", "Sub-Saharan Africa", "MENA"];
+const sectors = ["Finance", "Research", "Healthcare", "Humanitarian"];
+
+const values = [
+  [92, 88, 72, 35],
+  [85, 82, 68, 38],
+  [80, 78, 60, 28],
+  [32, 30, 22, 14],
+  [55, 50, 42, 20]
+];
+
+const data = [];
+regions.forEach((region, i) => {
+  sectors.forEach((sector, j) => {
+    data.push({ region, sector, value: values[i][j] });
+  });
+});
+
+const width = 700;
+const height = 460;
+const margin = { top: 60, right: 40, bottom: 60, left: 160 };
+
+const innerWidth = width - margin.left - margin.right;
+const innerHeight = height - margin.top - margin.bottom;
+
+const cellWidth = innerWidth / sectors.length;
+const cellHeight = innerHeight / regions.length;
+
+const colorScale = d3.scaleSequential()
+  .domain([0, 100])
+  .interpolator(d3.interpolate("#F5EFE8", "#2a1a0e"));
+
+const svg = d3.select("#chart-container")
+  .append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("role", "img")
+  .attr("aria-label", "Heatmap showing AI adoption scores across five regions and four sectors");
+
+// Chart background
+svg.append("rect")
+  .attr("x", margin.left)
+  .attr("y", margin.top)
+  .attr("width", innerWidth)
+  .attr("height", innerHeight)
+  .attr("fill", "var(--color-surface)")
+  .attr("stroke", "var(--color-border)")
+  .attr("stroke-width", 0.75);
+
+// Column headers
+sectors.forEach((sector, j) => {
+  svg.append("text")
+    .attr("x", margin.left + j * cellWidth + cellWidth / 2)
+    .attr("y", margin.top - 12)
+    .attr("text-anchor", "middle")
+    .attr("font-family", "var(--font-mono)")
+    .attr("font-size", "10px")
+    .attr("fill", "var(--color-ink)")
+    .attr("letter-spacing", "0.08em")
+    .text(sector.toUpperCase());
+});
+
+// Row labels
+regions.forEach((region, i) => {
+  svg.append("text")
+    .attr("x", margin.left - 12)
+    .attr("y", margin.top + i * cellHeight + cellHeight / 2 + 5)
+    .attr("text-anchor", "end")
+    .attr("font-family", "var(--font-body)")
+    .attr("font-size", "14px")
+    .attr("fill", "var(--color-ink)")
+    .text(region);
+});
+
+const tooltip = d3.select("#tooltip");
+
+// Heatmap cells
+svg.selectAll(".heat-cell")
+  .data(data)
+  .join("rect")
+  .attr("class", "heat-cell")
+  .attr("x", d => margin.left + sectors.indexOf(d.sector) * cellWidth)
+  .attr("y", d => margin.top + regions.indexOf(d.region) * cellHeight)
+  .attr("width", cellWidth)
+  .attr("height", cellHeight)
+  .attr("fill", d => colorScale(d.value))
+  .attr("stroke", "#FFFFFF")
+  .attr("stroke-width", 1.5)
+  .attr("rx", 0)
+  .attr("tabindex", 0)
+  .attr("role", "img")
+  .attr("aria-label", d => `${d.region}, ${d.sector}: score ${d.value}`)
+  .on("mouseover", function(event, d) {
+    tooltip.style("opacity", 1)
+      .html(`<strong>${d.region}</strong><br>${d.sector}: <strong>${d.value}</strong>`)
+      .style("left", (event.offsetX + 14) + "px")
+      .style("top", (event.offsetY - 14) + "px");
+  })
+  .on("mousemove", function(event) {
+    tooltip.style("left", (event.offsetX + 14) + "px")
+      .style("top", (event.offsetY - 14) + "px");
+  })
+  .on("mouseout", () => tooltip.style("opacity", 0))
+  .on("focus", function(event, d) {
+    const j = sectors.indexOf(d.sector);
+    const i = regions.indexOf(d.region);
+    tooltip.style("opacity", 1)
+      .html(`<strong>${d.region}</strong><br>${d.sector}: <strong>${d.value}</strong>`)
+      .style("left", (margin.left + j * cellWidth + cellWidth / 2 + 14) + "px")
+      .style("top", (margin.top + i * cellHeight - 14) + "px");
+  })
+  .on("blur", () => tooltip.style("opacity", 0));
+
+// Value annotations inside cells
+data.forEach(d => {
+  const j = sectors.indexOf(d.sector);
+  const i = regions.indexOf(d.region);
+  const textColor = d.value > 50 ? "#F5EFE8" : "#2a1a0e";
+
+  svg.append("text")
+    .attr("x", margin.left + j * cellWidth + cellWidth / 2)
+    .attr("y", margin.top + i * cellHeight + cellHeight / 2 + 5)
+    .attr("text-anchor", "middle")
+    .attr("font-family", "var(--font-mono)")
+    .attr("font-size", "13px")
+    .attr("font-weight", "500")
+    .attr("fill", textColor)
+    .attr("pointer-events", "none")
+    .text(d.value);
+});
+
+// Color scale legend
+const legendX = margin.left;
+const legendY = height - 30;
+const legendWidth = 150;
+const legendHeight = 12;
+
+// Gradient
+const defs = svg.append("defs");
+const gradient = defs.append("linearGradient")
+  .attr("id", "heat-gradient")
+  .attr("x1", "0%").attr("y1", "0%")
+  .attr("x2", "100%").attr("y2", "0%");
+gradient.append("stop").attr("offset", "0%").attr("stop-color", "#F5EFE8");
+gradient.append("stop").attr("offset", "100%").attr("stop-color", "#2a1a0e");
+
+svg.append("text")
+  .attr("x", legendX)
+  .attr("y", legendY + 10)
+  .attr("text-anchor", "start")
+  .attr("font-family", "var(--font-mono)")
+  .attr("font-size", "9px")
+  .attr("fill", "var(--color-secondary)")
+  .attr("letter-spacing", "0.08em")
+  .text("LOW");
+
+svg.append("rect")
+  .attr("x", legendX + 30)
+  .attr("y", legendY)
+  .attr("width", legendWidth)
+  .attr("height", legendHeight)
+  .attr("fill", "url(#heat-gradient)")
+  .attr("stroke", "var(--color-border)")
+  .attr("stroke-width", 0.5)
+  .attr("rx", 0);
+
+svg.append("text")
+  .attr("x", legendX + 30 + legendWidth + 6)
+  .attr("y", legendY + 10)
+  .attr("text-anchor", "start")
+  .attr("font-family", "var(--font-mono)")
+  .attr("font-size", "9px")
+  .attr("fill", "var(--color-secondary)")
+  .attr("letter-spacing", "0.08em")
+  .text("HIGH");
+</script>
+</body>
+</html>

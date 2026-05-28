@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pictogram Chart — Energy Mix</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #2a1a0e;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-mark: #6B3520;
+    --color-slate: #1A3A5C;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1a1a;
+      --color-ink: #e8e0d6;
+      --color-surface: #2a2420;
+      --color-secondary: #a0978e;
+      --color-border: #444;
+      --color-mark: #c28060;
+      --color-red: #e05040;
+      --color-slate: #5a9ad6;
+      --color-ochre: #d4a030;
+    }
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+  #chart-container { width: 100%; max-width: 900px; }
+  h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; color: var(--color-ink); }
+  .subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--color-secondary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .caption {
+    font-size: 0.9rem;
+    color: var(--color-secondary);
+    font-style: italic;
+    margin-top: 12px;
+  }
+  .tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    color: var(--color-ink);
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 10;
+  }
+  .icon-rect { cursor: pointer; transition: opacity 0.15s; }
+  .icon-rect.faded { opacity: 0.15; }
+  .legend-item { cursor: pointer; }
+</style>
+</head>
+<body>
+<div id="chart-container">
+  <h1>Energy Mix &mdash; Each Icon = 2% of Portfolio</h1>
+  <div class="subtitle">Pictogram Chart</div>
+  <div id="chart" role="img" aria-label="Pictogram chart of 50 icons showing energy mix with solar, wind, hydro, nuclear, and fossil fuel shares"></div>
+  <div class="caption">50 icons, 100%. Proportion is immediate.</div>
+</div>
+<div class="tooltip" id="tooltip"></div>
+<script>
+(function() {
+  const sources = [
+    { id: "solar", label: "Solar", count: 15, color: "var(--color-ochre)" },
+    { id: "wind", label: "Wind", count: 12, color: "var(--color-slate)" },
+    { id: "hydro", label: "Hydro", count: 8, color: "var(--color-mark)" },
+    { id: "nuclear", label: "Nuclear", count: 6, color: "var(--color-red)" },
+    { id: "fossil", label: "Fossil", count: 9, color: "var(--color-secondary)" },
+  ];
+
+  // Build flat icon array
+  const icons = [];
+  sources.forEach(s => {
+    for (let i = 0; i < s.count; i++) icons.push({ ...s, index: icons.length });
+  });
+
+  const cols = 10, rows = 5;
+  const cellSize = 36, iconSize = 28, gap = cellSize - iconSize;
+  const margin = { top: 20, right: 40, bottom: 100, left: 40 };
+  const gridW = cols * cellSize;
+  const gridH = rows * cellSize;
+  const width = gridW + margin.left + margin.right;
+  const height = gridH + margin.top + margin.bottom;
+
+  const svg = d3.select("#chart").append("svg")
+    .attr("viewBox", `0 0 ${width} ${height}`)
+    .attr("role", "img");
+
+  svg.append("title").text("Pictogram Chart: Energy Mix");
+  svg.append("desc").text("50 square icons in a 5x10 grid representing energy portfolio. Each icon = 2%.");
+
+  const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+  // Background
+  g.append("rect")
+    .attr("width", gridW)
+    .attr("height", gridH)
+    .attr("fill", "var(--color-surface)")
+    .attr("stroke", "var(--color-border)")
+    .attr("stroke-width", 0.75);
+
+  const tooltip = d3.select("#tooltip");
+  let activeType = null;
+
+  function highlightType(type) {
+    activeType = type;
+    d3.selectAll(".icon-rect").classed("faded", d => type && d.id !== type);
+  }
+
+  g.selectAll(".icon-rect")
+    .data(icons)
+    .join("rect")
+    .attr("class", "icon-rect")
+    .attr("x", d => (d.index % cols) * cellSize + gap / 2)
+    .attr("y", d => Math.floor(d.index / cols) * cellSize + gap / 2)
+    .attr("width", iconSize)
+    .attr("height", iconSize)
+    .attr("fill", d => d.color)
+    .attr("tabindex", 0)
+    .attr("aria-label", d => `${d.label}: 2%`)
+    .on("mouseenter", function(event, d) {
+      highlightType(d.id);
+      tooltip.style("opacity", 1)
+        .html(`<strong>${d.label}</strong><br>${d.count} icons = ${d.count * 2}%`);
+    })
+    .on("mousemove", function(event) {
+      tooltip.style("left", (event.pageX + 12) + "px").style("top", (event.pageY - 20) + "px");
+    })
+    .on("mouseleave", function() {
+      highlightType(null);
+      tooltip.style("opacity", 0);
+    });
+
+  // Legend
+  const legend = g.append("g").attr("transform", `translate(0, ${gridH + 24})`);
+  let lx = 0;
+  sources.forEach((s, i) => {
+    const item = legend.append("g")
+      .attr("class", "legend-item")
+      .attr("transform", `translate(${lx}, 0)`)
+      .on("mouseenter", () => highlightType(s.id))
+      .on("mouseleave", () => highlightType(null));
+    item.append("rect").attr("width", 14).attr("height", 14).attr("fill", s.color);
+    item.append("text")
+      .attr("x", 18).attr("y", 12)
+      .attr("font-size", "12px").attr("fill", "var(--color-ink)")
+      .text(`${s.label} (${s.count * 2}%)`);
+    lx += s.label.length * 8 + 70;
+  });
+})();
+</script>
+</body>
+</html>

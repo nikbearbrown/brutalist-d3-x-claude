@@ -2,7 +2,8 @@
 
 *No Region Receives What It Requests — Middle East Faces the Largest Absolute Funding Gap at $2.33B*
 
-![Multiset Bar](../images/46-multiset-bar.jpg)
+![Grouped bar chart showing funding requested versus received across four regions with Middle East showing largest gap](../images/46-multiset-bar.png)
+*Figure 46.1 — No Region Receives What It Requests*
 
 ## What this chart is
 
@@ -57,6 +58,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/46-multiset-bar.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

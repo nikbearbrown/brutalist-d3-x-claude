@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marimekko Chart — Aid Allocation: Region x Sector</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-ink: #2a1a0e;
+    --color-mark: #6B3520;
+    --color-red: #C8102E;
+    --color-slate: #1A3A5C;
+    --color-ochre: #C8860E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --font-body: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1410;
+      --color-surface: #2a2018;
+      --color-ink: #e8ddd0;
+      --color-mark: #c4886a;
+      --color-red: #e8525a;
+      --color-slate: #6a9cc8;
+      --color-ochre: #e8b84a;
+      --color-secondary: #a0968a;
+      --color-border: #4a4038;
+    }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+
+  h1 { font-size: 1.8rem; font-weight: 600; margin-bottom: 4px; text-align: center; }
+  .subtitle { font-size: 1rem; font-style: italic; color: var(--color-secondary); margin-bottom: 24px; text-align: center; }
+
+  #chart-container { width: 100%; max-width: 700px; position: relative; }
+  svg { width: 100%; height: auto; display: block; }
+
+  .tooltip {
+    position: absolute;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    max-width: 240px;
+  }
+
+  .cell { cursor: pointer; transition: opacity 0.15s; }
+  .cell:hover { opacity: 0.75; }
+
+  .caption { font-size: 0.9rem; font-style: italic; color: var(--color-secondary); margin-top: 12px; text-align: center; }
+</style>
+</head>
+<body>
+  <h1>Aid Allocation: Region &times; Sector</h1>
+  <p class="subtitle">Column width encodes total aid share. Height encodes sector mix.</p>
+  <div id="chart-container">
+    <div class="tooltip" id="tooltip"></div>
+  </div>
+  <p class="caption">Hover over a cell to see exact percentages.</p>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const margin = { top: 42, right: 32, bottom: 70, left: 60 };
+const width = 700, height = 420;
+const innerW = width - margin.left - margin.right;
+const innerH = height - margin.top - margin.bottom;
+const gap = 4;
+
+const data = [
+  { region: "MENA", share: 0.35, sectors: [
+    { name: "Shelter", pct: 0.50 },
+    { name: "Food", pct: 0.30 },
+    { name: "Health", pct: 0.20 }
+  ]},
+  { region: "SSA", share: 0.30, sectors: [
+    { name: "Shelter", pct: 0.25 },
+    { name: "Food", pct: 0.40 },
+    { name: "Health", pct: 0.35 }
+  ]},
+  { region: "E. Africa", share: 0.20, sectors: [
+    { name: "Shelter", pct: 0.30 },
+    { name: "Food", pct: 0.45 },
+    { name: "Health", pct: 0.25 }
+  ]},
+  { region: "S. Asia", share: 0.15, sectors: [
+    { name: "Shelter", pct: 0.20 },
+    { name: "Food", pct: 0.35 },
+    { name: "Health", pct: 0.45 }
+  ]}
+];
+
+const sectorColors = {
+  "Shelter": "var(--color-red)",
+  "Food": "var(--color-slate)",
+  "Health": "var(--color-mark)"
+};
+
+const container = d3.select("#chart-container");
+const tooltip = d3.select("#tooltip");
+
+const svg = container.append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("role", "img")
+  .attr("aria-label", "Marimekko chart showing aid allocation by region and sector");
+
+svg.append("rect").attr("width", width).attr("height", height).attr("fill", "var(--color-bg)");
+svg.append("rect").attr("x", margin.left).attr("y", margin.top).attr("width", innerW).attr("height", innerH)
+  .attr("fill", "var(--color-surface)").attr("stroke", "var(--color-border)").attr("stroke-width", 0.75);
+
+// Y scale (0-100%)
+const yScale = d3.scaleLinear().domain([0, 1]).range([margin.top + innerH, margin.top]);
+
+// Y axis
+[0, 0.25, 0.5, 0.75, 1].forEach(v => {
+  const y = yScale(v);
+  svg.append("line").attr("x1", margin.left).attr("y1", y).attr("x2", margin.left + innerW).attr("y2", y)
+    .attr("stroke", "var(--color-border)").attr("stroke-width", 0.5).attr("stroke-dasharray", v > 0 && v < 1 ? "3,3" : "none");
+  svg.append("text").attr("x", margin.left - 6).attr("y", y + 3).attr("text-anchor", "end")
+    .attr("font-family", "var(--font-mono)").attr("font-size", 8).attr("fill", "var(--color-secondary)")
+    .text(Math.round(v * 100) + "%");
+});
+
+// Calculate column positions
+const totalGaps = (data.length - 1) * gap;
+const usableW = innerW - totalGaps;
+let xOffset = margin.left;
+
+const g = svg.append("g");
+
+data.forEach((region) => {
+  const colW = usableW * region.share;
+  let yOffset = 0;
+
+  region.sectors.forEach(sector => {
+    const cellH = innerH * sector.pct;
+    const cellY = margin.top + yOffset;
+
+    const rect = g.append("rect")
+      .attr("class", "cell")
+      .attr("x", xOffset).attr("y", cellY).attr("width", colW).attr("height", cellH)
+      .attr("fill", sectorColors[sector.name]).attr("opacity", 0.85).attr("rx", 0)
+      .attr("tabindex", 0).attr("role", "graphics-symbol")
+      .attr("aria-label", `${region.region} ${sector.name}: ${Math.round(sector.pct * 100)}%`);
+
+    rect.on("mouseenter", function(event) {
+      tooltip.style("opacity", 1)
+        .html(`<strong>${region.region} — ${sector.name}</strong><br>` +
+              `Sector share: ${Math.round(sector.pct * 100)}%<br>` +
+              `Region aid share: ${Math.round(region.share * 100)}%<br>` +
+              `Grand total: ${(sector.pct * region.share * 100).toFixed(1)}%`);
+    })
+    .on("mousemove", function(event) {
+      tooltip.style("left", (event.offsetX + 15) + "px").style("top", (event.offsetY - 10) + "px");
+    })
+    .on("mouseleave", function() { tooltip.style("opacity", 0); });
+
+    // Cell label
+    if (cellH > 30 && colW > 60) {
+      g.append("text").attr("x", xOffset + colW / 2).attr("y", cellY + cellH / 2 - 4)
+        .attr("text-anchor", "middle").attr("font-family", "var(--font-mono)")
+        .attr("font-size", colW > 100 ? 9 : 7).attr("font-weight", 500)
+        .attr("fill", "#FFFFFF").attr("letter-spacing", "0.08em")
+        .text(sector.name.toUpperCase()).attr("pointer-events", "none");
+      g.append("text").attr("x", xOffset + colW / 2).attr("y", cellY + cellH / 2 + 10)
+        .attr("text-anchor", "middle").attr("font-family", "var(--font-mono)")
+        .attr("font-size", colW > 100 ? 8 : 6.5).attr("fill", "#FFFFFF")
+        .text(Math.round(sector.pct * 100) + "%").attr("pointer-events", "none");
+    }
+
+    yOffset += cellH;
+  });
+
+  // Region label below
+  g.append("text").attr("x", xOffset + colW / 2).attr("y", margin.top + innerH + 16)
+    .attr("text-anchor", "middle").attr("font-family", "var(--font-mono)")
+    .attr("font-size", 8).attr("font-weight", 500).attr("fill", "var(--color-ink)")
+    .attr("letter-spacing", "0.08em").text(region.region);
+  g.append("text").attr("x", xOffset + colW / 2).attr("y", margin.top + innerH + 28)
+    .attr("text-anchor", "middle").attr("font-family", "var(--font-mono)")
+    .attr("font-size", 7).attr("fill", "var(--color-secondary)")
+    .text(Math.round(region.share * 100) + "%");
+
+  xOffset += colW + gap;
+});
+
+// Legend
+const legendG = svg.append("g").attr("transform", `translate(${width / 2 - 120}, ${height - 22})`);
+const sectors = ["Shelter", "Food", "Health"];
+sectors.forEach((s, i) => {
+  legendG.append("rect").attr("x", i * 100).attr("width", 12).attr("height", 8)
+    .attr("fill", sectorColors[s]).attr("opacity", 0.85);
+  legendG.append("text").attr("x", i * 100 + 18).attr("y", 8)
+    .attr("font-family", "var(--font-mono)").attr("font-size", 7.5)
+    .attr("fill", "var(--color-secondary)").attr("letter-spacing", "0.08em").text(s.toUpperCase());
+});
+</script>
+</body>
+</html>

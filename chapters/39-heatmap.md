@@ -2,7 +2,8 @@
 
 *Finance and research lead — humanitarian AI lags in every region*
 
-![Heatmap](../images/39-heatmap.jpg)
+![Heatmap grid showing AI adoption scores across five regions and four sectors with sequential luminance encoding](../images/39-heatmap.png)
+*Figure 39.1 — Finance and research lead — humanitarian AI lags in every region*
 
 ## What this chart is
 
@@ -53,6 +54,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/39-heatmap.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

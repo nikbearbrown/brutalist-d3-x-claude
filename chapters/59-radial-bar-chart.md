@@ -2,7 +2,8 @@
 
 *Bars Bent Around a Center — When Polar Coordinates Earn Their Distortion*
 
-![Radial Bar Chart](../images/59-radial-bar-chart.jpg)
+![Radial bar chart showing technology proficiency scores across eight categories with Machine Learning highest](../images/59-radial-bar-chart.png)
+*Figure 59.1 — Bars Bent Around a Center — When Polar Coordinates Earn Their Distortion*
 
 ## What this chart is
 
@@ -52,6 +53,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/59-radial-bar-chart.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

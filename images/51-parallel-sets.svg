@@ -1,0 +1,114 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#2a1a0e">Education → Employment → Income</text>
+
+<!-- Subtitle label -->
+<text x="350" y="46" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">PARALLEL SETS</text>
+
+<!-- Chart area -->
+<rect x="32" y="60" width="636" height="300" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="0.75" rx="0"/>
+
+<!-- Three vertical axes at x=120, x=350, x=580 -->
+<!-- Axis 1: Education Level -->
+<rect x="105" y="80" width="30" height="260" fill="none" stroke="none"/>
+<!-- High School block: y=80, h=80 -->
+<rect x="105" y="80" width="30" height="80" fill="#2a1a0e" opacity="0.15" stroke="#2a1a0e" stroke-width="0.75" rx="0"/>
+<text x="100" y="124" text-anchor="end" font-size="11" fill="#2a1a0e">High School</text>
+<!-- Bachelor's block: y=165, h=100 -->
+<rect x="105" y="165" width="30" height="100" fill="#2a1a0e" opacity="0.15" stroke="#2a1a0e" stroke-width="0.75" rx="0"/>
+<text x="100" y="220" text-anchor="end" font-size="11" fill="#2a1a0e">Bachelor's</text>
+<!-- Master's block: y=270, h=65 -->
+<rect x="105" y="270" width="30" height="65" fill="#2a1a0e" opacity="0.15" stroke="#2a1a0e" stroke-width="0.75" rx="0"/>
+<text x="100" y="306" text-anchor="end" font-size="11" fill="#2a1a0e">Master's</text>
+
+<!-- Axis label -->
+<text x="120" y="74" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">EDUCATION</text>
+
+<!-- Axis 2: Employment Status -->
+<rect x="335" y="80" width="30" height="260" fill="none" stroke="none"/>
+<!-- Employed block: y=80, h=160 -->
+<rect x="335" y="80" width="30" height="160" fill="#2a1a0e" opacity="0.15" stroke="#2a1a0e" stroke-width="0.75" rx="0"/>
+<text x="330" y="165" text-anchor="end" font-size="11" fill="#2a1a0e">Employed</text>
+<!-- Unemployed block: y=245, h=45 -->
+<rect x="335" y="245" width="30" height="45" fill="#2a1a0e" opacity="0.15" stroke="#2a1a0e" stroke-width="0.75" rx="0"/>
+<text x="330" y="271" text-anchor="end" font-size="11" fill="#2a1a0e">Unemployed</text>
+<!-- Part-time block: y=295, h=40 -->
+<rect x="335" y="295" width="30" height="40" fill="#2a1a0e" opacity="0.15" stroke="#2a1a0e" stroke-width="0.75" rx="0"/>
+<text x="330" y="319" text-anchor="end" font-size="11" fill="#2a1a0e">Part-time</text>
+
+<!-- Axis label -->
+<text x="350" y="74" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">EMPLOYMENT</text>
+
+<!-- Axis 3: Income Band -->
+<rect x="565" y="80" width="30" height="260" fill="none" stroke="none"/>
+<!-- High block: y=80, h=90 -->
+<rect x="565" y="80" width="30" height="90" fill="#2a1a0e" opacity="0.15" stroke="#2a1a0e" stroke-width="0.75" rx="0"/>
+<text x="600" y="130" text-anchor="start" font-size="11" fill="#2a1a0e">High</text>
+<!-- Medium block: y=175, h=100 -->
+<rect x="565" y="175" width="30" height="100" fill="#2a1a0e" opacity="0.15" stroke="#2a1a0e" stroke-width="0.75" rx="0"/>
+<text x="600" y="230" text-anchor="start" font-size="11" fill="#2a1a0e">Medium</text>
+<!-- Low block: y=280, h=55 -->
+<rect x="565" y="280" width="30" height="55" fill="#2a1a0e" opacity="0.15" stroke="#2a1a0e" stroke-width="0.75" rx="0"/>
+<text x="600" y="312" text-anchor="start" font-size="11" fill="#2a1a0e">Low</text>
+
+<!-- Axis label -->
+<text x="580" y="74" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">INCOME</text>
+
+<!-- Ribbons: Education -> Employment -->
+<!-- Master's -> Employed (thick, ~55 of 65) -->
+<path d="M135,270 C235,270 235,80 335,80 L335,130 C235,130 235,320 135,320 Z" fill="#C8102E" opacity="0.45"/>
+
+<!-- Bachelor's -> Employed (large, ~75 of 100) -->
+<path d="M135,165 C235,165 235,132 335,132 L335,195 C235,195 235,238 135,238 Z" fill="#6B3520" opacity="0.45"/>
+
+<!-- High School -> Part-time (medium, ~35 of 80) -->
+<path d="M135,80 C235,80 235,295 335,295 L335,325 C235,325 235,112 135,112 Z" fill="#1A3A5C" opacity="0.45"/>
+
+<!-- High School -> Employed (~25 of 80) -->
+<path d="M135,113 C235,113 235,196 335,196 L335,218 C235,218 235,135 135,135 Z" fill="#1A3A5C" opacity="0.25"/>
+
+<!-- High School -> Unemployed (~20 of 80) -->
+<path d="M135,136 C235,136 235,245 335,245 L335,262 C235,262 235,155 135,155 Z" fill="#545454" opacity="0.3"/>
+
+<!-- Bachelor's -> Unemployed (~15 of 100) -->
+<path d="M135,240 C235,240 235,263 335,263 L335,278 C235,278 235,254 135,254 Z" fill="#545454" opacity="0.3"/>
+
+<!-- Bachelor's -> Part-time (~10 of 100) -->
+<path d="M135,255 C235,255 235,326 335,326 L335,335 C235,335 235,264 135,264 Z" fill="#545454" opacity="0.25"/>
+
+<!-- Master's -> Unemployed (small, ~10 of 65) -->
+<path d="M135,321 C235,321 235,279 335,279 L335,289 C235,289 235,330 135,330 Z" fill="#545454" opacity="0.25"/>
+
+<!-- Ribbons: Employment -> Income -->
+<!-- Employed -> High (large, ~80 of 160) -->
+<path d="M365,80 C465,80 465,80 565,80 L565,155 C465,155 465,145 365,145 Z" fill="#C8102E" opacity="0.45"/>
+
+<!-- Employed -> Medium (large, ~65 of 160) -->
+<path d="M365,146 C465,146 465,175 565,175 L565,248 C465,248 465,200 365,200 Z" fill="#6B3520" opacity="0.45"/>
+
+<!-- Employed -> Low (small, ~15 of 160) -->
+<path d="M365,201 C465,201 465,280 565,280 L565,296 C465,296 465,215 365,215 Z" fill="#545454" opacity="0.3"/>
+
+<!-- Part-time -> Low (medium, ~30 of 40) -->
+<path d="M365,295 C465,295 465,297 565,297 L565,325 C465,325 465,322 365,322 Z" fill="#1A3A5C" opacity="0.45"/>
+
+<!-- Part-time -> Medium (~10 of 40) -->
+<path d="M365,323 C465,323 465,249 565,249 L565,260 C465,260 465,332 365,332 Z" fill="#545454" opacity="0.25"/>
+
+<!-- Unemployed -> Low (~20 of 45) -->
+<path d="M365,245 C465,245 465,326 565,326 L565,335 C465,335 465,260 365,260 Z" fill="#545454" opacity="0.3"/>
+
+<!-- Unemployed -> Medium (~25 of 45) -->
+<path d="M365,261 C465,261 465,261 565,261 L565,275 C465,275 465,278 365,278 Z" fill="#545454" opacity="0.25"/>
+
+<!-- Caption -->
+<text x="350" y="392" text-anchor="middle" font-size="11" fill="#545454" font-style="italic">Higher education routes to higher income — employment status reshapes the path.</text>
+
+<!-- Source line -->
+<text x="350" y="410" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#545454" letter-spacing="0.08em">FIGURE 51.1</text>
+
+</svg>

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Radial Bar Chart — Technology Proficiency Scores</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #2a1a0e;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-mark: #6B3520;
+    --color-slate: #1A3A5C;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1a1a;
+      --color-ink: #e8e0d6;
+      --color-surface: #2a2420;
+      --color-secondary: #a0978e;
+      --color-border: #444;
+      --color-mark: #c28060;
+      --color-red: #e05040;
+      --color-slate: #5a9ad6;
+    }
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+  #chart-container {
+    width: 100%;
+    max-width: 900px;
+  }
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--color-ink);
+  }
+  .subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--color-secondary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .caption {
+    font-size: 0.9rem;
+    color: var(--color-secondary);
+    font-style: italic;
+    margin-top: 12px;
+  }
+  .tooltip {
+    position: absolute;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--color-ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+</style>
+</head>
+<body>
+<div id="chart-container">
+  <h1>Technology Proficiency Scores</h1>
+  <div class="subtitle">RADIAL BAR CHART — HOVER FOR DETAILS</div>
+  <div id="chart" role="img" aria-label="Radial bar chart showing technology proficiency scores across eight categories with Machine Learning highest"></div>
+  <div class="caption">Bars bent around a center — polar coordinates earn their distortion when the cycle matters.</div>
+</div>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const data = [
+  { category: "Machine Learning", value: 92 },
+  { category: "NLP", value: 85 },
+  { category: "Computer Vision", value: 78 },
+  { category: "Robotics", value: 65 },
+  { category: "Data Science", value: 88 },
+  { category: "Cybersecurity", value: 72 },
+  { category: "Cloud Computing", value: 80 },
+  { category: "IoT", value: 58 }
+];
+
+const maxVal = d3.max(data, d => d.value);
+
+const width = 700;
+const height = 560;
+const cx = width / 2;
+const cy = height / 2 + 10;
+const innerRadius = 45;
+const outerRadius = 210;
+
+const svg = d3.select("#chart")
+  .append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("preserveAspectRatio", "xMidYMid meet")
+  .style("width", "100%")
+  .style("height", "auto");
+
+svg.append("rect")
+  .attr("width", width)
+  .attr("height", height)
+  .attr("fill", "var(--color-bg)");
+
+svg.append("rect")
+  .attr("x", 32)
+  .attr("y", 20)
+  .attr("width", width - 64)
+  .attr("height", height - 50)
+  .attr("fill", "var(--color-surface)")
+  .attr("stroke", "var(--color-border)")
+  .attr("stroke-width", 0.75);
+
+const g = svg.append("g").attr("transform", `translate(${cx},${cy})`);
+
+const angleScale = d3.scaleBand()
+  .domain(data.map(d => d.category))
+  .range([0, 2 * Math.PI])
+  .padding(0.12);
+
+const rScale = d3.scaleLinear()
+  .domain([0, maxVal])
+  .range([innerRadius, outerRadius]);
+
+const opacityScale = d3.scaleLinear()
+  .domain([d3.min(data, d => d.value), maxVal])
+  .range([0.5, 0.9]);
+
+const arc = d3.arc()
+  .innerRadius(innerRadius)
+  .startAngle(d => angleScale(d.category))
+  .endAngle(d => angleScale(d.category) + angleScale.bandwidth())
+  .outerRadius(d => rScale(d.value));
+
+// Grid rings
+[25, 50, 75, 92].forEach(v => {
+  g.append("circle")
+    .attr("r", rScale(v))
+    .attr("fill", "none")
+    .attr("stroke", "var(--color-border)")
+    .attr("stroke-width", 0.5)
+    .attr("stroke-dasharray", "3,3");
+});
+
+g.append("circle")
+  .attr("r", innerRadius)
+  .attr("fill", "none")
+  .attr("stroke", "var(--color-border)")
+  .attr("stroke-width", 0.5);
+
+const tooltip = d3.select("#tooltip");
+
+// Bars
+g.selectAll("path.bar")
+  .data(data)
+  .join("path")
+  .attr("class", "bar")
+  .attr("d", arc)
+  .attr("fill", d => d.category === "Machine Learning" ? "var(--color-red)" : "var(--color-mark)")
+  .attr("opacity", d => opacityScale(d.value))
+  .attr("tabindex", 0)
+  .attr("role", "img")
+  .attr("aria-label", d => `${d.category}: ${d.value}`)
+  .style("cursor", "pointer")
+  .on("mouseenter", function(event, d) {
+    d3.select(this).attr("opacity", 1).attr("stroke", "var(--color-ink)").attr("stroke-width", 1);
+    tooltip.style("opacity", 1)
+      .html(`<strong>${d.category}</strong><br>Score: ${d.value}${d.value === maxVal ? " (Highest)" : ""}`);
+  })
+  .on("mousemove", function(event) {
+    tooltip.style("left", (event.pageX + 12) + "px")
+      .style("top", (event.pageY - 28) + "px");
+  })
+  .on("mouseleave", function(event, d) {
+    d3.select(this).attr("opacity", opacityScale(d.value)).attr("stroke", "none");
+    tooltip.style("opacity", 0);
+  });
+
+// Category labels outside bars
+data.forEach(d => {
+  const angle = angleScale(d.category) + angleScale.bandwidth() / 2;
+  const labelR = outerRadius + 22;
+  const x = labelR * Math.sin(angle);
+  const y = -labelR * Math.cos(angle);
+  const rotation = (angle * 180 / Math.PI);
+
+  // Flip text on bottom half for readability
+  const flipAngle = rotation > 90 && rotation < 270;
+  const textRotation = flipAngle ? rotation + 180 : rotation;
+  const textAnchor = flipAngle ? "end" : "start";
+
+  g.append("text")
+    .attr("transform", `translate(${x},${y}) rotate(${textRotation})`)
+    .attr("text-anchor", textAnchor)
+    .attr("dominant-baseline", "middle")
+    .attr("font-family", "'JetBrains Mono', monospace")
+    .attr("font-size", "8px")
+    .attr("letter-spacing", "0.08em")
+    .attr("fill", d.category === "Machine Learning" ? "var(--color-red)" : "var(--color-ink)")
+    .text(`${d.category.toUpperCase()} ${d.value}`);
+});
+</script>
+</body>
+</html>

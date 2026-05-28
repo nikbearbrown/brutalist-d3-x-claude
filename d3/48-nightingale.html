@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nightingale Rose — Monthly Activity Polar Area</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #2a1a0e;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-mark: #6B3520;
+    --color-slate: #1A3A5C;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1a1a;
+      --color-ink: #e8e0d6;
+      --color-surface: #2a2420;
+      --color-secondary: #a0978e;
+      --color-border: #444;
+      --color-mark: #c28060;
+      --color-red: #e05040;
+    }
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+  #chart-container {
+    width: 100%;
+    max-width: 700px;
+  }
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--color-ink);
+  }
+  .subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--color-secondary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .caption {
+    font-size: 0.9rem;
+    color: var(--color-secondary);
+    font-style: italic;
+    margin-top: 12px;
+  }
+  .tooltip {
+    position: absolute;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--color-ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+</style>
+</head>
+<body>
+<div id="chart-container">
+  <h1>Monthly Activity — Polar Area</h1>
+  <div class="subtitle">NIGHTINGALE ROSE / COXCOMB CHART</div>
+  <div id="chart" role="img" aria-label="Polar area chart showing monthly activity with July as peak month at 74 and February as lowest at 27"></div>
+  <div class="caption">Summer peaks — July leads at 74, February trails at 27.</div>
+</div>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const data = [
+  { month: "Jan", value: 45 },
+  { month: "Feb", value: 27 },
+  { month: "Mar", value: 38 },
+  { month: "Apr", value: 52 },
+  { month: "May", value: 61 },
+  { month: "Jun", value: 68 },
+  { month: "Jul", value: 74 },
+  { month: "Aug", value: 70 },
+  { month: "Sep", value: 58 },
+  { month: "Oct", value: 48 },
+  { month: "Nov", value: 35 },
+  { month: "Dec", value: 30 }
+];
+
+const size = 550;
+const cx = size / 2;
+const cy = size / 2;
+const maxRadius = 210;
+const maxValue = 74;
+
+const svg = d3.select("#chart")
+  .append("svg")
+  .attr("viewBox", `0 0 ${size} ${size}`)
+  .attr("preserveAspectRatio", "xMidYMid meet")
+  .style("width", "100%")
+  .style("height", "auto");
+
+// Background
+svg.append("rect")
+  .attr("width", size)
+  .attr("height", size)
+  .attr("fill", "var(--color-bg)");
+
+const g = svg.append("g")
+  .attr("transform", `translate(${cx},${cy})`);
+
+// Concentric grid circles
+[0.25, 0.5, 0.75, 1.0].forEach(frac => {
+  g.append("circle")
+    .attr("r", maxRadius * frac)
+    .attr("fill", "none")
+    .attr("stroke", "var(--color-border)")
+    .attr("stroke-width", 0.5)
+    .attr("stroke-dasharray", "3,3");
+});
+
+const tooltip = d3.select("#tooltip");
+
+const angleScale = d3.scaleBand()
+  .domain(data.map(d => d.month))
+  .range([0, 2 * Math.PI]);
+
+const radiusScale = d3.scaleLinear()
+  .domain([0, maxValue])
+  .range([0, maxRadius]);
+
+const arc = d3.arc()
+  .innerRadius(0)
+  .startAngle((d, i) => (i * 2 * Math.PI / 12) - Math.PI / 2)
+  .endAngle((d, i) => ((i + 1) * 2 * Math.PI / 12) - Math.PI / 2)
+  .outerRadius(d => radiusScale(d.value));
+
+// Wedges
+g.selectAll(".wedge")
+  .data(data)
+  .enter().append("path")
+  .attr("d", (d, i) => arc(d, i))
+  .attr("fill", d => d.month === "Jul" ? "var(--color-red)" : "var(--color-mark)")
+  .attr("opacity", d => 0.4 + (d.value / maxValue) * 0.5)
+  .attr("stroke", "var(--color-ink)")
+  .attr("stroke-width", 0.5)
+  .style("cursor", "pointer")
+  .on("mouseover", function(event, d) {
+    d3.select(this).attr("opacity", 1);
+    tooltip.style("opacity", 1)
+      .html(`<strong>${d.month}</strong><br>Value: ${d.value}`);
+  })
+  .on("mousemove", function(event) {
+    tooltip.style("left", (event.pageX + 12) + "px")
+      .style("top", (event.pageY - 28) + "px");
+  })
+  .on("mouseout", function(event, d) {
+    d3.select(this).attr("opacity", 0.4 + (d.value / maxValue) * 0.5);
+    tooltip.style("opacity", 0);
+  });
+
+// Month labels
+const labelRadius = maxRadius + 20;
+data.forEach((d, i) => {
+  const angle = (i * 2 * Math.PI / 12) + (Math.PI / 12) - Math.PI / 2;
+  const lx = labelRadius * Math.cos(angle);
+  const ly = labelRadius * Math.sin(angle);
+  g.append("text")
+    .attr("x", lx)
+    .attr("y", ly)
+    .attr("text-anchor", "middle")
+    .attr("dominant-baseline", "middle")
+    .attr("font-family", "'JetBrains Mono', monospace")
+    .attr("font-size", 9)
+    .attr("letter-spacing", "0.08em")
+    .attr("fill", d.month === "Jul" ? "var(--color-red)" : "var(--color-secondary)")
+    .attr("font-weight", d.month === "Jul" ? "bold" : "normal")
+    .text(d.month.toUpperCase());
+});
+</script>
+</body>
+</html>

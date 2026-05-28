@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Line Graph — The Widening Gap</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-ink: #2a1a0e;
+    --color-mark: #6B3520;
+    --color-red: #C8102E;
+    --color-slate: #1A3A5C;
+    --color-ochre: #C8860E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --font-body: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1410;
+      --color-surface: #2a2018;
+      --color-ink: #e8ddd0;
+      --color-mark: #c4886a;
+      --color-red: #e8525a;
+      --color-slate: #6a9cc8;
+      --color-ochre: #e8b84a;
+      --color-secondary: #a0968a;
+      --color-border: #4a4038;
+    }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+
+  h1 { font-size: 1.8rem; font-weight: 600; margin-bottom: 4px; text-align: center; }
+  .subtitle { font-size: 1rem; font-style: italic; color: var(--color-secondary); margin-bottom: 24px; text-align: center; }
+
+  #chart-container { width: 100%; max-width: 700px; position: relative; }
+  svg { width: 100%; height: auto; display: block; }
+
+  .tooltip {
+    position: absolute;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .caption { font-size: 0.9rem; font-style: italic; color: var(--color-secondary); margin-top: 12px; text-align: center; }
+</style>
+</head>
+<body>
+  <h1>The Widening Gap</h1>
+  <p class="subtitle">The gap was 22 points in 2016 — it is 67 in 2024.</p>
+  <div id="chart-container">
+    <div class="tooltip" id="tooltip"></div>
+  </div>
+  <p class="caption">Hover over data points to see values.</p>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const margin = { top: 42, right: 50, bottom: 55, left: 60 };
+const width = 700, height = 420;
+const innerW = width - margin.left - margin.right;
+const innerH = height - margin.top - margin.bottom;
+
+const years = [2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024];
+const groupA = [75, 78, 80, 83, 85, 87, 89, 91, 92];
+const groupB = [53, 50, 47, 43, 40, 37, 33, 28, 25];
+
+const dataA = years.map((y, i) => ({ year: y, value: groupA[i], group: "Group A" }));
+const dataB = years.map((y, i) => ({ year: y, value: groupB[i], group: "Group B" }));
+
+const container = d3.select("#chart-container");
+const tooltip = d3.select("#tooltip");
+
+const svg = container.append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("role", "img")
+  .attr("aria-label", "Two-line chart showing a widening gap from 22 points in 2016 to 67 points in 2024");
+
+svg.append("rect").attr("width", width).attr("height", height).attr("fill", "var(--color-bg)");
+svg.append("rect").attr("x", margin.left).attr("y", margin.top).attr("width", innerW).attr("height", innerH)
+  .attr("fill", "var(--color-surface)").attr("stroke", "var(--color-border)").attr("stroke-width", 0.75);
+
+const xScale = d3.scaleLinear().domain([2016, 2024]).range([margin.left, margin.left + innerW]);
+const yScale = d3.scaleLinear().domain([0, 100]).range([margin.top + innerH, margin.top]);
+
+// Y axis
+const yAxis = d3.axisLeft(yScale).ticks(5).tickSize(-innerW);
+const yAxisG = svg.append("g").attr("transform", `translate(${margin.left},0)`).call(yAxis);
+yAxisG.selectAll("line").attr("stroke", "var(--color-border)").attr("stroke-width", 0.5).attr("stroke-dasharray", "3,3");
+yAxisG.selectAll("text").attr("font-family", "var(--font-mono)").attr("font-size", 8).attr("fill", "var(--color-secondary)");
+yAxisG.select(".domain").remove();
+
+// X axis
+const xAxis = d3.axisBottom(xScale).ticks(9).tickFormat(d3.format("d"));
+const xAxisG = svg.append("g").attr("transform", `translate(0,${margin.top + innerH})`).call(xAxis);
+xAxisG.selectAll("text").attr("font-family", "var(--font-mono)").attr("font-size", 8).attr("fill", "var(--color-secondary)");
+xAxisG.selectAll("line").attr("stroke", "var(--color-border)");
+xAxisG.select(".domain").attr("stroke", "var(--color-border)");
+
+// Line generator
+const line = d3.line().x(d => xScale(d.year)).y(d => yScale(d.value));
+
+// Line A
+svg.append("path").datum(dataA).attr("d", line)
+  .attr("fill", "none").attr("stroke", "var(--color-red)").attr("stroke-width", 2);
+
+// Line B
+svg.append("path").datum(dataB).attr("d", line)
+  .attr("fill", "none").attr("stroke", "var(--color-slate)").attr("stroke-width", 2);
+
+// Dots A
+svg.selectAll(".dotA").data(dataA).enter().append("circle")
+  .attr("cx", d => xScale(d.year)).attr("cy", d => yScale(d.value)).attr("r", 4)
+  .attr("fill", "var(--color-red)").attr("tabindex", 0)
+  .attr("role", "graphics-symbol").attr("aria-label", d => `Group A ${d.year}: ${d.value}`)
+  .on("mouseenter", showTip).on("mousemove", moveTip).on("mouseleave", hideTip);
+
+// Dots B
+svg.selectAll(".dotB").data(dataB).enter().append("circle")
+  .attr("cx", d => xScale(d.year)).attr("cy", d => yScale(d.value)).attr("r", 4)
+  .attr("fill", "var(--color-slate)").attr("tabindex", 0)
+  .attr("role", "graphics-symbol").attr("aria-label", d => `Group B ${d.year}: ${d.value}`)
+  .on("mouseenter", showTip).on("mousemove", moveTip).on("mouseleave", hideTip);
+
+function showTip(event, d) {
+  tooltip.style("opacity", 1)
+    .html(`<strong>${d.group}</strong><br>${d.year}: ${d.value}`);
+}
+function moveTip(event) {
+  tooltip.style("left", (event.offsetX + 15) + "px").style("top", (event.offsetY - 10) + "px");
+}
+function hideTip() { tooltip.style("opacity", 0); }
+
+// Gap annotations
+// 2016 gap
+svg.append("line").attr("x1", xScale(2016)).attr("y1", yScale(75)).attr("x2", xScale(2016)).attr("y2", yScale(53))
+  .attr("stroke", "var(--color-secondary)").attr("stroke-width", 0.75).attr("stroke-dasharray", "3,2");
+svg.append("text").attr("x", xScale(2016) - 8).attr("y", yScale(64)).attr("text-anchor", "end")
+  .attr("font-family", "var(--font-body)").attr("font-size", 12).attr("font-weight", 600).attr("fill", "var(--color-mark)")
+  .text("22 pts");
+
+// 2024 gap
+svg.append("line").attr("x1", xScale(2024)).attr("y1", yScale(92)).attr("x2", xScale(2024)).attr("y2", yScale(25))
+  .attr("stroke", "var(--color-secondary)").attr("stroke-width", 0.75).attr("stroke-dasharray", "3,2");
+svg.append("text").attr("x", xScale(2024) - 8).attr("y", yScale(58)).attr("text-anchor", "end")
+  .attr("font-family", "var(--font-body)").attr("font-size", 12).attr("font-weight", 600).attr("fill", "var(--color-mark)")
+  .text("67 pts");
+
+// Series labels
+svg.append("text").attr("x", xScale(2024) + 5).attr("y", yScale(92) - 4)
+  .attr("font-family", "var(--font-mono)").attr("font-size", 8).attr("font-weight", 500)
+  .attr("fill", "var(--color-red)").attr("letter-spacing", "0.08em").text("GROUP A");
+
+svg.append("text").attr("x", xScale(2024) + 5).attr("y", yScale(25) + 12)
+  .attr("font-family", "var(--font-mono)").attr("font-size", 8).attr("font-weight", 500)
+  .attr("fill", "var(--color-slate)").attr("letter-spacing", "0.08em").text("GROUP B");
+</script>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pie Chart — Market Share by Product</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #2a1a0e;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-mark: #6B3520;
+    --color-slate: #1A3A5C;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1a1a;
+      --color-ink: #e8e0d6;
+      --color-surface: #2a2420;
+      --color-secondary: #a0978e;
+      --color-border: #444;
+      --color-mark: #c28060;
+      --color-red: #e05040;
+      --color-slate: #5a9ad6;
+      --color-ochre: #d4a030;
+    }
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+  #chart-container { width: 100%; max-width: 600px; }
+  h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; color: var(--color-ink); }
+  .subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--color-secondary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .caption {
+    font-size: 0.9rem;
+    color: var(--color-secondary);
+    font-style: italic;
+    margin-top: 12px;
+  }
+  .tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    color: var(--color-ink);
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 10;
+  }
+  .slice { cursor: pointer; transition: opacity 0.15s; }
+  .slice.faded { opacity: 0.2; }
+</style>
+</head>
+<body>
+<div id="chart-container">
+  <h1>Market Share by Product</h1>
+  <div class="subtitle">Pie Chart</div>
+  <div id="chart" role="img" aria-label="Pie chart showing market share across four products with Product A commanding 42 percent"></div>
+  <div class="caption">Four segments. Five is the maximum for readability.</div>
+</div>
+<div class="tooltip" id="tooltip"></div>
+<script>
+(function() {
+  const data = [
+    { label: "Product A", value: 42, color: "var(--color-red)" },
+    { label: "Product B", value: 28, color: "var(--color-slate)" },
+    { label: "Product C", value: 18, color: "var(--color-mark)" },
+    { label: "Product D", value: 12, color: "var(--color-ochre)" },
+  ];
+
+  const width = 500, height = 440;
+  const radius = 160;
+  const labelRadius = radius + 36;
+
+  const svg = d3.select("#chart").append("svg")
+    .attr("viewBox", `0 0 ${width} ${height}`)
+    .attr("role", "img");
+
+  svg.append("title").text("Pie Chart: Market Share by Product");
+  svg.append("desc").text("Product A: 42%, Product B: 28%, Product C: 18%, Product D: 12%.");
+
+  // Background chart area
+  const g = svg.append("g").attr("transform", `translate(${width / 2}, ${height / 2})`);
+
+  g.append("circle")
+    .attr("r", radius + 60)
+    .attr("fill", "var(--color-surface)")
+    .attr("stroke", "var(--color-border)")
+    .attr("stroke-width", 0.75);
+
+  const pie = d3.pie().value(d => d.value).sort(null).padAngle(0.015);
+  const arc = d3.arc().innerRadius(0).outerRadius(radius);
+  const labelArc = d3.arc().innerRadius(labelRadius).outerRadius(labelRadius);
+
+  const tooltip = d3.select("#tooltip");
+  const arcs = pie(data);
+
+  g.selectAll(".slice")
+    .data(arcs)
+    .join("path")
+    .attr("class", "slice")
+    .attr("d", arc)
+    .attr("fill", d => d.data.color)
+    .attr("stroke", "var(--color-bg)")
+    .attr("stroke-width", 2)
+    .attr("tabindex", 0)
+    .attr("aria-label", d => `${d.data.label}: ${d.data.value}%`)
+    .on("mouseenter", function(event, d) {
+      d3.selectAll(".slice").classed("faded", true);
+      d3.select(this).classed("faded", false);
+      tooltip.style("opacity", 1)
+        .html(`<strong>${d.data.label}</strong><br>${d.data.value}%`);
+    })
+    .on("mousemove", function(event) {
+      tooltip.style("left", (event.pageX + 12) + "px").style("top", (event.pageY - 20) + "px");
+    })
+    .on("mouseleave", function() {
+      d3.selectAll(".slice").classed("faded", false);
+      tooltip.style("opacity", 0);
+    })
+    .on("focus", function(event, d) {
+      d3.select(this).attr("transform", function(d) {
+        const [x, y] = arc.centroid(d);
+        return `translate(${x * 0.06}, ${y * 0.06})`;
+      });
+    })
+    .on("blur", function() {
+      d3.select(this).attr("transform", "");
+    });
+
+  // Outside labels
+  g.selectAll(".label")
+    .data(arcs)
+    .join("text")
+    .attr("transform", d => `translate(${labelArc.centroid(d)})`)
+    .attr("text-anchor", d => (d.startAngle + d.endAngle) / 2 > Math.PI ? "end" : "start")
+    .attr("font-size", "13px")
+    .attr("fill", "var(--color-ink)")
+    .attr("font-weight", "bold")
+    .text(d => d.data.label);
+
+  g.selectAll(".pct-label")
+    .data(arcs)
+    .join("text")
+    .attr("transform", d => {
+      const c = labelArc.centroid(d);
+      return `translate(${c[0]}, ${c[1] + 16})`;
+    })
+    .attr("text-anchor", d => (d.startAngle + d.endAngle) / 2 > Math.PI ? "end" : "start")
+    .attr("font-size", "12px")
+    .attr("fill", "var(--color-secondary)")
+    .text(d => d.data.value + "%");
+})();
+</script>
+</body>
+</html>

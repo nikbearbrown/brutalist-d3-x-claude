@@ -1,0 +1,130 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#2a1a0e">Monthly Activity — Polar Area</text>
+
+<!-- Subtitle label -->
+<text x="350" y="46" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">NIGHTINGALE ROSE / COXCOMB CHART</text>
+
+<!-- Chart area -->
+<rect x="32" y="56" width="636" height="320" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="0.75"/>
+
+<!-- Center of rose: cx=350, cy=216 -->
+<!-- Max radius=140, min value=27, max value=74 -->
+<!-- Radius scale: r = (value/74)*140 -->
+<!-- Each wedge = 30 degrees. Jan starts at -90 (12 o'clock), clockwise -->
+<!-- Data: Jan=45, Feb=27, Mar=38, Apr=52, May=61, Jun=68, Jul=74, Aug=70, Sep=58, Oct=48, Nov=35, Dec=30 -->
+
+<!-- Concentric grid circles -->
+<circle cx="350" cy="216" r="140" fill="none" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+<circle cx="350" cy="216" r="105" fill="none" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+<circle cx="350" cy="216" r="70" fill="none" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+<circle cx="350" cy="216" r="35" fill="none" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+
+<!-- Wedges: each 30 degrees, starting at -90 (12 o'clock) going clockwise -->
+<!-- Using polar area: for value v, r = (v/74)*140 -->
+<!-- Jan (45): r=85.14, angle -90 to -60 -->
+<!-- Feb (27): r=51.08, angle -60 to -30 -->
+<!-- Mar (38): r=71.89, angle -30 to 0 -->
+<!-- Apr (52): r=98.38, angle 0 to 30 -->
+<!-- May (61): r=115.41, angle 30 to 60 -->
+<!-- Jun (68): r=128.65, angle 60 to 90 -->
+<!-- Jul (74): r=140, angle 90 to 120 (highlighted) -->
+<!-- Aug (70): r=132.43, angle 120 to 150 -->
+<!-- Sep (58): r=109.73, angle 150 to 180 -->
+<!-- Oct (48): r=90.81, angle 180 to 210 -->
+<!-- Nov (35): r=66.22, angle 210 to 240 -->
+<!-- Dec (30): r=56.76, angle 240 to 270 -->
+
+<!-- Opacity: opacity = 0.4 + (value/74)*0.5 -->
+
+<!-- Jan: r=85.14, start=-90, end=-60, opacity=0.70 -->
+<path d="M350,216 L350,130.86 A85.14,85.14 0 0,1 423.72,173.43 Z" fill="#6B3520" opacity="0.70" stroke="#2a1a0e" stroke-width="0.5"/>
+
+<!-- Feb: r=51.08, start=-60, end=-30, opacity=0.58 -->
+<path d="M350,216 L394.24,190.56 A51.08,51.08 0 0,1 394.24,241.44 Z" fill="#6B3520" opacity="0.58" stroke="#2a1a0e" stroke-width="0.5"/>
+
+<!-- Recomputing with proper trig. cx=350, cy=216. -->
+<!-- For angle a (degrees from 12 o'clock, clockwise): x = cx + r*sin(a), y = cy - r*cos(a) -->
+
+<!-- Jan: a1=0, a2=30, r=85.14 -->
+<!-- start: (350+0, 216-85.14) = (350, 130.86) -->
+<!-- end: (350+85.14*sin30, 216-85.14*cos30) = (350+42.57, 216-73.74) = (392.57, 142.26) -->
+<path d="M350,216 L350,130.86 A85.14,85.14 0 0,1 392.57,142.26 Z" fill="#6B3520" opacity="0.70" stroke="#2a1a0e" stroke-width="0.5"/>
+
+<!-- Feb: a1=30, a2=60, r=51.08 -->
+<!-- start: (350+51.08*sin30, 216-51.08*cos30) = (350+25.54, 216-44.23) = (375.54, 171.77) -->
+<!-- end: (350+51.08*sin60, 216-51.08*cos60) = (350+44.23, 216-25.54) = (394.23, 190.46) -->
+<path d="M350,216 L375.54,171.77 A51.08,51.08 0 0,1 394.23,190.46 Z" fill="#6B3520" opacity="0.58" stroke="#2a1a0e" stroke-width="0.5"/>
+
+<!-- Mar: a1=60, a2=90, r=71.89 -->
+<!-- start: (350+71.89*sin60, 216-71.89*cos60) = (350+62.26, 216-35.95) = (412.26, 180.06) -->
+<!-- end: (350+71.89*sin90, 216-71.89*cos90) = (350+71.89, 216-0) = (421.89, 216) -->
+<path d="M350,216 L412.26,180.06 A71.89,71.89 0 0,1 421.89,216 Z" fill="#6B3520" opacity="0.66" stroke="#2a1a0e" stroke-width="0.5"/>
+
+<!-- Apr: a1=90, a2=120, r=98.38 -->
+<!-- start: (350+98.38, 216) = (448.38, 216) -->
+<!-- end: (350+98.38*sin120, 216-98.38*cos120) = (350+85.2, 216+49.19) = (435.2, 265.19) -->
+<path d="M350,216 L448.38,216 A98.38,98.38 0 0,1 435.2,265.19 Z" fill="#6B3520" opacity="0.75" stroke="#2a1a0e" stroke-width="0.5"/>
+
+<!-- May: a1=120, a2=150, r=115.41 -->
+<!-- start: (350+115.41*sin120, 216-115.41*cos120) = (350+99.95, 216+57.71) = (449.95, 273.71) -->
+<!-- end: (350+115.41*sin150, 216-115.41*cos150) = (350+57.71, 216+99.95) = (407.71, 315.95) -->
+<path d="M350,216 L449.95,273.71 A115.41,115.41 0 0,1 407.71,315.95 Z" fill="#6B3520" opacity="0.81" stroke="#2a1a0e" stroke-width="0.5"/>
+
+<!-- Jun: a1=150, a2=180, r=128.65 -->
+<!-- start: (350+128.65*sin150, 216-128.65*cos150) = (350+64.33, 216+111.40) = (414.33, 327.40) -->
+<!-- end: (350+128.65*sin180, 216-128.65*cos180) = (350+0, 216+128.65) = (350, 344.65) -->
+<path d="M350,216 L414.33,327.40 A128.65,128.65 0 0,1 350,344.65 Z" fill="#6B3520" opacity="0.86" stroke="#2a1a0e" stroke-width="0.5"/>
+
+<!-- Jul: a1=180, a2=210, r=140 (HIGHLIGHTED) -->
+<!-- start: (350+0, 216+140) = (350, 356) -->
+<!-- end: (350+140*sin210, 216-140*cos210) = (350-70, 216+121.24) = (280, 337.24) -->
+<path d="M350,216 L350,356 A140,140 0 0,1 280,337.24 Z" fill="#C8102E" opacity="0.90" stroke="#2a1a0e" stroke-width="0.75"/>
+
+<!-- Aug: a1=210, a2=240, r=132.43 -->
+<!-- start: (350+132.43*sin210, 216-132.43*cos210) = (350-66.22, 216+114.68) = (283.79, 330.68) -->
+<!-- end: (350+132.43*sin240, 216-132.43*cos240) = (350-114.68, 216+66.22) = (235.32, 282.22) -->
+<path d="M350,216 L283.79,330.68 A132.43,132.43 0 0,1 235.32,282.22 Z" fill="#6B3520" opacity="0.87" stroke="#2a1a0e" stroke-width="0.5"/>
+
+<!-- Sep: a1=240, a2=270, r=109.73 -->
+<!-- start: (350+109.73*sin240, 216-109.73*cos240) = (350-95.03, 216+54.87) = (254.97, 270.87) -->
+<!-- end: (350+109.73*sin270, 216-109.73*cos270) = (350-109.73, 216+0) = (240.27, 216) -->
+<path d="M350,216 L254.97,270.87 A109.73,109.73 0 0,1 240.27,216 Z" fill="#6B3520" opacity="0.79" stroke="#2a1a0e" stroke-width="0.5"/>
+
+<!-- Oct: a1=270, a2=300, r=90.81 -->
+<!-- start: (350-90.81, 216) = (259.19, 216) -->
+<!-- end: (350+90.81*sin300, 216-90.81*cos300) = (350-78.64, 216-45.41) = (271.36, 170.60) -->
+<path d="M350,216 L259.19,216 A90.81,90.81 0 0,1 271.36,170.60 Z" fill="#6B3520" opacity="0.72" stroke="#2a1a0e" stroke-width="0.5"/>
+
+<!-- Nov: a1=300, a2=330, r=66.22 -->
+<!-- start: (350+66.22*sin300, 216-66.22*cos300) = (350-57.35, 216-33.11) = (292.65, 182.89) -->
+<!-- end: (350+66.22*sin330, 216-66.22*cos330) = (350-33.11, 216-57.35) = (316.89, 158.65) -->
+<path d="M350,216 L292.65,182.89 A66.22,66.22 0 0,1 316.89,158.65 Z" fill="#6B3520" opacity="0.64" stroke="#2a1a0e" stroke-width="0.5"/>
+
+<!-- Dec: a1=330, a2=360, r=56.76 -->
+<!-- start: (350+56.76*sin330, 216-56.76*cos330) = (350-28.38, 216-49.16) = (321.62, 166.84) -->
+<!-- end: (350+0, 216-56.76) = (350, 159.24) -->
+<path d="M350,216 L321.62,166.84 A56.76,56.76 0 0,1 350,159.24 Z" fill="#6B3520" opacity="0.60" stroke="#2a1a0e" stroke-width="0.5"/>
+
+<!-- Month labels around perimeter at r=155 -->
+<text x="350" y="65" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">JAN</text>
+<text x="427.5" y="68" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">FEB</text>
+<text x="485" y="110" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">MAR</text>
+<text x="510" y="170" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">APR</text>
+<text x="510" y="262" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">MAY</text>
+<text x="485" y="330" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">JUN</text>
+<text x="350" y="373" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#C8102E" font-weight="bold" letter-spacing="0.08em">JUL</text>
+<text x="215" y="330" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">AUG</text>
+<text x="190" y="262" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">SEP</text>
+<text x="190" y="170" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">OCT</text>
+<text x="215" y="110" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">NOV</text>
+<text x="272.5" y="68" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">DEC</text>
+
+<!-- Caption -->
+<text x="350" y="400" text-anchor="middle" font-size="10" fill="#545454" font-style="italic">Summer peaks — July leads at 74, February trails at 27.</text>
+
+</svg>
