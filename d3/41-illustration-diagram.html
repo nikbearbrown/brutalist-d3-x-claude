@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Illustration Diagram — The Human Heart — Anatomy &amp; Blood Flow</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-ink: #2a1a0e;
+    --color-mark: #6B3520;
+    --color-red: #C8102E;
+    --color-slate: #1A3A5C;
+    --color-ochre: #C8860E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --font-body: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1410;
+      --color-surface: #2a2018;
+      --color-ink: #e8ddd0;
+      --color-mark: #c4886a;
+      --color-red: #e8525a;
+      --color-slate: #6a9cc8;
+      --color-ochre: #e8b84a;
+      --color-secondary: #a0968a;
+      --color-border: #4a4038;
+    }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+
+  h1 {
+    font-family: var(--font-body);
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-bottom: 4px;
+    text-align: center;
+  }
+
+  .subtitle {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-style: italic;
+    color: var(--color-secondary);
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  #chart-container {
+    width: 100%;
+    max-width: 700px;
+    position: relative;
+  }
+
+  svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .tooltip {
+    position: absolute;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    max-width: 220px;
+    line-height: 1.4;
+  }
+
+  .chamber {
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .chamber:hover, .chamber:focus {
+    opacity: 0.85;
+  }
+
+  .caption {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-style: italic;
+    color: var(--color-secondary);
+    margin-top: 12px;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+  <h1>The Human Heart — Anatomy &amp; Blood Flow</h1>
+  <p class="subtitle">Arrows encode flow direction. Color encodes oxygenation state.</p>
+  <div id="chart-container">
+    <div class="tooltip" id="tooltip"></div>
+  </div>
+  <p class="caption">Hover over a chamber to see details.</p>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const chambers = [
+  {
+    id: "ra", name: "Right Atrium",
+    description: "Receives deoxygenated blood from the body via the superior and inferior vena cava.",
+    path: "M350,100 C350,100 290,80 250,90 C220,100 195,130 190,165 C188,180 192,192 200,195 L350,195 Z",
+    color: "var(--color-slate)", labelX: 275, labelY: 155, type: "deoxy"
+  },
+  {
+    id: "rv", name: "Right Ventricle",
+    description: "Pumps deoxygenated blood to the lungs via the pulmonary artery.",
+    path: "M200,195 L350,195 L350,310 C350,310 280,275 240,240 C210,210 195,205 200,195 Z",
+    color: "var(--color-slate)", labelX: 280, labelY: 255, type: "deoxy"
+  },
+  {
+    id: "la", name: "Left Atrium",
+    description: "Receives oxygenated blood from the lungs via the pulmonary veins.",
+    path: "M350,100 C350,100 410,80 450,90 C480,100 505,130 510,165 C512,180 508,192 500,195 L350,195 Z",
+    color: "var(--color-red)", labelX: 425, labelY: 155, type: "oxy"
+  },
+  {
+    id: "lv", name: "Left Ventricle",
+    description: "Pumps oxygenated blood to the body via the aorta. Has the thickest wall.",
+    path: "M500,195 L350,195 L350,310 C350,310 420,275 460,240 C490,210 505,205 500,195 Z",
+    color: "var(--color-red)", labelX: 420, labelY: 255, type: "oxy"
+  }
+];
+
+const container = d3.select("#chart-container");
+const tooltip = d3.select("#tooltip");
+
+const svg = container.append("svg")
+  .attr("viewBox", "0 0 700 420")
+  .attr("role", "img")
+  .attr("aria-label", "Anatomical diagram of the human heart showing four chambers with arrows encoding blood flow direction");
+
+// Background
+svg.append("rect").attr("width", 700).attr("height", 420).attr("fill", "var(--color-bg)");
+
+// Chart area
+svg.append("rect")
+  .attr("x", 32).attr("y", 42).attr("width", 636).attr("height", 340)
+  .attr("fill", "var(--color-surface)").attr("stroke", "var(--color-border)").attr("stroke-width", 0.75);
+
+// Arrow markers
+const defs = svg.append("defs");
+[["arrow-deoxy", "var(--color-slate)"], ["arrow-oxy", "var(--color-red)"]].forEach(([id, color]) => {
+  defs.append("marker").attr("id", id)
+    .attr("markerWidth", 8).attr("markerHeight", 6).attr("refX", 8).attr("refY", 3).attr("orient", "auto")
+    .append("path").attr("d", "M0,0 L8,3 L0,6 Z").attr("fill", color);
+});
+
+// Heart outline
+svg.append("path")
+  .attr("d", "M350,340 C350,340 210,280 180,220 C150,160 160,110 200,90 C240,70 290,80 320,110 C335,125 345,145 350,160 C355,145 365,125 380,110 C410,80 460,70 500,90 C540,110 550,160 520,220 C490,280 350,340 350,340 Z")
+  .attr("fill", "none").attr("stroke", "var(--color-ink)").attr("stroke-width", 2);
+
+// Septum
+svg.append("line").attr("x1", 350).attr("y1", 100).attr("x2", 350).attr("y2", 310)
+  .attr("stroke", "var(--color-ink)").attr("stroke-width", 1.5);
+
+// AV divider
+svg.append("line").attr("x1", 195).attr("y1", 195).attr("x2", 505).attr("y2", 195)
+  .attr("stroke", "var(--color-ink)").attr("stroke-width", 1);
+
+// Chamber fills (interactive)
+const chamberGroups = svg.selectAll(".chamber")
+  .data(chambers).enter().append("g")
+  .attr("class", "chamber")
+  .attr("tabindex", 0)
+  .attr("role", "button")
+  .attr("aria-label", d => d.name);
+
+chamberGroups.append("path")
+  .attr("d", d => d.path)
+  .attr("fill", d => d.color)
+  .attr("opacity", 0.18);
+
+chamberGroups.append("text")
+  .attr("x", d => d.labelX).attr("y", d => d.labelY - 6)
+  .attr("text-anchor", "middle")
+  .attr("font-family", "var(--font-mono)").attr("font-size", 8).attr("font-weight", 500)
+  .attr("fill", d => d.color).attr("letter-spacing", "0.08em")
+  .text(d => d.name.split(" ")[1] === "Atrium" || d.name.split(" ")[1] === "Ventricle" ? d.name.split(" ")[0].toUpperCase() : "");
+
+chamberGroups.append("text")
+  .attr("x", d => d.labelX).attr("y", d => d.labelY + 5)
+  .attr("text-anchor", "middle")
+  .attr("font-family", "var(--font-mono)").attr("font-size", 8).attr("font-weight", 500)
+  .attr("fill", d => d.color).attr("letter-spacing", "0.08em")
+  .text(d => d.name.split(" ")[1].toUpperCase());
+
+// Hover/focus events
+chamberGroups
+  .on("mouseenter", function(event, d) {
+    d3.select(this).select("path").transition().duration(150).attr("opacity", 0.45);
+    tooltip.style("opacity", 1)
+      .html(`<strong>${d.name}</strong><br>${d.description}`)
+      .style("left", (event.offsetX + 15) + "px")
+      .style("top", (event.offsetY - 10) + "px");
+  })
+  .on("mousemove", function(event) {
+    tooltip.style("left", (event.offsetX + 15) + "px").style("top", (event.offsetY - 10) + "px");
+  })
+  .on("mouseleave", function() {
+    d3.select(this).select("path").transition().duration(150).attr("opacity", 0.18);
+    tooltip.style("opacity", 0);
+  })
+  .on("focus", function(event, d) {
+    d3.select(this).select("path").attr("opacity", 0.45);
+    tooltip.style("opacity", 1)
+      .html(`<strong>${d.name}</strong><br>${d.description}`)
+      .style("left", "50%").style("top", "80%");
+  })
+  .on("blur", function() {
+    d3.select(this).select("path").attr("opacity", 0.18);
+    tooltip.style("opacity", 0);
+  });
+
+// Flow arrows
+// Pulmonary artery
+svg.append("path").attr("d", "M280,195 C280,175 260,80 220,60")
+  .attr("fill", "none").attr("stroke", "var(--color-slate)").attr("stroke-width", 2)
+  .attr("marker-end", "url(#arrow-deoxy)");
+
+// Aorta
+svg.append("path").attr("d", "M420,195 C420,175 440,80 480,60")
+  .attr("fill", "none").attr("stroke", "var(--color-red)").attr("stroke-width", 2.5)
+  .attr("marker-end", "url(#arrow-oxy)");
+
+// Internal flow arrows
+[[275,178,275,215,"deoxy"],[260,230,260,210,"deoxy"],[425,178,425,215,"oxy"],[440,230,440,210,"oxy"]].forEach(([x1,y1,x2,y2,type]) => {
+  svg.append("line").attr("x1",x1).attr("y1",y1).attr("x2",x2).attr("y2",y2)
+    .attr("stroke", type === "deoxy" ? "var(--color-slate)" : "var(--color-red)")
+    .attr("stroke-width", 1.5)
+    .attr("marker-end", type === "deoxy" ? "url(#arrow-deoxy)" : "url(#arrow-oxy)");
+});
+
+// Vein labels
+svg.append("path").attr("d", "M120,130 L195,130")
+  .attr("fill", "none").attr("stroke", "var(--color-slate)").attr("stroke-width", 1.5)
+  .attr("marker-end", "url(#arrow-deoxy)").attr("stroke-dasharray", "4,3");
+svg.append("text").attr("x", 100).attr("y", 125).attr("text-anchor", "middle")
+  .attr("font-family", "var(--font-mono)").attr("font-size", 7).attr("fill", "var(--color-slate)")
+  .attr("letter-spacing", "0.08em").text("VENA CAVA");
+
+svg.append("path").attr("d", "M580,130 L505,130")
+  .attr("fill", "none").attr("stroke", "var(--color-red)").attr("stroke-width", 1.5)
+  .attr("marker-end", "url(#arrow-oxy)").attr("stroke-dasharray", "4,3");
+svg.append("text").attr("x", 606).attr("y", 125).attr("text-anchor", "middle")
+  .attr("font-family", "var(--font-mono)").attr("font-size", 7).attr("fill", "var(--color-red)")
+  .attr("letter-spacing", "0.08em").text("PULM. VEINS");
+
+// Artery labels
+svg.append("text").attr("x", 150).attr("y", 62).attr("text-anchor", "middle")
+  .attr("font-family", "var(--font-mono)").attr("font-size", 7).attr("fill", "var(--color-slate)")
+  .attr("letter-spacing", "0.08em").text("PULMONARY ART.");
+svg.append("text").attr("x", 555).attr("y", 62).attr("text-anchor", "middle")
+  .attr("font-family", "var(--font-mono)").attr("font-size", 7).attr("fill", "var(--color-red)")
+  .attr("letter-spacing", "0.08em").text("AORTA");
+
+// Legend
+const legend = svg.append("g").attr("transform", "translate(150, 390)");
+legend.append("rect").attr("width", 16).attr("height", 8).attr("fill", "var(--color-slate)").attr("opacity", 0.5);
+legend.append("text").attr("x", 22).attr("y", 8).attr("font-family", "var(--font-mono)")
+  .attr("font-size", 7.5).attr("fill", "var(--color-secondary)").attr("letter-spacing", "0.08em").text("DEOXYGENATED");
+legend.append("rect").attr("x", 140).attr("width", 16).attr("height", 8).attr("fill", "var(--color-red)").attr("opacity", 0.5);
+legend.append("text").attr("x", 162).attr("y", 8).attr("font-family", "var(--font-mono)")
+  .attr("font-size", 7.5).attr("fill", "var(--color-secondary)").attr("letter-spacing", "0.08em").text("OXYGENATED");
+</script>
+</body>
+</html>

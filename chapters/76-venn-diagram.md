@@ -2,7 +2,8 @@
 
 *The Three Skill Domains for Effective AI Collaboration*
 
-![Venn Diagram](../images/76-venn-diagram.jpg)
+![Venn Diagram](../images/76-venn-diagram.png)
+*Figure 76.1 — The Three Skill Domains*
 
 ## What this chart is
 
@@ -48,6 +49,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/76-venn-diagram.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

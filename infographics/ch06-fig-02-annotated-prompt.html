@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 6.2 — The Four-Move Prompt, Annotated</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #121212;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--color-white);
+    color: var(--color-ink);
+    width: 1600px;
+    height: 900px;
+    overflow: hidden;
+  }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const W = 1600, H = 900;
+const svg = d3.select('#chart').append('svg')
+  .attr('width', W).attr('height', H)
+  .attr('role', 'img')
+  .attr('aria-labelledby', 'chart-title chart-desc');
+
+svg.append('title').attr('id', 'chart-title').text('The template the reader will copy for every chart');
+svg.append('desc').attr('id', 'chart-desc').text('An annotated four-move prompt structure showing how each section contributes to producing a correct D3 chart on the first attempt.');
+
+// Background
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#FFFFFF');
+
+// Main title
+svg.append('text')
+  .attr('x', W / 2).attr('y', 52)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-size', 36).attr('fill', '#121212')
+  .text('The template the reader will copy for every chart');
+
+// Subtitle
+svg.append('text')
+  .attr('x', W / 2).attr('y', 82)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 14).attr('fill', '#545454')
+  .text('Figure 6.2 \u2014 The four-move prompt structure, annotated');
+
+// =========================================================
+// Move definitions
+// =========================================================
+const moves = [
+  {
+    num: 1,
+    name: 'SHOW',
+    barColor: '#E8E8E8',
+    labelColor: '#545454',
+    lines: [
+      '5 sectors. Cumulative funding per sector',
+      '(USD millions). 5 rows.',
+      'Sample: Food Security $98M, Water $72M,',
+      'Shelter $56M, Health $43M, Protection $31M.'
+    ],
+    height: 110
+  },
+  {
+    num: 2,
+    name: 'SAY',
+    barColor: '#D4D4D4',
+    labelColor: '#545454',
+    lines: [
+      'Horizontal bar chart in D3 v7.',
+      'Single HTML file, inline D3 via CDN.',
+      'Responsive.'
+    ],
+    height: 92
+  },
+  {
+    num: 3,
+    name: 'CONSTRAIN',
+    barColor: '#C8102E',
+    labelColor: '#C8102E',
+    lines: [
+      '\u2022 y-position: sector, sorted descending by value',
+      '\u2022 x-length: funding amount, zero baseline',
+      '\u2022 luminance: sequential pale-to-dark encoding',
+      '\u2022 bar labels: direct value labels ($XM) at bar end',
+      '\u2022 left-aligned sector names for readability',
+      '\u2022 zero baseline: non-negotiable'
+    ],
+    height: 166
+  },
+  {
+    num: 4,
+    name: 'VERIFY',
+    barColor: '#121212',
+    labelColor: '#121212',
+    lines: [
+      'Restate the channel decomposition.',
+      'Flag any decisions not specified.'
+    ],
+    height: 76
+  }
+];
+
+// Layout
+const promptX = 80;
+const promptW = 900;
+const barW = 8;
+const codeX = promptX + barW + 24;
+const startY = 120;
+const gapBetween = 16;
+
+// Compute y positions
+let runningY = startY;
+moves.forEach(m => {
+  m.y = runningY;
+  runningY += m.height + gapBetween;
+});
+
+// Code block background
+const totalCodeH = runningY - startY - gapBetween;
+svg.append('rect')
+  .attr('x', promptX - 10).attr('y', startY - 14)
+  .attr('width', promptW + 20).attr('height', totalCodeH + 28)
+  .attr('fill', '#FAFAFA').attr('stroke', '#D4D4D4').attr('stroke-width', 1).attr('rx', 6);
+
+// Draw each move
+moves.forEach(m => {
+  // Left color bar
+  svg.append('rect')
+    .attr('x', promptX).attr('y', m.y)
+    .attr('width', barW).attr('height', m.height)
+    .attr('fill', m.barColor).attr('rx', 3);
+
+  // Move label badge
+  const badgeW = m.name.length * 10 + 50;
+  svg.append('rect')
+    .attr('x', codeX).attr('y', m.y)
+    .attr('width', badgeW).attr('height', 24)
+    .attr('fill', m.barColor).attr('rx', 4);
+  svg.append('text')
+    .attr('x', codeX + 8).attr('y', m.y + 17)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 13).attr('font-weight', 700)
+    .attr('fill', m.barColor === '#E8E8E8' || m.barColor === '#D4D4D4' ? '#121212' : '#FFFFFF')
+    .text(`Move ${m.num}: ${m.name}`);
+
+  // Code lines
+  m.lines.forEach((line, i) => {
+    svg.append('text')
+      .attr('x', codeX + 4)
+      .attr('y', m.y + 44 + i * 20)
+      .attr('font-family', "'JetBrains Mono', monospace")
+      .attr('font-size', 13)
+      .attr('fill', line.startsWith('\u2022') ? '#121212' : '#545454')
+      .text(line);
+  });
+});
+
+// =========================================================
+// Right-side annotations with connector lines
+// =========================================================
+const annotX = promptX + promptW + 60;
+const annotW = 420;
+
+const annotations = [
+  {
+    moveIndex: 0,
+    text: 'Data sample goes here',
+    detail: 'Prevents the model from guessing column names, types, and value ranges.',
+    targetY: moves[0].y + moves[0].height / 2,
+    anchorX: promptX + promptW + 10
+  },
+  {
+    moveIndex: 1,
+    text: 'Chart type named explicitly',
+    detail: 'Without this, the model picks a chart type. It often picks wrong.',
+    targetY: moves[1].y + moves[1].height / 2,
+    anchorX: promptX + promptW + 10
+  },
+  {
+    moveIndex: 2,
+    text: 'Every channel mapping is a bullet',
+    detail: 'This is the longest section. Each visual channel has one line. No ambiguity.',
+    targetY: moves[2].y + moves[2].height / 2,
+    anchorX: promptX + promptW + 10
+  },
+  {
+    moveIndex: 3,
+    text: 'Verification is always last',
+    detail: 'Forces the model to restate its plan before executing. Catches misinterpretations.',
+    targetY: moves[3].y + moves[3].height / 2,
+    anchorX: promptX + promptW + 10
+  }
+];
+
+annotations.forEach((a, i) => {
+  const aY = a.targetY;
+
+  // Connector line
+  svg.append('line')
+    .attr('x1', a.anchorX).attr('y1', aY)
+    .attr('x2', annotX - 12).attr('y2', aY)
+    .attr('stroke', moves[a.moveIndex].barColor === '#E8E8E8' ? '#D4D4D4' : moves[a.moveIndex].barColor)
+    .attr('stroke-width', 1.5)
+    .attr('stroke-dasharray', '4,3');
+
+  // Connector dot at code block end
+  svg.append('circle')
+    .attr('cx', a.anchorX).attr('cy', aY)
+    .attr('r', 4)
+    .attr('fill', moves[a.moveIndex].barColor === '#E8E8E8' ? '#D4D4D4' : moves[a.moveIndex].barColor);
+
+  // Annotation card
+  svg.append('rect')
+    .attr('x', annotX - 8).attr('y', aY - 28)
+    .attr('width', annotW).attr('height', 56)
+    .attr('fill', '#FFFFFF').attr('stroke', '#D4D4D4').attr('stroke-width', 1).attr('rx', 4);
+
+  // Left accent bar on card
+  svg.append('rect')
+    .attr('x', annotX - 8).attr('y', aY - 28)
+    .attr('width', 4).attr('height', 56)
+    .attr('fill', moves[a.moveIndex].barColor === '#E8E8E8' ? '#D4D4D4' : moves[a.moveIndex].barColor)
+    .attr('rx', 2);
+
+  // Annotation title
+  svg.append('text')
+    .attr('x', annotX + 8).attr('y', aY - 6)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 14).attr('font-weight', 700)
+    .attr('fill', '#121212')
+    .text(a.text);
+
+  // Annotation detail
+  svg.append('text')
+    .attr('x', annotX + 8).attr('y', aY + 16)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 12)
+    .attr('fill', '#545454')
+    .text(a.detail);
+});
+
+// =========================================================
+// Move 3 emphasis callout
+// =========================================================
+const move3 = moves[2];
+const emphY = move3.y + move3.height + 4;
+
+// Red emphasis line under Move 3
+svg.append('line')
+  .attr('x1', promptX).attr('y1', emphY)
+  .attr('x2', promptX + promptW).attr('y2', emphY)
+  .attr('stroke', '#C8102E').attr('stroke-width', 2);
+
+// =========================================================
+// Bottom area: prompt word count comparison
+// =========================================================
+const bottomY = H - 130;
+
+// Left stat: Moves 1+2+4
+svg.append('text')
+  .attr('x', promptX + promptW * 0.2).attr('y', bottomY)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 13).attr('fill', '#545454')
+  .text('Moves 1, 2, 4 combined');
+
+svg.append('text')
+  .attr('x', promptX + promptW * 0.2).attr('y', bottomY + 28)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-size', 30).attr('fill', '#121212')
+  .text('~60 words');
+
+svg.append('text')
+  .attr('x', promptX + promptW * 0.2).attr('y', bottomY + 50)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('fill', '#545454')
+  .text('Context and intent');
+
+// Divider
+svg.append('line')
+  .attr('x1', promptX + promptW * 0.45).attr('y1', bottomY - 10)
+  .attr('x2', promptX + promptW * 0.45).attr('y2', bottomY + 56)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+
+// Right stat: Move 3
+svg.append('text')
+  .attr('x', promptX + promptW * 0.7).attr('y', bottomY)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 13).attr('fill', '#C8102E')
+  .text('Move 3 alone');
+
+svg.append('text')
+  .attr('x', promptX + promptW * 0.7).attr('y', bottomY + 28)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-size', 30).attr('font-weight', 400).attr('fill', '#C8102E')
+  .text('~140 words');
+
+svg.append('text')
+  .attr('x', promptX + promptW * 0.7).attr('y', bottomY + 50)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('fill', '#C8102E')
+  .text('Precision and constraint');
+
+// =========================================================
+// Caption
+// =========================================================
+svg.append('line')
+  .attr('x1', 60).attr('y1', H - 44).attr('x2', W - 60).attr('y2', H - 44)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+
+svg.append('text')
+  .attr('x', W / 2).attr('y', H - 18)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-style', 'italic')
+  .attr('font-size', 15).attr('fill', '#545454')
+  .text('Move 3 is the longest. It is also the one that determines whether the output is right on the first attempt.');
+</script>
+</body>
+</html>

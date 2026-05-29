@@ -2,7 +2,8 @@
 
 *The five supervisory capacities of the Irreducibly Human framework*
 
-![Brainstorm](../images/23-brainstorm.jpg)
+![Radial mind-map of the five supervisory capacities of the Irreducibly Human framework](../images/23-brainstorm.png)
+*Figure 23.1 — The five supervisory capacities of the Irreducibly Human framework*
 
 Also known as: Mind Map · Concept Map · Thought Web · Radial Diagram
 
@@ -63,6 +64,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/23-brainstorm.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

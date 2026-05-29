@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 420">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap');
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+
+  <!-- Title -->
+  <text x="350" y="28" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="18" font-weight="600" fill="#2a1a0e">Response Delay by Crisis Type</text>
+
+  <!-- Chart area -->
+  <rect x="72" y="42" width="588" height="310" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="0.75"/>
+
+  <!-- Y-axis label -->
+  <text x="20" y="197" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" letter-spacing="0.08em" fill="#545454" transform="rotate(-90,20,197)">DENSITY</text>
+
+  <!-- X-axis label -->
+  <text x="366" y="388" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" letter-spacing="0.08em" fill="#545454">RESPONSE DELAY (DAYS)</text>
+
+  <!-- X-axis ticks: 0 to 45. Chart x: 72 to 660, so each day = 588/45 = 13.07px -->
+  <!-- 0 -->
+  <line x1="72" y1="352" x2="72" y2="356" stroke="#545454" stroke-width="0.75"/>
+  <text x="72" y="368" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="10" fill="#545454">0</text>
+  <!-- 5 -->
+  <line x1="137" y1="352" x2="137" y2="356" stroke="#545454" stroke-width="0.75"/>
+  <text x="137" y="368" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="10" fill="#545454">5</text>
+  <!-- 10 -->
+  <line x1="203" y1="352" x2="203" y2="356" stroke="#545454" stroke-width="0.75"/>
+  <text x="203" y="368" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="10" fill="#545454">10</text>
+  <!-- 15 -->
+  <line x1="268" y1="352" x2="268" y2="356" stroke="#545454" stroke-width="0.75"/>
+  <text x="268" y="368" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="10" fill="#545454">15</text>
+  <!-- 20 -->
+  <line x1="333" y1="352" x2="333" y2="356" stroke="#545454" stroke-width="0.75"/>
+  <text x="333" y="368" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="10" fill="#545454">20</text>
+  <!-- 25 -->
+  <line x1="399" y1="352" x2="399" y2="356" stroke="#545454" stroke-width="0.75"/>
+  <text x="399" y="368" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="10" fill="#545454">25</text>
+  <!-- 30 -->
+  <line x1="464" y1="352" x2="464" y2="356" stroke="#545454" stroke-width="0.75"/>
+  <text x="464" y="368" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="10" fill="#545454">30</text>
+  <!-- 35 -->
+  <line x1="529" y1="352" x2="529" y2="356" stroke="#545454" stroke-width="0.75"/>
+  <text x="529" y="368" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="10" fill="#545454">35</text>
+  <!-- 40 -->
+  <line x1="595" y1="352" x2="595" y2="356" stroke="#545454" stroke-width="0.75"/>
+  <text x="595" y="368" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="10" fill="#545454">40</text>
+  <!-- 45 -->
+  <line x1="660" y1="352" x2="660" y2="356" stroke="#545454" stroke-width="0.75"/>
+  <text x="660" y="368" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="10" fill="#545454">45</text>
+
+  <!-- Baseline -->
+  <line x1="72" y1="352" x2="660" y2="352" stroke="#545454" stroke-width="0.75"/>
+
+  <!-- Conflict density curve: bimodal peaks at day 5 and day 25 -->
+  <!-- x mapping: day d -> 72 + d * 13.07 -->
+  <!-- y mapping: density 0 -> 352, density max (~0.06) -> 72, so scale = 280/0.06 = 4667 -->
+  <path d="M 72,352
+    C 85,350 95,340 111,280
+    L 124,240
+    C 130,220 137,210 137,210
+    C 137,210 145,225 150,250
+    C 158,285 170,310 200,330
+    C 230,345 270,345 300,330
+    C 320,320 340,305 360,270
+    C 375,240 385,215 399,195
+    C 410,180 415,185 420,195
+    C 430,220 445,260 470,310
+    C 490,340 520,350 560,352
+    L 660,352"
+    fill="#C8102E" fill-opacity="0.3" stroke="#C8102E" stroke-width="2"/>
+
+  <!-- Displacement density curve: right-skewed, peak at day 8, long tail to day 40 -->
+  <path d="M 72,352
+    C 80,348 90,335 100,300
+    C 108,260 115,200 125,155
+    C 130,135 135,125 143,120
+    C 148,118 155,125 165,145
+    C 180,180 195,215 215,250
+    C 240,290 270,315 300,330
+    C 330,340 365,345 400,348
+    C 440,350 500,351 560,352
+    L 660,352"
+    fill="#1A3A5C" fill-opacity="0.3" stroke="#1A3A5C" stroke-width="2"/>
+
+  <!-- Legend (top-right) -->
+  <rect x="520" y="55" width="125" height="48" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="0.5"/>
+  <rect x="528" y="65" width="14" height="10" fill="#C8102E" fill-opacity="0.3" stroke="#C8102E" stroke-width="1"/>
+  <text x="548" y="74" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" fill="#2a1a0e">Conflict</text>
+  <rect x="528" y="83" width="14" height="10" fill="#1A3A5C" fill-opacity="0.3" stroke="#1A3A5C" stroke-width="1"/>
+  <text x="548" y="92" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" fill="#2a1a0e">Displacement</text>
+
+  <!-- Caption -->
+  <text x="350" y="410" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" font-style="italic" fill="#545454">Conflict shows bimodal pattern. Displacement skews right.</text>
+</svg>

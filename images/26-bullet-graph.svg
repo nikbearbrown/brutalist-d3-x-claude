@@ -1,0 +1,80 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+  <!-- Chart area -->
+  <rect x="32" y="32" width="636" height="356" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+
+  <!-- Title -->
+  <text x="350" y="62" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="20" fill="#2a1a0e" font-weight="bold">Program Performance vs Target</text>
+
+  <!-- Caption -->
+  <text x="350" y="374" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="12" fill="#545454" font-style="italic">Most programs trail their targets — Community Trust is the lone outlier</text>
+
+  <!-- Axis labels -->
+  <text x="350" y="86" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#545454" letter-spacing="0.08em" text-transform="uppercase">PERFORMANCE SCORE</text>
+
+  <!-- Scale: 0-100 mapped to x: 200-630 -->
+  <!-- Tick marks along bottom of chart area -->
+  <line x1="200" y1="350" x2="630" y2="350" stroke="#D4D4D4" stroke-width="0.5"/>
+  <text x="200" y="346" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="8" fill="#545454">0</text>
+  <text x="307.5" y="346" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="8" fill="#545454">25</text>
+  <text x="415" y="346" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="8" fill="#545454">50</text>
+  <text x="522.5" y="346" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="8" fill="#545454">75</text>
+  <text x="630" y="346" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="8" fill="#545454">100</text>
+
+  <!-- ===== Bullet 1: Community Trust (actual 92, target 80) ===== -->
+  <!-- Label -->
+  <text x="190" y="118" text-anchor="end" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="13" fill="#2a1a0e">Community Trust</text>
+  <!-- Background bands: poor 0-40, satisfactory 40-70, good 70-100 -->
+  <rect x="200" y="100" width="430" height="28" fill="#DCDCDC"/>
+  <rect x="200" y="100" width="301" height="28" fill="#C8C8C8"/>
+  <rect x="200" y="100" width="172" height="28" fill="#B0B0B0"/>
+  <!-- Actual bar -->
+  <rect x="200" y="106" width="395.4" height="16" fill="#6B3520"/>
+  <!-- Target marker -->
+  <line x1="544" y1="98" x2="544" y2="130" stroke="#C8102E" stroke-width="2.5"/>
+
+  <!-- ===== Bullet 2: Youth Outreach (actual 58, target 75) ===== -->
+  <text x="190" y="168" text-anchor="end" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="13" fill="#2a1a0e">Youth Outreach</text>
+  <rect x="200" y="150" width="430" height="28" fill="#DCDCDC"/>
+  <rect x="200" y="150" width="301" height="28" fill="#C8C8C8"/>
+  <rect x="200" y="150" width="172" height="28" fill="#B0B0B0"/>
+  <rect x="200" y="156" width="249.4" height="16" fill="#6B3520"/>
+  <line x1="522.5" y1="148" x2="522.5" y2="180" stroke="#C8102E" stroke-width="2.5"/>
+
+  <!-- ===== Bullet 3: Health Access (actual 45, target 70) ===== -->
+  <text x="190" y="218" text-anchor="end" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="13" fill="#2a1a0e">Health Access</text>
+  <rect x="200" y="200" width="430" height="28" fill="#DCDCDC"/>
+  <rect x="200" y="200" width="301" height="28" fill="#C8C8C8"/>
+  <rect x="200" y="200" width="172" height="28" fill="#B0B0B0"/>
+  <rect x="200" y="206" width="193.5" height="16" fill="#6B3520"/>
+  <line x1="501" y1="198" x2="501" y2="230" stroke="#C8102E" stroke-width="2.5"/>
+
+  <!-- ===== Bullet 4: Digital Literacy (actual 63, target 65) ===== -->
+  <text x="190" y="268" text-anchor="end" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="13" fill="#2a1a0e">Digital Literacy</text>
+  <rect x="200" y="250" width="430" height="28" fill="#DCDCDC"/>
+  <rect x="200" y="250" width="301" height="28" fill="#C8C8C8"/>
+  <rect x="200" y="250" width="172" height="28" fill="#B0B0B0"/>
+  <rect x="200" y="256" width="270.9" height="16" fill="#6B3520"/>
+  <line x1="479.5" y1="248" x2="479.5" y2="280" stroke="#C8102E" stroke-width="2.5"/>
+
+  <!-- ===== Bullet 5: Rural Connect (actual 38, target 60) ===== -->
+  <text x="190" y="318" text-anchor="end" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="13" fill="#2a1a0e">Rural Connect</text>
+  <rect x="200" y="300" width="430" height="28" fill="#DCDCDC"/>
+  <rect x="200" y="300" width="301" height="28" fill="#C8C8C8"/>
+  <rect x="200" y="300" width="172" height="28" fill="#B0B0B0"/>
+  <rect x="200" y="306" width="163.4" height="16" fill="#6B3520"/>
+  <line x1="458" y1="298" x2="458" y2="330" stroke="#C8102E" stroke-width="2.5"/>
+
+  <!-- Legend -->
+  <rect x="200" y="390" width="10" height="10" fill="#6B3520"/>
+  <text x="214" y="399" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">ACTUAL</text>
+  <line x1="270" y1="390" x2="270" y2="400" stroke="#C8102E" stroke-width="2.5"/>
+  <text x="278" y="399" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">TARGET</text>
+  <rect x="340" y="390" width="10" height="10" fill="#B0B0B0"/>
+  <text x="354" y="399" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#545454" letter-spacing="0.08em">POOR</text>
+  <rect x="400" y="390" width="10" height="10" fill="#C8C8C8"/>
+  <text x="414" y="399" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#545454" letter-spacing="0.08em">SATISFACTORY</text>
+  <rect x="510" y="390" width="10" height="10" fill="#DCDCDC"/>
+  <text x="524" y="399" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#545454" letter-spacing="0.08em">GOOD</text>
+</svg>

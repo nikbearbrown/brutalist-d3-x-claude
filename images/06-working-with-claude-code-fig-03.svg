@@ -1,0 +1,68 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+<defs>
+  <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#2a1a0e"/>
+  </marker>
+  <marker id="arrow-exit" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#1A3A5C"/>
+  </marker>
+</defs>
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="32" text-anchor="middle" font-size="13" fill="#545454" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">ITERATION LOOP</text>
+
+<!-- Node positions in a roughly circular/diamond layout -->
+<!-- (1) FOUR-MOVE PROMPT — top center -->
+<rect x="240" y="60" width="220" height="44" fill="#2a1a0e"/>
+<text x="350" y="78" text-anchor="middle" font-size="10" fill="#FFFFFF" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">FOUR-MOVE PROMPT</text>
+<text x="350" y="95" text-anchor="middle" font-size="11" fill="#FFFFFF" opacity="0.7">1</text>
+
+<!-- (2) WORKING CHART — right -->
+<rect x="480" y="170" width="180" height="56" fill="#C8102E"/>
+<text x="570" y="192" text-anchor="middle" font-size="10" fill="#FFFFFF" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">WORKING CHART</text>
+<text x="570" y="205" text-anchor="middle" font-size="12" fill="#FFFFFF" opacity="0.8">~12s</text>
+<text x="570" y="218" text-anchor="middle" font-size="11" fill="#FFFFFF" opacity="0.5">2</text>
+
+<!-- (3) AUDIT — bottom center -->
+<rect x="240" y="290" width="220" height="56" fill="#1A3A5C"/>
+<text x="350" y="312" text-anchor="middle" font-size="10" fill="#FFFFFF" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">AUDIT</text>
+<text x="350" y="325" text-anchor="middle" font-size="12" fill="#FFFFFF" opacity="0.8">~90s</text>
+<text x="350" y="338" text-anchor="middle" font-size="11" fill="#FFFFFF" opacity="0.5">3</text>
+
+<!-- (4) FOLLOW-UP — left -->
+<rect x="40" y="170" width="180" height="56" fill="#2a1a0e"/>
+<text x="130" y="192" text-anchor="middle" font-size="10" fill="#FFFFFF" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">FOLLOW-UP</text>
+<text x="130" y="212" text-anchor="middle" font-size="11" fill="#FFFFFF" opacity="0.5">4</text>
+
+<!-- Arrow 1 to 2 (top-right curve) -->
+<path d="M 460 90 Q 520 90 520 170" fill="none" stroke="#2a1a0e" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<!-- Arrow 2 to 3 (right-bottom curve) -->
+<path d="M 520 226 Q 520 310 460 318" fill="none" stroke="#2a1a0e" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<!-- Arrow 3 to 4 (bottom-left curve) -->
+<path d="M 240 318 Q 180 318 180 226" fill="none" stroke="#2a1a0e" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<!-- Arrow 4 to 1 (left-top curve, back to prompt) -->
+<path d="M 180 170 Q 180 90 240 82" fill="none" stroke="#2a1a0e" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<!-- Exit arrow from AUDIT node -->
+<line x1="350" y1="346" x2="350" y2="380" stroke="#1A3A5C" stroke-width="2" marker-end="url(#arrow-exit)"/>
+
+<!-- PUBLISHABLE CHART exit box -->
+<rect x="240" y="382" width="220" height="32" fill="#1A3A5C"/>
+<text x="350" y="403" text-anchor="middle" font-size="10" fill="#FFFFFF" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">PUBLISHABLE CHART</text>
+
+<!-- Loop label in center -->
+<text x="350" y="205" text-anchor="middle" font-size="14" fill="#545454" font-style="italic">Iterate until</text>
+<text x="350" y="222" text-anchor="middle" font-size="14" fill="#545454" font-style="italic">audit passes</text>
+
+<!-- Exit label -->
+<text x="380" y="372" font-size="10" fill="#1A3A5C" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">EXIT</text>
+
+<!-- Figure number -->
+<text x="620" y="412" text-anchor="middle" font-size="11" fill="#545454" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">FIGURE 6-3</text>
+</svg>

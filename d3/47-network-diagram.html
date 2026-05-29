@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Network Diagram — AI Humanitarian Ecosystem</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #2a1a0e;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-mark: #6B3520;
+    --color-slate: #1A3A5C;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1a1a;
+      --color-ink: #e8e0d6;
+      --color-surface: #2a2420;
+      --color-secondary: #a0978e;
+      --color-border: #444;
+      --color-mark: #c28060;
+      --color-red: #e05040;
+    }
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+  #chart-container {
+    width: 100%;
+    max-width: 900px;
+  }
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--color-ink);
+  }
+  .subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--color-secondary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .caption {
+    font-size: 0.9rem;
+    color: var(--color-secondary);
+    font-style: italic;
+    margin-top: 12px;
+  }
+  .tooltip {
+    position: absolute;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--color-ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+</style>
+</head>
+<body>
+<div id="chart-container">
+  <h1>AI Humanitarian Ecosystem</h1>
+  <div class="subtitle">NODE-LINK NETWORK DIAGRAM</div>
+  <div id="chart" role="img" aria-label="Network diagram showing AI humanitarian ecosystem with Data Integration and Crisis Mapping as central hub nodes"></div>
+  <div class="caption">Data Integration and Crisis Mapping are the central hubs.</div>
+</div>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const nodes = [
+  { id: "Data Integration", hub: true },
+  { id: "Crisis Mapping", hub: true },
+  { id: "NLP", hub: false },
+  { id: "Computer Vision", hub: false },
+  { id: "Logistics AI", hub: false },
+  { id: "Predictive Models", hub: false },
+  { id: "Satellite Analysis", hub: false },
+  { id: "Resource Allocation", hub: false },
+  { id: "Chatbots", hub: false },
+  { id: "Damage Assessment", hub: false }
+];
+
+const links = [
+  { source: "Data Integration", target: "NLP" },
+  { source: "Data Integration", target: "Computer Vision" },
+  { source: "Data Integration", target: "Logistics AI" },
+  { source: "Data Integration", target: "Predictive Models" },
+  { source: "Data Integration", target: "Chatbots" },
+  { source: "Data Integration", target: "Crisis Mapping" },
+  { source: "Crisis Mapping", target: "Satellite Analysis" },
+  { source: "Crisis Mapping", target: "Resource Allocation" },
+  { source: "Crisis Mapping", target: "Damage Assessment" },
+  { source: "Crisis Mapping", target: "Predictive Models" },
+  { source: "Crisis Mapping", target: "Logistics AI" },
+  { source: "NLP", target: "Chatbots" },
+  { source: "Satellite Analysis", target: "Damage Assessment" },
+  { source: "Computer Vision", target: "Predictive Models" }
+];
+
+const width = 800;
+const height = 500;
+
+const svg = d3.select("#chart")
+  .append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("preserveAspectRatio", "xMidYMid meet")
+  .style("width", "100%")
+  .style("height", "auto");
+
+// Background
+svg.append("rect")
+  .attr("width", width)
+  .attr("height", height)
+  .attr("fill", "var(--color-surface)")
+  .attr("stroke", "var(--color-border)")
+  .attr("stroke-width", 0.75)
+  .attr("rx", 0);
+
+const tooltip = d3.select("#tooltip");
+
+const simulation = d3.forceSimulation(nodes)
+  .force("link", d3.forceLink(links).id(d => d.id).distance(120))
+  .force("charge", d3.forceManyBody().strength(-400))
+  .force("center", d3.forceCenter(width / 2, height / 2))
+  .force("collision", d3.forceCollide().radius(d => d.hub ? 30 : 20));
+
+const link = svg.append("g")
+  .selectAll("line")
+  .data(links)
+  .enter().append("line")
+  .attr("stroke", "var(--color-border)")
+  .attr("stroke-width", 1.5);
+
+const node = svg.append("g")
+  .selectAll("g")
+  .data(nodes)
+  .enter().append("g")
+  .call(d3.drag()
+    .on("start", dragstarted)
+    .on("drag", dragged)
+    .on("end", dragended));
+
+node.append("circle")
+  .attr("r", d => d.hub ? 14 : 8)
+  .attr("fill", d => d.hub ? "var(--color-red)" : "var(--color-mark)")
+  .attr("stroke", "var(--color-ink)")
+  .attr("stroke-width", d => d.hub ? 1 : 0.75)
+  .style("cursor", "pointer")
+  .on("mouseover", function(event, d) {
+    const connections = links.filter(l => l.source.id === d.id || l.target.id === d.id).length;
+    tooltip.style("opacity", 1)
+      .html(`<strong>${d.id}</strong><br>Connections: ${connections}<br>Role: ${d.hub ? "Hub" : "Peripheral"}`);
+  })
+  .on("mousemove", function(event) {
+    tooltip.style("left", (event.pageX + 12) + "px")
+      .style("top", (event.pageY - 28) + "px");
+  })
+  .on("mouseout", function() {
+    tooltip.style("opacity", 0);
+  });
+
+node.append("text")
+  .attr("dy", d => d.hub ? 24 : 18)
+  .attr("text-anchor", "middle")
+  .attr("font-size", d => d.hub ? 11 : 9)
+  .attr("font-weight", d => d.hub ? "bold" : "normal")
+  .attr("fill", "var(--color-ink)")
+  .text(d => d.id);
+
+simulation.on("tick", () => {
+  link
+    .attr("x1", d => d.source.x)
+    .attr("y1", d => d.source.y)
+    .attr("x2", d => d.target.x)
+    .attr("y2", d => d.target.y);
+
+  node.attr("transform", d => {
+    d.x = Math.max(40, Math.min(width - 40, d.x));
+    d.y = Math.max(40, Math.min(height - 40, d.y));
+    return `translate(${d.x},${d.y})`;
+  });
+});
+
+function dragstarted(event) {
+  if (!event.active) simulation.alphaTarget(0.3).restart();
+  event.subject.fx = event.subject.x;
+  event.subject.fy = event.subject.y;
+}
+
+function dragged(event) {
+  event.subject.fx = event.x;
+  event.subject.fy = event.y;
+}
+
+function dragended(event) {
+  if (!event.active) simulation.alphaTarget(0);
+  event.subject.fx = null;
+  event.subject.fy = null;
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Candlestick Chart — Price Action Across 10 Trading Sessions</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #2a1a0e;
+    --mark: #6B3520;
+    --red: #C8102E;
+    --secondary: #545454;
+    --border: #D4D4D4;
+    --bg: #FFFFFF;
+    --chart-bg: #F5EFE8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  #chart { width: 100%; max-width: 900px; }
+  .tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--ink);
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<div class="tooltip" id="tooltip"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const data = [
+  { day: 1,  open: 100, high: 103, low: 98,  close: 102 },
+  { day: 2,  open: 102, high: 104, low: 99,  close: 99  },
+  { day: 3,  open: 99,  high: 101, low: 97,  close: 101 },
+  { day: 4,  open: 101, high: 105, low: 100, close: 104 },
+  { day: 5,  open: 104, high: 106, low: 102, close: 103 },
+  { day: 6,  open: 103, high: 107, low: 102, close: 106 },
+  { day: 7,  open: 106, high: 108, low: 104, close: 105 },
+  { day: 8,  open: 105, high: 109, low: 103, close: 108 },
+  { day: 9,  open: 108, high: 110, low: 106, close: 107 },
+  { day: 10, open: 107, high: 111, low: 105, close: 110 }
+];
+
+const margin = { top: 60, right: 40, bottom: 60, left: 70 };
+const W = 900, H = 500;
+const width = W - margin.left - margin.right;
+const height = H - margin.top - margin.bottom;
+
+const svg = d3.select('#chart').append('svg')
+  .attr('viewBox', `0 0 ${W} ${H}`)
+  .attr('role', 'img')
+  .attr('aria-labelledby', 'chart-title chart-desc');
+
+svg.append('title').attr('id', 'chart-title').text('Price Action Across 10 Trading Sessions');
+svg.append('desc').attr('id', 'chart-desc').text('Ten candlestick marks showing open, high, low, close across trading sessions with bullish and bearish days.');
+
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#FFFFFF');
+svg.append('rect').attr('x', 32).attr('y', 32).attr('width', W - 64).attr('height', H - 64).attr('fill', '#F5EFE8').attr('stroke', '#D4D4D4');
+
+svg.append('text')
+  .attr('x', W / 2).attr('y', 28)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, 'Times New Roman', serif")
+  .attr('font-size', 22).attr('fill', '#2a1a0e').attr('font-weight', 'bold')
+  .text('Price Action Across 10 Trading Sessions');
+
+svg.append('text')
+  .attr('x', W / 2).attr('y', H - 12)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, 'Times New Roman', serif")
+  .attr('font-size', 13).attr('fill', '#545454').attr('font-style', 'italic')
+  .text('Body shows open-to-close. Wicks show high and low.');
+
+const g = svg.append('g').attr('transform', `translate(${margin.left}, ${margin.top})`);
+
+const x = d3.scaleBand().domain(data.map(d => d.day)).range([0, width]).padding(0.3);
+const y = d3.scaleLinear().domain([96, 112]).range([height, 0]);
+
+// Gridlines
+const yTicks = d3.range(96, 113, 2);
+yTicks.forEach(t => {
+  g.append('line')
+    .attr('x1', 0).attr('x2', width)
+    .attr('y1', y(t)).attr('y2', y(t))
+    .attr('stroke', '#D4D4D4').attr('stroke-width', 0.5);
+});
+
+// Y-axis
+const yAxis = d3.axisLeft(y).tickValues(yTicks).tickFormat(d => `$${d}`);
+g.append('g').call(yAxis).selectAll('text')
+  .attr('font-family', "'IBM Plex Mono', monospace").attr('font-size', 10).attr('fill', '#545454');
+g.selectAll('.domain').attr('stroke', '#D4D4D4');
+
+// X-axis
+const xAxis = d3.axisBottom(x).tickFormat(d => `Day ${d}`);
+g.append('g').attr('transform', `translate(0, ${height})`).call(xAxis).selectAll('text')
+  .attr('font-family', "'IBM Plex Mono', monospace").attr('font-size', 10).attr('fill', '#545454');
+
+const tooltip = d3.select('#tooltip');
+
+const candleWidth = x.bandwidth();
+
+data.forEach(d => {
+  const cx = x(d.day) + candleWidth / 2;
+  const isBullish = d.close > d.open;
+  const bodyTop = isBullish ? y(d.close) : y(d.open);
+  const bodyBottom = isBullish ? y(d.open) : y(d.close);
+  const bodyHeight = Math.max(bodyBottom - bodyTop, 1);
+
+  const candle = g.append('g')
+    .attr('tabindex', 0)
+    .attr('role', 'graphics-symbol')
+    .attr('aria-label', `Day ${d.day}: O=${d.open} H=${d.high} L=${d.low} C=${d.close}`);
+
+  // Upper wick
+  candle.append('line')
+    .attr('x1', cx).attr('x2', cx)
+    .attr('y1', y(d.high)).attr('y2', bodyTop)
+    .attr('stroke', '#6B3520').attr('stroke-width', 1.5);
+
+  // Lower wick
+  candle.append('line')
+    .attr('x1', cx).attr('x2', cx)
+    .attr('y1', bodyBottom).attr('y2', y(d.low))
+    .attr('stroke', '#6B3520').attr('stroke-width', 1.5);
+
+  // Body
+  candle.append('rect')
+    .attr('x', x(d.day)).attr('y', bodyTop)
+    .attr('width', candleWidth).attr('height', bodyHeight)
+    .attr('fill', isBullish ? '#F5EFE8' : '#6B3520')
+    .attr('stroke', '#6B3520').attr('stroke-width', 1.5);
+
+  // Tooltip interaction
+  candle.append('rect')
+    .attr('x', x(d.day) - 4).attr('y', y(d.high) - 4)
+    .attr('width', candleWidth + 8).attr('height', y(d.low) - y(d.high) + 8)
+    .attr('fill', 'transparent')
+    .on('mouseover', function(event) {
+      const dir = isBullish ? 'Bullish' : 'Bearish';
+      tooltip.style('opacity', 1)
+        .html(`<strong>Day ${d.day}</strong> (${dir})<br>Open: $${d.open}<br>High: $${d.high}<br>Low: $${d.low}<br>Close: $${d.close}`);
+    })
+    .on('mousemove', function(event) {
+      tooltip.style('left', (event.pageX + 12) + 'px').style('top', (event.pageY - 28) + 'px');
+    })
+    .on('mouseout', function() { tooltip.style('opacity', 0); });
+});
+
+// Legend
+const legend = svg.append('g').attr('transform', `translate(${margin.left}, ${H - 40})`);
+legend.append('rect').attr('x', 0).attr('y', 0).attr('width', 14).attr('height', 14).attr('fill', '#F5EFE8').attr('stroke', '#6B3520').attr('stroke-width', 1.5);
+legend.append('text').attr('x', 20).attr('y', 11).attr('font-family', "'IBM Plex Mono', monospace").attr('font-size', 9).attr('fill', '#2a1a0e').attr('letter-spacing', '0.08em').text('BULLISH (CLOSE > OPEN)');
+legend.append('rect').attr('x', 240).attr('y', 0).attr('width', 14).attr('height', 14).attr('fill', '#6B3520').attr('stroke', '#6B3520').attr('stroke-width', 1.5);
+legend.append('text').attr('x', 260).attr('y', 11).attr('font-family', "'IBM Plex Mono', monospace").attr('font-size', 9).attr('fill', '#2a1a0e').attr('letter-spacing', '0.08em').text('BEARISH (CLOSE < OPEN)');
+</script>
+</body>
+</html>

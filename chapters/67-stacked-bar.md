@@ -2,7 +2,9 @@
 
 *Private funding tripled in two years —but government still anchors the base*
 
-![Stacked Bar](../images/67-stacked-bar.jpg)
+*Figure 67.1 — Private funding tripled — government still anchors the base*
+
+![Stacked Bar](../images/67-stacked-bar.png)
 
 ## What this chart is
 
@@ -55,6 +57,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+Reference implementation: [`d3/67-stacked-bar.html`](../d3/67-stacked-bar.html)
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

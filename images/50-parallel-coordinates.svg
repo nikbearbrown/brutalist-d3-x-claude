@@ -1,0 +1,93 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#2a1a0e">Program Comparison — 5 Dimensions</text>
+
+<!-- Subtitle label -->
+<text x="350" y="46" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">PARALLEL COORDINATES PLOT</text>
+
+<!-- Chart area: x=32..668, y=70..350 => w=636, h=280 -->
+<rect x="32" y="70" width="636" height="280" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="0.75"/>
+
+<!-- 5 vertical axes, evenly spaced: x = 72, 222, 372, 522, 632 -->
+<!-- Actually: spacing = 596/4 = 149. axes at 72, 221, 370, 519, 668 -->
+<!-- Actually use: 80, 229, 378, 527, 636 with margin -->
+<!-- Let's use: x = 80, 227, 374, 521, 628 (5 axes across chart) -->
+
+<!-- Axes -->
+<line x1="80" y1="90" x2="80" y2="340" stroke="#2a1a0e" stroke-width="1"/>
+<line x1="217" y1="90" x2="217" y2="340" stroke="#2a1a0e" stroke-width="1"/>
+<line x1="354" y1="90" x2="354" y2="340" stroke="#2a1a0e" stroke-width="1"/>
+<line x1="491" y1="90" x2="491" y2="340" stroke="#2a1a0e" stroke-width="1"/>
+<line x1="628" y1="90" x2="628" y2="340" stroke="#2a1a0e" stroke-width="1"/>
+
+<!-- Axis labels at top -->
+<text x="80" y="82" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">COST</text>
+<text x="217" y="82" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">SPEED</text>
+<text x="354" y="82" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">EFFICIENCY</text>
+<text x="491" y="82" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">COVERAGE</text>
+<text x="628" y="82" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">IMPACT</text>
+
+<!-- Axis scale labels -->
+<!-- Cost: $0 (bottom) to $10M (top). y=340 -> $0, y=90 -> $10M -->
+<text x="76" y="344" text-anchor="end" font-size="8" fill="#545454">$0</text>
+<text x="76" y="94" text-anchor="end" font-size="8" fill="#545454">$10M</text>
+
+<!-- Speed: 0 (bottom) to 100 days (top). y=340 -> 0, y=90 -> 100 -->
+<text x="213" y="344" text-anchor="end" font-size="8" fill="#545454">0</text>
+<text x="213" y="94" text-anchor="end" font-size="8" fill="#545454">100d</text>
+
+<!-- Efficiency: 0% (bottom) to 100% (top) -->
+<text x="350" y="344" text-anchor="end" font-size="8" fill="#545454">0%</text>
+<text x="350" y="94" text-anchor="end" font-size="8" fill="#545454">100%</text>
+
+<!-- Coverage: 0% (bottom) to 100% (top) -->
+<text x="487" y="344" text-anchor="end" font-size="8" fill="#545454">0%</text>
+<text x="487" y="94" text-anchor="end" font-size="8" fill="#545454">100%</text>
+
+<!-- Impact: 0 (bottom) to 100 (top) -->
+<text x="624" y="344" text-anchor="end" font-size="8" fill="#545454">0</text>
+<text x="624" y="94" text-anchor="end" font-size="8" fill="#545454">100</text>
+
+<!-- Program data: y = 340 - (value/max)*250 -->
+<!-- Cost max=$10M, Speed max=100d, Eff max=100%, Cov max=100%, Impact max=100 -->
+
+<!-- Program 1: Health (highlighted, #C8102E)
+  Cost=$3M (265), Speed=45d (227.5), Eff=92% (110), Cov=65% (177.5), Impact=80 (140) -->
+<polyline points="80,265 217,227.5 354,110 491,177.5 628,140" fill="none" stroke="#C8102E" stroke-width="2" opacity="0.9"/>
+
+<!-- Program 2: Emergency (#1A3A5C)
+  Cost=$8M (140), Speed=90d (115), Eff=45% (227.5), Cov=80% (140), Impact=75 (152.5) -->
+<polyline points="80,140 217,115 354,227.5 491,140 628,152.5" fill="none" stroke="#1A3A5C" stroke-width="2" opacity="0.9"/>
+
+<!-- Program 3: Education (#6B3520, dim)
+  Cost=$2M (290), Speed=30d (265), Eff=70% (165), Cov=50% (215), Impact=60 (190) -->
+<polyline points="80,290 217,265 354,165 491,215 628,190" fill="none" stroke="#6B3520" stroke-width="1.5" opacity="0.4"/>
+
+<!-- Program 4: Shelter (#6B3520, dim)
+  Cost=$5M (215), Speed=60d (190), Eff=55% (202.5), Cov=70% (165), Impact=65 (177.5) -->
+<polyline points="80,215 217,190 354,202.5 491,165 628,177.5" fill="none" stroke="#6B3520" stroke-width="1.5" opacity="0.4"/>
+
+<!-- Program 5: WASH (#6B3520, dim)
+  Cost=$4M (240), Speed=50d (215), Eff=75% (152.5), Cov=55% (202.5), Impact=70 (165) -->
+<polyline points="80,240 217,215 354,152.5 491,202.5 628,165" fill="none" stroke="#6B3520" stroke-width="1.5" opacity="0.4"/>
+
+<!-- Legend -->
+<line x1="160" y1="365" x2="180" y2="365" stroke="#C8102E" stroke-width="2"/>
+<text x="184" y="369" font-size="9" fill="#2a1a0e">Health</text>
+<line x1="230" y1="365" x2="250" y2="365" stroke="#1A3A5C" stroke-width="2"/>
+<text x="254" y="369" font-size="9" fill="#2a1a0e">Emergency</text>
+<line x1="320" y1="365" x2="340" y2="365" stroke="#6B3520" stroke-width="1.5" opacity="0.4"/>
+<text x="344" y="369" font-size="9" fill="#2a1a0e">Education</text>
+<line x1="400" y1="365" x2="420" y2="365" stroke="#6B3520" stroke-width="1.5" opacity="0.4"/>
+<text x="424" y="369" font-size="9" fill="#2a1a0e">Shelter</text>
+<line x1="470" y1="365" x2="490" y2="365" stroke="#6B3520" stroke-width="1.5" opacity="0.4"/>
+<text x="494" y="369" font-size="9" fill="#2a1a0e">WASH</text>
+
+<!-- Caption -->
+<text x="350" y="400" text-anchor="middle" font-size="10" fill="#545454" font-style="italic">Health programs lead on efficiency. Emergency response moves fastest but costs most.</text>
+
+</svg>

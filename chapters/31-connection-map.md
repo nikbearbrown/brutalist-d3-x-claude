@@ -2,7 +2,8 @@
 
 *Europe and North America Anchor a Hub-and-Spoke Aid Network That Converges on East Africa and the Levant*
 
-![Connection Map](../images/31-connection-map.jpg)
+![Connection map showing hub-and-spoke aid network with Europe and North America connecting to East Africa and the Levant](../images/31-connection-map.png)
+*Figure 31.1 — Europe and North America Anchor the Aid Network*
 
 ## What this chart is
 
@@ -57,6 +58,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/31-connection-map.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

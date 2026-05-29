@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 2.4 — The Verification Stack</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #FFFFFF;
+    color: #121212;
+    width: 1600px;
+    height: 900px;
+    overflow: hidden;
+  }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const W = 1600, H = 900;
+const svg = d3.select('#chart').append('svg')
+  .attr('width', W).attr('height', H)
+  .attr('role', 'img')
+  .attr('aria-labelledby', 'chart-title');
+
+svg.append('title').attr('id', 'chart-title').text('Figure 2.4 — The Three-Layer Verification Stack');
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#FFFFFF');
+
+// Title
+svg.append('text')
+  .attr('x', W/2).attr('y', 52)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-size', 36).attr('fill', '#121212')
+  .text('Two minutes. In order. Every time.');
+
+svg.append('text')
+  .attr('x', W/2).attr('y', 82)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 14).attr('fill', '#545454')
+  .text('Figure 2.4 — The three-layer verification stack for every chart Claude Code produces');
+
+const layers = [
+  {
+    num: '1',
+    name: 'FORMAT CHECK',
+    check: 'Sanity-check the format',
+    lookAt: 'File type, CDN reference, CSS location, HTML structure',
+    catches: 'Wrong file format, wrong D3 version, external CSS when inline requested',
+    time: '~10 seconds',
+    shade: '#F5F5F5',
+    borderColor: '#D4D4D4',
+    intensity: 'lightest'
+  },
+  {
+    num: '2',
+    name: 'FACT CHECK',
+    check: 'Check specific facts against the prompt',
+    lookAt: 'Data values, axis labels, color palette, encoding matches prompt spec',
+    catches: 'Wrong sort order, non-zero baseline, misspelled labels, wrong channel mappings',
+    time: '~30 seconds',
+    shade: '#E8E4E0',
+    borderColor: '#545454',
+    intensity: 'medium'
+  },
+  {
+    num: '3',
+    name: 'RUNTIME TEST',
+    check: 'Test in the actual deployment environment',
+    lookAt: 'Browser render, window resize, dark mode, color-blind sim, target size',
+    catches: 'Overflow, broken tooltips, dark-mode failures, contrast violations, clipping',
+    time: '~60 seconds',
+    shade: '#121212',
+    borderColor: '#121212',
+    intensity: 'darkest'
+  },
+];
+
+const panelH = 190;
+const panelW = 1100;
+const startX = 100;
+const startY = 120;
+
+// Gradient bar on the right side
+const gradBarX = 1320;
+const gradBarW = 40;
+
+const defs = svg.append('defs');
+const grad = defs.append('linearGradient')
+  .attr('id', 'intensity-grad')
+  .attr('x1', '0%').attr('y1', '0%').attr('x2', '0%').attr('y2', '100%');
+grad.append('stop').attr('offset', '0%').attr('stop-color', '#F5F5F5');
+grad.append('stop').attr('offset', '50%').attr('stop-color', '#A0978C');
+grad.append('stop').attr('offset', '100%').attr('stop-color', '#121212');
+
+layers.forEach((layer, i) => {
+  const y = startY + i * (panelH + 24);
+  const isDark = i === 2;
+
+  // Panel background
+  svg.append('rect')
+    .attr('x', startX).attr('y', y).attr('width', panelW).attr('height', panelH)
+    .attr('fill', layer.shade).attr('stroke', layer.borderColor)
+    .attr('stroke-width', 2).attr('rx', 8);
+
+  // Layer number
+  svg.append('rect')
+    .attr('x', startX + 20).attr('y', y + 20).attr('width', 56).attr('height', 56)
+    .attr('fill', isDark ? '#FFFFFF' : '#121212').attr('rx', 8);
+  svg.append('text')
+    .attr('x', startX + 48).attr('y', y + 58)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'EB Garamond', Georgia, serif")
+    .attr('font-size', 36).attr('fill', isDark ? '#121212' : '#FFFFFF')
+    .text(layer.num);
+
+  // Name
+  svg.append('text')
+    .attr('x', startX + 100).attr('y', y + 40)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 22).attr('font-weight', 700)
+    .attr('fill', isDark ? '#FFFFFF' : '#121212')
+    .text(layer.name);
+
+  // Time badge
+  svg.append('rect')
+    .attr('x', startX + 100 + layer.name.length * 14 + 20).attr('y', y + 22)
+    .attr('width', 100).attr('height', 26)
+    .attr('fill', isDark ? '#333333' : '#E8E8E8').attr('rx', 4);
+  svg.append('text')
+    .attr('x', startX + 100 + layer.name.length * 14 + 70).attr('y', y + 40)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'JetBrains Mono', monospace")
+    .attr('font-size', 13)
+    .attr('fill', isDark ? '#A0978C' : '#545454')
+    .text(layer.time);
+
+  // Check description
+  svg.append('text')
+    .attr('x', startX + 100).attr('y', y + 70)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 15)
+    .attr('fill', isDark ? '#F0EBE3' : '#121212')
+    .text(layer.check);
+
+  // What you look at
+  svg.append('text')
+    .attr('x', startX + 100).attr('y', y + 105)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 12).attr('font-weight', 600)
+    .attr('fill', isDark ? '#A0978C' : '#545454')
+    .text('LOOK AT:');
+  svg.append('text')
+    .attr('x', startX + 180).attr('y', y + 105)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 13)
+    .attr('fill', isDark ? '#F0EBE3' : '#121212')
+    .text(layer.lookAt);
+
+  // What it catches
+  svg.append('text')
+    .attr('x', startX + 100).attr('y', y + 135)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 12).attr('font-weight', 600)
+    .attr('fill', isDark ? '#A0978C' : '#545454')
+    .text('CATCHES:');
+  svg.append('text')
+    .attr('x', startX + 180).attr('y', y + 135)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 13)
+    .attr('fill', isDark ? '#F0EBE3' : '#C8102E')
+    .text(layer.catches);
+
+  // "Most likely to catch runtime failures" label for Layer 3
+  if (i === 2) {
+    svg.append('rect')
+      .attr('x', startX + 100).attr('y', y + 152).attr('width', 320).attr('height', 24)
+      .attr('fill', '#C8102E').attr('rx', 4);
+    svg.append('text')
+      .attr('x', startX + 260).attr('y', y + 168)
+      .attr('text-anchor', 'middle')
+      .attr('font-family', "'Inter', sans-serif")
+      .attr('font-size', 12).attr('font-weight', 700).attr('fill', '#FFFFFF')
+      .text('MOST LIKELY TO CATCH RUNTIME FAILURES');
+  }
+
+  // Arrow between layers
+  if (i < layers.length - 1) {
+    const arrowY = y + panelH + 12;
+    svg.append('line')
+      .attr('x1', startX + panelW/2).attr('y1', y + panelH + 2)
+      .attr('x2', startX + panelW/2).attr('y2', arrowY + 18)
+      .attr('stroke', '#D4D4D4').attr('stroke-width', 2);
+    svg.append('polygon')
+      .attr('points', `${startX + panelW/2 - 6},${arrowY + 12} ${startX + panelW/2 + 6},${arrowY + 12} ${startX + panelW/2},${arrowY + 22}`)
+      .attr('fill', '#D4D4D4');
+  }
+});
+
+// Right-side intensity gradient bar
+const gradStartY = startY;
+const gradEndY = startY + 3 * panelH + 2 * 24;
+svg.append('rect')
+  .attr('x', gradBarX).attr('y', gradStartY).attr('width', gradBarW).attr('height', gradEndY - gradStartY)
+  .attr('fill', 'url(#intensity-grad)').attr('rx', 4).attr('stroke', '#D4D4D4');
+
+svg.append('text')
+  .attr('x', gradBarX + gradBarW + 16).attr('y', gradStartY + 16)
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 11).attr('fill', '#545454')
+  .text('Lightest');
+
+svg.append('text')
+  .attr('x', gradBarX + gradBarW + 16).attr('y', gradEndY - 4)
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 11).attr('fill', '#545454')
+  .text('Deepest');
+
+// Arrow label on right
+svg.append('text')
+  .attr('x', gradBarX + gradBarW/2).attr('y', (gradStartY + gradEndY)/2)
+  .attr('text-anchor', 'middle')
+  .attr('transform', `rotate(-90, ${gradBarX + gradBarW/2}, ${(gradStartY + gradEndY)/2})`)
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('font-weight', 600).attr('fill', '#C8102E')
+  .text('CATCHES EARLIER FAILURES FIRST — DON\'T SKIP AHEAD');
+
+// Caption
+svg.append('line')
+  .attr('x1', 80).attr('y1', H - 40).attr('x2', W - 80).attr('y2', H - 40)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+svg.append('text')
+  .attr('x', W/2).attr('y', H - 16)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('fill', '#545454')
+  .text('Do all three layers. Do them in order. For a static chart, the full stack takes two minutes.');
+</script>
+</body>
+</html>

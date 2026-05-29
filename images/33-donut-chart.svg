@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 420">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap');
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+
+  <!-- Title -->
+  <text x="350" y="28" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="18" font-weight="600" fill="#2a1a0e">Budget Allocation by Department</text>
+
+  <!-- Chart area -->
+  <rect x="32" y="42" width="636" height="330" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="0.75"/>
+
+  <!-- Donut: center (350,210), outer r=120, inner r=60 -->
+  <!-- Angles in radians from 12 o'clock (-π/2): -->
+  <!-- Healthcare 34% = 2.1363 rad, cumulative end = -1.5708 + 2.1363 = 0.5655 -->
+  <!-- Education 24% = 1.5080 rad, cumulative end = 0.5655 + 1.5080 = 2.0735 -->
+  <!-- Logistics 20% = 1.2566 rad, cumulative end = 2.0735 + 1.2566 = 3.3301 -->
+  <!-- Administration 14% = 0.8796 rad, cumulative end = 3.3301 + 0.8796 = 4.2097 -->
+  <!-- Crisis Response 8% = 0.5027 rad, cumulative end = 4.2097 + 0.5027 = 4.7124 = -1.5708 + 2π -->
+
+  <!-- Precise outer points (r=120): -->
+  <!-- P0 (start, -π/2):     (350.0, 90.0) -->
+  <!-- P1 (0.5655 rad):      (350 + 120*cos(0.5655), 210 + 120*sin(0.5655)) = (451.2, 274.1) -->
+  <!-- P2 (2.0735 rad):      (350 + 120*cos(2.0735), 210 + 120*sin(2.0735)) = (292.1, 315.4) -->
+  <!-- P3 (3.3301 rad):      (350 + 120*cos(3.3301), 210 + 120*sin(3.3301)) = (231.6, 186.6) -->
+  <!-- P4 (4.2097 rad):      (350 + 120*cos(4.2097), 210 + 120*sin(4.2097)) = (292.7, 104.3) -->
+
+  <!-- Precise inner points (r=60): -->
+  <!-- Q0 (start, -π/2):     (350.0, 150.0) -->
+  <!-- Q1 (0.5655 rad):      (400.6, 242.1) -->
+  <!-- Q2 (2.0735 rad):      (321.1, 262.7) -->
+  <!-- Q3 (3.3301 rad):      (290.8, 198.3) -->
+  <!-- Q4 (4.2097 rad):      (321.4, 157.2) -->
+
+  <!-- Healthcare 34%: P0 → P1 outer, Q1 → Q0 inner -->
+  <path d="M 350.0,90.0 A 120,120 0 0,1 451.2,274.1 L 400.6,242.1 A 60,60 0 0,0 350.0,150.0 Z" fill="#C8102E"/>
+
+  <!-- Education 24%: P1 → P2 outer, Q2 → Q1 inner -->
+  <path d="M 451.2,274.1 A 120,120 0 0,1 292.1,315.4 L 321.1,262.7 A 60,60 0 0,0 400.6,242.1 Z" fill="#1A3A5C"/>
+
+  <!-- Logistics 20%: P2 → P3 outer, Q3 → Q2 inner -->
+  <path d="M 292.1,315.4 A 120,120 0 0,1 231.6,186.6 L 290.8,198.3 A 60,60 0 0,0 321.1,262.7 Z" fill="#6B3520"/>
+
+  <!-- Administration 14%: P3 → P4 outer, Q4 → Q3 inner -->
+  <path d="M 231.6,186.6 A 120,120 0 0,1 292.7,104.3 L 321.4,157.2 A 60,60 0 0,0 290.8,198.3 Z" fill="#C8860E"/>
+
+  <!-- Crisis Response 8%: P4 → P0 outer, Q0 → Q4 inner -->
+  <path d="M 292.7,104.3 A 120,120 0 0,1 350.0,90.0 L 350.0,150.0 A 60,60 0 0,0 321.4,157.2 Z" fill="#545454"/>
+
+  <!-- Center text -->
+  <text x="350" y="206" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" letter-spacing="0.08em" fill="#2a1a0e">BUDGET</text>
+  <text x="350" y="218" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" letter-spacing="0.08em" fill="#2a1a0e">ALLOCATION</text>
+
+  <!-- Labels outside arcs -->
+  <text x="480" y="155" text-anchor="start" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="12" fill="#2a1a0e">Healthcare</text>
+  <text x="480" y="169" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="11" letter-spacing="0.08em" fill="#C8102E" font-weight="500">34%</text>
+
+  <text x="420" y="330" text-anchor="start" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="12" fill="#2a1a0e">Education</text>
+  <text x="420" y="344" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="11" letter-spacing="0.08em" fill="#1A3A5C" font-weight="500">24%</text>
+
+  <text x="170" y="280" text-anchor="start" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="12" fill="#2a1a0e">Logistics</text>
+  <text x="170" y="294" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="11" letter-spacing="0.08em" fill="#6B3520" font-weight="500">20%</text>
+
+  <text x="165" y="148" text-anchor="start" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="12" fill="#2a1a0e">Administration</text>
+  <text x="165" y="162" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="11" letter-spacing="0.08em" fill="#C8860E" font-weight="500">14%</text>
+
+  <text x="240" y="85" text-anchor="start" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="12" fill="#2a1a0e">Crisis Response</text>
+  <text x="240" y="99" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="11" letter-spacing="0.08em" fill="#545454" font-weight="500">8%</text>
+
+  <!-- Caption -->
+  <text x="350" y="400" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" font-style="italic" fill="#545454">Healthcare commands 34%. Five segments maximum for readability.</text>
+</svg>

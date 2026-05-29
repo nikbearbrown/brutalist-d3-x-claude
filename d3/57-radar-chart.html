@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Radar Chart — Regional Capability Profile</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #2a1a0e;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-mark: #6B3520;
+    --color-slate: #1A3A5C;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1a1a;
+      --color-ink: #e8e0d6;
+      --color-surface: #2a2420;
+      --color-secondary: #a0978e;
+      --color-border: #444;
+      --color-mark: #c28060;
+      --color-red: #e05040;
+      --color-slate: #5a9ad6;
+    }
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+  #chart-container {
+    width: 100%;
+    max-width: 900px;
+  }
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--color-ink);
+  }
+  .subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--color-secondary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .caption {
+    font-size: 0.9rem;
+    color: var(--color-secondary);
+    font-style: italic;
+    margin-top: 12px;
+  }
+  .tooltip {
+    position: absolute;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--color-ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .legend-item {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--color-ink);
+  }
+  .legend-swatch {
+    width: 12px;
+    height: 12px;
+    margin-right: 6px;
+    display: inline-block;
+  }
+</style>
+</head>
+<body>
+<div id="chart-container">
+  <h1>Regional Capability Profile</h1>
+  <div class="subtitle">RADAR CHART — HOVER VERTICES FOR VALUES</div>
+  <div style="margin-bottom:12px;">
+    <span class="legend-item"><span class="legend-swatch" style="background:var(--color-red);opacity:0.5;"></span>South Asia</span>
+    <span class="legend-item"><span class="legend-swatch" style="background:var(--color-slate);opacity:0.5;"></span>MENA</span>
+  </div>
+  <div id="chart" role="img" aria-label="Radar chart comparing South Asia and MENA across five capability dimensions"></div>
+  <div class="caption">Each region has a distinct shape. South Asia leads on Access &amp; Capacity.</div>
+</div>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const axes = ["Funding", "Coordination", "Access", "Capacity", "Technology"];
+
+const series = [
+  { name: "South Asia", color: "var(--color-red)", values: [45, 35, 85, 80, 50] },
+  { name: "MENA", color: "var(--color-slate)", values: [80, 75, 40, 30, 60] }
+];
+
+const width = 700;
+const height = 520;
+const cx = width / 2;
+const cy = height / 2 + 10;
+const maxR = 180;
+const levels = 5;
+
+const svg = d3.select("#chart")
+  .append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("preserveAspectRatio", "xMidYMid meet")
+  .style("width", "100%")
+  .style("height", "auto");
+
+svg.append("rect")
+  .attr("width", width)
+  .attr("height", height)
+  .attr("fill", "var(--color-bg)");
+
+// Chart area background
+svg.append("rect")
+  .attr("x", 32)
+  .attr("y", 20)
+  .attr("width", width - 64)
+  .attr("height", height - 50)
+  .attr("fill", "var(--color-surface)")
+  .attr("stroke", "var(--color-border)")
+  .attr("stroke-width", 0.75);
+
+const g = svg.append("g").attr("transform", `translate(${cx},${cy})`);
+
+const angleSlice = (Math.PI * 2) / axes.length;
+
+function angleForIndex(i) {
+  return angleSlice * i - Math.PI / 2;
+}
+
+function pointX(i, r) { return r * Math.cos(angleForIndex(i)); }
+function pointY(i, r) { return r * Math.sin(angleForIndex(i)); }
+
+// Grid rings
+for (let level = 1; level <= levels; level++) {
+  const r = (maxR / levels) * level;
+  const points = axes.map((_, i) => `${pointX(i, r)},${pointY(i, r)}`).join(" ");
+  g.append("polygon")
+    .attr("points", points)
+    .attr("fill", "none")
+    .attr("stroke", "var(--color-border)")
+    .attr("stroke-width", 0.5)
+    .attr("stroke-dasharray", "3,3");
+}
+
+// Grid ring labels
+for (let level = 1; level <= levels; level++) {
+  const r = (maxR / levels) * level;
+  g.append("text")
+    .attr("x", 4)
+    .attr("y", -r + 4)
+    .attr("font-size", "8px")
+    .attr("fill", "var(--color-secondary)")
+    .attr("font-family", "'JetBrains Mono', monospace")
+    .text(`${level * 20}%`);
+}
+
+// Axis spokes
+axes.forEach((_, i) => {
+  g.append("line")
+    .attr("x1", 0).attr("y1", 0)
+    .attr("x2", pointX(i, maxR)).attr("y2", pointY(i, maxR))
+    .attr("stroke", "var(--color-border)")
+    .attr("stroke-width", 0.75);
+});
+
+// Axis labels
+axes.forEach((label, i) => {
+  const labelR = maxR + 22;
+  const x = pointX(i, labelR);
+  const y = pointY(i, labelR);
+  g.append("text")
+    .attr("x", x)
+    .attr("y", y + 4)
+    .attr("text-anchor", Math.abs(x) < 5 ? "middle" : x > 0 ? "start" : "end")
+    .attr("font-family", "'JetBrains Mono', monospace")
+    .attr("font-size", "10px")
+    .attr("letter-spacing", "0.08em")
+    .attr("fill", "var(--color-ink)")
+    .text(label.toUpperCase());
+});
+
+const tooltip = d3.select("#tooltip");
+
+// Draw series polygons and vertices
+series.forEach(s => {
+  const rScale = d3.scaleLinear().domain([0, 100]).range([0, maxR]);
+  const points = s.values.map((v, i) => `${pointX(i, rScale(v))},${pointY(i, rScale(v))}`).join(" ");
+
+  g.append("polygon")
+    .attr("points", points)
+    .attr("fill", s.color)
+    .attr("fill-opacity", 0.3)
+    .attr("stroke", s.color)
+    .attr("stroke-width", 1.5);
+
+  // Vertex dots with tooltips
+  s.values.forEach((v, i) => {
+    const r = rScale(v);
+    const dotX = pointX(i, r);
+    const dotY = pointY(i, r);
+
+    g.append("circle")
+      .attr("cx", dotX)
+      .attr("cy", dotY)
+      .attr("r", 5)
+      .attr("fill", s.color)
+      .attr("opacity", 0.9)
+      .attr("tabindex", 0)
+      .attr("role", "img")
+      .attr("aria-label", `${s.name} — ${axes[i]}: ${v}`)
+      .style("cursor", "pointer")
+      .on("mouseenter", function(event) {
+        d3.select(this).attr("r", 7).attr("opacity", 1);
+        tooltip.style("opacity", 1)
+          .html(`<strong>${s.name}</strong><br>${axes[i]}: ${v}`);
+      })
+      .on("mousemove", function(event) {
+        tooltip.style("left", (event.pageX + 12) + "px")
+          .style("top", (event.pageY - 28) + "px");
+      })
+      .on("mouseleave", function() {
+        d3.select(this).attr("r", 5).attr("opacity", 0.9);
+        tooltip.style("opacity", 0);
+      });
+  });
+});
+</script>
+</body>
+</html>

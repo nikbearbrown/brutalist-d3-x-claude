@@ -2,7 +2,8 @@
 
 *Demand breakouts dominate the first half — supply reasserts at resistance and holds*
 
-![Point Figure](../images/54-point-figure.jpg)
+![Point and figure chart showing alternating columns of X demand marks and O supply marks](../images/54-point-figure.png)
+*Figure 54.1 — Demand breakouts dominate the first half — supply reasserts at resistance*
 
 ## What this chart is
 
@@ -54,6 +55,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/54-point-figure.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

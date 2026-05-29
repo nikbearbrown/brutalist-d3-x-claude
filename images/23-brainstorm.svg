@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 420">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap');
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect x="0" y="0" width="700" height="420" fill="#FFFFFF" rx="0"/>
+
+  <!-- Title -->
+  <text x="350" y="30" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="18" font-weight="600" fill="#2a1a0e">The Five Supervisory Capacities</text>
+
+  <!-- Chart area -->
+  <rect x="32" y="42" width="636" height="340" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="0.75" rx="0"/>
+
+  <!-- Spokes from center (350, 212) to each node -->
+  <!-- Node positions (evenly spaced around circle, r=140): -->
+  <!-- JUDGMENT: top (350, 82) -->
+  <!-- ETHICS: top-right (483, 171) -->
+  <!-- CREATIVITY: bottom-right (432, 325) -->
+  <!-- EMPATHY: bottom-left (268, 325) -->
+  <!-- ACCOUNTABILITY: top-left (217, 171) -->
+
+  <!-- Spokes -->
+  <line x1="350" y1="212" x2="350" y2="102" stroke="#D4D4D4" stroke-width="1.5"/>
+  <line x1="350" y1="212" x2="473" y2="171" stroke="#D4D4D4" stroke-width="1.5"/>
+  <line x1="350" y1="212" x2="432" y2="310" stroke="#D4D4D4" stroke-width="1.5"/>
+  <line x1="350" y1="212" x2="268" y2="310" stroke="#D4D4D4" stroke-width="1.5"/>
+  <line x1="350" y1="212" x2="227" y2="171" stroke="#D4D4D4" stroke-width="1.5"/>
+
+  <!-- Center node: IRREDUCIBLY HUMAN -->
+  <rect x="290" y="194" width="120" height="36" fill="#2a1a0e" stroke="none" rx="0"/>
+  <text x="350" y="216" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" letter-spacing="0.08em" fill="#FFFFFF">IRREDUCIBLY</text>
+  <text x="350" y="226" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" letter-spacing="0.08em" fill="#FFFFFF">HUMAN</text>
+
+  <!-- Node 1: JUDGMENT (top) -->
+  <rect x="300" y="72" width="100" height="30" fill="#C8102E" stroke="none" rx="0"/>
+  <text x="350" y="92" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" letter-spacing="0.08em" fill="#FFFFFF">JUDGMENT</text>
+
+  <!-- Node 2: ETHICS (top-right) -->
+  <rect x="423" y="156" width="100" height="30" fill="#1A3A5C" stroke="none" rx="0"/>
+  <text x="473" y="176" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" letter-spacing="0.08em" fill="#FFFFFF">ETHICS</text>
+
+  <!-- Node 3: CREATIVITY (bottom-right) -->
+  <rect x="382" y="295" width="100" height="30" fill="#6B3520" stroke="none" rx="0"/>
+  <text x="432" y="315" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" letter-spacing="0.08em" fill="#FFFFFF">CREATIVITY</text>
+
+  <!-- Node 4: EMPATHY (bottom-left) -->
+  <rect x="218" y="295" width="100" height="30" fill="#C8860E" stroke="none" rx="0"/>
+  <text x="268" y="315" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" letter-spacing="0.08em" fill="#FFFFFF">EMPATHY</text>
+
+  <!-- Node 5: ACCOUNTABILITY (top-left) -->
+  <rect x="152" y="156" width="150" height="30" fill="#545454" stroke="none" rx="0"/>
+  <text x="227" y="176" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" letter-spacing="0.08em" fill="#FFFFFF">ACCOUNTABILITY</text>
+
+  <!-- Caption -->
+  <text x="350" y="400" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" font-style="italic" fill="#545454">What remains when the tool handles everything else.</text>
+</svg>

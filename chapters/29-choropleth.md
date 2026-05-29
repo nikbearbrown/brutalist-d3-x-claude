@@ -2,7 +2,8 @@
 
 *Choropleth Map — GDP per Capita*
 
-![Choropleth](../images/29-choropleth.jpg)
+![Choropleth-style grid showing GDP per capita across world regions using sequential luminance encoding](../images/29-choropleth.png)
+*Figure 29.1 — GDP per Capita by Region*
 
 ## The perceptual mechanism
 
@@ -54,6 +55,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/29-choropleth.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

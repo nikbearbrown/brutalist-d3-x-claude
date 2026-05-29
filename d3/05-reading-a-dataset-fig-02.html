@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 5.2 — Three Honest Moves, One Failure Mode</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #FFFFFF; color: #121212; width: 1600px; height: 900px; overflow: hidden; }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const W = 1600, H = 900;
+const svg = d3.select('#chart').append('svg')
+  .attr('width', W).attr('height', H)
+  .attr('role', 'img').attr('aria-labelledby', 'chart-title');
+
+svg.append('title').attr('id', 'chart-title').text('Figure 5.2 — Three Honest Moves, One Failure Mode');
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#FFFFFF');
+
+svg.append('text').attr('x', W/2).attr('y', 48).attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif").attr('font-size', 36).attr('fill', '#121212')
+  .text('Three honest moves. One failure mode.');
+svg.append('text').attr('x', W/2).attr('y', 78).attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 14).attr('fill', '#545454')
+  .text('Figure 5.2 — When the dataset does not support the reader\'s question');
+
+// Root node
+const rootX = W/2, rootY = 160;
+svg.append('rect').attr('x', rootX - 240).attr('y', rootY).attr('width', 480).attr('height', 56)
+  .attr('fill', '#121212').attr('rx', 8);
+svg.append('text').attr('x', rootX).attr('y', rootY + 34).attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 16).attr('font-weight', 700).attr('fill', '#FFFFFF')
+  .text('Does the dataset support the reader\'s question?');
+
+// YES branch
+const yesX = 300, yesY = 290;
+svg.append('line').attr('x1', rootX - 100).attr('y1', rootY + 56).attr('x2', yesX).attr('y2', yesY)
+  .attr('stroke', '#2D8B4E').attr('stroke-width', 2);
+svg.append('rect').attr('x', yesX - 100).attr('y', yesY).attr('width', 200).attr('height', 44)
+  .attr('fill', '#2D8B4E').attr('rx', 8);
+svg.append('text').attr('x', yesX).attr('y', yesY + 28).attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 16).attr('font-weight', 700).attr('fill', '#FFFFFF')
+  .text('YES → Proceed');
+
+svg.append('text').attr('x', rootX - 160).attr('y', rootY + 80)
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 13).attr('font-weight', 600).attr('fill', '#2D8B4E')
+  .text('YES');
+
+// NO branch
+const noX = W/2 + 200, noY = 290;
+svg.append('line').attr('x1', rootX + 100).attr('y1', rootY + 56).attr('x2', noX).attr('y2', noY)
+  .attr('stroke', '#C8102E').attr('stroke-width', 2);
+svg.append('rect').attr('x', noX - 60).attr('y', noY).attr('width', 120).attr('height', 44)
+  .attr('fill', '#C8102E').attr('rx', 8);
+svg.append('text').attr('x', noX).attr('y', noY + 28).attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 16).attr('font-weight', 700).attr('fill', '#FFFFFF')
+  .text('NO');
+
+svg.append('text').attr('x', rootX + 210).attr('y', rootY + 80)
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 13).attr('font-weight', 600).attr('fill', '#C8102E')
+  .text('NO');
+
+// Three honest options from NO
+const options = [
+  { x: 460, label: 'Find better data', question: 'Can you get the missing data?', tag: 'HONEST MOVE 1', color: '#121212' },
+  { x: 820, label: 'Reframe the question', question: 'Is there a related question worth answering?', tag: 'HONEST MOVE 2', color: '#121212' },
+  { x: 1180, label: 'Acknowledge the gap', question: 'Must you proceed anyway?', tag: 'HONEST MOVE 3', color: '#121212' },
+];
+
+const optY = 400;
+options.forEach((opt, i) => {
+  // Line from NO node
+  svg.append('line').attr('x1', noX).attr('y1', noY + 44).attr('x2', opt.x).attr('y2', optY)
+    .attr('stroke', '#D4D4D4').attr('stroke-width', 1.5);
+
+  // Question box
+  svg.append('rect').attr('x', opt.x - 150).attr('y', optY).attr('width', 300).attr('height', 48)
+    .attr('fill', '#F8F8F8').attr('stroke', '#D4D4D4').attr('stroke-width', 1).attr('rx', 6);
+  svg.append('text').attr('x', opt.x).attr('y', optY + 30).attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif").attr('font-size', 13).attr('fill', '#121212')
+    .text(opt.question);
+
+  // YES arrow down
+  svg.append('line').attr('x1', opt.x).attr('y1', optY + 48).attr('x2', opt.x).attr('y2', optY + 80)
+    .attr('stroke', '#2D8B4E').attr('stroke-width', 2);
+  svg.append('text').attr('x', opt.x + 14).attr('y', optY + 70)
+    .attr('font-family', "'Inter', sans-serif").attr('font-size', 11).attr('font-weight', 600).attr('fill', '#2D8B4E')
+    .text('YES');
+
+  // Answer box
+  svg.append('rect').attr('x', opt.x - 140).attr('y', optY + 80).attr('width', 280).attr('height', 80)
+    .attr('fill', '#FFFFFF').attr('stroke', opt.color).attr('stroke-width', 2).attr('rx', 8);
+
+  // Tag
+  svg.append('rect').attr('x', opt.x - 140).attr('y', optY + 80).attr('width', 280).attr('height', 30)
+    .attr('fill', opt.color).attr('rx', 8);
+  svg.append('rect').attr('x', opt.x - 140).attr('y', optY + 102).attr('width', 280).attr('height', 8)
+    .attr('fill', opt.color);
+  svg.append('text').attr('x', opt.x).attr('y', optY + 101).attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif").attr('font-size', 12).attr('font-weight', 700).attr('fill', '#FFFFFF')
+    .text(opt.tag);
+
+  svg.append('text').attr('x', opt.x).attr('y', optY + 138).attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif").attr('font-size', 15).attr('font-weight', 600).attr('fill', '#121212')
+    .text(opt.label);
+});
+
+// Failure mode branch — from NO, going right and down
+const failX = 1180, failY = 620;
+
+svg.append('line').attr('x1', noX + 60).attr('y1', noY + 22).attr('x2', failX + 150).attr('y2', noY + 22)
+  .attr('stroke', '#C8102E').attr('stroke-width', 1.5).attr('stroke-dasharray', '6,4');
+svg.append('line').attr('x1', failX + 150).attr('y1', noY + 22).attr('x2', failX + 150).attr('y2', failY)
+  .attr('stroke', '#C8102E').attr('stroke-width', 1.5).attr('stroke-dasharray', '6,4');
+svg.append('line').attr('x1', failX + 150).attr('y1', failY).attr('x2', failX + 10).attr('y2', failY + 40)
+  .attr('stroke', '#C8102E').attr('stroke-width', 1.5).attr('stroke-dasharray', '6,4');
+
+// Failure box
+svg.append('rect').attr('x', failX - 220).attr('y', failY + 40).attr('width', 440).attr('height', 100)
+  .attr('fill', '#C8102E').attr('rx', 8);
+svg.append('text').attr('x', failX).attr('y', failY + 70).attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 14).attr('font-weight', 700).attr('fill', '#FFFFFF')
+  .text('THE FAILURE MODE');
+svg.append('text').attr('x', failX).attr('y', failY + 96).attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 14).attr('fill', 'rgba(255,255,255,0.9)')
+  .text('Substitute a different question');
+svg.append('text').attr('x', failX).attr('y', failY + 118).attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 14).attr('fill', 'rgba(255,255,255,0.9)')
+  .text('without acknowledging it');
+
+// Warning label
+svg.append('rect').attr('x', 100).attr('y', failY + 60).attr('width', 520).attr('height', 56)
+  .attr('fill', '#F9F2F3').attr('stroke', '#C8102E').attr('stroke-width', 1.5).attr('rx', 8);
+svg.append('text').attr('x', 360).attr('y', failY + 82).attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 13).attr('fill', '#C8102E')
+  .text('Producing a chart that looks like it answers the original question');
+svg.append('text').attr('x', 360).attr('y', failY + 102).attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 13).attr('fill', '#C8102E')
+  .text('while actually answering a different one. This is not ignorance.');
+
+// Caption
+svg.append('line').attr('x1', 60).attr('y1', H - 40).attr('x2', W - 60).attr('y2', H - 40)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+svg.append('text').attr('x', W/2).attr('y', H - 16).attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 12).attr('fill', '#545454')
+  .text('Three honest moves when the data doesn\'t support the question. The fourth move — substitution without disclosure — is the failure mode.');
+</script>
+</body>
+</html>

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scatterplot — GDP vs Life Satisfaction</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root {
+    --color-bg: #FFFFFF;
+    --color-ink: #2a1a0e;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+    --color-surface: #F5EFE8;
+    --color-mark: #6B3520;
+    --color-slate: #1A3A5C;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1a1a;
+      --color-ink: #e8e0d6;
+      --color-surface: #2a2420;
+      --color-secondary: #a0978e;
+      --color-border: #444;
+      --color-mark: #c28060;
+      --color-red: #e05040;
+      --color-slate: #5a9ad6;
+      --color-ochre: #d4a030;
+    }
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+  #chart-container { width: 100%; max-width: 900px; }
+  h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; color: var(--color-ink); }
+  .subtitle {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--color-secondary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .caption {
+    font-size: 0.9rem;
+    color: var(--color-secondary);
+    font-style: italic;
+    margin-top: 12px;
+  }
+  .tooltip {
+    position: absolute;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--color-ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+</style>
+</head>
+<body>
+<div id="chart-container">
+  <h1>GDP vs Life Satisfaction</h1>
+  <div class="subtitle">SCATTERPLOT — 20 COUNTRIES</div>
+  <div id="chart" role="img" aria-label="Scatterplot showing GDP per capita versus life satisfaction for 20 countries with a positive correlation trend line."></div>
+  <div class="caption">Higher GDP correlates with higher life satisfaction, but gains flatten above $40K.</div>
+</div>
+<div class="tooltip" id="tooltip"></div>
+<script>
+const data = [
+  { label: "Nigeria", x: 2000, y: 4.2 },
+  { label: "India", x: 2500, y: 4.0 },
+  { label: "Bangladesh", x: 2800, y: 4.5 },
+  { label: "Kenya", x: 5000, y: 4.4 },
+  { label: "Philippines", x: 3500, y: 5.5 },
+  { label: "Indonesia", x: 4300, y: 5.1 },
+  { label: "Egypt", x: 3700, y: 4.3 },
+  { label: "Brazil", x: 9000, y: 6.3 },
+  { label: "Mexico", x: 10000, y: 6.5 },
+  { label: "Turkey", x: 10500, y: 5.4 },
+  { label: "China", x: 13000, y: 5.8 },
+  { label: "Poland", x: 18000, y: 6.2 },
+  { label: "S. Korea", x: 35000, y: 5.8 },
+  { label: "Japan", x: 40000, y: 6.0 },
+  { label: "Italy", x: 35000, y: 6.7 },
+  { label: "France", x: 42000, y: 6.7 },
+  { label: "UK", x: 46000, y: 6.9 },
+  { label: "Germany", x: 48000, y: 7.0 },
+  { label: "USA", x: 55000, y: 6.9 },
+  { label: "Norway", x: 58000, y: 7.6 }
+];
+
+const container = document.getElementById("chart");
+const tooltip = document.getElementById("tooltip");
+
+function draw() {
+  container.innerHTML = "";
+  const width = container.clientWidth;
+  const height = Math.min(width * 0.65, 550);
+  const margin = { top: 20, right: 30, bottom: 50, left: 65 };
+  const w = width - margin.left - margin.right;
+  const h = height - margin.top - margin.bottom;
+
+  const svg = d3.select(container).append("svg")
+    .attr("width", width).attr("height", height)
+    .attr("viewBox", `0 0 ${width} ${height}`);
+
+  svg.append("title").text("GDP vs Life Satisfaction — Scatterplot");
+  svg.append("desc").text("20 countries plotted by GDP per capita (x) and life satisfaction (y). Positive correlation with a dashed OLS trend line.");
+
+  const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+  // Chart area
+  g.append("rect").attr("width", w).attr("height", h)
+    .attr("fill", "var(--color-surface)").attr("stroke", "var(--color-border)").attr("stroke-width", 0.75);
+
+  const xScale = d3.scaleLinear().domain([0, 60000]).range([0, w]);
+  const yScale = d3.scaleLinear().domain([0, 10]).range([h, 0]);
+
+  // Grid
+  yScale.ticks(10).forEach(t => {
+    g.append("line").attr("x1", 0).attr("x2", w).attr("y1", yScale(t)).attr("y2", yScale(t))
+      .attr("stroke", "var(--color-border)").attr("stroke-width", 0.3).attr("stroke-dasharray", "3,3");
+  });
+
+  // Axes
+  const xAxis = d3.axisBottom(xScale).ticks(6).tickFormat(d => `$${d / 1000}K`);
+  const yAxis = d3.axisLeft(yScale).ticks(10);
+
+  g.append("g").attr("transform", `translate(0,${h})`).call(xAxis)
+    .selectAll("text").attr("font-family", "'IBM Plex Mono', monospace").attr("font-size", "0.65rem")
+    .attr("fill", "var(--color-secondary)").attr("letter-spacing", "0.08em");
+  g.append("g").call(yAxis)
+    .selectAll("text").attr("font-family", "'IBM Plex Mono', monospace").attr("font-size", "0.65rem")
+    .attr("fill", "var(--color-secondary)").attr("letter-spacing", "0.08em");
+
+  // Axis labels
+  g.append("text").attr("x", w / 2).attr("y", h + 42).attr("text-anchor", "middle")
+    .attr("font-family", "'IBM Plex Mono', monospace").attr("font-size", "0.7rem")
+    .attr("fill", "var(--color-ink)").attr("letter-spacing", "0.08em").text("GDP PER CAPITA");
+
+  g.append("text").attr("x", -h / 2).attr("y", -50).attr("text-anchor", "middle")
+    .attr("transform", "rotate(-90)")
+    .attr("font-family", "'IBM Plex Mono', monospace").attr("font-size", "0.7rem")
+    .attr("fill", "var(--color-ink)").attr("letter-spacing", "0.08em").text("LIFE SATISFACTION");
+
+  // OLS trend line
+  const n = data.length;
+  const sumX = d3.sum(data, d => d.x);
+  const sumY = d3.sum(data, d => d.y);
+  const sumXY = d3.sum(data, d => d.x * d.y);
+  const sumX2 = d3.sum(data, d => d.x * d.x);
+  const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+  const intercept = (sumY - slope * sumX) / n;
+
+  g.append("line")
+    .attr("x1", xScale(0)).attr("y1", yScale(intercept))
+    .attr("x2", xScale(60000)).attr("y2", yScale(slope * 60000 + intercept))
+    .attr("stroke", "var(--color-ochre)").attr("stroke-width", 1.5).attr("stroke-dasharray", "6,4");
+
+  g.append("text").attr("x", xScale(58000)).attr("y", yScale(slope * 58000 + intercept) - 8)
+    .attr("text-anchor", "end")
+    .attr("font-family", "'IBM Plex Mono', monospace").attr("font-size", "0.6rem")
+    .attr("fill", "var(--color-ochre)").attr("letter-spacing", "0.08em").text("OLS TREND");
+
+  // Points
+  g.selectAll("circle").data(data).enter().append("circle")
+    .attr("cx", d => xScale(d.x)).attr("cy", d => yScale(d.y)).attr("r", 4)
+    .attr("fill", "var(--color-mark)")
+    .attr("tabindex", 0)
+    .attr("role", "graphics-symbol")
+    .attr("aria-label", d => `${d.label}: GDP $${(d.x / 1000).toFixed(0)}K, Satisfaction ${d.y}`)
+    .on("mouseenter", function(event, d) {
+      d3.select(this).attr("r", 6);
+      tooltip.style.opacity = 1;
+      tooltip.innerHTML = `<strong>${d.label}</strong><br>GDP: $${d.x.toLocaleString()}<br>Satisfaction: ${d.y}`;
+    })
+    .on("mousemove", function(event) {
+      tooltip.style.left = event.pageX + 12 + "px";
+      tooltip.style.top = event.pageY - 28 + "px";
+    })
+    .on("mouseleave", function() {
+      d3.select(this).attr("r", 4);
+      tooltip.style.opacity = 0;
+    })
+    .on("focus", function(event, d) {
+      d3.select(this).attr("r", 6);
+      tooltip.style.opacity = 1;
+      tooltip.innerHTML = `<strong>${d.label}</strong><br>GDP: $${d.x.toLocaleString()}<br>Satisfaction: ${d.y}`;
+      const rect = this.getBoundingClientRect();
+      tooltip.style.left = rect.x + rect.width / 2 + "px";
+      tooltip.style.top = rect.y - 40 + "px";
+    })
+    .on("blur", function() {
+      d3.select(this).attr("r", 4);
+      tooltip.style.opacity = 0;
+    });
+}
+
+draw();
+window.addEventListener("resize", draw);
+</script>
+</body>
+</html>

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flow Map — Major Displacement Corridors</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-ink: #2a1a0e;
+    --color-mark: #6B3520;
+    --color-red: #C8102E;
+    --color-slate: #1A3A5C;
+    --color-ochre: #C8860E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --font-body: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    --font-sans: 'Inter', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', 'IBM Plex Mono', 'Courier New', monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1410;
+      --color-surface: #2a2018;
+      --color-ink: #e8ddd0;
+      --color-mark: #c4886a;
+      --color-red: #e8525a;
+      --color-slate: #6a9cc8;
+      --color-ochre: #e8b84a;
+      --color-secondary: #a0968a;
+      --color-border: #4a4038;
+    }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+
+  h1 {
+    font-family: var(--font-body);
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-bottom: 4px;
+    text-align: center;
+  }
+
+  .subtitle {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-style: italic;
+    color: var(--color-secondary);
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  #chart-container {
+    width: 100%;
+    max-width: 700px;
+    position: relative;
+  }
+
+  svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .tooltip {
+    position: absolute;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--color-ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 10;
+  }
+
+  .flow-path {
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .flow-path:hover {
+    opacity: 1 !important;
+  }
+
+  .region-box {
+    cursor: default;
+  }
+</style>
+</head>
+<body>
+<h1>Major Displacement Corridors</h1>
+<p class="subtitle">Three countries account for over half of tracked flows.</p>
+<div id="chart-container">
+  <div class="tooltip" id="tooltip"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const regions = [
+  { id: "syria", label: "SYRIA", x: 280, y: 120, w: 80, h: 36 },
+  { id: "afghanistan", label: "AFGHANISTAN", x: 280, y: 260, w: 80, h: 36 },
+  { id: "venezuela", label: "VENEZUELA", x: 75, y: 200, w: 80, h: 36 },
+  { id: "turkey", label: "TURKEY", x: 460, y: 80, w: 70, h: 36 },
+  { id: "germany", label: "GERMANY", x: 540, y: 148, w: 70, h: 36 },
+  { id: "colombia", label: "COLOMBIA", x: 75, y: 310, w: 80, h: 36 },
+  { id: "pakistan", label: "PAKISTAN", x: 460, y: 235, w: 70, h: 36 },
+  { id: "iran", label: "IRAN", x: 460, y: 298, w: 70, h: 36 }
+];
+
+const flows = [
+  { from: "syria", to: "turkey", volume: 3600000, color: "var(--color-red)", label: "Syria to Turkey", people: "3.6 million" },
+  { from: "syria", to: "germany", volume: 800000, color: "var(--color-red)", label: "Syria to Germany", people: "800,000" },
+  { from: "venezuela", to: "colombia", volume: 1800000, color: "var(--color-slate)", label: "Venezuela to Colombia", people: "1.8 million" },
+  { from: "afghanistan", to: "pakistan", volume: 1400000, color: "var(--color-mark)", label: "Afghanistan to Pakistan", people: "1.4 million" },
+  { from: "afghanistan", to: "iran", volume: 780000, color: "var(--color-mark)", label: "Afghanistan to Iran", people: "780,000" }
+];
+
+const widthScale = d3.scaleSqrt()
+  .domain([0, 3600000])
+  .range([3, 10]);
+
+const width = 700;
+const height = 420;
+
+const svg = d3.select("#chart-container")
+  .append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("role", "img")
+  .attr("aria-label", "Flow map showing major displacement corridors from Syria, Venezuela, and Afghanistan");
+
+// Arrowhead markers
+const defs = svg.append("defs");
+["red", "slate", "mark"].forEach(name => {
+  defs.append("marker")
+    .attr("id", `arrow-${name}`)
+    .attr("markerWidth", 8)
+    .attr("markerHeight", 6)
+    .attr("refX", 8)
+    .attr("refY", 3)
+    .attr("orient", "auto")
+    .append("path")
+    .attr("d", "M0,0 L8,3 L0,6 Z")
+    .attr("fill", `var(--color-${name})`);
+});
+
+// Chart background
+svg.append("rect")
+  .attr("x", 32)
+  .attr("y", 42)
+  .attr("width", 636)
+  .attr("height", 330)
+  .attr("fill", "var(--color-surface)")
+  .attr("stroke", "var(--color-border)")
+  .attr("stroke-width", 0.75);
+
+const tooltip = d3.select("#tooltip");
+
+const regionMap = {};
+regions.forEach(r => { regionMap[r.id] = r; });
+
+// Draw flow arrows
+flows.forEach(f => {
+  const from = regionMap[f.from];
+  const to = regionMap[f.to];
+
+  const x1 = from.x + from.w;
+  const y1 = from.y + from.h / 2;
+  const x2 = to.x;
+  const y2 = to.y + to.h / 2;
+
+  // Handle Venezuela->Colombia (vertical flow)
+  let startX, startY, endX, endY;
+  if (f.from === "venezuela") {
+    startX = from.x + from.w / 2;
+    startY = from.y + from.h;
+    endX = to.x + to.w / 2;
+    endY = to.y;
+  } else {
+    startX = x1;
+    startY = y1;
+    endX = x2;
+    endY = y2;
+  }
+
+  const midX = (startX + endX) / 2;
+  const midY = (startY + endY) / 2;
+  const ctrlX = midX + (endY - startY) * 0.15;
+  const ctrlY = midY - (endX - startX) * 0.15;
+
+  const markerName = f.color.includes("red") ? "red" : f.color.includes("slate") ? "slate" : "mark";
+
+  svg.append("path")
+    .attr("class", "flow-path")
+    .attr("d", `M${startX},${startY} Q${ctrlX},${ctrlY} ${endX},${endY}`)
+    .attr("fill", "none")
+    .attr("stroke", f.color)
+    .attr("stroke-width", widthScale(f.volume))
+    .attr("marker-end", `url(#arrow-${markerName})`)
+    .attr("opacity", 0.8)
+    .attr("tabindex", 0)
+    .attr("role", "img")
+    .attr("aria-label", `${f.label}: ${f.people}`)
+    .on("mouseover", function(event) {
+      d3.select(this).attr("opacity", 1);
+      tooltip.style("opacity", 1)
+        .html(`<strong>${f.label}</strong><br>${f.people} displaced`)
+        .style("left", (event.offsetX + 14) + "px")
+        .style("top", (event.offsetY - 14) + "px");
+    })
+    .on("mousemove", function(event) {
+      tooltip.style("left", (event.offsetX + 14) + "px")
+        .style("top", (event.offsetY - 14) + "px");
+    })
+    .on("mouseout", function() {
+      d3.select(this).attr("opacity", 0.8);
+      tooltip.style("opacity", 0);
+    });
+});
+
+// Draw region boxes
+regions.forEach(r => {
+  const g = svg.append("g").attr("class", "region-box");
+
+  g.append("rect")
+    .attr("x", r.x)
+    .attr("y", r.y)
+    .attr("width", r.w)
+    .attr("height", r.h)
+    .attr("fill", "var(--color-bg)")
+    .attr("stroke", "var(--color-ink)")
+    .attr("stroke-width", 1)
+    .attr("rx", 0);
+
+  g.append("text")
+    .attr("x", r.x + r.w / 2)
+    .attr("y", r.y + r.h / 2 + 4)
+    .attr("text-anchor", "middle")
+    .attr("font-family", "var(--font-mono)")
+    .attr("font-size", r.label.length > 8 ? "8px" : "9px")
+    .attr("fill", "var(--color-ink)")
+    .attr("letter-spacing", "0.08em")
+    .text(r.label);
+});
+
+// Legend
+const legendData = [
+  { label: "SYRIA ORIGIN", color: "var(--color-red)" },
+  { label: "VENEZUELA ORIGIN", color: "var(--color-slate)" },
+  { label: "AFGHANISTAN ORIGIN", color: "var(--color-mark)" }
+];
+
+legendData.forEach((l, i) => {
+  const lx = 52 + i * 160;
+  svg.append("line")
+    .attr("x1", lx)
+    .attr("x2", lx + 20)
+    .attr("y1", 390)
+    .attr("y2", 390)
+    .attr("stroke", l.color)
+    .attr("stroke-width", 4);
+
+  svg.append("text")
+    .attr("x", lx + 26)
+    .attr("y", 394)
+    .attr("font-family", "var(--font-mono)")
+    .attr("font-size", "9px")
+    .attr("fill", "var(--color-secondary)")
+    .attr("letter-spacing", "0.08em")
+    .text(l.label);
+});
+</script>
+</body>
+</html>

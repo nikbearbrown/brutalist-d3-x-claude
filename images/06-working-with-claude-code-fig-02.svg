@@ -1,0 +1,92 @@
+<svg viewBox="0 0 700 480" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+<defs>
+  <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#2a1a0e"/>
+  </marker>
+</defs>
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="480" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="32" text-anchor="middle" font-size="13" fill="#545454" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">ANATOMY OF A FOUR-MOVE PROMPT</text>
+
+<!-- Main prompt block area -->
+<rect x="32" y="50" width="420" height="390" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+
+<!-- Move 1: SHOW -->
+<rect x="32" y="50" width="6" height="86" fill="#F5EFE8"/>
+<rect x="46" y="56" width="84" height="24" fill="#F5EFE8"/>
+<text x="88" y="73" text-anchor="middle" font-size="10" fill="#2a1a0e" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em" font-weight="bold">MOVE 1</text>
+<text x="140" y="73" font-size="11" fill="#6B3520" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em" font-weight="bold">SHOW</text>
+<text x="56" y="96" font-size="13" fill="#2a1a0e">"Here is the data: humanitarian spending by sector</text>
+<text x="56" y="112" font-size="13" fill="#2a1a0e">for 2024. Five categories, values in USD millions."</text>
+<text x="56" y="128" font-size="11" fill="#545454" font-style="italic">Attach the CSV or paste key rows.</text>
+
+<!-- Divider -->
+<line x1="46" y1="142" x2="440" y2="142" stroke="#D4D4D4" stroke-width="0.5"/>
+
+<!-- Move 2: SAY -->
+<rect x="32" y="142" width="6" height="86" fill="#D4D4D4"/>
+<rect x="46" y="148" width="84" height="24" fill="#D4D4D4"/>
+<text x="88" y="165" text-anchor="middle" font-size="10" fill="#2a1a0e" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em" font-weight="bold">MOVE 2</text>
+<text x="140" y="165" font-size="11" fill="#6B3520" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em" font-weight="bold">SAY</text>
+<text x="56" y="188" font-size="13" fill="#2a1a0e">"The reader's question is: Which sector receives</text>
+<text x="56" y="204" font-size="13" fill="#2a1a0e">the most funding, and how do others compare?"</text>
+<text x="56" y="220" font-size="11" fill="#545454" font-style="italic">State the one question the chart must answer.</text>
+
+<!-- Divider -->
+<line x1="46" y1="234" x2="440" y2="234" stroke="#D4D4D4" stroke-width="0.5"/>
+
+<!-- Move 3: CONSTRAIN (emphasized, largest) -->
+<rect x="32" y="234" width="6" height="116" fill="#C8102E"/>
+<rect x="46" y="240" width="84" height="24" fill="#C8102E"/>
+<text x="88" y="257" text-anchor="middle" font-size="10" fill="#FFFFFF" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em" font-weight="bold">MOVE 3</text>
+<text x="140" y="257" font-size="11" fill="#C8102E" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em" font-weight="bold">CONSTRAIN</text>
+<text x="56" y="280" font-size="13" fill="#2a1a0e">"Horizontal bar chart. Sort descending. Zero baseline.</text>
+<text x="56" y="296" font-size="13" fill="#2a1a0e">No 3D. No legend if only one series. Value labels</text>
+<text x="56" y="312" font-size="13" fill="#2a1a0e">at bar ends. Use #6B3520 fill with sequential</text>
+<text x="56" y="328" font-size="13" fill="#2a1a0e">lightening. 700 x 420 SVG. EB Garamond font."</text>
+<text x="56" y="344" font-size="11" fill="#545454" font-style="italic">The more constraints, the less guesswork.</text>
+
+<!-- Divider -->
+<line x1="46" y1="356" x2="440" y2="356" stroke="#D4D4D4" stroke-width="0.5"/>
+
+<!-- Move 4: VERIFY -->
+<rect x="32" y="356" width="6" height="84" fill="#2a1a0e"/>
+<rect x="46" y="362" width="84" height="24" fill="#2a1a0e"/>
+<text x="88" y="379" text-anchor="middle" font-size="10" fill="#FFFFFF" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em" font-weight="bold">MOVE 4</text>
+<text x="140" y="379" font-size="11" fill="#2a1a0e" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em" font-weight="bold">VERIFY</text>
+<text x="56" y="402" font-size="13" fill="#2a1a0e">"After generating, confirm: Does the longest bar</text>
+<text x="56" y="418" font-size="13" fill="#2a1a0e">equal $98M? Are bars sorted largest to smallest?</text>
+<text x="56" y="434" font-size="13" fill="#2a1a0e">Does the axis start at zero?"</text>
+
+<!-- Right-side annotation callouts -->
+<!-- Callout for SHOW -->
+<rect x="480" y="60" width="188" height="52" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+<text x="496" y="80" font-size="10" fill="#545454" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">WHY IT MATTERS</text>
+<text x="496" y="100" font-size="12" fill="#2a1a0e">LLMs hallucinate data.</text>
+<line x1="452" y1="86" x2="480" y2="86" stroke="#D4D4D4" stroke-width="1" stroke-dasharray="4 3"/>
+
+<!-- Callout for SAY -->
+<rect x="480" y="156" width="188" height="52" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+<text x="496" y="176" font-size="10" fill="#545454" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">WHY IT MATTERS</text>
+<text x="496" y="196" font-size="12" fill="#2a1a0e">Focus prevents scope creep.</text>
+<line x1="452" y1="182" x2="480" y2="182" stroke="#D4D4D4" stroke-width="1" stroke-dasharray="4 3"/>
+
+<!-- Callout for CONSTRAIN -->
+<rect x="480" y="264" width="188" height="64" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+<text x="496" y="284" font-size="10" fill="#545454" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">WHY IT MATTERS</text>
+<text x="496" y="302" font-size="12" fill="#2a1a0e">Defaults are not neutral.</text>
+<text x="496" y="318" font-size="12" fill="#2a1a0e">Override them explicitly.</text>
+<line x1="452" y1="292" x2="480" y2="292" stroke="#D4D4D4" stroke-width="1" stroke-dasharray="4 3"/>
+
+<!-- Callout for VERIFY -->
+<rect x="480" y="372" width="188" height="52" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+<text x="496" y="392" font-size="10" fill="#545454" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">WHY IT MATTERS</text>
+<text x="496" y="412" font-size="12" fill="#2a1a0e">Catch errors before publishing.</text>
+<line x1="452" y1="398" x2="480" y2="398" stroke="#D4D4D4" stroke-width="1" stroke-dasharray="4 3"/>
+
+<!-- Figure number -->
+<text x="350" y="468" text-anchor="middle" font-size="11" fill="#545454" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">FIGURE 6-2</text>
+</svg>

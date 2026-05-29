@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dot Matrix — 100 People: Who Has Access to Clean Energy?</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-ink: #2a1a0e;
+    --color-mark: #6B3520;
+    --color-red: #C8102E;
+    --color-slate: #1A3A5C;
+    --color-ochre: #C8860E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --font-body: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1410;
+      --color-surface: #2a2018;
+      --color-ink: #e8ddd0;
+      --color-mark: #c4886a;
+      --color-red: #e8525a;
+      --color-slate: #6a9cc8;
+      --color-ochre: #e8b84a;
+      --color-secondary: #a0968a;
+      --color-border: #4a4038;
+    }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+
+  h1 {
+    font-family: var(--font-body);
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-bottom: 4px;
+    text-align: center;
+  }
+
+  .subtitle {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-style: italic;
+    color: var(--color-secondary);
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  #chart-container {
+    width: 100%;
+    max-width: 600px;
+    position: relative;
+  }
+
+  svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .tooltip {
+    position: absolute;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--color-ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .matrix-dot {
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .matrix-dot:hover {
+    opacity: 0.7;
+    stroke: var(--color-ink);
+    stroke-width: 2;
+  }
+
+  .matrix-dot:focus {
+    outline: none;
+    stroke: var(--color-red);
+    stroke-width: 2;
+  }
+</style>
+</head>
+<body>
+<h1>100 People — Who Has Access to Clean Energy?</h1>
+<p class="subtitle">Each dot is one person. Proportion is immediate.</p>
+<div id="chart-container">
+  <div class="tooltip" id="tooltip"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script>
+const totalPeople = 100;
+const accessCount = 73;
+const noAccessCount = totalPeople - accessCount;
+
+const data = [];
+for (let i = 0; i < totalPeople; i++) {
+  data.push({
+    index: i,
+    row: Math.floor(i / 10),
+    col: i % 10,
+    hasAccess: i < accessCount,
+    label: i < accessCount ? "Has access to clean energy" : "No access to clean energy",
+    person: `Person ${i + 1}`
+  });
+}
+
+const width = 600;
+const height = 650;
+const margin = { top: 60, right: 60, bottom: 120, left: 60 };
+const gridSize = 10;
+const dotRadius = 18;
+const spacing = (width - margin.left - margin.right) / gridSize;
+
+const svg = d3.select("#chart-container")
+  .append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`);
+
+// Chart background
+svg.append("rect")
+  .attr("x", 32)
+  .attr("y", 32)
+  .attr("width", width - 64)
+  .attr("height", height - 64)
+  .attr("fill", "var(--color-surface)")
+  .attr("stroke", "var(--color-border)")
+  .attr("stroke-width", 0.75);
+
+const tooltip = d3.select("#tooltip");
+
+const g = svg.append("g")
+  .attr("transform", `translate(${margin.left + spacing / 2}, ${margin.top + spacing / 2})`);
+
+// Draw dots
+g.selectAll(".matrix-dot")
+  .data(data)
+  .join("circle")
+  .attr("class", "matrix-dot")
+  .attr("cx", d => d.col * spacing)
+  .attr("cy", d => d.row * spacing)
+  .attr("r", dotRadius)
+  .attr("fill", d => d.hasAccess ? "var(--color-mark)" : "var(--color-border)")
+  .attr("tabindex", 0)
+  .attr("role", "img")
+  .attr("aria-label", d => `${d.person}: ${d.label}`)
+  .on("mouseover", (event, d) => {
+    tooltip.style("opacity", 1)
+      .html(`<strong>${d.person}</strong><br>${d.label}`)
+      .style("left", (event.offsetX + 12) + "px")
+      .style("top", (event.offsetY - 12) + "px");
+  })
+  .on("mouseout", () => tooltip.style("opacity", 0))
+  .on("focus", function(event, d) {
+    tooltip.style("opacity", 1)
+      .html(`<strong>${d.person}</strong><br>${d.label}`)
+      .style("left", (d.col * spacing + margin.left + spacing / 2 + 20) + "px")
+      .style("top", (d.row * spacing + margin.top + spacing / 2 - 10) + "px");
+  })
+  .on("blur", () => tooltip.style("opacity", 0));
+
+// Summary text below grid
+const summaryY = margin.top + spacing * 10 + 30;
+
+svg.append("text")
+  .attr("x", width / 2)
+  .attr("y", summaryY)
+  .attr("text-anchor", "middle")
+  .attr("font-family", "var(--font-body)")
+  .attr("font-size", "22px")
+  .attr("font-weight", "600")
+  .attr("fill", "var(--color-ink)")
+  .text("73 out of 100");
+
+svg.append("text")
+  .attr("x", width / 2)
+  .attr("y", summaryY + 24)
+  .attr("text-anchor", "middle")
+  .attr("font-family", "var(--font-body)")
+  .attr("font-size", "16px")
+  .attr("fill", "var(--color-secondary)")
+  .text("have access to clean energy");
+
+// Legend
+const legendY = summaryY + 50;
+svg.append("circle")
+  .attr("cx", width / 2 - 80)
+  .attr("cy", legendY)
+  .attr("r", 8)
+  .attr("fill", "var(--color-mark)");
+svg.append("text")
+  .attr("x", width / 2 - 66)
+  .attr("y", legendY + 4)
+  .attr("font-family", "var(--font-body)")
+  .attr("font-size", "13px")
+  .attr("fill", "var(--color-ink)")
+  .text("Access");
+
+svg.append("circle")
+  .attr("cx", width / 2 + 20)
+  .attr("cy", legendY)
+  .attr("r", 8)
+  .attr("fill", "var(--color-border)");
+svg.append("text")
+  .attr("x", width / 2 + 34)
+  .attr("y", legendY + 4)
+  .attr("font-family", "var(--font-body)")
+  .attr("font-size", "13px")
+  .attr("fill", "var(--color-ink)")
+  .text("No access");
+</script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#2a1a0e">Investment by Sector and Subsector</text>
+
+<!-- Subtitle -->
+<text x="350" y="46" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">SUNBURST DIAGRAM</text>
+
+<!-- Chart area -->
+<rect x="32" y="60" width="636" height="310" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="0.75"/>
+
+<!-- Center: (350, 218). Inner ring: r1=40, r2=75. Outer ring: r3=80, r4=130. -->
+<!-- Fits within chart area: 218-130=88 > 60, 218+130=348 < 370 -->
+<!-- 3 sectors: Tech 40% (144°), Health 35% (126°), Finance 25% (90°) -->
+<!-- Start at top (-90° = 270° standard) and go clockwise -->
+
+<!-- Using polar coords: angle 0 = top (12 o'clock), clockwise -->
+<!-- Tech: 0° to 144°, Health: 144° to 270°, Finance: 270° to 360° -->
+<!-- Convert to SVG arc: SVG 0° = 3 o'clock, so subtract 90° -->
+<!-- Tech SVG: -90° to 54°, Health SVG: 54° to 180°, Finance SVG: 180° to 270° -->
+
+<!-- Helper: point at angle a (SVG degrees), radius r from (350,218):
+     x = 350 + r * cos(a * pi/180)
+     y = 218 + r * sin(a * pi/180) -->
+
+<!-- ═══ INNER RING ═══ -->
+<!-- Tech: -90° to 54° (r1=40, r2=75) -->
+<!-- P1(-90,75)=(350,143) P2(54,75)=(394.1,278.7) Q1(-90,40)=(350,178) Q2(54,40)=(373.5,250.3) -->
+<path d="M350,143 A75,75 0 0,1 394.1,278.7 L373.5,250.3 A40,40 0 0,0 350,178 Z" fill="#C8102E" stroke="#FFFFFF" stroke-width="1.5"/>
+
+<!-- Health: 54° to 180° (r1=40, r2=75) -->
+<!-- P1(54,75)=(394.1,278.7) P2(180,75)=(275,218) Q1(54,40)=(373.5,250.3) Q2(180,40)=(310,218) -->
+<path d="M394.1,278.7 A75,75 0 0,1 275,218 L310,218 A40,40 0 0,0 373.5,250.3 Z" fill="#1A3A5C" stroke="#FFFFFF" stroke-width="1.5"/>
+
+<!-- Finance: 180° to 270° (r1=40, r2=75) -->
+<!-- P1(180,75)=(275,218) P2(270,75)=(350,143)→wait, 270°SVG = -90° = back to top -->
+<!-- Actually 180° to 270° SVG: P2(270,75)=(350,293) — no that's wrong -->
+<!-- Let me recalculate: 270° SVG → cos(270)=0, sin(270)=-1 → (350, 218-75)=(350,143) -->
+<!-- But that's back to the start. Finance goes from 180° to 270° = -90° -->
+<!-- P1(180,75): cos180=-1,sin180=0 → (350-75, 218) = (275, 218) -->
+<!-- P2(270,75): cos270=0,sin270=-1 → (350, 218-75) = (350, 143) -->
+<path d="M275,218 A75,75 0 0,1 350,143 L350,178 A40,40 0 0,0 310,218 Z" fill="#6B3520" stroke="#FFFFFF" stroke-width="1.5"/>
+
+<!-- ═══ OUTER RING ═══ -->
+<!-- Tech subsectors: -90° to 54°, split into 3: AI(-90 to -42), Cloud(-42 to 6), Devices(6 to 54) -->
+<!-- r3=80, r4=130 -->
+
+<!-- AI: -90° to -42° -->
+<!-- P1(-90,130)=(350,88) P2(-42,130)=(446.6,128.5) Q1(-90,80)=(350,138) Q2(-42,80)=(409.5,164.4) -->
+<path d="M350,88 A130,130 0 0,1 446.6,128.5 L409.5,164.4 A80,80 0 0,0 350,138 Z" fill="#C8102E" opacity="0.7" stroke="#FFFFFF" stroke-width="1.5"/>
+
+<!-- Cloud: -42° to 6° -->
+<!-- P1(-42,130)=(446.6,128.5) P2(6,130)=(479.3,231.6) Q1(-42,80)=(409.5,164.4) Q2(6,80)=(429.5,226.4) -->
+<path d="M446.6,128.5 A130,130 0 0,1 479.3,231.6 L429.5,226.4 A80,80 0 0,0 409.5,164.4 Z" fill="#C8102E" opacity="0.5" stroke="#FFFFFF" stroke-width="1.5"/>
+
+<!-- Devices: 6° to 54° -->
+<!-- P1(6,130)=(479.3,231.6) P2(54,130)=(426.4,323.2) Q1(6,80)=(429.5,226.4) Q2(54,80)=(397.0,282.7) -->
+<path d="M479.3,231.6 A130,130 0 0,1 426.4,323.2 L397.0,282.7 A80,80 0 0,0 429.5,226.4 Z" fill="#C8102E" opacity="0.35" stroke="#FFFFFF" stroke-width="1.5"/>
+
+<!-- Health subsectors: 54° to 180°, split into 2: Pharma(54 to 117), MedDevices(117 to 180) -->
+<!-- Pharma: 54° to 117° -->
+<!-- P1(54,130)=(426.4,323.2) P2(117,130)=(290.9,333.8) Q1(54,80)=(397.0,282.7) Q2(117,80)=(313.7,289.3) -->
+<path d="M426.4,323.2 A130,130 0 0,1 290.9,333.8 L313.7,289.3 A80,80 0 0,0 397.0,282.7 Z" fill="#1A3A5C" opacity="0.7" stroke="#FFFFFF" stroke-width="1.5"/>
+
+<!-- MedDevices: 117° to 180° -->
+<!-- P1(117,130)=(290.9,333.8) P2(180,130)=(220,218) Q1(117,80)=(313.7,289.3) Q2(180,80)=(270,218) -->
+<path d="M290.9,333.8 A130,130 0 0,1 220,218 L270,218 A80,80 0 0,0 313.7,289.3 Z" fill="#1A3A5C" opacity="0.45" stroke="#FFFFFF" stroke-width="1.5"/>
+
+<!-- Finance subsectors: 180° to 270°, split into 3: Banking(180-210), Insurance(210-240), Fintech(240-270) -->
+<!-- Banking: 180° to 210° -->
+<!-- P1(180,130)=(220,218) P2(210,130)=(237.4,153) Q1(180,80)=(270,218) Q2(210,80)=(280.7,178) -->
+<path d="M220,218 A130,130 0 0,1 237.4,153 L280.7,178 A80,80 0 0,0 270,218 Z" fill="#6B3520" opacity="0.7" stroke="#FFFFFF" stroke-width="1.5"/>
+
+<!-- Insurance: 210° to 240° -->
+<!-- P1(210,130)=(237.4,153) P2(240,130)=(285,105.4) Q1(210,80)=(280.7,178) Q2(240,80)=(310,148.7) -->
+<path d="M237.4,153 A130,130 0 0,1 285,105.4 L310,148.7 A80,80 0 0,0 280.7,178 Z" fill="#6B3520" opacity="0.5" stroke="#FFFFFF" stroke-width="1.5"/>
+
+<!-- Fintech: 240° to 270° -->
+<!-- P1(240,130)=(285,105.4) P2(270,130)=(350,88) Q1(240,80)=(310,148.7) Q2(270,80)=(350,138) -->
+<path d="M285,105.4 A130,130 0 0,1 350,88 L350,138 A80,80 0 0,0 310,148.7 Z" fill="#6B3520" opacity="0.35" stroke="#FFFFFF" stroke-width="1.5"/>
+
+<!-- Center label -->
+<text x="350" y="221" text-anchor="middle" font-size="11" font-weight="bold" fill="#2a1a0e">Total</text>
+
+<!-- Sector labels -->
+<text x="500" y="300" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#C8102E" letter-spacing="0.08em">TECH 40%</text>
+<text x="200" y="310" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#1A3A5C" letter-spacing="0.08em">HEALTH 35%</text>
+<text x="240" y="108" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#6B3520" letter-spacing="0.08em">FINANCE 25%</text>
+
+<!-- Caption -->
+<text x="350" y="400" text-anchor="middle" font-size="11" font-style="italic" fill="#545454">Inner ring: sectors. Outer ring: subsectors within each sector.</text>
+
+</svg>

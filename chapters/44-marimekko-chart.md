@@ -2,7 +2,8 @@
 
 *MENA's Shelter Burden Is Double SSA's —Column Width Encodes Total Aid Share, Height Encodes Sector Mix*
 
-![Marimekko Chart](../images/44-marimekko-chart.jpg)
+![Marimekko chart showing aid allocation by region and sector with column width encoding total aid share](../images/44-marimekko-chart.png)
+*Figure 44.1 — MENA's Shelter Burden Is Double SSA's*
 
 ## What this chart is
 
@@ -52,6 +53,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/44-marimekko-chart.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

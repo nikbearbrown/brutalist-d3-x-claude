@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tree Diagram — AI Capability Taxonomy</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root {
+    --color-bg: #FFFFFF;
+    --color-ink: #2a1a0e;
+    --color-surface: #F5EFE8;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-mark: #6B3520;
+    --color-red: #C8102E;
+    --color-slate: #1A3A5C;
+    --color-ochre: #C8860E;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1a1a;
+      --color-ink: #e8e0d6;
+      --color-surface: #2a2420;
+      --color-secondary: #a0978e;
+      --color-border: #444;
+      --color-mark: #c28060;
+      --color-red: #e05040;
+      --color-slate: #5a9ad6;
+      --color-ochre: #d4a030;
+    }
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+  #chart-container { width: 100%; max-width: 900px; }
+  h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; color: var(--color-ink); }
+  .subtitle {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--color-secondary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .caption { font-size: 0.9rem; color: var(--color-secondary); font-style: italic; margin-top: 12px; }
+  .tooltip {
+    position: absolute;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--color-ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .node { cursor: pointer; }
+  .node circle { stroke-width: 1.5px; }
+  .node text { font-size: 11px; }
+  .link { fill: none; stroke-width: 1.5px; }
+</style>
+</head>
+<body>
+<div id="chart-container">
+  <h1>AI Capability Taxonomy</h1>
+  <div class="subtitle">TREE DIAGRAM — CLICK NODES TO EXPAND</div>
+  <div id="chart" role="img" aria-label="Tree diagram showing AI capabilities across 4 domains: Perception, Reasoning, Generation, Interaction"></div>
+  <div class="caption">46 capabilities across 4 domains — each branch decomposes into specific sub-capabilities.</div>
+</div>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const treeData = {
+  name: "AI Capabilities",
+  color: "var(--color-ink)",
+  children: [
+    {
+      name: "Perception", color: "var(--color-red)",
+      children: [
+        { name: "Vision", color: "var(--color-red)" },
+        { name: "Audio", color: "var(--color-red)" },
+        { name: "Sensor Fusion", color: "var(--color-red)" }
+      ]
+    },
+    {
+      name: "Reasoning", color: "var(--color-slate)",
+      children: [
+        { name: "Logic", color: "var(--color-slate)" },
+        { name: "Planning", color: "var(--color-slate)" }
+      ]
+    },
+    {
+      name: "Generation", color: "var(--color-mark)",
+      children: [
+        { name: "Text", color: "var(--color-mark)" },
+        { name: "Image", color: "var(--color-mark)" },
+        { name: "Code", color: "var(--color-mark)" }
+      ]
+    },
+    {
+      name: "Interaction", color: "var(--color-ochre)",
+      children: [
+        { name: "Dialogue", color: "var(--color-ochre)" },
+        { name: "Agents", color: "var(--color-ochre)" },
+        { name: "Tools", color: "var(--color-ochre)" }
+      ]
+    }
+  ]
+};
+
+const width = 750;
+const height = 500;
+const margin = { top: 40, right: 60, bottom: 40, left: 60 };
+
+const svg = d3.select("#chart")
+  .append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("preserveAspectRatio", "xMidYMid meet")
+  .style("width", "100%")
+  .style("height", "auto");
+
+svg.append("title").text("AI Capability Taxonomy — Tree Diagram");
+svg.append("desc").text("Hierarchical tree with root AI Capabilities, 4 domain branches, and 11 leaf nodes.");
+
+svg.append("rect").attr("width", width).attr("height", height).attr("fill", "var(--color-bg)");
+svg.append("rect")
+  .attr("x", margin.left - 20).attr("y", margin.top - 10)
+  .attr("width", width - margin.left - margin.right + 40)
+  .attr("height", height - margin.top - margin.bottom + 20)
+  .attr("fill", "var(--color-surface)").attr("stroke", "var(--color-border)").attr("stroke-width", 0.75);
+
+const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+const root = d3.hierarchy(treeData);
+const treeLayout = d3.tree().size([width - margin.left - margin.right, height - margin.top - margin.bottom - 40]);
+treeLayout(root);
+
+const tooltip = d3.select("#tooltip");
+
+// Links
+g.selectAll(".link")
+  .data(root.links())
+  .join("path")
+  .attr("class", "link")
+  .attr("stroke", "var(--color-border)")
+  .attr("d", d3.linkVertical().x(d => d.x).y(d => d.y));
+
+// Nodes
+const node = g.selectAll(".node")
+  .data(root.descendants())
+  .join("g")
+  .attr("class", "node")
+  .attr("transform", d => `translate(${d.x},${d.y})`)
+  .attr("tabindex", 0)
+  .attr("role", "treeitem")
+  .attr("aria-label", d => d.data.name);
+
+node.append("circle")
+  .attr("r", d => d.depth === 0 ? 7 : d.depth === 1 ? 5.5 : 4)
+  .attr("fill", d => d.data.color)
+  .attr("stroke", d => d.data.color)
+  .attr("opacity", d => d.children ? 1 : 0.6);
+
+node.append("text")
+  .attr("dy", d => d.children ? -14 : 18)
+  .attr("text-anchor", "middle")
+  .attr("fill", d => d.depth === 0 ? "var(--color-ink)" : d.data.color)
+  .attr("font-weight", d => d.depth <= 1 ? "bold" : "normal")
+  .attr("font-size", d => d.depth === 0 ? "14px" : d.depth === 1 ? "12px" : "10px")
+  .text(d => d.data.name);
+
+node.on("mouseenter", function(event, d) {
+    d3.select(this).select("circle").attr("stroke-width", 3);
+    tooltip.style("opacity", 1)
+      .html(`<strong>${d.data.name}</strong><br>Depth: ${d.depth}${d.children ? '<br>Children: ' + d.children.length : ' (leaf)'}`);
+  })
+  .on("mousemove", function(event) {
+    tooltip.style("left", (event.pageX + 12) + "px").style("top", (event.pageY - 28) + "px");
+  })
+  .on("mouseleave", function() {
+    d3.select(this).select("circle").attr("stroke-width", 1.5);
+    tooltip.style("opacity", 0);
+  });
+</script>
+</body>
+</html>

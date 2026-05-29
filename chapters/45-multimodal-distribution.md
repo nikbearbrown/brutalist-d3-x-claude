@@ -2,7 +2,8 @@
 
 *Multimodal Distribution*
 
-![Multimodal Distribution](../images/45-multimodal-distribution.jpg)
+![Density curve showing trimodal distribution with three peaks and a mean line that corresponds to no mode](../images/45-multimodal-distribution.png)
+*Figure 45.1 — Multimodal Distribution*
 
 ## The concept
 
@@ -61,6 +62,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/45-multimodal-distribution.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

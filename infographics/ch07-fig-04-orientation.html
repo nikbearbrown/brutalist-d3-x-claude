@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 7.4 — Column vs horizontal bar: label length decides</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #121212;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--color-white);
+    color: var(--color-ink);
+    width: 1600px;
+    height: 900px;
+    overflow: hidden;
+  }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const W = 1600, H = 900;
+const svg = d3.select('#chart').append('svg')
+  .attr('width', W).attr('height', H)
+  .attr('role', 'img')
+  .attr('aria-labelledby', 'chart-title chart-desc');
+
+svg.append('title').attr('id', 'chart-title').text('The orientation choice is not aesthetic. It is a Gestalt question.');
+svg.append('desc').attr('id', 'chart-desc').text('Two-panel comparison showing that vertical column charts work well with short labels while horizontal bar charts preserve Gestalt proximity for long labels, making the layout choice a readability decision rather than an aesthetic one.');
+
+// Background
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#FFFFFF');
+
+// Main title
+svg.append('text')
+  .attr('x', W / 2).attr('y', 50)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-size', 36).attr('fill', '#121212')
+  .text('The orientation choice is not aesthetic. It is a Gestalt question.');
+
+// Subtitle
+svg.append('text')
+  .attr('x', W / 2).attr('y', 80)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 14).attr('fill', '#545454')
+  .text('Figure 7.4 \u2014 Column vs horizontal bar: label length decides');
+
+// Data
+const shortData = [
+  { short: 'Lang', long: 'Language Processing', value: 87 },
+  { short: 'Math', long: 'Mathematical Reasoning', value: 82 },
+  { short: 'Phys', long: 'Physical Simulation', value: 68 },
+  { short: 'Logic', long: 'Logical Deduction', value: 75 },
+  { short: 'Vis', long: 'Visual Recognition', value: 91 },
+  { short: 'Audio', long: 'Audio Comprehension', value: 64 },
+  { short: 'Social', long: 'Social Understanding', value: 55 },
+  { short: 'Motor', long: 'Motor Coordination', value: 42 }
+];
+
+// Divider line
+svg.append('line')
+  .attr('x1', W / 2).attr('y1', 100).attr('x2', W / 2).attr('y2', H - 80)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 2);
+
+// =========================================================
+// LEFT PANEL — Vertical column chart with short labels
+// =========================================================
+const leftPanelX = 50;
+const leftPanelW = W / 2 - 70;
+
+// Panel header
+svg.append('rect')
+  .attr('x', leftPanelX).attr('y', 100).attr('width', leftPanelW).attr('height', 44)
+  .attr('fill', '#F5F5F5').attr('rx', 4);
+svg.append('text')
+  .attr('x', leftPanelX + leftPanelW / 2).attr('y', 128)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 17).attr('font-weight', 700).attr('fill', '#121212')
+  .text('Vertical column chart');
+
+// Badge
+svg.append('rect')
+  .attr('x', leftPanelX + leftPanelW - 130).attr('y', 106).attr('width', 114).attr('height', 28)
+  .attr('fill', '#121212').attr('rx', 14);
+svg.append('text')
+  .attr('x', leftPanelX + leftPanelW - 73).attr('y', 125)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 11).attr('font-weight', 700).attr('fill', '#FFFFFF')
+  .text('Short labels');
+
+const lMargin = { top: 172, right: 50, bottom: 220, left: 110 };
+const lChartW = leftPanelW - (lMargin.left - leftPanelX) - lMargin.right + leftPanelX;
+const realLeftStart = leftPanelX + 60;
+const lCW = leftPanelW - 110;
+const lCH = 380;
+const lCY = 172;
+
+const gLeft = svg.append('g')
+  .attr('transform', `translate(${realLeftStart + 50}, ${lCY})`);
+
+const xScaleCol = d3.scaleBand()
+  .domain(shortData.map(d => d.short))
+  .range([0, lCW])
+  .padding(0.2);
+
+const yScaleCol = d3.scaleLinear()
+  .domain([0, 100])
+  .range([lCH, 0]);
+
+// Gridlines
+gLeft.selectAll('.grid-left')
+  .data(yScaleCol.ticks(5))
+  .join('line')
+    .attr('x1', 0).attr('x2', lCW)
+    .attr('y1', d => yScaleCol(d)).attr('y2', d => yScaleCol(d))
+    .attr('stroke', '#ECECEC').attr('stroke-width', 1).attr('aria-hidden', 'true');
+
+// Y-axis
+gLeft.append('g')
+  .call(d3.axisLeft(yScaleCol).ticks(5))
+  .selectAll('text')
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 12).attr('fill', '#545454');
+gLeft.selectAll('.domain, .tick line').attr('stroke', '#D4D4D4');
+
+// Luminance scale
+const colorScale = d3.scaleLinear()
+  .domain([40, 95]).range(['#B8B0A8', '#121212']);
+
+// Bars
+gLeft.selectAll('.bar-col')
+  .data(shortData)
+  .join('rect')
+    .attr('class', 'bar-col')
+    .attr('x', d => xScaleCol(d.short))
+    .attr('y', d => yScaleCol(d.value))
+    .attr('width', xScaleCol.bandwidth())
+    .attr('height', d => lCH - yScaleCol(d.value))
+    .attr('fill', d => colorScale(d.value))
+    .attr('rx', 1)
+    .attr('tabindex', 0)
+    .attr('aria-label', d => `${d.short}: ${d.value}`);
+
+// Value labels
+shortData.forEach(d => {
+  gLeft.append('text')
+    .attr('x', xScaleCol(d.short) + xScaleCol.bandwidth() / 2)
+    .attr('y', yScaleCol(d.value) - 6)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 11).attr('font-weight', 600).attr('fill', '#121212')
+    .text(d.value);
+});
+
+// X-axis labels — rotated -30 degrees
+const xAxisLeft = d3.axisBottom(xScaleCol).tickSize(0);
+const xAxisG = gLeft.append('g')
+  .attr('transform', `translate(0, ${lCH})`)
+  .call(xAxisLeft);
+
+xAxisG.selectAll('text')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 13).attr('fill', '#121212')
+  .attr('text-anchor', 'end')
+  .attr('transform', 'rotate(-30)')
+  .attr('dx', '-4px').attr('dy', '8px');
+xAxisG.select('.domain').attr('stroke', '#D4D4D4');
+
+// Gestalt proximity annotation
+const annotY = lCH + 70;
+const barMidX = xScaleCol('Lang') + xScaleCol.bandwidth() / 2;
+
+// Arrow from label to bar
+const defs = svg.append('defs');
+defs.append('marker').attr('id', 'arrowOchre')
+  .attr('viewBox', '0 0 10 10').attr('refX', 10).attr('refY', 5)
+  .attr('markerWidth', 6).attr('markerHeight', 6).attr('orient', 'auto')
+  .append('path').attr('d', 'M 0 0 L 10 5 L 0 10 Z').attr('fill', '#C8860E');
+
+defs.append('marker').attr('id', 'arrowOchreUp')
+  .attr('viewBox', '0 0 10 10').attr('refX', 5).attr('refY', 0)
+  .attr('markerWidth', 6).attr('markerHeight', 6)
+  .append('path').attr('d', 'M 0 10 L 5 0 L 10 10').attr('fill', '#C8860E');
+
+// Curly brace approximation — proximity annotation
+const proxyLabelY = lCY + lCH + 40;
+const proxyBarBottom = lCY + lCH;
+const gProx = svg.append('g');
+
+// Small distance annotation between label and bar
+const annotBaseX = realLeftStart + 50 + xScaleCol('Math') + xScaleCol.bandwidth() + 16;
+
+gProx.append('line')
+  .attr('x1', annotBaseX).attr('y1', proxyBarBottom + 4)
+  .attr('x2', annotBaseX).attr('y2', proxyBarBottom + 30)
+  .attr('stroke', '#C8860E').attr('stroke-width', 1.5)
+  .attr('stroke-dasharray', '4,3');
+
+gProx.append('text')
+  .attr('x', annotBaseX + 8).attr('y', proxyBarBottom + 20)
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 11).attr('font-weight', 600).attr('fill', '#C8860E')
+  .text('Short gap');
+
+// Gestalt proximity note
+svg.append('rect')
+  .attr('x', leftPanelX + 20).attr('y', H - 174).attr('width', leftPanelW - 40).attr('height', 56)
+  .attr('fill', '#FFF8F0').attr('stroke', '#C8860E').attr('stroke-width', 1.5).attr('rx', 4);
+
+svg.append('text')
+  .attr('x', leftPanelX + leftPanelW / 2).attr('y', H - 153)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 13).attr('font-weight', 600).attr('fill', '#C8860E')
+  .text('Gestalt proximity preserved');
+svg.append('text')
+  .attr('x', leftPanelX + leftPanelW / 2).attr('y', H - 134)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('fill', '#545454')
+  .text('Short labels stay close to their bars even when rotated');
+
+// =========================================================
+// RIGHT PANEL — Horizontal bar chart with long labels
+// =========================================================
+const rightPanelX = W / 2 + 20;
+const rightPanelW = W / 2 - 70;
+
+// Panel header
+svg.append('rect')
+  .attr('x', rightPanelX).attr('y', 100).attr('width', rightPanelW).attr('height', 44)
+  .attr('fill', '#FFF0F0').attr('rx', 4);
+svg.append('text')
+  .attr('x', rightPanelX + rightPanelW / 2).attr('y', 128)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 17).attr('font-weight', 700).attr('fill', '#C8102E')
+  .text('Horizontal bar chart');
+
+// Badge
+svg.append('rect')
+  .attr('x', rightPanelX + rightPanelW - 130).attr('y', 106).attr('width', 114).attr('height', 28)
+  .attr('fill', '#C8102E').attr('rx', 14);
+svg.append('text')
+  .attr('x', rightPanelX + rightPanelW - 73).attr('y', 125)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 11).attr('font-weight', 700).attr('fill', '#FFFFFF')
+  .text('Long labels');
+
+const rChartX = rightPanelX + 220;
+const rCY = 172;
+const rCW = rightPanelW - 280;
+const rCH = 420;
+
+const gRight = svg.append('g')
+  .attr('transform', `translate(${rChartX}, ${rCY})`);
+
+// Sort by value descending for horizontal
+const sortedData = [...shortData].sort((a, b) => b.value - a.value);
+
+const yScaleBar = d3.scaleBand()
+  .domain(sortedData.map(d => d.long))
+  .range([0, rCH])
+  .padding(0.2);
+
+const xScaleBar = d3.scaleLinear()
+  .domain([0, 100])
+  .range([0, rCW]);
+
+// Gridlines
+gRight.selectAll('.grid-right')
+  .data(xScaleBar.ticks(5))
+  .join('line')
+    .attr('x1', d => xScaleBar(d)).attr('x2', d => xScaleBar(d))
+    .attr('y1', 0).attr('y2', rCH)
+    .attr('stroke', '#ECECEC').attr('stroke-width', 1).attr('aria-hidden', 'true');
+
+// Zero baseline
+gRight.append('line')
+  .attr('x1', 0).attr('y1', 0).attr('x2', 0).attr('y2', rCH)
+  .attr('stroke', '#121212').attr('stroke-width', 1.5);
+
+// X-axis
+gRight.append('g')
+  .attr('transform', `translate(0, ${rCH})`)
+  .call(d3.axisBottom(xScaleBar).ticks(5))
+  .selectAll('text')
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 11).attr('fill', '#545454');
+gRight.selectAll('.domain, .tick line').attr('stroke', '#D4D4D4');
+
+// Bars
+gRight.selectAll('.bar-horiz')
+  .data(sortedData)
+  .join('rect')
+    .attr('class', 'bar-horiz')
+    .attr('x', 0)
+    .attr('y', d => yScaleBar(d.long))
+    .attr('width', d => xScaleBar(d.value))
+    .attr('height', yScaleBar.bandwidth())
+    .attr('fill', d => colorScale(d.value))
+    .attr('rx', 1)
+    .attr('tabindex', 0)
+    .attr('aria-label', d => `${d.long}: ${d.value}`);
+
+// Long labels — left-aligned, reading naturally
+sortedData.forEach(d => {
+  gRight.append('text')
+    .attr('x', -12)
+    .attr('y', yScaleBar(d.long) + yScaleBar.bandwidth() / 2 + 5)
+    .attr('text-anchor', 'end')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 13).attr('fill', '#121212')
+    .text(d.long);
+});
+
+// Value labels
+sortedData.forEach(d => {
+  gRight.append('text')
+    .attr('x', xScaleBar(d.value) + 8)
+    .attr('y', yScaleBar(d.long) + yScaleBar.bandwidth() / 2 + 5)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 12).attr('font-weight', 600).attr('fill', '#121212')
+    .text(d.value);
+});
+
+// Gestalt proximity annotation for right panel
+const annotRightX = rChartX - 14;
+const annotRightBarY = rCY + yScaleBar('Language Processing') + yScaleBar.bandwidth() / 2;
+
+svg.append('line')
+  .attr('x1', annotRightX - 2).attr('y1', annotRightBarY)
+  .attr('x2', annotRightX - 16).attr('y2', annotRightBarY)
+  .attr('stroke', '#C8860E').attr('stroke-width', 1.5)
+  .attr('stroke-dasharray', '4,3');
+
+svg.append('text')
+  .attr('x', annotRightX - 18).attr('y', annotRightBarY - 8)
+  .attr('text-anchor', 'end')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 11).attr('font-weight', 600).attr('fill', '#C8860E')
+  .text('Zero gap');
+
+// Gestalt proximity note — right
+svg.append('rect')
+  .attr('x', rightPanelX + 20).attr('y', H - 174).attr('width', rightPanelW - 40).attr('height', 56)
+  .attr('fill', '#FFF8F0').attr('stroke', '#C8860E').attr('stroke-width', 1.5).attr('rx', 4);
+
+svg.append('text')
+  .attr('x', rightPanelX + rightPanelW / 2).attr('y', H - 153)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 13).attr('font-weight', 600).attr('fill', '#C8860E')
+  .text('Gestalt proximity maximized');
+svg.append('text')
+  .attr('x', rightPanelX + rightPanelW / 2).attr('y', H - 134)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('fill', '#545454')
+  .text('Long labels read left-to-right, directly adjacent to their bars');
+
+// =========================================================
+// Bottom caption
+// =========================================================
+svg.append('line')
+  .attr('x1', 50).attr('y1', H - 42).attr('x2', W - 50).attr('y2', H - 42)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+
+svg.append('text')
+  .attr('x', W / 2).attr('y', H - 14)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-style', 'italic')
+  .attr('font-size', 14).attr('fill', '#545454')
+  .text('Short labels \u2192 vertical. Long labels \u2192 horizontal. The layout must preserve Gestalt proximity between label and mark.');
+</script>
+</body>
+</html>

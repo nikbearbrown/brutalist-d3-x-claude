@@ -2,7 +2,8 @@
 
 *Crisis Response and Healthcare dominate the AI humanitarian footprint*
 
-![Circle Packing](../images/30-circle-packing.jpg)
+![Circle packing diagram showing AI humanitarian sectors with Crisis Response and Healthcare as dominant categories](../images/30-circle-packing.png)
+*Figure 30.1 — Crisis Response and Healthcare dominate the AI humanitarian footprint*
 
 Also known as: Bubble Hierarchy · Packed Circles · Circular Treemap
 
@@ -67,6 +68,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/30-circle-packing.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

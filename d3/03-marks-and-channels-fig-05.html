@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 3.5 — Magnitude vs Identity Channels</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #FFFFFF;
+    color: #121212;
+    width: 1600px;
+    height: 900px;
+    overflow: hidden;
+  }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const W = 1600, H = 900;
+const svg = d3.select('#chart').append('svg')
+  .attr('width', W).attr('height', H)
+  .attr('role', 'img')
+  .attr('aria-labelledby', 'chart-title');
+
+svg.append('title').attr('id', 'chart-title').text('Figure 3.5 — Magnitude Channels vs Identity Channels');
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#FFFFFF');
+
+// Title
+svg.append('text')
+  .attr('x', W/2).attr('y', 48)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-size', 36).attr('fill', '#121212')
+  .text('Magnitude channels convey "how much." Identity channels convey "which one."');
+
+svg.append('text')
+  .attr('x', W/2).attr('y', 78)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 14).attr('fill', '#545454')
+  .text('Figure 3.5 — Two-column taxonomy: the expressiveness principle in one diagram');
+
+// ── Divider ──
+svg.append('line')
+  .attr('x1', W/2).attr('y1', 100).attr('x2', W/2).attr('y2', H - 80)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 2);
+
+// ── LEFT COLUMN: Magnitude Channels ──
+const leftX = W * 0.25;
+const colW = 660;
+const colStartX = 60;
+const rightColStartX = W/2 + 40;
+
+// Left header
+svg.append('rect')
+  .attr('x', colStartX).attr('y', 100).attr('width', colW).attr('height', 56)
+  .attr('fill', '#C8102E').attr('rx', 8);
+svg.append('text')
+  .attr('x', colStartX + colW/2).attr('y', 136)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 22).attr('font-weight', 700).attr('fill', '#FFFFFF')
+  .text('MAGNITUDE CHANNELS');
+
+svg.append('text')
+  .attr('x', colStartX + colW/2).attr('y', 180)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 14).attr('fill', '#545454')
+  .text('Suited to: quantitative / ordered data');
+
+// Magnitude channels
+const magChannels = [
+  {
+    name: 'Position',
+    rank: '1',
+    desc: 'Where on x or y axis',
+    icon: (g, x, y) => {
+      // Dots at different positions
+      g.append('circle').attr('cx', x+10).attr('cy', y+20).attr('r', 5).attr('fill', '#C8102E');
+      g.append('circle').attr('cx', x+30).attr('cy', y+10).attr('r', 5).attr('fill', '#C8102E');
+      g.append('circle').attr('cx', x+50).attr('cy', y+30).attr('r', 5).attr('fill', '#C8102E');
+      g.append('line').attr('x1', x).attr('y1', y+38).attr('x2', x+60).attr('y2', y+38).attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+      g.append('line').attr('x1', x).attr('y1', y).attr('x2', x).attr('y2', y+38).attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+    }
+  },
+  {
+    name: 'Length',
+    rank: '2–3',
+    desc: 'How tall / how long',
+    icon: (g, x, y) => {
+      g.append('rect').attr('x', x+4).attr('y', y+8).attr('width', 12).attr('height', 30).attr('fill', '#C8102E').attr('rx', 2);
+      g.append('rect').attr('x', x+22).attr('y', y+18).attr('width', 12).attr('height', 20).attr('fill', '#C8102E').attr('opacity', 0.7).attr('rx', 2);
+      g.append('rect').attr('x', x+40).attr('y', y+4).attr('width', 12).attr('height', 34).attr('fill', '#C8102E').attr('opacity', 0.5).attr('rx', 2);
+      g.append('line').attr('x1', x).attr('y1', y+38).attr('x2', x+56).attr('y2', y+38).attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+    }
+  },
+  {
+    name: 'Area',
+    rank: '5',
+    desc: 'How large the region',
+    icon: (g, x, y) => {
+      g.append('circle').attr('cx', x+14).attr('cy', y+22).attr('r', 8).attr('fill', '#C8102E').attr('opacity', 0.5);
+      g.append('circle').attr('cx', x+36).attr('cy', y+18).attr('r', 14).attr('fill', '#C8102E').attr('opacity', 0.7);
+      g.append('circle').attr('cx', x+54).attr('cy', y+26).attr('r', 6).attr('fill', '#C8102E').attr('opacity', 0.4);
+    }
+  },
+  {
+    name: 'Luminance',
+    rank: '6',
+    desc: 'How light or dark',
+    icon: (g, x, y) => {
+      const shades = ['#F0EBE3', '#C0B8AC', '#807870', '#404040', '#121212'];
+      shades.forEach((c, i) => {
+        g.append('rect').attr('x', x + i*12).attr('y', y+8).attr('width', 10).attr('height', 26).attr('fill', c).attr('rx', 2);
+      });
+    }
+  }
+];
+
+const channelStartY = 200;
+const channelH = 100;
+
+magChannels.forEach((ch, i) => {
+  const y = channelStartY + i * channelH;
+  const g = svg.append('g');
+
+  // Card
+  g.append('rect')
+    .attr('x', colStartX).attr('y', y).attr('width', colW).attr('height', channelH - 12)
+    .attr('fill', '#FFFFFF').attr('stroke', '#D4D4D4').attr('stroke-width', 1).attr('rx', 6);
+
+  // Rank badge
+  g.append('rect')
+    .attr('x', colStartX + 16).attr('y', y + 14).attr('width', 48).attr('height', 28)
+    .attr('fill', '#C8102E').attr('rx', 4);
+  g.append('text')
+    .attr('x', colStartX + 40).attr('y', y + 34)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'JetBrains Mono', monospace")
+    .attr('font-size', 14).attr('font-weight', 400).attr('fill', '#FFFFFF')
+    .text('#' + ch.rank);
+
+  // Icon
+  ch.icon(g, colStartX + 80, y + 18);
+
+  // Name
+  g.append('text')
+    .attr('x', colStartX + 160).attr('y', y + 34)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 20).attr('font-weight', 700).attr('fill', '#121212')
+    .text(ch.name);
+
+  // Description
+  g.append('text')
+    .attr('x', colStartX + 160).attr('y', y + 58)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 14).attr('fill', '#545454')
+    .text(ch.desc);
+
+  // Stevens exponent
+  const exponents = { 'Position': 'a ≈ 1.0', 'Length': 'a ≈ 1.0', 'Area': 'a ≈ 0.7', 'Luminance': 'a ≈ 0.33' };
+  g.append('rect')
+    .attr('x', colStartX + colW - 140).attr('y', y + 16).attr('width', 120).attr('height', 24)
+    .attr('fill', '#F5F5F5').attr('rx', 4);
+  g.append('text')
+    .attr('x', colStartX + colW - 80).attr('y', y + 33)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'JetBrains Mono', monospace")
+    .attr('font-size', 12).attr('fill', '#545454')
+    .text('Stevens: ' + exponents[ch.name]);
+});
+
+// ── RIGHT COLUMN: Identity Channels ──
+// Right header
+svg.append('rect')
+  .attr('x', rightColStartX).attr('y', 100).attr('width', colW).attr('height', 56)
+  .attr('fill', '#121212').attr('rx', 8);
+svg.append('text')
+  .attr('x', rightColStartX + colW/2).attr('y', 136)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 22).attr('font-weight', 700).attr('fill', '#FFFFFF')
+  .text('IDENTITY CHANNELS');
+
+svg.append('text')
+  .attr('x', rightColStartX + colW/2).attr('y', 180)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 14).attr('fill', '#545454')
+  .text('Suited to: categorical data');
+
+const idChannels = [
+  {
+    name: 'Hue',
+    rank: '7',
+    desc: 'What color (red vs blue vs green)',
+    icon: (g, x, y) => {
+      const hues = ['#C8102E', '#2E7D32', '#1565C0', '#C8860E', '#7B1FA2'];
+      hues.forEach((c, i) => {
+        g.append('circle').attr('cx', x + 8 + i*13).attr('cy', y+20).attr('r', 5.5).attr('fill', c);
+      });
+    }
+  },
+  {
+    name: 'Shape',
+    rank: '8',
+    desc: 'Circle vs square vs triangle',
+    icon: (g, x, y) => {
+      g.append('circle').attr('cx', x+10).attr('cy', y+20).attr('r', 7).attr('fill', '#121212');
+      g.append('rect').attr('x', x+22).attr('y', y+13).attr('width', 14).attr('height', 14).attr('fill', '#121212');
+      g.append('polygon').attr('points', `${x+48},${y+13} ${x+56},${y+27} ${x+40},${y+27}`).attr('fill', '#121212');
+    }
+  },
+  {
+    name: 'Texture',
+    rank: '8',
+    desc: 'Pattern fill (dots, stripes, cross-hatch)',
+    icon: (g, x, y) => {
+      // Solid
+      g.append('rect').attr('x', x).attr('y', y+8).attr('width', 18).attr('height', 24).attr('fill', '#121212');
+      // Stripes approximation
+      g.append('rect').attr('x', x+22).attr('y', y+8).attr('width', 18).attr('height', 24).attr('fill', '#FFFFFF').attr('stroke', '#121212').attr('stroke-width', 1);
+      [0,4,8,12,16,20].forEach(dy => {
+        g.append('line').attr('x1', x+22).attr('y1', y+8+dy).attr('x2', x+40).attr('y2', y+8+dy).attr('stroke', '#121212').attr('stroke-width', 0.8);
+      });
+      // Dots
+      g.append('rect').attr('x', x+44).attr('y', y+8).attr('width', 18).attr('height', 24).attr('fill', '#FFFFFF').attr('stroke', '#121212').attr('stroke-width', 1);
+      [12,18,24].forEach(dy => {
+        [48,54].forEach(dx => {
+          g.append('circle').attr('cx', x+dx).attr('cy', y+dy).attr('r', 1.5).attr('fill', '#121212');
+        });
+      });
+    }
+  }
+];
+
+idChannels.forEach((ch, i) => {
+  const y = channelStartY + i * channelH;
+  const g = svg.append('g');
+
+  // Card
+  g.append('rect')
+    .attr('x', rightColStartX).attr('y', y).attr('width', colW).attr('height', channelH - 12)
+    .attr('fill', '#FFFFFF').attr('stroke', '#D4D4D4').attr('stroke-width', 1).attr('rx', 6);
+
+  // Rank badge
+  g.append('rect')
+    .attr('x', rightColStartX + 16).attr('y', y + 14).attr('width', 48).attr('height', 28)
+    .attr('fill', '#121212').attr('rx', 4);
+  g.append('text')
+    .attr('x', rightColStartX + 40).attr('y', y + 34)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'JetBrains Mono', monospace")
+    .attr('font-size', 14).attr('font-weight', 400).attr('fill', '#FFFFFF')
+    .text('#' + ch.rank);
+
+  // Icon
+  ch.icon(g, rightColStartX + 80, y + 18);
+
+  // Name
+  g.append('text')
+    .attr('x', rightColStartX + 160).attr('y', y + 34)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 20).attr('font-weight', 700).attr('fill', '#121212')
+    .text(ch.name);
+
+  // Description
+  g.append('text')
+    .attr('x', rightColStartX + 160).attr('y', y + 58)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 14).attr('fill', '#545454')
+    .text(ch.desc);
+
+  // "N/A" tag for Stevens
+  g.append('rect')
+    .attr('x', rightColStartX + colW - 120).attr('y', y + 16).attr('width', 100).attr('height', 24)
+    .attr('fill', '#F5F5F5').attr('rx', 4);
+  g.append('text')
+    .attr('x', rightColStartX + colW - 70).attr('y', y + 33)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'JetBrains Mono', monospace")
+    .attr('font-size', 12).attr('fill', '#545454')
+    .text('Stevens: N/A');
+});
+
+// ── CORRECT USE / COMMON MISUSE ──
+const exampleY = 620;
+
+// Left: Magnitude correct use
+svg.append('rect')
+  .attr('x', colStartX).attr('y', exampleY).attr('width', colW).attr('height', 90)
+  .attr('fill', '#F9F2F3').attr('stroke', '#C8102E').attr('stroke-width', 1.5).attr('rx', 6);
+
+svg.append('circle')
+  .attr('cx', colStartX + 24).attr('cy', exampleY + 24).attr('r', 8).attr('fill', '#2D8B4E');
+svg.append('text')
+  .attr('x', colStartX + 42).attr('y', exampleY + 29)
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('font-weight', 700).attr('fill', '#2D8B4E')
+  .text('CORRECT');
+svg.append('text')
+  .attr('x', colStartX + 42).attr('y', exampleY + 48)
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 14).attr('fill', '#121212')
+  .text('Bar height encodes GDP (quantitative → position/length)');
+
+svg.append('text')
+  .attr('x', colStartX + 24).attr('y', exampleY + 76)
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('font-weight', 700).attr('fill', '#C8102E')
+  .text('COMMON MISUSE');
+svg.append('text')
+  .attr('x', colStartX + 160).attr('y', exampleY + 76)
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 13).attr('fill', '#C8102E')
+  .text('Color hue encodes a quantitative variable — reader cannot rank by hue');
+
+// Right: Identity correct use
+svg.append('rect')
+  .attr('x', rightColStartX).attr('y', exampleY).attr('width', colW).attr('height', 90)
+  .attr('fill', '#F5F5F5').attr('stroke', '#121212').attr('stroke-width', 1.5).attr('rx', 6);
+
+svg.append('circle')
+  .attr('cx', rightColStartX + 24).attr('cy', exampleY + 24).attr('r', 8).attr('fill', '#2D8B4E');
+svg.append('text')
+  .attr('x', rightColStartX + 42).attr('y', exampleY + 29)
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('font-weight', 700).attr('fill', '#2D8B4E')
+  .text('CORRECT');
+svg.append('text')
+  .attr('x', rightColStartX + 42).attr('y', exampleY + 48)
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 14).attr('fill', '#121212')
+  .text('Hue distinguishes continents (categorical → identity channel)');
+
+svg.append('text')
+  .attr('x', rightColStartX + 24).attr('y', exampleY + 76)
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('font-weight', 700).attr('fill', '#C8102E')
+  .text('COMMON MISUSE');
+svg.append('text')
+  .attr('x', rightColStartX + 160).attr('y', exampleY + 76)
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 13).attr('fill', '#C8102E')
+  .text('Luminance gradient on unordered categories — implies false ranking');
+
+// ── Principles ──
+const prinY = 740;
+
+svg.append('rect')
+  .attr('x', colStartX).attr('y', prinY).attr('width', colW).attr('height', 60)
+  .attr('fill', '#C8102E').attr('rx', 8);
+svg.append('text')
+  .attr('x', colStartX + colW/2).attr('y', prinY + 24)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 14).attr('font-weight', 700).attr('fill', '#FFFFFF')
+  .text('EXPRESSIVENESS PRINCIPLE');
+svg.append('text')
+  .attr('x', colStartX + colW/2).attr('y', prinY + 46)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 13).attr('fill', 'rgba(255,255,255,0.85)')
+  .text('The channel must match the data type — quantity on magnitude, category on identity');
+
+svg.append('rect')
+  .attr('x', rightColStartX).attr('y', prinY).attr('width', colW).attr('height', 60)
+  .attr('fill', '#121212').attr('rx', 8);
+svg.append('text')
+  .attr('x', rightColStartX + colW/2).attr('y', prinY + 24)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 14).attr('font-weight', 700).attr('fill', '#FFFFFF')
+  .text('EFFECTIVENESS PRINCIPLE');
+svg.append('text')
+  .attr('x', rightColStartX + colW/2).attr('y', prinY + 46)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 13).attr('fill', 'rgba(255,255,255,0.85)')
+  .text('Most important attribute on highest-ranked appropriate channel');
+
+// ── VS badge ──
+svg.append('circle')
+  .attr('cx', W/2).attr('cy', 128).attr('r', 22)
+  .attr('fill', '#FFFFFF').attr('stroke', '#D4D4D4').attr('stroke-width', 2);
+svg.append('text')
+  .attr('x', W/2).attr('y', 134)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 14).attr('font-weight', 700).attr('fill', '#545454')
+  .text('vs');
+
+// Caption
+svg.append('line')
+  .attr('x1', 60).attr('y1', H - 40).attr('x2', W - 60).attr('y2', H - 40)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+svg.append('text')
+  .attr('x', W/2).attr('y', H - 16)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('fill', '#545454')
+  .text('Two principles. Everything else in chart design is a consequence of them. — Munzner (2014)');
+</script>
+</body>
+</html>

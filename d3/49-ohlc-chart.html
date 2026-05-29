@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OHLC Chart — Wheat Futures 15 Trading Days</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #2a1a0e;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-mark: #6B3520;
+    --color-slate: #1A3A5C;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1a1a;
+      --color-ink: #e8e0d6;
+      --color-surface: #2a2420;
+      --color-secondary: #a0978e;
+      --color-border: #444;
+      --color-mark: #c28060;
+      --color-red: #e05040;
+    }
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+  #chart-container {
+    width: 100%;
+    max-width: 900px;
+  }
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--color-ink);
+  }
+  .subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--color-secondary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .caption {
+    font-size: 0.9rem;
+    color: var(--color-secondary);
+    font-style: italic;
+    margin-top: 12px;
+  }
+  .tooltip {
+    position: absolute;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--color-ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+</style>
+</head>
+<body>
+<div id="chart-container">
+  <h1>Wheat Futures — 15 Trading Days</h1>
+  <div class="subtitle">OHLC CHART — OPEN HIGH LOW CLOSE</div>
+  <div id="chart" role="img" aria-label="OHLC chart showing 15 days of wheat futures with selloff and recovery pattern"></div>
+  <div class="caption">Left tick = open. Right tick = close. Vertical line = high-to-low range.</div>
+</div>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const data = [
+  { day: 1,  o: 545, h: 548, l: 542, c: 547 },
+  { day: 2,  o: 547, h: 550, l: 544, c: 544 },
+  { day: 3,  o: 544, h: 546, l: 538, c: 539 },
+  { day: 4,  o: 539, h: 541, l: 530, c: 531 },
+  { day: 5,  o: 531, h: 533, l: 524, c: 525 },
+  { day: 6,  o: 525, h: 528, l: 518, c: 519 },
+  { day: 7,  o: 519, h: 522, l: 510, c: 512 },
+  { day: 8,  o: 512, h: 515, l: 505, c: 508 },
+  { day: 9,  o: 508, h: 516, l: 506, c: 515 },
+  { day: 10, o: 515, h: 522, l: 513, c: 521 },
+  { day: 11, o: 521, h: 528, l: 519, c: 527 },
+  { day: 12, o: 527, h: 530, l: 524, c: 524 },
+  { day: 13, o: 524, h: 532, l: 522, c: 531 },
+  { day: 14, o: 531, h: 538, l: 529, c: 537 },
+  { day: 15, o: 537, h: 544, l: 535, c: 543 }
+];
+
+const width = 800;
+const height = 450;
+const margin = { top: 20, right: 40, bottom: 50, left: 60 };
+const chartWidth = width - margin.left - margin.right;
+const chartHeight = height - margin.top - margin.bottom;
+
+const svg = d3.select("#chart")
+  .append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("preserveAspectRatio", "xMidYMid meet")
+  .style("width", "100%")
+  .style("height", "auto");
+
+svg.append("rect")
+  .attr("width", width)
+  .attr("height", height)
+  .attr("fill", "var(--color-bg)");
+
+const g = svg.append("g")
+  .attr("transform", `translate(${margin.left},${margin.top})`);
+
+// Chart area
+g.append("rect")
+  .attr("width", chartWidth)
+  .attr("height", chartHeight)
+  .attr("fill", "var(--color-surface)")
+  .attr("stroke", "var(--color-border)")
+  .attr("stroke-width", 0.75)
+  .attr("rx", 0);
+
+const x = d3.scaleBand()
+  .domain(data.map(d => d.day))
+  .range([0, chartWidth])
+  .padding(0.3);
+
+const y = d3.scaleLinear()
+  .domain([500, 560])
+  .range([chartHeight, 0]);
+
+// Gridlines
+[500, 510, 520, 530, 540, 550, 560].forEach(v => {
+  g.append("line")
+    .attr("x1", 0).attr("x2", chartWidth)
+    .attr("y1", y(v)).attr("y2", y(v))
+    .attr("stroke", "var(--color-border)")
+    .attr("stroke-width", 0.5)
+    .attr("stroke-dasharray", "4,3");
+});
+
+// Y-axis
+g.selectAll(".y-label")
+  .data([500, 510, 520, 530, 540, 550, 560])
+  .enter().append("text")
+  .attr("x", -8)
+  .attr("y", d => y(d))
+  .attr("text-anchor", "end")
+  .attr("dominant-baseline", "middle")
+  .attr("font-size", 10)
+  .attr("fill", "var(--color-secondary)")
+  .text(d => `$${d}`);
+
+// X-axis
+g.selectAll(".x-label")
+  .data(data)
+  .enter().append("text")
+  .attr("x", d => x(d.day) + x.bandwidth() / 2)
+  .attr("y", chartHeight + 20)
+  .attr("text-anchor", "middle")
+  .attr("font-size", 10)
+  .attr("fill", "var(--color-secondary)")
+  .text(d => d.day);
+
+const tooltip = d3.select("#tooltip");
+
+const tickWidth = 7;
+
+// OHLC symbols
+data.forEach(d => {
+  const isUp = d.c >= d.o;
+  const color = isUp ? "var(--color-mark)" : "var(--color-red)";
+  const cx = x(d.day) + x.bandwidth() / 2;
+
+  const ohlcG = g.append("g")
+    .style("cursor", "pointer")
+    .on("mouseover", function(event) {
+      tooltip.style("opacity", 1)
+        .html(`<strong>Day ${d.day}</strong><br>Open: $${d.o}<br>High: $${d.h}<br>Low: $${d.l}<br>Close: $${d.c}<br>${isUp ? "Up" : "Down"} day`);
+    })
+    .on("mousemove", function(event) {
+      tooltip.style("left", (event.pageX + 12) + "px")
+        .style("top", (event.pageY - 28) + "px");
+    })
+    .on("mouseout", function() {
+      tooltip.style("opacity", 0);
+    });
+
+  // High-Low line
+  ohlcG.append("line")
+    .attr("x1", cx).attr("x2", cx)
+    .attr("y1", y(d.h)).attr("y2", y(d.l))
+    .attr("stroke", color)
+    .attr("stroke-width", 1.5);
+
+  // Open tick (left)
+  ohlcG.append("line")
+    .attr("x1", cx - tickWidth).attr("x2", cx)
+    .attr("y1", y(d.o)).attr("y2", y(d.o))
+    .attr("stroke", color)
+    .attr("stroke-width", 1.5);
+
+  // Close tick (right)
+  ohlcG.append("line")
+    .attr("x1", cx).attr("x2", cx + tickWidth)
+    .attr("y1", y(d.c)).attr("y2", y(d.c))
+    .attr("stroke", color)
+    .attr("stroke-width", 1.5);
+
+  // Invisible hover target
+  ohlcG.append("rect")
+    .attr("x", cx - tickWidth - 2)
+    .attr("y", y(d.h) - 2)
+    .attr("width", tickWidth * 2 + 4)
+    .attr("height", y(d.l) - y(d.h) + 4)
+    .attr("fill", "transparent");
+});
+
+// Legend
+const legend = svg.append("g")
+  .attr("transform", `translate(${margin.left + 20}, ${height - 20})`);
+
+legend.append("line").attr("x1", 0).attr("x2", 16).attr("y1", 0).attr("y2", 0).attr("stroke", "var(--color-mark)").attr("stroke-width", 1.5);
+legend.append("text").attr("x", 20).attr("y", 4).attr("font-size", 10).attr("fill", "var(--color-ink)").text("Up day (close > open)");
+
+legend.append("line").attr("x1", 170).attr("x2", 186).attr("y1", 0).attr("y2", 0).attr("stroke", "var(--color-red)").attr("stroke-width", 1.5);
+legend.append("text").attr("x", 190).attr("y", 4).attr("font-size", 10).attr("fill", "var(--color-ink)").text("Down day (close < open)");
+</script>
+</body>
+</html>

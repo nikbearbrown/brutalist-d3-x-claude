@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Timeline — Three Simultaneous Revolutions</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #2a1a0e;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-mark: #6B3520;
+    --color-slate: #1A3A5C;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1a1a;
+      --color-ink: #e8e0d6;
+      --color-surface: #2a2420;
+      --color-secondary: #a0978e;
+      --color-border: #444;
+      --color-mark: #c28060;
+      --color-red: #e05040;
+      --color-slate: #5a9ad6;
+      --color-ochre: #d4a030;
+    }
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+  #chart-container { width: 100%; max-width: 900px; }
+  h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; color: var(--color-ink); }
+  .subtitle {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--color-secondary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .caption { font-size: 0.9rem; color: var(--color-secondary); font-style: italic; margin-top: 12px; }
+  .tooltip {
+    position: absolute;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--color-ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .event-dot { cursor: pointer; }
+  .event-dot:hover { opacity: 0.8; }
+  .event-dot:focus { outline: 2px solid var(--color-ink); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<div id="chart-container">
+  <h1>Three Simultaneous Revolutions</h1>
+  <div class="subtitle">TIMELINE — LEGAL, DIGITAL, FINANCIAL — HOVER FOR DETAILS</div>
+  <div id="chart" role="img" aria-label="Horizontal timeline from 2018 to 2025 with 8 events across 3 parallel tracks: Legal, Digital, and Financial."></div>
+  <div class="caption">Legal, Digital, and Financial — accelerating in parallel.</div>
+</div>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const tracks = [
+  {
+    id: "legal", label: "LEGAL", color: "var(--color-red)",
+    events: [
+      { label: "GDPR Enacted", date: 2018.4, desc: "EU General Data Protection Regulation enters force" },
+      { label: "AI Act Proposed", date: 2021.3, desc: "European Commission proposes the AI Act" },
+      { label: "AI Act Final", date: 2024.3, desc: "EU AI Act formally adopted into law" }
+    ]
+  },
+  {
+    id: "digital", label: "DIGITAL", color: "var(--color-slate)",
+    events: [
+      { label: "GPT-2", date: 2019.2, desc: "OpenAI releases GPT-2, debates open release" },
+      { label: "GPT-3", date: 2020.5, desc: "GPT-3 released — 175B parameters" },
+      { label: "ChatGPT", date: 2022.9, desc: "ChatGPT launches, 100M users in 2 months" }
+    ]
+  },
+  {
+    id: "financial", label: "FINANCIAL", color: "var(--color-mark)",
+    events: [
+      { label: "Libra", date: 2019.5, desc: "Facebook announces Libra cryptocurrency" },
+      { label: "FTX Collapse", date: 2022.8, desc: "FTX exchange collapses, $8B in losses" }
+    ]
+  }
+];
+
+const width = 700, height = 480;
+const margin = { top: 40, right: 40, bottom: 60, left: 100 };
+const innerW = width - margin.left - margin.right;
+const innerH = height - margin.top - margin.bottom;
+
+const svg = d3.select("#chart")
+  .append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("preserveAspectRatio", "xMidYMid meet")
+  .style("width", "100%")
+  .style("height", "auto");
+
+svg.append("title").text("Three Simultaneous Revolutions — Timeline");
+svg.append("desc").text("Horizontal timeline with 8 events across Legal, Digital, and Financial tracks from 2018 to 2025.");
+
+svg.append("rect").attr("width", width).attr("height", height).attr("fill", "var(--color-bg)");
+svg.append("rect").attr("x", margin.left - 8).attr("y", margin.top - 8).attr("width", innerW + 16).attr("height", innerH + 16)
+  .attr("fill", "var(--color-surface)").attr("stroke", "var(--color-border)").attr("stroke-width", 0.75);
+
+const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+const x = d3.scaleLinear().domain([2018, 2025]).range([0, innerW]);
+const trackY = d3.scaleBand().domain(tracks.map(t => t.id)).range([0, innerH * 0.7]).padding(0.3);
+const axisY = innerH * 0.85;
+
+const tooltip = d3.select("#tooltip");
+
+// Track labels and horizontal lines
+tracks.forEach(track => {
+  const ty = trackY(track.id) + trackY.bandwidth() / 2;
+
+  g.append("text")
+    .attr("x", -12).attr("y", ty + 4).attr("text-anchor", "end")
+    .attr("font-family", "'IBM Plex Mono', monospace").attr("font-size", "10px")
+    .attr("font-weight", "600").attr("fill", track.color).attr("letter-spacing", "0.08em")
+    .text(track.label);
+
+  g.append("line")
+    .attr("x1", 0).attr("x2", innerW).attr("y1", ty).attr("y2", ty)
+    .attr("stroke", "var(--color-border)").attr("stroke-width", 0.5).attr("stroke-dasharray", "3,3");
+});
+
+// Shared time axis
+g.append("line").attr("x1", 0).attr("x2", innerW).attr("y1", axisY).attr("y2", axisY)
+  .attr("stroke", "var(--color-ink)").attr("stroke-width", 1.5);
+
+// Year ticks
+d3.range(2018, 2026).forEach(yr => {
+  const xPos = x(yr);
+  g.append("line").attr("x1", xPos).attr("x2", xPos).attr("y1", axisY - 4).attr("y2", axisY + 4)
+    .attr("stroke", "var(--color-ink)").attr("stroke-width", 1);
+  g.append("text").attr("x", xPos).attr("y", axisY + 20).attr("text-anchor", "middle")
+    .attr("font-family", "'IBM Plex Mono', monospace").attr("font-size", "10px")
+    .attr("fill", "var(--color-ink)").attr("letter-spacing", "0.08em").text(yr);
+});
+
+// Events
+tracks.forEach(track => {
+  const ty = trackY(track.id) + trackY.bandwidth() / 2;
+
+  track.events.forEach(event => {
+    const ex = x(event.date);
+
+    // Dashed vertical connector to time axis
+    g.append("line")
+      .attr("x1", ex).attr("x2", ex).attr("y1", ty).attr("y2", axisY)
+      .attr("stroke", track.color).attr("stroke-width", 0.75).attr("stroke-dasharray", "4,3");
+
+    // Event dot
+    g.append("circle")
+      .attr("class", "event-dot")
+      .attr("cx", ex).attr("cy", ty).attr("r", 7)
+      .attr("fill", track.color)
+      .attr("tabindex", 0)
+      .attr("aria-label", `${event.label}: ${event.desc}`)
+      .on("mouseover", function(evt) {
+        tooltip.style("opacity", 1)
+          .html(`<strong>${event.label}</strong><br>${event.desc}<br>Year: ${Math.floor(event.date)}`);
+      })
+      .on("mousemove", function(evt) {
+        tooltip.style("left", (evt.pageX + 12) + "px").style("top", (evt.pageY - 28) + "px");
+      })
+      .on("mouseout", () => tooltip.style("opacity", 0));
+
+    // Event label
+    g.append("text")
+      .attr("x", ex).attr("y", ty - 14).attr("text-anchor", "middle")
+      .attr("font-size", "9px").attr("fill", track.color)
+      .text(event.label);
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 420">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap');
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+
+  <!-- Title -->
+  <text x="350" y="28" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="18" font-weight="600" fill="#2a1a0e">Kagi Chart — Supply &amp; Demand</text>
+
+  <!-- Chart area -->
+  <rect x="72" y="42" width="596" height="330" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="0.75"/>
+
+  <!-- Y-axis labels (price 90-120) -->
+  <text x="66" y="52" text-anchor="end" font-family="'IBM Plex Mono', monospace" font-size="8" fill="#545454">120</text>
+  <text x="66" y="152" text-anchor="end" font-family="'IBM Plex Mono', monospace" font-size="8" fill="#545454">110</text>
+  <text x="66" y="262" text-anchor="end" font-family="'IBM Plex Mono', monospace" font-size="8" fill="#545454">100</text>
+  <text x="66" y="365" text-anchor="end" font-family="'IBM Plex Mono', monospace" font-size="8" fill="#545454">90</text>
+
+  <!-- Y-axis gridlines -->
+  <line x1="72" y1="48" x2="668" y2="48" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+  <line x1="72" y1="148" x2="668" y2="148" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+  <line x1="72" y1="258" x2="668" y2="258" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+  <line x1="72" y1="362" x2="668" y2="362" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+
+  <!-- Y-axis label -->
+  <text x="30" y="210" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="8" fill="#545454" letter-spacing="0.08em" transform="rotate(-90,30,210)">PRICE</text>
+
+  <!-- Kagi chart: price scale 90=362, 120=48; 1 price unit = (362-48)/30 = 10.47px -->
+  <!-- Reversal points (price, direction): -->
+  <!-- Start at 95, up to 108 (thick), down to 102 (thin), up to 115 (thick), down to 110 (thin), -->
+  <!-- up to 118 (thick), down to 112 (thin), up to 117 (thick), down to 105 (thin), -->
+  <!-- up to 110 (thick), down to 96 (thin), up to 103 (thick), down to 98 (thin) -->
+
+  <!-- Price to Y mapping: y = 362 - (price - 90) * 10.47 -->
+  <!-- 95 = 309.7, 108 = 173.5, 102 = 236.4, 115 = 100.3, 110 = 152.8 -->
+  <!-- 118 = 69.0, 112 = 131.4, 117 = 79.4, 105 = 204.9, 110 = 152.8 -->
+  <!-- 96 = 299.2, 103 = 226.0, 98 = 278.2 -->
+
+  <!-- Segment 1: Start at 95, rise to 108 — THICK (uptrend) -->
+  <line x1="115" y1="310" x2="115" y2="174" stroke="#6B3520" stroke-width="3"/>
+
+  <!-- Horizontal step to next column -->
+  <line x1="115" y1="174" x2="160" y2="174" stroke="#6B3520" stroke-width="3"/>
+
+  <!-- Segment 2: 108 down to 102 — THIN (downtrend) -->
+  <line x1="160" y1="174" x2="160" y2="236" stroke="#D4D4D4" stroke-width="1"/>
+
+  <!-- Horizontal step -->
+  <line x1="160" y1="236" x2="205" y2="236" stroke="#D4D4D4" stroke-width="1"/>
+
+  <!-- Segment 3: 102 up to 115 — THICK (uptrend, breaks previous shoulder at 108) -->
+  <line x1="205" y1="236" x2="205" y2="100" stroke="#6B3520" stroke-width="3"/>
+
+  <!-- Horizontal step -->
+  <line x1="205" y1="100" x2="250" y2="100" stroke="#6B3520" stroke-width="3"/>
+
+  <!-- Segment 4: 115 down to 110 — THIN (downtrend) -->
+  <line x1="250" y1="100" x2="250" y2="153" stroke="#D4D4D4" stroke-width="1"/>
+
+  <!-- Horizontal step -->
+  <line x1="250" y1="153" x2="295" y2="153" stroke="#D4D4D4" stroke-width="1"/>
+
+  <!-- Segment 5: 110 up to 118 — THICK (uptrend, breaks previous shoulder at 115) -->
+  <line x1="295" y1="153" x2="295" y2="69" stroke="#6B3520" stroke-width="3"/>
+
+  <!-- Horizontal step -->
+  <line x1="295" y1="69" x2="340" y2="69" stroke="#6B3520" stroke-width="3"/>
+
+  <!-- Segment 6: 118 down to 112 — THIN (downtrend) -->
+  <line x1="340" y1="69" x2="340" y2="131" stroke="#D4D4D4" stroke-width="1"/>
+
+  <!-- Horizontal step -->
+  <line x1="340" y1="131" x2="385" y2="131" stroke="#D4D4D4" stroke-width="1"/>
+
+  <!-- Segment 7: 112 up to 117 — THICK (uptrend) -->
+  <line x1="385" y1="131" x2="385" y2="79" stroke="#6B3520" stroke-width="3"/>
+
+  <!-- Horizontal step -->
+  <line x1="385" y1="79" x2="430" y2="79" stroke="#6B3520" stroke-width="3"/>
+
+  <!-- Segment 8: 117 down to 105 — THIN (downtrend, breaks previous waist at 110) -->
+  <line x1="430" y1="79" x2="430" y2="205" stroke="#D4D4D4" stroke-width="1"/>
+
+  <!-- Horizontal step -->
+  <line x1="430" y1="205" x2="475" y2="205" stroke="#D4D4D4" stroke-width="1"/>
+
+  <!-- Segment 9: 105 up to 110 — THICK (uptrend) -->
+  <line x1="475" y1="205" x2="475" y2="153" stroke="#6B3520" stroke-width="3"/>
+
+  <!-- Horizontal step -->
+  <line x1="475" y1="153" x2="520" y2="153" stroke="#6B3520" stroke-width="3"/>
+
+  <!-- Segment 10: 110 down to 96 — THIN (downtrend, breaks previous waist at 105) -->
+  <line x1="520" y1="153" x2="520" y2="299" stroke="#D4D4D4" stroke-width="1"/>
+
+  <!-- Horizontal step -->
+  <line x1="520" y1="299" x2="565" y2="299" stroke="#D4D4D4" stroke-width="1"/>
+
+  <!-- Segment 11: 96 up to 103 — THICK (uptrend) -->
+  <line x1="565" y1="299" x2="565" y2="226" stroke="#6B3520" stroke-width="3"/>
+
+  <!-- Horizontal step -->
+  <line x1="565" y1="226" x2="610" y2="226" stroke="#6B3520" stroke-width="3"/>
+
+  <!-- Segment 12: 103 down to 98 — THIN (downtrend) -->
+  <line x1="610" y1="226" x2="610" y2="278" stroke="#D4D4D4" stroke-width="1"/>
+
+  <!-- Legend -->
+  <line x1="80" y1="390" x2="110" y2="390" stroke="#6B3520" stroke-width="3"/>
+  <text x="116" y="393" font-family="'IBM Plex Mono', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">YANG (DEMAND)</text>
+  <line x1="260" y1="390" x2="290" y2="390" stroke="#D4D4D4" stroke-width="1"/>
+  <text x="296" y="393" font-family="'IBM Plex Mono', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">YIN (SUPPLY)</text>
+
+  <!-- Caption -->
+  <text x="350" y="412" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" font-style="italic" fill="#545454">Thick line = demand exceeds supply. Thin line = supply exceeds demand.</text>
+</svg>

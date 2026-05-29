@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 420">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap');
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect x="0" y="0" width="700" height="420" fill="#FFFFFF" rx="0"/>
+
+  <!-- Title -->
+  <text x="350" y="28" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="18" font-weight="600" fill="#2a1a0e">Household Aid Disbursements by State</text>
+
+  <!-- Chart area -->
+  <rect x="32" y="42" width="636" height="330" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="0.75" rx="0"/>
+
+  <!-- Simplified US outline (approximate shape, generous padding) -->
+  <path d="M 90,120 L 180,108 L 280,104 L 350,100 L 420,104 L 500,108 L 560,118 L 590,135 L 600,165 L 595,200 L 585,235 L 570,260 L 545,280 L 520,295 L 480,305 L 430,310 L 370,315 L 310,318 L 250,315 L 195,305 L 150,285 L 120,260 L 100,230 L 90,195 L 85,160 Z" fill="none" stroke="#D4D4D4" stroke-width="1" rx="0"/>
+
+  <!-- Bubbles at approximate state centroid positions -->
+  <!-- All radii scaled to fit within outline: largest=30, large=26, medium=18, small=12, smallest=10 -->
+
+  <!-- CA (largest, highlighted) - west coast, centered well inside -->
+  <circle cx="120" cy="200" r="30" fill="#C8102E" opacity="0.5" stroke="#2a1a0e" stroke-width="1"/>
+  <text x="120" y="204" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" letter-spacing="0.08em" fill="#FFFFFF">CA</text>
+
+  <!-- TX (large, highlighted) - south central, pulled up slightly -->
+  <circle cx="330" cy="275" r="26" fill="#C8102E" opacity="0.5" stroke="#2a1a0e" stroke-width="1"/>
+  <text x="330" y="279" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" letter-spacing="0.08em" fill="#FFFFFF">TX</text>
+
+  <!-- NY (medium) - northeast -->
+  <circle cx="530" cy="140" r="18" fill="#6B3520" opacity="0.5" stroke="#2a1a0e" stroke-width="1"/>
+  <text x="530" y="144" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" letter-spacing="0.08em" fill="#FFFFFF">NY</text>
+
+  <!-- FL (medium) - southeast, pulled up and left -->
+  <circle cx="510" cy="275" r="18" fill="#6B3520" opacity="0.5" stroke="#2a1a0e" stroke-width="1"/>
+  <text x="510" y="279" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" letter-spacing="0.08em" fill="#FFFFFF">FL</text>
+
+  <!-- IL (small) - midwest -->
+  <circle cx="410" cy="180" r="12" fill="#6B3520" opacity="0.5" stroke="#2a1a0e" stroke-width="1"/>
+  <text x="410" y="184" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" letter-spacing="0.08em" fill="#FFFFFF">IL</text>
+
+  <!-- PA (small) - northeast -->
+  <circle cx="520" cy="168" r="12" fill="#6B3520" opacity="0.5" stroke="#2a1a0e" stroke-width="1"/>
+  <text x="520" y="172" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" letter-spacing="0.08em" fill="#FFFFFF">PA</text>
+
+  <!-- OH (small) - midwest -->
+  <circle cx="465" cy="178" r="11" fill="#6B3520" opacity="0.5" stroke="#2a1a0e" stroke-width="1"/>
+  <text x="465" y="182" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" letter-spacing="0.08em" fill="#FFFFFF">OH</text>
+
+  <!-- GA (smallest) - southeast -->
+  <circle cx="490" cy="248" r="10" fill="#6B3520" opacity="0.5" stroke="#2a1a0e" stroke-width="1"/>
+  <text x="490" y="252" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" letter-spacing="0.08em" fill="#FFFFFF">GA</text>
+
+  <!-- NC (smallest) - southeast -->
+  <circle cx="525" cy="225" r="10" fill="#6B3520" opacity="0.5" stroke="#2a1a0e" stroke-width="1"/>
+  <text x="525" y="229" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" letter-spacing="0.08em" fill="#FFFFFF">NC</text>
+
+  <!-- WA (smallest) - northwest -->
+  <circle cx="130" cy="130" r="10" fill="#6B3520" opacity="0.5" stroke="#2a1a0e" stroke-width="1"/>
+  <text x="130" y="134" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" letter-spacing="0.08em" fill="#FFFFFF">WA</text>
+
+  <!-- Size legend -->
+  <text x="80" y="348" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" letter-spacing="0.08em" fill="#545454">SIZE LEGEND</text>
+  <circle cx="90" cy="362" r="5" fill="#6B3520" opacity="0.5" stroke="#2a1a0e" stroke-width="0.75"/>
+  <text x="100" y="366" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="9" fill="#545454">Small</text>
+  <circle cx="140" cy="360" r="9" fill="#6B3520" opacity="0.5" stroke="#2a1a0e" stroke-width="0.75"/>
+  <text x="154" y="366" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="9" fill="#545454">Medium</text>
+  <circle cx="205" cy="358" r="12" fill="#C8102E" opacity="0.5" stroke="#2a1a0e" stroke-width="0.75"/>
+  <text x="222" y="366" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="9" fill="#545454">Large (highlighted)</text>
+
+  <!-- Caption -->
+  <text x="350" y="405" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" font-style="italic" fill="#545454">Bubble area encodes absolute dollars. Highlighted: CA, TX.</text>
+</svg>

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Box Plot — Five Groups, One Frame</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #121212;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-mark: #6B3520;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1a1a;
+      --color-ink: #e8e0d6;
+      --color-surface: #2a2420;
+      --color-secondary: #a0978e;
+      --color-border: #444;
+      --color-mark: #c28060;
+      --color-red: #e8503e;
+    }
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+  #chart-container {
+    width: 100%;
+    max-width: 900px;
+  }
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--color-ink);
+  }
+  .subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--color-secondary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .caption {
+    font-family: 'EB Garamond', serif;
+    font-size: 0.9rem;
+    color: var(--color-secondary);
+    font-style: italic;
+    margin-top: 12px;
+  }
+  .tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--color-ink);
+    opacity: 0;
+    transition: opacity 0.15s;
+    line-height: 1.5;
+  }
+  .axis text {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 12px;
+    fill: var(--color-ink);
+  }
+  .axis .domain { stroke: var(--color-ink); }
+  .grid line { stroke: var(--color-border); stroke-dasharray: 4,3; }
+  .grid .domain { display: none; }
+  .box-group { cursor: pointer; }
+</style>
+</head>
+<body>
+<div id="chart-container">
+  <h1>Five Groups, One Frame</h1>
+  <p class="subtitle">Score Distribution by Group</p>
+  <div id="chart" role="img" aria-label="Five box plots showing score distributions across five groups"></div>
+  <p class="caption">Box plot shows center, spread, and outliers — not shape.</p>
+</div>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const fallbackData = [
+  { group: "Group A", q1: 35, median: 50, q3: 65, whiskerLow: 15, whiskerHigh: 85, outliers: [92] },
+  { group: "Group B", q1: 45, median: 60, q3: 72, whiskerLow: 28, whiskerHigh: 88, outliers: [] },
+  { group: "Group C", q1: 20, median: 35, q3: 50, whiskerLow: 5, whiskerHigh: 70, outliers: [78, 82] },
+  { group: "Group D", q1: 55, median: 68, q3: 78, whiskerLow: 38, whiskerHigh: 95, outliers: [] },
+  { group: "Group E", q1: 30, median: 42, q3: 58, whiskerLow: 12, whiskerHigh: 75, outliers: [] }
+];
+
+function render(data) {
+  const container = document.getElementById("chart");
+  container.innerHTML = "";
+
+  const rect = container.getBoundingClientRect();
+  const width = rect.width || 700;
+  const height = Math.min(width * 0.6, 480);
+  const margin = { top: 20, right: 32, bottom: 50, left: 56 };
+  const w = width - margin.left - margin.right;
+  const h = height - margin.top - margin.bottom;
+
+  const svg = d3.select("#chart")
+    .append("svg")
+    .attr("viewBox", `0 0 ${width} ${height}`)
+    .attr("role", "img")
+    .attr("aria-label", "Box plot comparing score distributions of five groups");
+
+  svg.append("title").text("Five Groups, One Frame");
+  svg.append("desc").text("Five box-and-whisker plots showing the score distribution for Groups A through E, with medians, quartiles, whiskers, and outliers.");
+
+  const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+  // Chart background
+  g.append("rect").attr("width", w).attr("height", h)
+    .attr("fill", "var(--color-surface)")
+    .attr("stroke", "var(--color-border)")
+    .attr("stroke-width", 0.75)
+    .attr("rx", 0);
+
+  const x = d3.scaleBand().domain(data.map(d => d.group)).range([0, w]).padding(0.35);
+  const y = d3.scaleLinear().domain([0, 100]).range([h, 0]);
+
+  // Gridlines
+  g.append("g").attr("class", "grid")
+    .call(d3.axisLeft(y).ticks(5).tickSize(-w).tickFormat(""));
+
+  // X axis
+  g.append("g").attr("class", "axis")
+    .attr("transform", `translate(0,${h})`)
+    .call(d3.axisBottom(x).tickSize(0).tickPadding(10))
+    .select(".domain").attr("stroke", "var(--color-ink)");
+
+  // Y axis
+  g.append("g").attr("class", "axis")
+    .call(d3.axisLeft(y).ticks(5))
+    .select(".domain").attr("stroke", "var(--color-ink)");
+
+  const tooltip = d3.select("#tooltip");
+  const boxWidth = x.bandwidth();
+  const capWidth = boxWidth * 0.5;
+
+  data.forEach(d => {
+    const cx = x(d.group) + boxWidth / 2;
+    const gBox = g.append("g")
+      .attr("class", "box-group")
+      .attr("tabindex", 0)
+      .attr("role", "button")
+      .attr("aria-label", `${d.group}: median ${d.median}, Q1 ${d.q1}, Q3 ${d.q3}`);
+
+    // Upper whisker line
+    gBox.append("line")
+      .attr("x1", cx).attr("y1", y(d.whiskerHigh))
+      .attr("x2", cx).attr("y2", y(d.q3))
+      .attr("stroke", "var(--color-ink)")
+      .attr("stroke-width", 1.5);
+
+    // Upper whisker cap
+    gBox.append("line")
+      .attr("x1", cx - capWidth / 2).attr("y1", y(d.whiskerHigh))
+      .attr("x2", cx + capWidth / 2).attr("y2", y(d.whiskerHigh))
+      .attr("stroke", "var(--color-ink)")
+      .attr("stroke-width", 1.5);
+
+    // Box
+    gBox.append("rect")
+      .attr("x", x(d.group))
+      .attr("y", y(d.q3))
+      .attr("width", boxWidth)
+      .attr("height", y(d.q1) - y(d.q3))
+      .attr("fill", "var(--color-surface)")
+      .attr("stroke", "var(--color-mark)")
+      .attr("stroke-width", 1.5)
+      .attr("rx", 0);
+
+    // Median line
+    gBox.append("line")
+      .attr("x1", x(d.group)).attr("y1", y(d.median))
+      .attr("x2", x(d.group) + boxWidth).attr("y2", y(d.median))
+      .attr("stroke", "var(--color-red)")
+      .attr("stroke-width", 2);
+
+    // Lower whisker line
+    gBox.append("line")
+      .attr("x1", cx).attr("y1", y(d.q1))
+      .attr("x2", cx).attr("y2", y(d.whiskerLow))
+      .attr("stroke", "var(--color-ink)")
+      .attr("stroke-width", 1.5);
+
+    // Lower whisker cap
+    gBox.append("line")
+      .attr("x1", cx - capWidth / 2).attr("y1", y(d.whiskerLow))
+      .attr("x2", cx + capWidth / 2).attr("y2", y(d.whiskerLow))
+      .attr("stroke", "var(--color-ink)")
+      .attr("stroke-width", 1.5);
+
+    // Outliers
+    d.outliers.forEach(o => {
+      gBox.append("circle")
+        .attr("cx", cx)
+        .attr("cy", y(o))
+        .attr("r", 4)
+        .attr("fill", "var(--color-red)");
+    });
+
+    // Tooltip interaction
+    gBox
+      .on("mouseenter", function(event) {
+        tooltip.style("opacity", 1)
+          .html(`<strong>${d.group}</strong><br>Median: ${d.median}<br>Q1: ${d.q1} | Q3: ${d.q3}<br>Whiskers: ${d.whiskerLow}–${d.whiskerHigh}` +
+            (d.outliers.length ? `<br>Outliers: ${d.outliers.join(", ")}` : ""));
+      })
+      .on("mousemove", function(event) {
+        tooltip.style("left", (event.pageX + 12) + "px")
+          .style("top", (event.pageY - 28) + "px");
+      })
+      .on("mouseleave", () => tooltip.style("opacity", 0))
+      .on("focus", function() {
+        tooltip.style("opacity", 1)
+          .html(`<strong>${d.group}</strong><br>Median: ${d.median}<br>Q1: ${d.q1} | Q3: ${d.q3}<br>Whiskers: ${d.whiskerLow}–${d.whiskerHigh}` +
+            (d.outliers.length ? `<br>Outliers: ${d.outliers.join(", ")}` : ""));
+      })
+      .on("blur", () => tooltip.style("opacity", 0));
+  });
+
+  // Legend
+  const legend = g.append("g").attr("transform", `translate(${w - 160},${h + 35})`);
+  legend.append("line").attr("x1", 0).attr("y1", 0).attr("x2", 18).attr("y2", 0)
+    .attr("stroke", "var(--color-red)").attr("stroke-width", 2);
+  legend.append("text").attr("x", 22).attr("y", 4)
+    .attr("font-size", "10px").attr("fill", "var(--color-secondary)").text("Median");
+  legend.append("circle").attr("cx", 70).attr("cy", 0).attr("r", 4).attr("fill", "var(--color-red)");
+  legend.append("text").attr("x", 78).attr("y", 4)
+    .attr("font-size", "10px").attr("fill", "var(--color-secondary)").text("Outlier");
+}
+
+d3.json("./box-plot/data.json")
+  .then(data => render(data))
+  .catch(() => render(fallbackData));
+
+window.addEventListener("resize", () => render(fallbackData));
+</script>
+</body>
+</html>

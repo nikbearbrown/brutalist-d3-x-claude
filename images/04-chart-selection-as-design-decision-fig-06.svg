@@ -1,0 +1,120 @@
+<svg viewBox="0 0 700 360" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+<defs>
+  <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#2a1a0e"/>
+  </marker>
+</defs>
+
+<!-- Background -->
+<rect width="700" height="360" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="24" text-anchor="middle" font-size="13" font-weight="700" fill="#2a1a0e">Chart-Type Inventions: A Timeline, 1786 -- 1991</text>
+
+<!-- ==================== AXIS ==================== -->
+<!-- Main horizontal axis line -->
+<line x1="42" y1="185" x2="668" y2="185" stroke="#2a1a0e" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<!-- Decade ticks and labels -->
+<!-- 1780 -->
+<line x1="60" y1="180" x2="60" y2="190" stroke="#D4D4D4" stroke-width="1"/>
+<text x="60" y="202" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454">1780</text>
+<!-- 1820 -->
+<line x1="168" y1="180" x2="168" y2="190" stroke="#D4D4D4" stroke-width="1"/>
+<text x="168" y="202" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454">1820</text>
+<!-- 1850 -->
+<line x1="249" y1="180" x2="249" y2="190" stroke="#D4D4D4" stroke-width="1"/>
+<text x="249" y="202" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454">1850</text>
+<!-- 1870 -->
+<line x1="390" y1="180" x2="390" y2="190" stroke="#D4D4D4" stroke-width="1"/>
+<text x="390" y="202" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454">1870</text>
+<!-- 1900 -->
+<line x1="430" y1="180" x2="430" y2="190" stroke="#D4D4D4" stroke-width="1"/>
+<text x="430" y="202" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454">1900</text>
+<!-- 1950 -->
+<line x1="519" y1="180" x2="519" y2="190" stroke="#D4D4D4" stroke-width="1"/>
+<text x="519" y="202" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454">1950</text>
+<!-- 1990 -->
+<line x1="627" y1="180" x2="627" y2="190" stroke="#D4D4D4" stroke-width="1"/>
+<text x="627" y="202" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454">1990</text>
+
+<!-- ==================== EVENT 1: Playfair bar (1786) — ABOVE — #C8102E ==================== -->
+<circle cx="62" cy="185" r="4.5" fill="#C8102E"/>
+<line x1="62" y1="180" x2="62" y2="130" stroke="#D4D4D4" stroke-dasharray="4 3" stroke-width="1"/>
+<rect x="32" y="42" width="120" height="86" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<rect x="32" y="42" width="120" height="18" fill="#C8102E"/>
+<text x="92" y="55" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" font-weight="700" fill="#FFFFFF" letter-spacing="0.08em">1786 PLAYFAIR</text>
+<text x="42" y="74" font-size="10" font-weight="700" fill="#2a1a0e">Bar chart</text>
+<text x="42" y="88" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#545454" letter-spacing="0.08em">ORIGINAL PROBLEM:</text>
+<text x="42" y="100" font-size="8.5" fill="#2a1a0e" font-style="italic">Comparing Scotland's</text>
+<text x="42" y="112" font-size="8.5" fill="#2a1a0e" font-style="italic">trade with 17 nations</text>
+
+<!-- ==================== EVENT 2: Playfair line (1786) — BELOW — #1A3A5C ==================== -->
+<circle cx="76" cy="185" r="4.5" fill="#1A3A5C"/>
+<line x1="76" y1="190" x2="76" y2="218" stroke="#D4D4D4" stroke-dasharray="4 3" stroke-width="1"/>
+<rect x="32" y="218" width="120" height="86" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<rect x="32" y="218" width="120" height="18" fill="#1A3A5C"/>
+<text x="92" y="231" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" font-weight="700" fill="#FFFFFF" letter-spacing="0.08em">1786 PLAYFAIR</text>
+<text x="42" y="250" font-size="10" font-weight="700" fill="#2a1a0e">Line chart</text>
+<text x="42" y="264" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#545454" letter-spacing="0.08em">ORIGINAL PROBLEM:</text>
+<text x="42" y="276" font-size="8.5" fill="#2a1a0e" font-style="italic">National debt of</text>
+<text x="42" y="288" font-size="8.5" fill="#2a1a0e" font-style="italic">England over time</text>
+
+<!-- ==================== EVENT 3: Dupin choropleth (1826) — ABOVE — #6B3520 ==================== -->
+<circle cx="171" cy="185" r="4.5" fill="#6B3520"/>
+<line x1="171" y1="180" x2="171" y2="130" stroke="#D4D4D4" stroke-dasharray="4 3" stroke-width="1"/>
+<rect x="160" y="42" width="120" height="86" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<rect x="160" y="42" width="120" height="18" fill="#6B3520"/>
+<text x="220" y="55" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" font-weight="700" fill="#FFFFFF" letter-spacing="0.08em">1826 DUPIN</text>
+<text x="170" y="74" font-size="10" font-weight="700" fill="#2a1a0e">Choropleth map</text>
+<text x="170" y="88" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#545454" letter-spacing="0.08em">ORIGINAL PROBLEM:</text>
+<text x="170" y="100" font-size="8.5" fill="#2a1a0e" font-style="italic">Illiteracy rates across</text>
+<text x="170" y="112" font-size="8.5" fill="#2a1a0e" font-style="italic">French departments</text>
+
+<!-- ==================== EVENT 4: Snow dot map (1854) — BELOW — #C8860E ==================== -->
+<circle cx="260" cy="185" r="4.5" fill="#C8860E"/>
+<line x1="260" y1="190" x2="260" y2="218" stroke="#D4D4D4" stroke-dasharray="4 3" stroke-width="1"/>
+<rect x="200" y="218" width="120" height="86" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<rect x="200" y="218" width="120" height="18" fill="#C8860E"/>
+<text x="260" y="231" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" font-weight="700" fill="#FFFFFF" letter-spacing="0.08em">1854 SNOW</text>
+<text x="210" y="250" font-size="10" font-weight="700" fill="#2a1a0e">Dot map</text>
+<text x="210" y="264" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#545454" letter-spacing="0.08em">ORIGINAL PROBLEM:</text>
+<text x="210" y="276" font-size="8.5" fill="#2a1a0e" font-style="italic">Cholera deaths in</text>
+<text x="210" y="288" font-size="8.5" fill="#2a1a0e" font-style="italic">Soho, London</text>
+
+<!-- ==================== EVENT 5: Nightingale polar area (1858) — ABOVE — #C8102E ==================== -->
+<circle cx="330" cy="185" r="4.5" fill="#C8102E"/>
+<line x1="330" y1="180" x2="330" y2="130" stroke="#D4D4D4" stroke-dasharray="4 3" stroke-width="1"/>
+<rect x="288" y="42" width="130" height="86" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<rect x="288" y="42" width="130" height="18" fill="#C8102E"/>
+<text x="353" y="55" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" font-weight="700" fill="#FFFFFF" letter-spacing="0.08em">1858 NIGHTINGALE</text>
+<text x="298" y="74" font-size="10" font-weight="700" fill="#2a1a0e">Polar area chart</text>
+<text x="298" y="88" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#545454" letter-spacing="0.08em">ORIGINAL PROBLEM:</text>
+<text x="298" y="100" font-size="8.5" fill="#2a1a0e" font-style="italic">Causes of mortality</text>
+<text x="298" y="112" font-size="8.5" fill="#2a1a0e" font-style="italic">in the Crimean War</text>
+
+<!-- ==================== EVENT 6: Minard flow map (1869) — BELOW — #1A3A5C ==================== -->
+<circle cx="380" cy="185" r="4.5" fill="#1A3A5C"/>
+<line x1="380" y1="190" x2="380" y2="218" stroke="#D4D4D4" stroke-dasharray="4 3" stroke-width="1"/>
+<rect x="340" y="218" width="120" height="86" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<rect x="340" y="218" width="120" height="18" fill="#1A3A5C"/>
+<text x="400" y="231" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" font-weight="700" fill="#FFFFFF" letter-spacing="0.08em">1869 MINARD</text>
+<text x="350" y="250" font-size="10" font-weight="700" fill="#2a1a0e">Flow map</text>
+<text x="350" y="264" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#545454" letter-spacing="0.08em">ORIGINAL PROBLEM:</text>
+<text x="350" y="276" font-size="8.5" fill="#2a1a0e" font-style="italic">Napoleon's army losses</text>
+<text x="350" y="288" font-size="8.5" fill="#2a1a0e" font-style="italic">in the Russian campaign</text>
+
+<!-- ==================== EVENT 7: Shneiderman treemap (1991) — ABOVE — #6B3520 ==================== -->
+<circle cx="630" cy="185" r="4.5" fill="#6B3520"/>
+<line x1="630" y1="180" x2="630" y2="130" stroke="#D4D4D4" stroke-dasharray="4 3" stroke-width="1"/>
+<rect x="540" y="42" width="128" height="86" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<rect x="540" y="42" width="128" height="18" fill="#6B3520"/>
+<text x="604" y="55" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" font-weight="700" fill="#FFFFFF" letter-spacing="0.08em">1991 SHNEIDERMAN</text>
+<text x="550" y="74" font-size="10" font-weight="700" fill="#2a1a0e">Treemap</text>
+<text x="550" y="88" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#545454" letter-spacing="0.08em">ORIGINAL PROBLEM:</text>
+<text x="550" y="100" font-size="8.5" fill="#2a1a0e" font-style="italic">Visualising disk space</text>
+<text x="550" y="112" font-size="8.5" fill="#2a1a0e" font-style="italic">usage hierarchically</text>
+
+<!-- Figure label -->
+<text x="350" y="340" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#545454" letter-spacing="0.08em">FIGURE 4-6</text>
+</svg>

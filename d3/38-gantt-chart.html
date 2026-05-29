@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gantt Chart — Project Timeline</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-ink: #2a1a0e;
+    --color-mark: #6B3520;
+    --color-red: #C8102E;
+    --color-slate: #1A3A5C;
+    --color-ochre: #C8860E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --font-body: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    --font-sans: 'Inter', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', 'IBM Plex Mono', 'Courier New', monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1410;
+      --color-surface: #2a2018;
+      --color-ink: #e8ddd0;
+      --color-mark: #c4886a;
+      --color-red: #e8525a;
+      --color-slate: #6a9cc8;
+      --color-ochre: #e8b84a;
+      --color-secondary: #a0968a;
+      --color-border: #4a4038;
+    }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+
+  h1 {
+    font-family: var(--font-body);
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-bottom: 4px;
+    text-align: center;
+  }
+
+  .subtitle {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-style: italic;
+    color: var(--color-secondary);
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  #chart-container {
+    width: 100%;
+    max-width: 700px;
+    position: relative;
+  }
+
+  svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .tooltip {
+    position: absolute;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--color-ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 10;
+  }
+
+  .gantt-bar {
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .gantt-bar:hover {
+    opacity: 0.8;
+    stroke: var(--color-ink);
+    stroke-width: 1.5;
+  }
+</style>
+</head>
+<body>
+<h1>Project Timeline</h1>
+<p class="subtitle">Position + length encode intervals and duration.</p>
+<div id="chart-container">
+  <div class="tooltip" id="tooltip"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const data = [
+  { task: "Planning", start: 1, end: 3, status: "complete" },
+  { task: "Design", start: 2, end: 5, status: "complete" },
+  { task: "Development", start: 4, end: 9, status: "in progress" },
+  { task: "Testing", start: 8, end: 11, status: "pending" },
+  { task: "Deployment", start: 10, end: 12, status: "pending" },
+  { task: "Review", start: 11, end: 12, status: "pending" }
+];
+
+const todayWeek = 7;
+
+const statusColor = {
+  "complete": "var(--color-mark)",
+  "in progress": "var(--color-red)",
+  "pending": "var(--color-border)"
+};
+
+const width = 700;
+const height = 420;
+const margin = { top: 50, right: 40, bottom: 60, left: 130 };
+
+const innerWidth = width - margin.left - margin.right;
+const innerHeight = height - margin.top - margin.bottom;
+
+const svg = d3.select("#chart-container")
+  .append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("role", "img")
+  .attr("aria-label", "Gantt chart showing six project phases with Planning and Design complete, Development in progress");
+
+// Chart background
+svg.append("rect")
+  .attr("x", margin.left)
+  .attr("y", margin.top)
+  .attr("width", innerWidth)
+  .attr("height", innerHeight)
+  .attr("fill", "var(--color-surface)")
+  .attr("stroke", "var(--color-border)")
+  .attr("stroke-width", 0.75);
+
+// Scales
+const xScale = d3.scaleLinear()
+  .domain([1, 13]) // weeks 1-12, extra space
+  .range([margin.left, width - margin.right]);
+
+const yScale = d3.scaleBand()
+  .domain(data.map(d => d.task))
+  .range([margin.top, height - margin.bottom])
+  .padding(0.3);
+
+// Week gridlines
+for (let w = 1; w <= 13; w++) {
+  svg.append("line")
+    .attr("x1", xScale(w))
+    .attr("x2", xScale(w))
+    .attr("y1", margin.top)
+    .attr("y2", height - margin.bottom)
+    .attr("stroke", "var(--color-border)")
+    .attr("stroke-width", 0.5)
+    .attr("stroke-dasharray", "3,3");
+}
+
+// Week labels
+for (let w = 1; w <= 12; w++) {
+  svg.append("text")
+    .attr("x", xScale(w) + (xScale(2) - xScale(1)) / 2)
+    .attr("y", margin.top - 8)
+    .attr("text-anchor", "middle")
+    .attr("font-family", "var(--font-mono)")
+    .attr("font-size", "9px")
+    .attr("fill", "var(--color-secondary)")
+    .attr("letter-spacing", "0.08em")
+    .text(`W${w}`);
+}
+
+// Task labels
+svg.selectAll(".task-label")
+  .data(data)
+  .join("text")
+  .attr("x", margin.left - 10)
+  .attr("y", d => yScale(d.task) + yScale.bandwidth() / 2 + 5)
+  .attr("text-anchor", "end")
+  .attr("font-family", "var(--font-body)")
+  .attr("font-size", "14px")
+  .attr("fill", "var(--color-ink)")
+  .text(d => d.task);
+
+const tooltip = d3.select("#tooltip");
+
+// Gantt bars
+svg.selectAll(".gantt-bar")
+  .data(data)
+  .join("rect")
+  .attr("class", "gantt-bar")
+  .attr("x", d => xScale(d.start))
+  .attr("y", d => yScale(d.task))
+  .attr("width", d => xScale(d.end + 1) - xScale(d.start))
+  .attr("height", yScale.bandwidth())
+  .attr("fill", d => statusColor[d.status])
+  .attr("rx", 0)
+  .attr("tabindex", 0)
+  .attr("role", "img")
+  .attr("aria-label", d => `${d.task}: weeks ${d.start}-${d.end}, ${d.status}`)
+  .on("mouseover", function(event, d) {
+    tooltip.style("opacity", 1)
+      .html(`<strong>${d.task}</strong><br>Weeks ${d.start}–${d.end} (${d.end - d.start + 1} weeks)<br>Status: ${d.status}`)
+      .style("left", (event.offsetX + 14) + "px")
+      .style("top", (event.offsetY - 14) + "px");
+  })
+  .on("mousemove", function(event) {
+    tooltip.style("left", (event.offsetX + 14) + "px")
+      .style("top", (event.offsetY - 14) + "px");
+  })
+  .on("mouseout", () => tooltip.style("opacity", 0))
+  .on("focus", function(event, d) {
+    tooltip.style("opacity", 1)
+      .html(`<strong>${d.task}</strong><br>Weeks ${d.start}–${d.end} (${d.end - d.start + 1} weeks)<br>Status: ${d.status}`)
+      .style("left", (xScale(d.start) + 14) + "px")
+      .style("top", (yScale(d.task) - 14) + "px");
+  })
+  .on("blur", () => tooltip.style("opacity", 0));
+
+// TODAY marker
+const todayX = xScale(todayWeek);
+svg.append("line")
+  .attr("x1", todayX)
+  .attr("x2", todayX)
+  .attr("y1", margin.top)
+  .attr("y2", height - margin.bottom)
+  .attr("stroke", "var(--color-ochre)")
+  .attr("stroke-width", 1.5)
+  .attr("stroke-dasharray", "6,3");
+
+svg.append("text")
+  .attr("x", todayX)
+  .attr("y", height - margin.bottom + 18)
+  .attr("text-anchor", "middle")
+  .attr("font-family", "var(--font-mono)")
+  .attr("font-size", "10px")
+  .attr("font-weight", "500")
+  .attr("fill", "var(--color-ochre)")
+  .attr("letter-spacing", "0.08em")
+  .text("TODAY");
+
+// Legend
+const legendItems = [
+  { label: "COMPLETE", color: "var(--color-mark)" },
+  { label: "IN PROGRESS", color: "var(--color-red)" },
+  { label: "PENDING", color: "var(--color-border)" }
+];
+
+legendItems.forEach((item, i) => {
+  const lx = margin.left + i * 140;
+  const ly = height - 20;
+
+  svg.append("rect")
+    .attr("x", lx)
+    .attr("y", ly - 10)
+    .attr("width", 14)
+    .attr("height", 14)
+    .attr("fill", item.color)
+    .attr("rx", 0);
+
+  svg.append("text")
+    .attr("x", lx + 20)
+    .attr("y", ly + 1)
+    .attr("font-family", "var(--font-mono)")
+    .attr("font-size", "9px")
+    .attr("fill", "var(--color-secondary)")
+    .attr("letter-spacing", "0.08em")
+    .text(item.label);
+});
+</script>
+</body>
+</html>

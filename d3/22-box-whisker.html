@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Box and Whisker Plot — Five Numbers, One Glyph</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-ink: #2a1a0e;
+    --color-mark: #6B3520;
+    --color-red: #C8102E;
+    --color-slate: #1A3A5C;
+    --color-ochre: #C8860E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-fill: #F5EFE8;
+    --font-body: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    --font-sans: 'Inter', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1410;
+      --color-surface: #2a2018;
+      --color-ink: #e8ddd0;
+      --color-mark: #c4886a;
+      --color-red: #e8525a;
+      --color-slate: #6a9cc8;
+      --color-ochre: #e8b84a;
+      --color-secondary: #a0968a;
+      --color-border: #4a4038;
+      --color-fill: #2a2018;
+    }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+
+  h1 {
+    font-family: var(--font-body);
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-bottom: 4px;
+    text-align: center;
+  }
+
+  .subtitle {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-style: italic;
+    color: var(--color-secondary);
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  #chart-container {
+    width: 100%;
+    max-width: 800px;
+    position: relative;
+  }
+
+  svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 12px 16px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-ink);
+    line-height: 1.6;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .tooltip .label {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+
+  .axis text {
+    font-family: var(--font-body);
+    font-size: 12px;
+    fill: var(--color-ink);
+  }
+
+  .axis-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    fill: var(--color-secondary);
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+<h1>Box and Whisker Plot</h1>
+<p class="subtitle">Five Numbers, One Glyph — Tukey's Distribution Sketch</p>
+<div id="chart-container">
+  <div class="tooltip" id="tooltip"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const data = [
+  { group: "Class A", values: [12,18,22,25,28,30,32,34,35,37,38,40,42,43,45,47,48,50,51,52,53,55,57,58,60,62,64,66,68,70,72,74,76,78,80,82,85,88,92,95] },
+  { group: "Class B", values: [5,10,15,20,24,26,28,30,32,33,35,36,38,40,41,43,44,46,48,50,52,54,55,57,59,60,62,64,66,68,70,72,75,78,80,83,86,90,94,98] },
+  { group: "Class C", values: [3,8,14,19,23,27,31,33,35,37,39,41,42,44,46,48,50,52,53,55,56,58,60,62,63,65,67,69,71,73,75,77,79,81,84,87,91,93,96,99] },
+  { group: "Class D", values: [20,25,28,32,35,38,40,42,44,46,47,48,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,68,70,72,74,76,78,80,82,85,88,90] }
+];
+
+function computeBoxStats(values) {
+  const sorted = [...values].sort(d3.ascending);
+  const q1 = d3.quantile(sorted, 0.25);
+  const median = d3.quantile(sorted, 0.5);
+  const q3 = d3.quantile(sorted, 0.75);
+  const iqr = q3 - q1;
+  const lowerFence = q1 - 1.5 * iqr;
+  const upperFence = q3 + 1.5 * iqr;
+  const lowerWhisker = d3.min(sorted.filter(d => d >= lowerFence));
+  const upperWhisker = d3.max(sorted.filter(d => d <= upperFence));
+  const outliers = sorted.filter(d => d < lowerFence || d > upperFence);
+  return { q1, median, q3, iqr, lowerWhisker, upperWhisker, outliers, sorted };
+}
+
+const container = document.getElementById('chart-container');
+const tooltip = document.getElementById('tooltip');
+
+function render() {
+  d3.select('#chart-container svg').remove();
+
+  const width = container.clientWidth;
+  const height = Math.min(width * 0.7, 560);
+  const margin = { top: 32, right: 32, bottom: 56, left: 64 };
+  const innerW = width - margin.left - margin.right;
+  const innerH = height - margin.top - margin.bottom;
+
+  const svg = d3.select('#chart-container')
+    .append('svg')
+    .attr('viewBox', `0 0 ${width} ${height}`)
+    .append('g')
+    .attr('transform', `translate(${margin.left},${margin.top})`);
+
+  // Chart area background
+  svg.append('rect')
+    .attr('width', innerW)
+    .attr('height', innerH)
+    .attr('fill', 'var(--color-fill)')
+    .attr('stroke', 'var(--color-border)')
+    .attr('stroke-width', 0.75)
+    .attr('rx', 0);
+
+  const stats = data.map(d => ({ group: d.group, ...computeBoxStats(d.values) }));
+
+  const x = d3.scaleBand()
+    .domain(data.map(d => d.group))
+    .range([0, innerW])
+    .padding(0.4);
+
+  const y = d3.scaleLinear()
+    .domain([0, 100])
+    .range([innerH, 0]);
+
+  // Y-axis
+  const yAxis = svg.append('g')
+    .attr('class', 'axis')
+    .call(d3.axisLeft(y).ticks(10).tickSize(-innerW).tickFormat(d3.format('d')));
+
+  yAxis.selectAll('.tick line')
+    .attr('stroke', 'var(--color-border)')
+    .attr('stroke-width', 0.5)
+    .attr('stroke-dasharray', '3,3');
+  yAxis.select('.domain').attr('stroke', 'var(--color-ink)').attr('stroke-width', 0.75);
+
+  // X-axis
+  const xAxis = svg.append('g')
+    .attr('class', 'axis')
+    .attr('transform', `translate(0,${innerH})`)
+    .call(d3.axisBottom(x).tickSize(0));
+  xAxis.select('.domain').attr('stroke', 'var(--color-ink)').attr('stroke-width', 0.75);
+
+  // Y-axis label
+  svg.append('text')
+    .attr('class', 'axis-label')
+    .attr('x', -innerH / 2)
+    .attr('y', -48)
+    .attr('transform', 'rotate(-90)')
+    .attr('text-anchor', 'middle')
+    .text('SCORE');
+
+  const boxWidth = x.bandwidth();
+
+  stats.forEach(s => {
+    const cx = x(s.group) + boxWidth / 2;
+
+    // Vertical whisker lines
+    svg.append('line')
+      .attr('x1', cx).attr('x2', cx)
+      .attr('y1', y(s.upperWhisker)).attr('y2', y(s.q3))
+      .attr('stroke', 'var(--color-ink)').attr('stroke-width', 1.5);
+    svg.append('line')
+      .attr('x1', cx).attr('x2', cx)
+      .attr('y1', y(s.q1)).attr('y2', y(s.lowerWhisker))
+      .attr('stroke', 'var(--color-ink)').attr('stroke-width', 1.5);
+
+    // Whisker caps
+    const capW = boxWidth * 0.4;
+    svg.append('line')
+      .attr('x1', cx - capW / 2).attr('x2', cx + capW / 2)
+      .attr('y1', y(s.upperWhisker)).attr('y2', y(s.upperWhisker))
+      .attr('stroke', 'var(--color-ink)').attr('stroke-width', 1.5);
+    svg.append('line')
+      .attr('x1', cx - capW / 2).attr('x2', cx + capW / 2)
+      .attr('y1', y(s.lowerWhisker)).attr('y2', y(s.lowerWhisker))
+      .attr('stroke', 'var(--color-ink)').attr('stroke-width', 1.5);
+
+    // Box
+    const boxG = svg.append('g')
+      .attr('tabindex', 0)
+      .attr('role', 'graphics-symbol')
+      .attr('aria-label', `${s.group}: Q1=${s.q1}, Median=${s.median}, Q3=${s.q3}`);
+
+    boxG.append('rect')
+      .attr('x', x(s.group))
+      .attr('y', y(s.q3))
+      .attr('width', boxWidth)
+      .attr('height', y(s.q1) - y(s.q3))
+      .attr('fill', 'var(--color-fill)')
+      .attr('stroke', 'var(--color-mark)')
+      .attr('stroke-width', 2)
+      .attr('rx', 0);
+
+    // Median line
+    boxG.append('line')
+      .attr('x1', x(s.group)).attr('x2', x(s.group) + boxWidth)
+      .attr('y1', y(s.median)).attr('y2', y(s.median))
+      .attr('stroke', 'var(--color-red)').attr('stroke-width', 3);
+
+    // Hover/focus area
+    boxG.append('rect')
+      .attr('x', x(s.group) - 5)
+      .attr('y', y(s.upperWhisker) - 10)
+      .attr('width', boxWidth + 10)
+      .attr('height', y(s.lowerWhisker) - y(s.upperWhisker) + 20)
+      .attr('fill', 'transparent')
+      .attr('cursor', 'pointer')
+      .on('mouseenter', (event) => showTooltip(event, s))
+      .on('mousemove', (event) => moveTooltip(event))
+      .on('mouseleave', hideTooltip);
+
+    boxG.on('focus', (event) => showTooltip(event, s))
+      .on('blur', hideTooltip);
+
+    // Outliers
+    s.outliers.forEach(o => {
+      svg.append('circle')
+        .attr('cx', cx)
+        .attr('cy', y(o))
+        .attr('r', 4)
+        .attr('fill', 'var(--color-red)')
+        .attr('stroke', 'none');
+    });
+  });
+}
+
+function showTooltip(event, s) {
+  tooltip.innerHTML = `
+    <div class="label">${s.group}</div>
+    <div>Upper whisker: ${s.upperWhisker}</div>
+    <div>Q3 (75th): ${s.q3}</div>
+    <div style="color:var(--color-red);font-weight:600">Median: ${s.median}</div>
+    <div>Q1 (25th): ${s.q1}</div>
+    <div>Lower whisker: ${s.lowerWhisker}</div>
+    <div>IQR: ${s.iqr}</div>
+    ${s.outliers.length ? `<div style="color:var(--color-red)">Outliers: ${s.outliers.join(', ')}</div>` : ''}
+  `;
+  tooltip.style.opacity = 1;
+  moveTooltip(event);
+}
+
+function moveTooltip(event) {
+  const rect = container.getBoundingClientRect();
+  let x = event.clientX - rect.left + 16;
+  let yPos = event.clientY - rect.top - 10;
+  if (x + 200 > rect.width) x = x - 220;
+  tooltip.style.left = x + 'px';
+  tooltip.style.top = yPos + 'px';
+}
+
+function hideTooltip() {
+  tooltip.style.opacity = 0;
+}
+
+render();
+window.addEventListener('resize', render);
+</script>
+</body>
+</html>

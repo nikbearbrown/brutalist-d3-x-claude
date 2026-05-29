@@ -1,0 +1,105 @@
+<svg viewBox="0 0 700 360" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+<defs>
+  <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#2a1a0e"/>
+  </marker>
+  <marker id="arrow-ochre" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#C8860E"/>
+  </marker>
+</defs>
+
+<!-- Background -->
+<rect width="700" height="360" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="28" text-anchor="middle" font-size="15" fill="#2a1a0e" font-weight="bold">Vertical vs. Horizontal: Label Readability</text>
+
+<!-- LEFT PANEL: Vertical columns with rotated short labels -->
+<rect x="32" y="44" width="300" height="260" fill="#F5EFE8" stroke="#D4D4D4" rx="0"/>
+
+<!-- Badge -->
+<rect x="120" y="48" width="120" height="18" fill="#FFFFFF" stroke="#D4D4D4" rx="0"/>
+<text x="180" y="61" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">SHORT LABELS</text>
+
+<!-- Y-axis -->
+<line x1="68" y1="74" x2="68" y2="268" stroke="#2a1a0e" stroke-width="1"/>
+<text x="62" y="80" font-size="8" fill="#545454" text-anchor="end">100</text>
+<line x1="68" y1="76" x2="318" y2="76" stroke="#D4D4D4" stroke-dasharray="4 3"/>
+<text x="62" y="128" font-size="8" fill="#545454" text-anchor="end">75</text>
+<line x1="68" y1="124" x2="318" y2="124" stroke="#D4D4D4" stroke-dasharray="4 3"/>
+<text x="62" y="176" font-size="8" fill="#545454" text-anchor="end">50</text>
+<line x1="68" y1="172" x2="318" y2="172" stroke="#D4D4D4" stroke-dasharray="4 3"/>
+<text x="62" y="224" font-size="8" fill="#545454" text-anchor="end">25</text>
+<line x1="68" y1="220" x2="318" y2="220" stroke="#D4D4D4" stroke-dasharray="4 3"/>
+<text x="62" y="272" font-size="8" fill="#545454" text-anchor="end">0</text>
+<line x1="68" y1="268" x2="318" y2="268" stroke="#2a1a0e" stroke-width="1"/>
+
+<!-- Vertical bars: 8 bars, bar width=24, gap=8, start x=76 -->
+<!-- height: 192px for 100 units = 1.92px/unit -->
+<!-- Values: 92, 85, 78, 71, 64, 57, 50, 43 -->
+<rect x="76" y="91.4" width="24" height="176.6" fill="#6B3520" rx="0"/>
+<rect x="108" y="104.8" width="24" height="163.2" fill="#6B3520" rx="0"/>
+<rect x="140" y="118.2" width="24" height="149.8" fill="#6B3520" rx="0"/>
+<rect x="172" y="131.7" width="24" height="136.3" fill="#6B3520" rx="0"/>
+<rect x="204" y="145.1" width="24" height="122.9" fill="#6B3520" rx="0"/>
+<rect x="236" y="158.6" width="24" height="109.4" fill="#6B3520" rx="0"/>
+<rect x="268" y="172" width="24" height="96" fill="#6B3520" rx="0"/>
+<rect x="300" y="185.4" width="24" height="82.6" fill="#6B3520" rx="0"/>
+
+<!-- Rotated labels at -30° -->
+<text x="88" y="282" text-anchor="end" font-size="8" fill="#545454" transform="rotate(-30, 88, 282)">Alpha</text>
+<text x="120" y="282" text-anchor="end" font-size="8" fill="#545454" transform="rotate(-30, 120, 282)">Beta</text>
+<text x="152" y="282" text-anchor="end" font-size="8" fill="#545454" transform="rotate(-30, 152, 282)">Gamma</text>
+<text x="184" y="282" text-anchor="end" font-size="8" fill="#545454" transform="rotate(-30, 184, 282)">Delta</text>
+<text x="216" y="282" text-anchor="end" font-size="8" fill="#545454" transform="rotate(-30, 216, 282)">Eps</text>
+<text x="248" y="282" text-anchor="end" font-size="8" fill="#545454" transform="rotate(-30, 248, 282)">Zeta</text>
+<text x="280" y="282" text-anchor="end" font-size="8" fill="#545454" transform="rotate(-30, 280, 282)">Eta</text>
+<text x="312" y="282" text-anchor="end" font-size="8" fill="#545454" transform="rotate(-30, 312, 282)">Theta</text>
+
+<!-- RIGHT PANEL: Horizontal bars with long labels -->
+<rect x="368" y="44" width="300" height="260" fill="#F5EFE8" stroke="#D4D4D4" rx="0"/>
+
+<!-- Badge -->
+<rect x="453" y="48" width="120" height="18" fill="#FFFFFF" stroke="#D4D4D4" rx="0"/>
+<text x="513" y="61" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">LONG LABELS</text>
+
+<!-- Horizontal bars with readable labels -->
+<!-- 8 bars, bar height=22, gap=6, start y=76 -->
+<!-- bar max width=200px, x starts at 510 -->
+
+<text x="504" y="91" font-size="9" fill="#2a1a0e" text-anchor="end">Machine Learning</text>
+<rect x="510" y="80" width="148" height="18" fill="#6B3520" rx="0"/>
+
+<text x="504" y="119" font-size="9" fill="#2a1a0e" text-anchor="end">Natural Language</text>
+<rect x="510" y="108" width="136" height="18" fill="#6B3520" rx="0"/>
+
+<text x="504" y="147" font-size="9" fill="#2a1a0e" text-anchor="end">Computer Vision</text>
+<rect x="510" y="136" width="126" height="18" fill="#6B3520" rx="0"/>
+
+<text x="504" y="175" font-size="9" fill="#2a1a0e" text-anchor="end">Reinforcement Lrn</text>
+<rect x="510" y="164" width="114" height="18" fill="#6B3520" rx="0"/>
+
+<text x="504" y="203" font-size="9" fill="#2a1a0e" text-anchor="end">Robotics Control</text>
+<rect x="510" y="192" width="102" height="18" fill="#6B3520" rx="0"/>
+
+<text x="504" y="231" font-size="9" fill="#2a1a0e" text-anchor="end">Speech Recognition</text>
+<rect x="510" y="220" width="92" height="18" fill="#6B3520" rx="0"/>
+
+<text x="504" y="259" font-size="9" fill="#2a1a0e" text-anchor="end">Knowledge Graphs</text>
+<rect x="510" y="248" width="80" height="18" fill="#6B3520" rx="0"/>
+
+<text x="504" y="287" font-size="9" fill="#2a1a0e" text-anchor="end">Causal Inference</text>
+<rect x="510" y="276" width="68" height="18" fill="#6B3520" rx="0"/>
+
+<!-- Proximity annotation: dashed ochre arrow along left edge, outside bars -->
+<line x1="72" y1="88" x2="72" y2="278" stroke="#C8860E" stroke-width="1.5" stroke-dasharray="4 3" marker-start="url(#arrow-ochre-up)" marker-end="url(#arrow-ochre)"/>
+<text x="50" y="186" font-size="7" fill="#C8860E" font-weight="bold" text-anchor="middle">Eye must</text>
+<text x="50" y="195" font-size="7" fill="#C8860E" font-weight="bold" text-anchor="middle">travel far</text>
+<text x="50" y="204" font-size="7" fill="#C8860E" font-weight="bold" text-anchor="middle">to labels</text>
+
+<line x1="508" y1="91" x2="508" y2="80" stroke="#C8860E" stroke-width="1.5" stroke-dasharray="4 3"/>
+<text x="465" y="320" font-size="8" fill="#C8860E" font-weight="bold">Labels adjacent to data</text>
+
+<!-- Caption -->
+<text x="350" y="348" text-anchor="middle" font-size="10" fill="#545454" font-style="italic">Fig. 7-4. Horizontal bars keep long labels readable without rotation.</text>
+</svg>

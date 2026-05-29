@@ -2,7 +2,8 @@
 
 *The gap was 22 points in 2016 — it is 67 in 2024*
 
-![Line Graph](../images/43-line-graph.jpg)
+![Two-line chart showing a widening gap from 22 points in 2016 to 67 points in 2024](../images/43-line-graph.png)
+*Figure 43.1 — The gap was 22 points in 2016 — it is 67 in 2024*
 
 ## What this chart is
 
@@ -56,6 +57,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/43-line-graph.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

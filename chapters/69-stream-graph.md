@@ -2,7 +2,9 @@
 
 *Music Genre Dominance — Streaming Volume 2000–2023*
 
-![Stream Graph](../images/69-stream-graph.jpg)
+*Figure 69.1 — Music Genre Dominance 2000–2023*
+
+![Stream Graph](../images/69-stream-graph.png)
 
 ## What this chart is
 
@@ -44,6 +46,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+Reference implementation: [`d3/69-stream-graph.html`](../d3/69-stream-graph.html)
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

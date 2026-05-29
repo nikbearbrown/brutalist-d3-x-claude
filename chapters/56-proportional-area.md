@@ -2,7 +2,8 @@
 
 *North America + East Asia hold 62% of global AI for Good investment*
 
-![Proportional Area](../images/56-proportional-area.jpg)
+![Proportional area chart showing five circles sized by AI investment with North America and East Asia as largest](../images/56-proportional-area.png)
+*Figure 56.1 — North America + East Asia hold 62% of global AI for Good investment*
 
 ## What this chart is
 
@@ -63,6 +64,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/56-proportional-area.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

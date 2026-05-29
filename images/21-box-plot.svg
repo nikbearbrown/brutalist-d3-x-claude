@@ -1,0 +1,113 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+<defs>
+  <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#2a1a0e"/>
+  </marker>
+</defs>
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#2a1a0e">Five Groups, One Frame</text>
+
+<!-- Subtitle -->
+<text x="350" y="46" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">SCORE DISTRIBUTION BY GROUP</text>
+
+<!-- Chart area: x=72..648, y=60..350 => w=576, h=290 -->
+<rect x="72" y="60" width="576" height="290" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="0.75"/>
+
+<!-- Y-axis: 0 to 100. Scale: y = 350 - score*2.9 -->
+<!-- 0: 350, 20: 292, 40: 234, 60: 176, 80: 118, 100: 60 -->
+<text x="68" y="354" text-anchor="end" font-size="10" fill="#545454">0</text>
+<text x="68" y="296" text-anchor="end" font-size="10" fill="#545454">20</text>
+<text x="68" y="238" text-anchor="end" font-size="10" fill="#545454">40</text>
+<text x="68" y="180" text-anchor="end" font-size="10" fill="#545454">60</text>
+<text x="68" y="122" text-anchor="end" font-size="10" fill="#545454">80</text>
+<text x="68" y="64" text-anchor="end" font-size="10" fill="#545454">100</text>
+
+<!-- Horizontal gridlines (dashed) -->
+<line x1="72" y1="292" x2="648" y2="292" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="4,3"/>
+<line x1="72" y1="234" x2="648" y2="234" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="4,3"/>
+<line x1="72" y1="176" x2="648" y2="176" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="4,3"/>
+<line x1="72" y1="118" x2="648" y2="118" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="4,3"/>
+
+<!-- Y-axis label -->
+<text x="32" y="205" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#545454" letter-spacing="0.08em" transform="rotate(-90 32 205)">SCORE</text>
+
+<!-- 5 groups at x centers: 144, 259, 374, 489, 604. Box half-width=30 -->
+
+<!-- Group A: Q1=35, med=50, Q3=65, whiskers 15-85, outlier 92 -->
+<!-- Q1y=350-35*2.9=248.5, medy=350-50*2.9=205, Q3y=350-65*2.9=161.5 -->
+<!-- whiskLow=350-15*2.9=306.5, whiskHigh=350-85*2.9=103.5, outlier=350-92*2.9=83.2 -->
+<!-- Upper whisker -->
+<line x1="144" y1="103.5" x2="144" y2="161.5" stroke="#2a1a0e" stroke-width="1.5"/>
+<line x1="129" y1="103.5" x2="159" y2="103.5" stroke="#2a1a0e" stroke-width="1.5"/>
+<!-- Box -->
+<rect x="114" y="161.5" width="60" height="87" fill="#F5EFE8" stroke="#6B3520" stroke-width="1.5"/>
+<!-- Median -->
+<line x1="114" y1="205" x2="174" y2="205" stroke="#C8102E" stroke-width="2"/>
+<!-- Lower whisker -->
+<line x1="144" y1="248.5" x2="144" y2="306.5" stroke="#2a1a0e" stroke-width="1.5"/>
+<line x1="129" y1="306.5" x2="159" y2="306.5" stroke="#2a1a0e" stroke-width="1.5"/>
+<!-- Outlier -->
+<circle cx="144" cy="83.2" r="3.5" fill="#C8102E"/>
+<!-- Label -->
+<text x="144" y="375" text-anchor="middle" font-size="11" fill="#2a1a0e">Group A</text>
+
+<!-- Group B: Q1=45, med=60, Q3=72, whiskers 28-88 -->
+<!-- Q1y=350-45*2.9=219.5, medy=350-60*2.9=176, Q3y=350-72*2.9=141.2 -->
+<!-- whiskLow=350-28*2.9=268.8, whiskHigh=350-88*2.9=94.8 -->
+<line x1="259" y1="94.8" x2="259" y2="141.2" stroke="#2a1a0e" stroke-width="1.5"/>
+<line x1="244" y1="94.8" x2="274" y2="94.8" stroke="#2a1a0e" stroke-width="1.5"/>
+<rect x="229" y="141.2" width="60" height="78.3" fill="#F5EFE8" stroke="#6B3520" stroke-width="1.5"/>
+<line x1="229" y1="176" x2="289" y2="176" stroke="#C8102E" stroke-width="2"/>
+<line x1="259" y1="219.5" x2="259" y2="268.8" stroke="#2a1a0e" stroke-width="1.5"/>
+<line x1="244" y1="268.8" x2="274" y2="268.8" stroke="#2a1a0e" stroke-width="1.5"/>
+<text x="259" y="375" text-anchor="middle" font-size="11" fill="#2a1a0e">Group B</text>
+
+<!-- Group C: Q1=20, med=35, Q3=50, whiskers 5-70, outliers 78, 82 -->
+<!-- Q1y=350-20*2.9=292, medy=350-35*2.9=248.5, Q3y=350-50*2.9=205 -->
+<!-- whiskLow=350-5*2.9=335.5, whiskHigh=350-70*2.9=147 -->
+<!-- outlier78=350-78*2.9=123.8, outlier82=350-82*2.9=112.2 -->
+<line x1="374" y1="147" x2="374" y2="205" stroke="#2a1a0e" stroke-width="1.5"/>
+<line x1="359" y1="147" x2="389" y2="147" stroke="#2a1a0e" stroke-width="1.5"/>
+<rect x="344" y="205" width="60" height="87" fill="#F5EFE8" stroke="#6B3520" stroke-width="1.5"/>
+<line x1="344" y1="248.5" x2="404" y2="248.5" stroke="#C8102E" stroke-width="2"/>
+<line x1="374" y1="292" x2="374" y2="335.5" stroke="#2a1a0e" stroke-width="1.5"/>
+<line x1="359" y1="335.5" x2="389" y2="335.5" stroke="#2a1a0e" stroke-width="1.5"/>
+<circle cx="374" cy="123.8" r="3.5" fill="#C8102E"/>
+<circle cx="374" cy="112.2" r="3.5" fill="#C8102E"/>
+<text x="374" y="375" text-anchor="middle" font-size="11" fill="#2a1a0e">Group C</text>
+
+<!-- Group D: Q1=55, med=68, Q3=78, whiskers 38-95 -->
+<!-- Q1y=350-55*2.9=190.5, medy=350-68*2.9=152.8, Q3y=350-78*2.9=123.8 -->
+<!-- whiskLow=350-38*2.9=239.8, whiskHigh=350-95*2.9=74.5 -->
+<line x1="489" y1="74.5" x2="489" y2="123.8" stroke="#2a1a0e" stroke-width="1.5"/>
+<line x1="474" y1="74.5" x2="504" y2="74.5" stroke="#2a1a0e" stroke-width="1.5"/>
+<rect x="459" y="123.8" width="60" height="66.7" fill="#F5EFE8" stroke="#6B3520" stroke-width="1.5"/>
+<line x1="459" y1="152.8" x2="519" y2="152.8" stroke="#C8102E" stroke-width="2"/>
+<line x1="489" y1="190.5" x2="489" y2="239.8" stroke="#2a1a0e" stroke-width="1.5"/>
+<line x1="474" y1="239.8" x2="504" y2="239.8" stroke="#2a1a0e" stroke-width="1.5"/>
+<text x="489" y="375" text-anchor="middle" font-size="11" fill="#2a1a0e">Group D</text>
+
+<!-- Group E: Q1=30, med=42, Q3=58, whiskers 12-75 -->
+<!-- Q1y=350-30*2.9=263, medy=350-42*2.9=228.2, Q3y=350-58*2.9=181.8 -->
+<!-- whiskLow=350-12*2.9=315.2, whiskHigh=350-75*2.9=132.5 -->
+<line x1="604" y1="132.5" x2="604" y2="181.8" stroke="#2a1a0e" stroke-width="1.5"/>
+<line x1="589" y1="132.5" x2="619" y2="132.5" stroke="#2a1a0e" stroke-width="1.5"/>
+<rect x="574" y="181.8" width="60" height="81.2" fill="#F5EFE8" stroke="#6B3520" stroke-width="1.5"/>
+<line x1="574" y1="228.2" x2="634" y2="228.2" stroke="#C8102E" stroke-width="2"/>
+<line x1="604" y1="263" x2="604" y2="315.2" stroke="#2a1a0e" stroke-width="1.5"/>
+<line x1="589" y1="315.2" x2="619" y2="315.2" stroke="#2a1a0e" stroke-width="1.5"/>
+<text x="604" y="375" text-anchor="middle" font-size="11" fill="#2a1a0e">Group E</text>
+
+<!-- Legend -->
+<line x1="100" y1="405" x2="120" y2="405" stroke="#C8102E" stroke-width="2"/>
+<text x="125" y="409" font-size="9" fill="#545454">Median</text>
+<circle cx="180" cy="405" r="3.5" fill="#C8102E"/>
+<text x="188" y="409" font-size="9" fill="#545454">Outlier</text>
+
+<!-- Caption -->
+<text x="350" y="409" text-anchor="middle" font-size="11" fill="#545454" font-style="italic">Box plot shows center, spread, and outliers — not shape.</text>
+</svg>

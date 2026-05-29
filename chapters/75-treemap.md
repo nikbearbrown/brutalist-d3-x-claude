@@ -2,7 +2,8 @@
 
 *Technology and life sciences dominate global R&D — but the subcategory breakdown reveals where the real concentration lies*
 
-![Treemap](../images/75-treemap.jpg)
+![Treemap](../images/75-treemap.png)
+*Figure 75.1 — Technology and life sciences dominate*
 
 ## What this chart is
 
@@ -48,6 +49,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/75-treemap.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

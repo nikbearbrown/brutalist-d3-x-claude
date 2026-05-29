@@ -9,7 +9,8 @@ Both charts can show monthly revenue. Both can start their y-axis at $80,000 ins
 
 Same visual trick. Different channel. Different verdict.
 
-<!-- → [FIGURE: Two side-by-side charts, identical monthly revenue data (12 months, range $83k–$91k). Left: column bar chart, y-axis from $80k — the bars are dramatically different heights even though values differ by <10%. Right: line chart, same y-axis from $80k — this is now fine, because point position is the channel, not bar length. Caption: "Same y-axis range. Left is a proportional ink violation; right is a legitimate design choice. The channel determines the rule." Label each panel with its channel: "Channel: bar length (area)" vs. "Channel: point position."] -->
+![Two side-by-side charts of identical monthly revenue data — left column bars from $80k with proportional ink violation, right line chart from $80k with legitimate point-position encoding](../images/08-time-series-and-temporal-charts-fig-01.png)
+*Figure 8.1 — Same y-axis range. Left is a proportional ink violation; right is a legitimate design choice. The channel determines the rule.*
 
 This is the central technical fact about temporal charts. The channel determines what the zero-baseline rule requires. Area charts use area as a channel. Line charts use point position. That distinction splits the temporal family into two regimes with different rules, and understanding the split is what separates a chart that reads honestly from one that is technically correct and perceptually misleading.
 
@@ -35,7 +36,8 @@ There are seven forms in the temporal chart family. Each one is the right answer
 
 Seven forms. The choice among them is a channel choice, and the channel choice follows from what the reader needs to perceive.
 
-<!-- → [INFOGRAPHIC: Seven-panel reference grid, one panel per temporal form. Each panel: form name (uppercase, JetBrains Mono), a thumbnail sketch of the form's characteristic visual shape, primary channel listed, the one-line "use when" condition. Panels: Line chart (path, point position, "trajectory"), Area chart (filled region, area, "magnitude"), Stacked area (layered fills, position + area, "composition + total"), Stream graph (centered organic flow, area centered, "rhetorical rise/fall"), Spiral plot (Archimedean spiral, curved position, "cyclic structure"), Gantt chart (horizontal bars, position + length, "intervals + duration"), Timeline (events on a single axis, position only, "narrative sequence"). Warm monochrome. This is the navigation reference the reader returns to whenever they have temporal data.] -->
+![Seven-panel reference grid of temporal forms — line chart, area chart, stacked area, stream graph, spiral plot, Gantt chart, timeline — each with channel and use-when condition](../images/08-time-series-and-temporal-charts-fig-02.png)
+*Figure 8.2 — Seven temporal forms. The question determines the channel.*
 
 ---
 
@@ -52,7 +54,8 @@ This is the split:
 
 Kelleher's worked example makes the failure concrete. An area chart of daily temperature, y-axis from 50°F to 90°F. The filled region below the temperature line looks visually substantial — a large warm-toned area that appears to represent the temperature. But the area represents (temperature − 50), not temperature. A day at 70°F has an area corresponding to 20; a day at 80°F has an area corresponding to 30. The visual ratio is 20:30, or 1.5:1. The actual temperature ratio is 70:80, or 1.14:1. The chart is amplifying the difference by a factor of three relative to the actual temperature values. The fix is either to zero-baseline the area (the area now corresponds to the temperature itself) or to drop the area encoding entirely and use a pure line chart where point position carries the value.
 
-<!-- → [FIGURE: Three-panel comparison using a 30-day temperature dataset (range 65°F–85°F). Left panel: area chart, y-axis from 50°F — the "area" looks large and dramatic; label shows "Visual area encodes temp − 50, not temp." Center panel: same area chart, y-axis from 0°F — the filled area is now mostly blank space below 65°F, but the area encodes the actual temperature. Right panel: line chart, y-axis from 60°F to 90°F — tight range, no area, point position is the channel, zero baseline not required. Caption shows the calculation for two days: day at 70°F and day at 80°F — visual ratio in left panel (1.5:1) vs. actual temperature ratio (1.14:1) vs. line chart (position difference is honest).] -->
+![Three-panel temperature comparison — area from 50F amplifies, area from 0F is honest but wastes space, line from 60-90F is honest with no area encoding](../images/08-time-series-and-temporal-charts-fig-03.png)
+*Figure 8.3 — Area encodes the wrong quantity when the baseline is wrong.*
 
 ---
 
@@ -84,7 +87,8 @@ The skipped-interval problem appears not just with missing data but with purpose
 
 The honest version: label the axis with the actual measurement years, draw connecting lines only if the intermediate trajectory is meaningful, and annotate if the gap introduces uncertainty. The channel should encode what the data shows, not what the eye wants to see.
 
-<!-- → [FIGURE: Two panels, same monthly dataset (24 months) with one month missing (March 2021). Left: compressed axis — February and April sit adjacent, the connecting line implies a continuous trend with an artificially steep slope. Right: gap-marked axis — March 2021 held at its correct calendar position, the line is broken, a dotted segment or shaded region indicates missing data. Caption: "Left: the Gestalt principle works against honesty — the eye reads continuity where there is a gap. Right: the gap is visible, the slope of the line before and after is correct." Annotate the slope angles in both panels to show the distortion.] -->
+![Two panels showing 24 months with March 2021 missing — left compressed axis with false slope, right gap-marked axis with honest break and shaded missing-data region](../images/08-time-series-and-temporal-charts-fig-04.png)
+*Figure 8.4 — The eye reads continuity where there is a gap.*
 
 ---
 
@@ -102,7 +106,8 @@ The design consequence: put the most important series and the most stable series
 
 The total trajectory — the sum of all series — is the top boundary of the topmost layer. This is the most accurately read quantity in the chart: position along a common scale, shared with the y-axis. If the total is the primary question, the stacked area chart answers it well. If individual series values are the primary question, consider small multiples with one panel per series.
 
-<!-- → [FIGURE: A stacked area chart with five layers, annotated to show the accuracy gradient. Bottom layer (Food Security): bracket on the right edge labeled "Fixed baseline = 0. Position-along-common-scale. Accuracy: high." Second layer (Shelter): bracket labeled "Baseline varies with Food Security top edge. Reader must estimate thickness. Accuracy: lower." Top layer (Protection): bracket labeled "Baseline highly variable. Thickness estimation hardest. Accuracy: lowest." The total top edge has its own bracket: "Total trajectory — position along common scale. Accuracy: high." This figure makes the layer-ordering rule self-evident: what you need to read most accurately belongs at the bottom.] -->
+![Stacked area chart with five layers annotated with accuracy gradient — bottom layer high accuracy with fixed baseline, middle layers medium, top layer low accuracy with variable baseline](../images/08-time-series-and-temporal-charts-fig-05.png)
+*Figure 8.5 — What you need to read most accurately belongs at the bottom.*
 
 ---
 
@@ -132,7 +137,8 @@ The honest test: if you showed a reader the spiral plot and the small-multiples 
 
 The spiral is an honest chart when the channel cost is worth the perceptual benefit. It is a dishonest one when it is chosen because it looks more interesting than a line chart.
 
-<!-- → [FIGURE: Side-by-side comparison using five years of monthly electricity consumption data with a strong seasonal cycle. Left: standard line chart, 60 months on the x-axis — the trend is visible, the seasonal sawtooth repeats but its structure is harder to perceive as a single unit. Right: spiral plot, one rotation per year — January always at 12 o'clock, the winter spikes form a consistent cluster at the top of all five spirals, the summer dips cluster at the bottom. Caption: "Left answers: 'Is consumption rising over five years?' Right answers: 'Is the seasonal pattern consistent across years?' Same data. Different question. Different form." Annotate one specific data point (July 2023) on both charts and show how the reading task differs.] -->
+![Side-by-side comparison — left line chart of 60 months showing trend plus seasonal sawtooth, right spiral plot with one rotation per year showing seasonal clustering, July 2023 annotated on both](../images/08-time-series-and-temporal-charts-fig-06.png)
+*Figure 8.6 — Same data. Different question. Different form.*
 
 ---
 
@@ -328,6 +334,78 @@ appropriate.
 - **Tufte, Edward R. (1983, 2nd ed. 2001).** *The Visual Display of Quantitative Information.* The proportional ink principle; the Minard chart as the canonical multi-channel temporal visualization.
 - **Wickham, Hadley. (2010).** "A Layered Grammar of Graphics." *Journal of Computational and Graphical Statistics* 19(1). Wickham's treatment of the time channel in the grammar framework.
 - **The book's pantry** — `line-graph.html`, `area-graph.html`, `stacked-area.html`, `stream-graph.html`, `spiral-plot.html`, `gantt-chart.html` for working examples of each form.
+
+---
+
+## Prompts
+
+Use these prompts with Claude to generate interactive D3 v7 versions of the
+figures in this chapter. Each produces a standalone HTML file you can open
+in a browser and modify freely.
+
+**Prerequisites:** Load `brutalist/CLAUDE.md` and `brutalist/DESIGN.md` into
+your Claude project context before using these prompts. They define the stack,
+naming conventions, color system, and typography the figures use.
+
+---
+
+### Figure 8.1 — Bar vs line baseline
+
+*Hand-authored SVG (converted to PNG at 300 dpi)*
+
+Two panels with the same monthly revenue data ($83k–$91k, 12 months). Left: column bar chart with y-axis from $80k — bars are dramatically different heights despite values differing by less than 10% (proportional ink violation). Right: line chart with the same y-axis from $80k — this is legitimate because point position is the channel, not bar length. Each panel labeled with its channel.
+
+> Reference implementation: `d3/08-time-series-and-temporal-charts-fig-01.html`
+
+---
+
+### Figure 8.2 — Seven temporal forms
+
+*Hand-authored SVG (converted to PNG at 300 dpi)*
+
+Seven-panel reference grid (4x2). Each panel: form name in uppercase, a tiny iconic sketch of the form's characteristic shape, primary channel listed, and a one-line "use when" condition. Forms: Line chart, Area chart, Stacked area, Stream graph, Spiral plot, Gantt chart, Timeline.
+
+> Reference implementation: `d3/08-time-series-and-temporal-charts-fig-02.html`
+
+---
+
+### Figure 8.3 — Area baseline comparison
+
+*Hand-authored SVG (converted to PNG at 300 dpi)*
+
+Three panels using a 30-day temperature dataset (65–85 degrees F sine wave). Left: area chart from 50 degrees F — area amplifies the difference. Center: area chart from 0 degrees F — honest but wastes space. Right: line chart from 60–90 degrees F — honest, no area encoding, zero baseline not required.
+
+> Reference implementation: `d3/08-time-series-and-temporal-charts-fig-03.html`
+
+---
+
+### Figure 8.4 — Missing data handling
+
+*Hand-authored SVG (converted to PNG at 300 dpi)*
+
+Two panels showing 24 months of data with March 2021 missing. Left: compressed axis where February and April sit adjacent, creating a false slope that implies continuous change. Right: gap-marked axis where March 2021 is held at its correct calendar position with a broken line and shaded missing-data region.
+
+> Reference implementation: `d3/08-time-series-and-temporal-charts-fig-04.html`
+
+---
+
+### Figure 8.5 — Stacked area accuracy gradient
+
+*Hand-authored SVG (converted to PNG at 300 dpi)*
+
+Stacked area chart with five layers annotated to show the accuracy gradient. Bottom layer: "HIGH accuracy, fixed baseline." Middle layers: "MEDIUM, variable baseline." Top layer: "LOW, thickness hardest to judge." Total top edge: "HIGH, position along common scale." Demonstrates the layer-ordering rule.
+
+> Reference implementation: `d3/08-time-series-and-temporal-charts-fig-05.html`
+
+---
+
+### Figure 8.6 — Line chart vs spiral plot
+
+*Hand-authored SVG (converted to PNG at 300 dpi)*
+
+Side-by-side comparison using five years of monthly data with a strong seasonal cycle. Left: standard line chart of 60 months showing trend plus seasonal sawtooth. Right: spiral plot with one rotation per year showing seasonal clustering. July 2023 annotated on both charts to show how the reading task differs.
+
+> Reference implementation: `d3/08-time-series-and-temporal-charts-fig-06.html`
 
 ---
 

@@ -2,7 +2,8 @@
 
 *Crisis Type Determines Response Delay —Conflict Shows Bimodal Pattern, Displacement Skews Right*
 
-![Density Plot](../images/32-density-plot.jpg)
+![Two overlapping density curves showing response delay distributions — conflict bimodal, displacement right-skewed](../images/32-density-plot.png)
+*Figure 32.1 — Crisis Type Determines Response Delay*
 
 ## What this chart is
 
@@ -44,6 +45,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/32-density-plot.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

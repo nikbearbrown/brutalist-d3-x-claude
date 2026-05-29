@@ -1,0 +1,100 @@
+<svg viewBox="0 0 700 540" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+<defs>
+  <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#2a1a0e"/>
+  </marker>
+</defs>
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="540" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="230" y="30" text-anchor="middle" font-size="13" fill="#545454" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">FIVE-STEP DATA AUDIT</text>
+
+<!-- Step 1 -->
+<rect x="32" y="48" width="400" height="68" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<circle cx="52" cy="68" r="12" fill="#C8102E"/>
+<text x="52" y="73" text-anchor="middle" font-size="12" fill="#FFFFFF" font-weight="bold">1</text>
+<text x="74" y="72" font-size="15" fill="#2a1a0e" font-weight="bold">Identify the reader's question</text>
+<text x="74" y="92" font-size="10" fill="#545454" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">INPUT: <tspan font-family="'EB Garamond', Georgia, serif" font-size="12" fill="#2a1a0e" letter-spacing="0">Editorial brief or story angle</tspan></text>
+<text x="74" y="106" font-size="10" fill="#545454" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">OUTPUT: <tspan font-family="'EB Garamond', Georgia, serif" font-size="12" fill="#2a1a0e" letter-spacing="0">One clear, answerable question</tspan></text>
+
+<!-- Arrow 1-2 -->
+<line x1="232" y1="116" x2="232" y2="136" stroke="#2a1a0e" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<!-- Step 2 -->
+<rect x="32" y="140" width="400" height="68" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<circle cx="52" cy="160" r="12" fill="#C8102E"/>
+<text x="52" y="165" text-anchor="middle" font-size="12" fill="#FFFFFF" font-weight="bold">2</text>
+<text x="74" y="164" font-size="15" fill="#2a1a0e" font-weight="bold">Inventory the fields</text>
+<text x="74" y="184" font-size="10" fill="#545454" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">INPUT: <tspan font-family="'EB Garamond', Georgia, serif" font-size="12" fill="#2a1a0e" letter-spacing="0">Raw dataset (CSV, JSON, API)</tspan></text>
+<text x="74" y="198" font-size="10" fill="#545454" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">OUTPUT: <tspan font-family="'EB Garamond', Georgia, serif" font-size="12" fill="#2a1a0e" letter-spacing="0">Column names, types, ranges</tspan></text>
+
+<!-- Arrow 2-3 -->
+<line x1="232" y1="208" x2="232" y2="228" stroke="#2a1a0e" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<!-- Step 3 -->
+<rect x="32" y="232" width="400" height="68" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<circle cx="52" cy="252" r="12" fill="#C8102E"/>
+<text x="52" y="257" text-anchor="middle" font-size="12" fill="#FFFFFF" font-weight="bold">3</text>
+<text x="74" y="256" font-size="15" fill="#2a1a0e" font-weight="bold">Check fitness for question</text>
+<text x="74" y="276" font-size="10" fill="#545454" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">INPUT: <tspan font-family="'EB Garamond', Georgia, serif" font-size="12" fill="#2a1a0e" letter-spacing="0">Question + field inventory</tspan></text>
+<text x="74" y="290" font-size="10" fill="#545454" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">OUTPUT: <tspan font-family="'EB Garamond', Georgia, serif" font-size="12" fill="#2a1a0e" letter-spacing="0">Go / reframe / find new data</tspan></text>
+
+<!-- Arrow 3-4 -->
+<line x1="232" y1="300" x2="232" y2="320" stroke="#2a1a0e" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<!-- Step 4 -->
+<rect x="32" y="324" width="400" height="68" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<circle cx="52" cy="344" r="12" fill="#C8102E"/>
+<text x="52" y="349" text-anchor="middle" font-size="12" fill="#FFFFFF" font-weight="bold">4</text>
+<text x="74" y="348" font-size="15" fill="#2a1a0e" font-weight="bold">Identify needed transforms</text>
+<text x="74" y="368" font-size="10" fill="#545454" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">INPUT: <tspan font-family="'EB Garamond', Georgia, serif" font-size="12" fill="#2a1a0e" letter-spacing="0">Raw fields + chart requirements</tspan></text>
+<text x="74" y="382" font-size="10" fill="#545454" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">OUTPUT: <tspan font-family="'EB Garamond', Georgia, serif" font-size="12" fill="#2a1a0e" letter-spacing="0">Aggregation, filtering, derivation plan</tspan></text>
+
+<!-- Arrow 4-5 -->
+<line x1="232" y1="392" x2="232" y2="412" stroke="#2a1a0e" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<!-- Step 5 (emphasized) -->
+<rect x="32" y="416" width="400" height="68" fill="#2a1a0e"/>
+<circle cx="52" cy="436" r="12" fill="#C8102E"/>
+<text x="52" y="441" text-anchor="middle" font-size="12" fill="#FFFFFF" font-weight="bold">5</text>
+<text x="74" y="440" font-size="15" fill="#FFFFFF" font-weight="bold">Draft the chart specification</text>
+<text x="74" y="460" font-size="10" fill="#FFFFFF" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em" opacity="0.8">INPUT: <tspan font-family="'EB Garamond', Georgia, serif" font-size="12" fill="#FFFFFF" letter-spacing="0" opacity="1">All prior outputs</tspan></text>
+<text x="74" y="474" font-size="10" fill="#FFFFFF" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em" opacity="0.8">OUTPUT: <tspan font-family="'EB Garamond', Georgia, serif" font-size="12" fill="#FFFFFF" letter-spacing="0" opacity="1">Chart type, encodings, annotations</tspan></text>
+
+<!-- Arrow from Step 5 to side panel -->
+<line x1="432" y1="450" x2="472" y2="450" stroke="#2a1a0e" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<!-- Side Panel: Chart Specification -->
+<rect x="478" y="230" width="192" height="286" fill="#FFFFFF" stroke="#C8102E" stroke-width="1.5"/>
+<rect x="478" y="230" width="192" height="30" fill="#C8102E"/>
+<text x="574" y="250" text-anchor="middle" font-size="9.5" fill="#FFFFFF" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">CHART SPECIFICATION</text>
+
+<text x="494" y="282" font-size="10" fill="#545454" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">CHART TYPE</text>
+<text x="494" y="298" font-size="12" fill="#2a1a0e">Horizontal bar chart</text>
+
+<line x1="494" y1="310" x2="654" y2="310" stroke="#D4D4D4" stroke-width="0.5"/>
+
+<text x="494" y="330" font-size="10" fill="#545454" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">X-AXIS</text>
+<text x="494" y="346" font-size="12" fill="#2a1a0e">Average weekday riders</text>
+
+<line x1="494" y1="358" x2="654" y2="358" stroke="#D4D4D4" stroke-width="0.5"/>
+
+<text x="494" y="378" font-size="10" fill="#545454" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">Y-AXIS</text>
+<text x="494" y="394" font-size="12" fill="#2a1a0e">Transit line (sorted)</text>
+
+<line x1="494" y1="406" x2="654" y2="406" stroke="#D4D4D4" stroke-width="0.5"/>
+
+<text x="494" y="426" font-size="10" fill="#545454" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">ANNOTATION</text>
+<text x="494" y="442" font-size="12" fill="#2a1a0e">Highlight top line;</text>
+<text x="494" y="458" font-size="12" fill="#2a1a0e">show value labels</text>
+
+<line x1="494" y1="470" x2="654" y2="470" stroke="#D4D4D4" stroke-width="0.5"/>
+
+<text x="494" y="490" font-size="10" fill="#545454" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">BASELINE</text>
+<text x="494" y="506" font-size="12" fill="#2a1a0e">Zero</text>
+
+<!-- Figure number -->
+<text x="350" y="530" text-anchor="middle" font-size="11" fill="#545454" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">FIGURE 5-3</text>
+</svg>

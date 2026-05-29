@@ -1,0 +1,81 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#2a1a0e">Monthly Average Temperature</text>
+
+<!-- Subtitle -->
+<text x="350" y="46" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">RADIAL COLUMN CHART</text>
+
+<!-- Chart area -->
+<rect x="32" y="60" width="636" height="310" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="0.75" rx="0"/>
+
+<!-- Center: (350, 215). Inner radius: 35. Max outer radius: 140 -->
+<!-- 12 months, each 30 degrees -->
+<!-- Values (F): Jan 32, Feb 35, Mar 45, Apr 55, May 65, Jun 78, Jul 85, Aug 82, Sep 72, Oct 58, Nov 42, Dec 34 -->
+<!-- Scale: outerR = 35 + (value/85) * 105 -->
+
+<!-- Concentric grid rings -->
+<circle cx="350" cy="215" r="35" fill="none" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+<circle cx="350" cy="215" r="61" fill="none" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+<circle cx="350" cy="215" r="87" fill="none" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+<circle cx="350" cy="215" r="113" fill="none" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+<circle cx="350" cy="215" r="140" fill="none" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+
+<!-- Columns as thick lines radiating from inner radius to outer radius -->
+<!-- Jan (32): angle=-90, outerR = 35 + (32/85)*105 = 74.5 -->
+<line x1="350" y1="180" x2="350" y2="140.5" stroke="#6B3520" stroke-width="18" stroke-linecap="butt"/>
+
+<!-- Feb (35): angle=-60, outerR = 35 + (35/85)*105 = 78.2 -->
+<line x1="367.5" y1="184.7" x2="389.1" y2="147.3" stroke="#6B3520" stroke-width="18" stroke-linecap="butt"/>
+
+<!-- Mar (45): angle=-30, outerR = 35 + (45/85)*105 = 90.6 -->
+<line x1="380.3" y1="197.5" x2="428.5" y2="169.7" stroke="#6B3520" stroke-width="18" stroke-linecap="butt"/>
+
+<!-- Apr (55): angle=0, outerR = 35 + (55/85)*105 = 102.9 -->
+<line x1="385" y1="215" x2="452.9" y2="215" stroke="#6B3520" stroke-width="18" stroke-linecap="butt"/>
+
+<!-- May (65): angle=30, outerR = 35 + (65/85)*105 = 115.3 -->
+<line x1="380.3" y1="232.5" x2="449.9" y2="272.7" stroke="#6B3520" stroke-width="18" stroke-linecap="butt"/>
+
+<!-- Jun (78): angle=60, outerR = 35 + (78/85)*105 = 131.4 — summer highlighted -->
+<line x1="367.5" y1="245.3" x2="415.7" y2="328.6" stroke="#C8102E" stroke-width="18" stroke-linecap="butt"/>
+
+<!-- Jul (85): angle=90, outerR = 35 + (85/85)*105 = 140 — summer highlighted -->
+<line x1="350" y1="250" x2="350" y2="355" stroke="#C8102E" stroke-width="18" stroke-linecap="butt"/>
+
+<!-- Aug (82): angle=120, outerR = 35 + (82/85)*105 = 136.3 — summer highlighted -->
+<line x1="332.5" y1="245.3" x2="281.9" y2="333" stroke="#C8102E" stroke-width="18" stroke-linecap="butt"/>
+
+<!-- Sep (72): angle=150, outerR = 35 + (72/85)*105 = 123.9 -->
+<line x1="319.7" y1="232.5" x2="242.7" y2="277" stroke="#6B3520" stroke-width="18" stroke-linecap="butt"/>
+
+<!-- Oct (58): angle=180, outerR = 35 + (58/85)*105 = 106.6 -->
+<line x1="315" y1="215" x2="243.4" y2="215" stroke="#6B3520" stroke-width="18" stroke-linecap="butt"/>
+
+<!-- Nov (42): angle=210, outerR = 35 + (42/85)*105 = 86.9 -->
+<line x1="319.7" y1="197.5" x2="274.8" y2="171.6" stroke="#6B3520" stroke-width="18" stroke-linecap="butt"/>
+
+<!-- Dec (34): angle=240, outerR = 35 + (34/85)*105 = 77.0 -->
+<line x1="332.5" y1="184.7" x2="311.5" y2="148.3" stroke="#6B3520" stroke-width="18" stroke-linecap="butt"/>
+
+<!-- Month labels at perimeter radius ~155 from center -->
+<text x="350" y="70" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#2a1a0e" letter-spacing="0.08em">JAN</text>
+<text x="428" y="80" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#2a1a0e" letter-spacing="0.08em">FEB</text>
+<text x="484" y="140" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#2a1a0e" letter-spacing="0.08em">MAR</text>
+<text x="498" y="219" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#2a1a0e" letter-spacing="0.08em">APR</text>
+<text x="484" y="295" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#C8102E" letter-spacing="0.08em">MAY</text>
+<text x="428" y="353" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#C8102E" letter-spacing="0.08em">JUN</text>
+<text x="350" y="368" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#C8102E" letter-spacing="0.08em">JUL</text>
+<text x="264" y="353" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#C8102E" letter-spacing="0.08em">AUG</text>
+<text x="210" y="295" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#2a1a0e" letter-spacing="0.08em">SEP</text>
+<text x="192" y="219" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#2a1a0e" letter-spacing="0.08em">OCT</text>
+<text x="210" y="140" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#2a1a0e" letter-spacing="0.08em">NOV</text>
+<text x="264" y="80" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#2a1a0e" letter-spacing="0.08em">DEC</text>
+
+<!-- Caption -->
+<text x="350" y="400" text-anchor="middle" font-size="11" font-style="italic" fill="#545454">The seasonal arc reads as a single shape — peak summer bars dominate the upper arc.</text>
+
+</svg>

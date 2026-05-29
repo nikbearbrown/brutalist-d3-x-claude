@@ -2,7 +2,8 @@
 
 *When Box Plots Hide Bimodality — Add Density to See Shape*
 
-![Violin Plot](../images/77-violin-plot.jpg)
+![Violin Plot](../images/77-violin-plot.png)
+*Figure 77.1 — When Box Plots Hide Bimodality*
 
 ## What this chart is
 
@@ -62,6 +63,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/77-violin-plot.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

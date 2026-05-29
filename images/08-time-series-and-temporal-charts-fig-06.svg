@@ -1,0 +1,89 @@
+<svg viewBox="0 0 700 360" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+<defs>
+  <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#2a1a0e"/>
+  </marker>
+</defs>
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="360" fill="#FFFFFF"/>
+
+<!-- LEFT PANEL: Line Chart 60 Months -->
+<rect x="32" y="32" width="308" height="296" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<text x="186" y="56" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#2a1a0e" letter-spacing="0.08em">LINE CHART — 60 MONTHS</text>
+
+<!-- Chart area -->
+<rect x="62" y="68" width="260" height="210" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+
+<!-- Y-axis -->
+<text x="58" y="78" text-anchor="end" font-size="8" fill="#545454">100</text>
+<text x="58" y="130" text-anchor="end" font-size="8" fill="#545454">80</text>
+<text x="58" y="182" text-anchor="end" font-size="8" fill="#545454">60</text>
+<text x="58" y="234" text-anchor="end" font-size="8" fill="#545454">40</text>
+<text x="58" y="275" text-anchor="end" font-size="8" fill="#545454">20</text>
+
+<!-- X-axis -->
+<text x="72" y="290" text-anchor="middle" font-size="7" fill="#545454">2019</text>
+<text x="137" y="290" text-anchor="middle" font-size="7" fill="#545454">2020</text>
+<text x="202" y="290" text-anchor="middle" font-size="7" fill="#545454">2021</text>
+<text x="257" y="290" text-anchor="middle" font-size="7" fill="#545454">2022</text>
+<text x="312" y="290" text-anchor="middle" font-size="7" fill="#545454">2023</text>
+
+<!-- Line data (60 months, oscillating with uptrend) -->
+<polyline points="72,240 76,235 80,230 84,238 88,228 92,225 96,232 100,220 104,218 108,225 112,215 116,210 120,218 124,208 128,205 132,212 136,200 140,198 144,205 148,195 152,190 156,198 160,188 164,185 168,192 172,182 176,178 180,186 184,176 188,172 192,180 196,170 200,165 204,175 208,162 212,158 216,168 220,155 224,150 228,160 232,148 236,142 240,155 244,140 248,135 252,145 256,132 260,128 264,138 268,125 272,118 276,130 280,115 284,108 288,120 292,105 296,100 300,112 304,98 308,92 312,105 316,90 320,85" fill="none" stroke="#6B3520" stroke-width="1.5"/>
+
+<!-- Trend line dashed -->
+<line x1="72" y1="235" x2="320" y2="95" stroke="#C8860E" stroke-width="1.5" stroke-dasharray="6,3"/>
+
+<!-- July 2023 annotation -->
+<circle cx="312" cy="105" r="4" fill="none" stroke="#C8102E" stroke-width="1.5"/>
+<line x1="312" y1="100" x2="312" y2="78" stroke="#C8102E" stroke-width="1"/>
+<text x="312" y="74" font-size="8" fill="#C8102E" font-weight="bold" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">JULY 2023</text>
+
+<!-- Label -->
+<text x="186" y="314" text-anchor="middle" font-size="10" fill="#545454" font-style="italic">Trend visible, cycles compressed</text>
+
+<!-- RIGHT PANEL: Spiral Plot -->
+<rect x="360" y="32" width="308" height="296" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<text x="514" y="56" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#2a1a0e" letter-spacing="0.08em">SPIRAL PLOT — 60 MONTHS</text>
+
+<!-- Chart area -->
+<rect x="380" y="68" width="270" height="210" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+
+<!-- Spiral: 5 concentric loops (years), progressively darker -->
+<!-- Year 1 (outermost, lightest) -->
+<ellipse cx="514" cy="173" rx="120" ry="90" fill="none" stroke="#6B3520" stroke-width="1.5" opacity="0.2"/>
+<!-- Year 2 -->
+<ellipse cx="514" cy="173" rx="100" ry="75" fill="none" stroke="#6B3520" stroke-width="1.5" opacity="0.35"/>
+<!-- Year 3 -->
+<ellipse cx="514" cy="173" rx="80" ry="60" fill="none" stroke="#6B3520" stroke-width="1.5" opacity="0.5"/>
+<!-- Year 4 -->
+<ellipse cx="514" cy="173" rx="60" ry="45" fill="none" stroke="#6B3520" stroke-width="1.5" opacity="0.7"/>
+<!-- Year 5 (innermost, darkest) -->
+<ellipse cx="514" cy="173" rx="40" ry="30" fill="none" stroke="#6B3520" stroke-width="2" opacity="0.9"/>
+
+<!-- Radial guides (12 months) -->
+<line x1="514" y1="83" x2="514" y2="68" stroke="#D4D4D4" stroke-width="0.5"/>
+<line x1="574" y1="128" x2="580" y2="124" stroke="#D4D4D4" stroke-width="0.5"/>
+<line x1="634" y1="173" x2="650" y2="173" stroke="#D4D4D4" stroke-width="0.5"/>
+<line x1="574" y1="218" x2="580" y2="222" stroke="#D4D4D4" stroke-width="0.5"/>
+<line x1="514" y1="263" x2="514" y2="278" stroke="#D4D4D4" stroke-width="0.5"/>
+<line x1="454" y1="218" x2="448" y2="222" stroke="#D4D4D4" stroke-width="0.5"/>
+<line x1="394" y1="173" x2="380" y2="173" stroke="#D4D4D4" stroke-width="0.5"/>
+<line x1="454" y1="128" x2="448" y2="124" stroke="#D4D4D4" stroke-width="0.5"/>
+
+<!-- Month labels around spiral -->
+<text x="514" y="78" text-anchor="middle" font-size="7" fill="#545454">JAN</text>
+<text x="584" y="124" font-size="7" fill="#545454">APR</text>
+<text x="652" y="176" font-size="7" fill="#545454">JUL</text>
+<text x="584" y="230" font-size="7" fill="#545454">OCT</text>
+
+<!-- July 2023 annotation on innermost ring, right side -->
+<circle cx="554" cy="173" r="4" fill="none" stroke="#C8102E" stroke-width="1.5"/>
+<line x1="558" y1="173" x2="600" y2="173" stroke="#C8102E" stroke-width="1"/>
+<text x="602" y="170" font-size="7" fill="#C8102E" font-weight="bold" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">JULY</text>
+<text x="602" y="180" font-size="7" fill="#C8102E" font-weight="bold" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">2023</text>
+
+<!-- Label -->
+<text x="514" y="314" text-anchor="middle" font-size="10" fill="#545454" font-style="italic">Seasonal patterns visible, trend harder</text>
+</svg>

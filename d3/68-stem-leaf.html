@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stem and Leaf — Test Score Distribution</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #2a1a0e;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-mark: #6B3520;
+    --color-slate: #1A3A5C;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1a1a;
+      --color-ink: #e8e0d6;
+      --color-surface: #2a2420;
+      --color-secondary: #a0978e;
+      --color-border: #444;
+      --color-mark: #c28060;
+      --color-red: #e05040;
+      --color-slate: #5a9ad6;
+      --color-ochre: #d4a030;
+    }
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+  #chart-container { width: 100%; max-width: 900px; }
+  h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; color: var(--color-ink); }
+  .subtitle {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--color-secondary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .caption { font-size: 0.9rem; color: var(--color-secondary); font-style: italic; margin-top: 12px; }
+  .tooltip {
+    position: absolute;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--color-ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .stem-row:focus { outline: 2px solid var(--color-ink); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<div id="chart-container">
+  <h1>Test Score Distribution — Two Sections</h1>
+  <div class="subtitle">BACK-TO-BACK STEM AND LEAF — HOVER FOR DETAILS</div>
+  <div id="chart" role="img" aria-label="Back-to-back stem-and-leaf display comparing Section A and Section B test scores. Section B clusters in the 70s and 80s."></div>
+  <div class="caption">Section B clusters in the 70s and 80s.</div>
+</div>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const sectionA = [32, 38, 41, 45, 48, 52, 55, 57, 59, 61, 63, 65, 67, 71, 72, 74, 76, 78, 81, 83, 85, 88, 91, 93, 95, 97, 98];
+const sectionB = [45, 48, 55, 58, 62, 65, 68, 71, 72, 73, 74, 75, 76, 77, 78, 79, 81, 82, 83, 84, 85, 86, 87, 88, 91, 93];
+
+const stems = [3, 4, 5, 6, 7, 8, 9];
+
+function getLeaves(data, stem) {
+  return data.filter(v => Math.floor(v / 10) === stem).map(v => v % 10).sort((a, b) => a - b);
+}
+
+const width = 700, height = 520;
+const margin = { top: 32, right: 32, bottom: 48, left: 32 };
+
+const svg = d3.select("#chart")
+  .append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("preserveAspectRatio", "xMidYMid meet")
+  .style("width", "100%")
+  .style("height", "auto");
+
+svg.append("title").text("Test Score Distribution — Two Sections");
+svg.append("desc").text("Back-to-back stem-and-leaf display. Section A has wider spread. Section B clusters in 70s-80s.");
+
+svg.append("rect").attr("width", width).attr("height", height).attr("fill", "var(--color-bg)");
+svg.append("rect").attr("x", 32).attr("y", 32).attr("width", width - 64).attr("height", height - 80)
+  .attr("fill", "var(--color-surface)").attr("stroke", "var(--color-border)").attr("stroke-width", 0.75);
+
+const centerX = width / 2;
+const topY = 70;
+const rowHeight = 50;
+const digitW = 16;
+
+const tooltip = d3.select("#tooltip");
+
+// Headers
+svg.append("text").attr("x", centerX - 80).attr("y", topY - 8).attr("text-anchor", "end")
+  .attr("font-family", "'IBM Plex Mono', monospace").attr("font-size", "12px").attr("font-weight", "600")
+  .attr("fill", "var(--color-mark)").attr("letter-spacing", "0.08em").text("SECTION A");
+
+svg.append("text").attr("x", centerX).attr("y", topY - 8).attr("text-anchor", "middle")
+  .attr("font-family", "'IBM Plex Mono', monospace").attr("font-size", "12px").attr("font-weight", "600")
+  .attr("fill", "var(--color-ink)").attr("letter-spacing", "0.08em").text("STEM");
+
+svg.append("text").attr("x", centerX + 80).attr("y", topY - 8).attr("text-anchor", "start")
+  .attr("font-family", "'IBM Plex Mono', monospace").attr("font-size", "12px").attr("font-weight", "600")
+  .attr("fill", "var(--color-red)").attr("letter-spacing", "0.08em").text("SECTION B");
+
+// Vertical dividers
+svg.append("line").attr("x1", centerX - 25).attr("y1", topY).attr("x2", centerX - 25).attr("y2", topY + stems.length * rowHeight)
+  .attr("stroke", "var(--color-border)").attr("stroke-width", 1);
+svg.append("line").attr("x1", centerX + 25).attr("y1", topY).attr("x2", centerX + 25).attr("y2", topY + stems.length * rowHeight)
+  .attr("stroke", "var(--color-border)").attr("stroke-width", 1);
+
+stems.forEach((stem, i) => {
+  const y = topY + i * rowHeight + rowHeight / 2 + 5;
+  const leavesA = getLeaves(sectionA, stem);
+  const leavesB = getLeaves(sectionB, stem);
+
+  // Row group for accessibility
+  const rowG = svg.append("g").attr("class", "stem-row").attr("tabindex", 0)
+    .attr("aria-label", `Stem ${stem}: Section A has ${leavesA.length} scores, Section B has ${leavesB.length} scores`);
+
+  // Stem
+  rowG.append("text").attr("x", centerX).attr("y", y).attr("text-anchor", "middle")
+    .attr("font-family", "'IBM Plex Mono', monospace").attr("font-size", "16px").attr("font-weight", "bold")
+    .attr("fill", "var(--color-ink)").text(stem);
+
+  // Section A leaves (right-to-left from center)
+  leavesA.slice().reverse().forEach((leaf, j) => {
+    rowG.append("text")
+      .attr("x", centerX - 35 - j * digitW)
+      .attr("y", y)
+      .attr("text-anchor", "middle")
+      .attr("font-family", "'IBM Plex Mono', monospace")
+      .attr("font-size", "14px")
+      .attr("fill", "var(--color-mark)")
+      .text(leaf);
+  });
+
+  // Section B leaves (left-to-right from center)
+  leavesB.forEach((leaf, j) => {
+    rowG.append("text")
+      .attr("x", centerX + 35 + j * digitW)
+      .attr("y", y)
+      .attr("text-anchor", "middle")
+      .attr("font-family", "'IBM Plex Mono', monospace")
+      .attr("font-size", "14px")
+      .attr("fill", "var(--color-red)")
+      .text(leaf);
+  });
+
+  // Row separator
+  svg.append("line")
+    .attr("x1", 50).attr("x2", width - 50)
+    .attr("y1", topY + (i + 1) * rowHeight).attr("y2", topY + (i + 1) * rowHeight)
+    .attr("stroke", "var(--color-border)").attr("stroke-width", 0.3);
+
+  // Tooltip on hover
+  rowG.on("mouseover", function(event) {
+    const aVals = leavesA.map(l => stem * 10 + l).join(", ");
+    const bVals = leavesB.map(l => stem * 10 + l).join(", ");
+    tooltip.style("opacity", 1)
+      .html(`<strong>Stem ${stem}0s</strong><br>Section A (${leavesA.length}): ${aVals || "none"}<br>Section B (${leavesB.length}): ${bVals || "none"}`);
+  })
+  .on("mousemove", function(event) {
+    tooltip.style("left", (event.pageX + 12) + "px").style("top", (event.pageY - 28) + "px");
+  })
+  .on("mouseout", () => tooltip.style("opacity", 0));
+});
+
+// Key
+svg.append("text").attr("x", centerX).attr("y", topY + stems.length * rowHeight + 30).attr("text-anchor", "middle")
+  .attr("font-family", "'IBM Plex Mono', monospace").attr("font-size", "11px")
+  .attr("fill", "var(--color-secondary)").attr("letter-spacing", "0.08em").text("KEY: 7|2 = 72");
+</script>
+</body>
+</html>

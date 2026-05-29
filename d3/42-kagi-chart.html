@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kagi Chart — Supply &amp; Demand</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-ink: #2a1a0e;
+    --color-mark: #6B3520;
+    --color-red: #C8102E;
+    --color-slate: #1A3A5C;
+    --color-ochre: #C8860E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --font-body: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1410;
+      --color-surface: #2a2018;
+      --color-ink: #e8ddd0;
+      --color-mark: #c4886a;
+      --color-red: #e8525a;
+      --color-slate: #6a9cc8;
+      --color-ochre: #e8b84a;
+      --color-secondary: #a0968a;
+      --color-border: #4a4038;
+    }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+
+  h1 { font-size: 1.8rem; font-weight: 600; margin-bottom: 4px; text-align: center; }
+  .subtitle { font-size: 1rem; font-style: italic; color: var(--color-secondary); margin-bottom: 24px; text-align: center; }
+
+  #chart-container { width: 100%; max-width: 700px; position: relative; }
+  svg { width: 100%; height: auto; display: block; }
+
+  .tooltip {
+    position: absolute;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .caption { font-size: 0.9rem; font-style: italic; color: var(--color-secondary); margin-top: 12px; text-align: center; }
+</style>
+</head>
+<body>
+  <h1>Kagi Chart — Supply &amp; Demand</h1>
+  <p class="subtitle">Thick line = demand exceeds supply. Thin line = supply exceeds demand.</p>
+  <div id="chart-container">
+    <div class="tooltip" id="tooltip"></div>
+  </div>
+  <p class="caption">Hover over a segment to see reversal details.</p>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const margin = { top: 42, right: 32, bottom: 60, left: 60 };
+const width = 700, height = 420;
+const innerW = width - margin.left - margin.right;
+const innerH = height - margin.top - margin.bottom;
+
+// Kagi reversal data: [price, direction after this point]
+const reversals = [
+  { price: 95, label: "Start" },
+  { price: 108, label: "Shoulder", type: "yang" },
+  { price: 102, label: "Waist", type: "yin" },
+  { price: 115, label: "Shoulder", type: "yang" },
+  { price: 110, label: "Waist", type: "yin" },
+  { price: 118, label: "Shoulder", type: "yang" },
+  { price: 112, label: "Waist", type: "yin" },
+  { price: 117, label: "Shoulder", type: "yang" },
+  { price: 105, label: "Waist", type: "yin" },
+  { price: 110, label: "Shoulder", type: "yang" },
+  { price: 96, label: "Waist", type: "yin" },
+  { price: 103, label: "Shoulder", type: "yang" },
+  { price: 98, label: "Waist", type: "yin" }
+];
+
+// Segments: vertical + horizontal pairs
+const segments = [];
+for (let i = 0; i < reversals.length - 1; i++) {
+  const isUp = reversals[i + 1].price > reversals[i].price;
+  segments.push({
+    x: i,
+    y1: reversals[i].price,
+    y2: reversals[i + 1].price,
+    yang: isUp, // thick = uptrend (yang)
+    from: reversals[i].price,
+    to: reversals[i + 1].price,
+    label: reversals[i + 1].label
+  });
+}
+
+const container = d3.select("#chart-container");
+const tooltip = d3.select("#tooltip");
+
+const svg = container.append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("role", "img")
+  .attr("aria-label", "Kagi chart showing price reversals with thick lines for uptrends and thin lines for downtrends");
+
+svg.append("rect").attr("width", width).attr("height", height).attr("fill", "var(--color-bg)");
+svg.append("rect").attr("x", margin.left).attr("y", margin.top).attr("width", innerW).attr("height", innerH)
+  .attr("fill", "var(--color-surface)").attr("stroke", "var(--color-border)").attr("stroke-width", 0.75);
+
+const yScale = d3.scaleLinear().domain([88, 122]).range([margin.top + innerH, margin.top]);
+const xScale = d3.scaleLinear().domain([0, segments.length - 1]).range([margin.left + 40, margin.left + innerW - 20]);
+
+// Y axis
+const yAxis = d3.axisLeft(yScale).ticks(7).tickSize(-innerW);
+const yAxisG = svg.append("g").attr("transform", `translate(${margin.left},0)`).call(yAxis);
+yAxisG.selectAll("line").attr("stroke", "var(--color-border)").attr("stroke-width", 0.5).attr("stroke-dasharray", "3,3");
+yAxisG.selectAll("text").attr("font-family", "var(--font-mono)").attr("font-size", 8).attr("fill", "var(--color-secondary)");
+yAxisG.select(".domain").remove();
+
+// Y axis label
+svg.append("text").attr("x", 20).attr("y", margin.top + innerH / 2)
+  .attr("text-anchor", "middle").attr("font-family", "var(--font-mono)").attr("font-size", 8)
+  .attr("fill", "var(--color-secondary)").attr("letter-spacing", "0.08em")
+  .attr("transform", `rotate(-90,20,${margin.top + innerH / 2})`).text("PRICE");
+
+// Draw Kagi segments
+const g = svg.append("g");
+
+segments.forEach((seg, i) => {
+  const x = xScale(i);
+  const xNext = i < segments.length - 1 ? xScale(i + 1) : x;
+  const strokeColor = seg.yang ? "var(--color-mark)" : "var(--color-border)";
+  const strokeW = seg.yang ? 3 : 1;
+
+  // Vertical line
+  const vLine = g.append("line")
+    .attr("x1", x).attr("y1", yScale(seg.y1)).attr("x2", x).attr("y2", yScale(seg.y2))
+    .attr("stroke", strokeColor).attr("stroke-width", strokeW)
+    .attr("tabindex", 0).attr("role", "graphics-symbol")
+    .attr("aria-label", `${seg.yang ? 'Yang' : 'Yin'}: ${seg.from} to ${seg.to}`);
+
+  // Horizontal connector
+  if (i < segments.length - 1) {
+    g.append("line")
+      .attr("x1", x).attr("y1", yScale(seg.y2)).attr("x2", xNext).attr("y2", yScale(seg.y2))
+      .attr("stroke", strokeColor).attr("stroke-width", strokeW);
+  }
+
+  // Hover target (wider invisible line)
+  g.append("line")
+    .attr("x1", x).attr("y1", yScale(seg.y1)).attr("x2", x).attr("y2", yScale(seg.y2))
+    .attr("stroke", "transparent").attr("stroke-width", 16).style("cursor", "pointer")
+    .on("mouseenter", function(event) {
+      tooltip.style("opacity", 1)
+        .html(`<strong>${seg.yang ? "Yang (Demand)" : "Yin (Supply)"}</strong><br>` +
+              `${seg.from} &rarr; ${seg.to}<br>${seg.label}`);
+    })
+    .on("mousemove", function(event) {
+      tooltip.style("left", (event.offsetX + 15) + "px").style("top", (event.offsetY - 10) + "px");
+    })
+    .on("mouseleave", function() { tooltip.style("opacity", 0); });
+});
+
+// Legend
+const legend = svg.append("g").attr("transform", `translate(${margin.left + 10}, ${height - 28})`);
+legend.append("line").attr("x1", 0).attr("y1", 0).attr("x2", 30).attr("y2", 0)
+  .attr("stroke", "var(--color-mark)").attr("stroke-width", 3);
+legend.append("text").attr("x", 36).attr("y", 4).attr("font-family", "var(--font-mono)")
+  .attr("font-size", 8).attr("fill", "var(--color-secondary)").attr("letter-spacing", "0.08em").text("YANG (DEMAND)");
+legend.append("line").attr("x1", 180).attr("y1", 0).attr("x2", 210).attr("y2", 0)
+  .attr("stroke", "var(--color-border)").attr("stroke-width", 1);
+legend.append("text").attr("x", 216).attr("y", 4).attr("font-family", "var(--font-mono)")
+  .attr("font-size", 8).attr("fill", "var(--color-secondary)").attr("letter-spacing", "0.08em").text("YIN (SUPPLY)");
+</script>
+</body>
+</html>

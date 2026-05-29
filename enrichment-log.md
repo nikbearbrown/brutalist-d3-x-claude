@@ -163,3 +163,18 @@ Kept-but-flagged subjects (alive or post-2000 active, but foundational work enti
 **Portrait JPGs do not yet exist.** The Wayback Machine portrait stubs reference `../images/{slug}.jpg` for each subject, but the AI-generated portrait files are not yet produced. 79 portraits would need to be generated (or 78, since ch 02-updated has no Wayback section). Stubs render with broken-image alt text until the JPGs are created.
 
 **One chapter (`02-claude-basics-for-d3-visualization-updated.md`) has no Wayback Machine section** and is recorded as such above. This is the only sibling-pair variance of the chapter; check whether this version should mirror the section from the canonical file.
+02-claude-basics-for-d3-visualization.md — 0 tables rendered, 5 SVGs generated, 5 D3 HTML files generated, Wayback Machine: kept (Margaret Hamilton)
+03-marks-and-channels.md — 0 tables rendered, 1 SVGs generated, 1 D3 HTML files generated, Wayback Machine: kept (Jock Mackinlay)
+04-chart-selection-as-design-decision.md — 0 tables rendered, 2 SVGs generated, 2 D3 HTML files generated, Wayback Machine: kept (Calvin F. Schmid)
+05-reading-a-dataset.md — 0 tables rendered, 3 SVGs generated, 3 D3 HTML files generated, Wayback Machine: kept
+06-working-with-claude-code.md — 0 tables rendered, 4 SVGs generated, 4 D3 HTML files generated, Wayback Machine: kept
+07-comparison-charts.md — 0 tables rendered, 7 SVGs generated, 7 D3 HTML files generated, Wayback Machine: kept
+08-time-series-and-temporal-charts.md — 0 tables rendered, 6 SVGs generated, 6 D3 HTML files generated, Wayback Machine: kept
+09-distribution-charts.md — 0 tables rendered, 5 SVGs generated, 5 D3 HTML files generated, Wayback Machine: kept
+
+## Summary
+Total chapters processed: 8
+Total tables rendered: 0
+Total SVG+PNG pairs generated: 33
+Total D3 HTML files generated: 33
+Total Wayback Machine subjects replaced: 0

@@ -2,7 +2,8 @@
 
 *Most programs trail their targets —Community Trust is the lone outlier*
 
-![Bullet Graph](../images/26-bullet-graph.jpg)
+![Five horizontal bullet graphs showing program performance versus targets, with Community Trust as the only program exceeding its target](../images/26-bullet-graph.png)
+*Figure 26.1 — Most programs trail their targets — Community Trust is the lone outlier*
 
 ## What this chart is
 
@@ -58,6 +59,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/26-bullet-graph.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

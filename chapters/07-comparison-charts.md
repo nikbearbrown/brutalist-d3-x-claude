@@ -14,6 +14,9 @@ That distortion is not a coincidence or an aesthetic preference. It is a predict
 
 <!-- → [IMAGE: two side-by-side renderings of the same 8-bar cognitive-domain chart — left panel with y-axis from 0 to 100 (honest), right panel with y-axis from 30 to 100 (truncated). Annotations call out the visual ratio the truncated panel implies between Memory Retrieval and Embodied Teaching (~5×) vs. the true data ratio (~2.7×). Caption: "Same data. The truncated baseline makes a 2.7× difference look like a 5× difference."] -->
 
+![Two bar charts of cognitive domain scores — honest baseline vs truncated baseline showing exaggerated visual ratios](../images/07-comparison-charts-fig-01.png)
+*Figure 7.1 — Same data. The truncated baseline makes a 2.7× difference look like a 5× difference.*
+
 Everything in this chapter follows from that mechanism.
 
 ---
@@ -35,6 +38,9 @@ Weissgerber and colleagues (2015) analyzed over 700 biology research articles. M
 This is why the zero-baseline rule is not a Tufte preference or a minimalism position. It is a rule grounded in the mechanism of the channel itself. Violating it produces measurable perceptual distortion.
 
 <!-- → [CHART: horizontal ranking diagram of Cleveland & McGill's perceptual channel accuracy — channels listed from most accurate (position along common scale) to least accurate (color hue/saturation), with the bar chart's channel highlighted and a callout noting where truncation breaks the encoding. Based on the 1984 paper; student should see at a glance why bars outperform angles, areas, and color intensity for comparison tasks.] -->
+
+![Horizontal ranking of Cleveland and McGill perceptual accuracy channels with bar chart channel highlighted](../images/07-comparison-charts-fig-02.png)
+*Figure 7.2 — Why bars outperform angles, areas, and color for comparison*
 
 ---
 
@@ -58,6 +64,9 @@ The truncated baseline is never the right answer. There is always a legitimate a
 
 <!-- → [INFOGRAPHIC: three-panel comparison using the 12.4% / 12.8% / 13.2% example — left panel: truncated bar chart (y-axis 12–14, distorted), center panel: dot plot with zoomed y-axis (honest, shows variation without distortion), right panel: difference chart showing percentage point change from baseline. Each panel labeled with the channel it uses and a verdict (distorts / honest / honest). Caption: "Three values. One wrong response. Three right ones."] -->
 
+![Three-panel comparison — truncated bars distort, dot plot and difference chart are honest alternatives](../images/07-comparison-charts-fig-03.png)
+*Figure 7.3 — Three values. One wrong response. Three right ones.*
+
 ---
 
 ## The choice between horizontal and vertical
@@ -77,6 +86,9 @@ Category count works the same way. For many categories — more than 15 or so �
 Vertical columns are the cultural default for small datasets with short labels. Horizontal bars are the right choice for long labels and larger category counts. The choice costs nothing in perceptual accuracy — position is position.
 
 <!-- → [INFOGRAPHIC: two-panel decision diagram — left panel shows a vertical column chart with 8 short labels (~6 characters each, readable at -30°); right panel shows a horizontal bar chart of the same data with longer labels (~20 characters, reading naturally left-to-right). Gestalt proximity arrows show the label-to-bar relationship in each orientation. Caption: "The orientation choice is not aesthetic. It is a question of which Gestalt principles the layout can preserve."] -->
+
+![Vertical columns with short labels vs horizontal bars with long labels showing Gestalt proximity trade-off](../images/07-comparison-charts-fig-04.png)
+*Figure 7.4 — The orientation choice is not aesthetic. It is a Gestalt question.*
 
 ---
 
@@ -108,6 +120,9 @@ Same dataset. Different questions. Different charts. The chart is not "the one t
 
 <!-- → [INFOGRAPHIC: three-panel side-by-side of the same 5-country × 4-sector humanitarian funding dataset rendered three ways — left: stacked bars (total is primary), center: multiset bars (within-country sector comparison), right: small multiples (cross-sector comparison across countries, shared y-axis). Each panel labeled with the question it answers and the channel-ranking justification. Caption: "Same data. Three questions. Three charts. The question determines the form."] -->
 
+![Three renderings of the same dataset — stacked bars, multiset bars, and small multiples answering different questions](../images/07-comparison-charts-fig-05.png)
+*Figure 7.5 — Same data. Three questions. Three charts.*
+
 ---
 
 ## Radial bars: when the curve earns its keep
@@ -125,6 +140,9 @@ The second is **decorative or marketing contexts** where the chart's primary rol
 For ordinary comparison of categories without an inherent cycle, radial bars are just bars made harder to read. The pantry's `radial-bar-chart.html` shows a working implementation. Compare it to `bar-chart.html`. The linear version is unambiguously easier to read — which is the finding, every time. "More modern" does not mean "more legible." The FT, the NYT, Reuters, and the Pudding use linear bars overwhelmingly. The radial form appears in magazines, marketing dashboards, and infographics where visual interest is the explicit goal.
 
 <!-- → [IMAGE: side-by-side of radial bar chart and linear bar chart using the same 8-category cognitive domain data — left: radial bars fanned around a center point; right: linear horizontal bars. A callout on the radial panel marks two bars of similar "radial length" that sweep different visual areas due to their position (inner vs. outer arc). Caption: "The outer arc covers more visual angle than the inner arc. Two equal radial lengths are not visually equal areas."] -->
+
+![Radial bar chart with area distortion callout vs linear horizontal bar chart](../images/07-comparison-charts-fig-06.png)
+*Figure 7.6 — Two equal radial lengths are not visually equal areas.*
 
 ---
 
@@ -161,6 +179,9 @@ Return to the `bar-chart.html` example. Every decision it makes is doing visible
 None of these decisions is decorative. Each is the deliberate application of a perceptual principle to a specific design problem. The chart took roughly 70 lines of D3 to build. What makes it good is not the code — it is the channel decomposition the code implements. You can describe that decomposition in a hundred words. Claude Code can then write the seventy lines.
 
 <!-- → [INFOGRAPHIC: annotated screenshot of bar-chart.html with six callout arrows, one per design decision — sort order, zero baseline, luminance redundancy, score annotations, grid lines, label rotation. Each callout names the decision, the perceptual principle it applies (e.g., "Munzner effectiveness: derive order from primary attribute"), and what would break if the decision were reversed. Caption: "Every element is doing work. Nothing is decorative."] -->
+
+![Annotated horizontal bar chart with six numbered design decision callouts](../images/07-comparison-charts-fig-07.png)
+*Figure 7.7 — Every element is doing work. Nothing is decorative.*
 
 ---
 
@@ -322,6 +343,74 @@ Flag any audit failure and write the follow-up prompt that corrects it.
 ---
 
 *Tags: comparison-charts, bar-chart, column-chart, multiset, grouped-bars, stacked-bars, radial-bar, zero-baseline, proportional-ink, Tufte, Few, Cairo, Weissgerber, Pandey, label-length, small-multiples, Cleveland-McGill, Stevens-power-law, Gestalt-proximity, Gestalt-continuity, Evergreen-Emery, D3, Claude-Code, channel-specification*
+
+---
+
+## Prompts
+
+Use these prompts with Claude to generate interactive D3 v7 versions of the
+figures in this chapter. Each produces a standalone HTML file you can open
+in a browser and modify freely.
+
+**Prerequisites:** Load `brutalist/CLAUDE.md` and `brutalist/DESIGN.md` into
+your Claude project context before using these prompts. They define the stack,
+naming conventions, color system, and typography the figures use.
+
+---
+
+### Figure 7.1 — Truncated baseline comparison
+
+Build a two-panel bar chart comparing honest and truncated y-axis presentations of the same data. Left panel: 8 cognitive domain scores (Memory 96, Pattern 94, Language 87, Reasoning 82, Common Sense 68, Social 55, Creativity 47, Embodied 36) with y-axis from 0 to 100. Right panel: identical data with y-axis starting at 30. Bars sorted descending, luminance encoding darker for higher values. Annotate the true ratio (2.7x between highest and lowest) on the left panel and the visual ratio (~5x) on the right panel. D3 v7 single HTML file, 1400x840 viewport.
+
+> Reference implementation: `d3/07-comparison-charts-fig-01.html`
+
+---
+
+### Figure 7.2 — Cleveland and McGill channel ranking
+
+Build a horizontal bar chart ranking seven perceptual accuracy channels from Cleveland and McGill (1984): Position aligned (#1), Position non-aligned (#2), Length (#3), Angle (#4), Area (#5), Luminance (#6), Hue (#7). Bar lengths proportional to relative accuracy. Emphasize the #1 channel (bar chart's channel) with the heaviest fill. Add a callout arrow to #1 labeling it as the bar chart's channel. Add a footer note that truncation breaks this encoding. D3 v7 single HTML file, 1400x720 viewport.
+
+> Reference implementation: `d3/07-comparison-charts-fig-02.html`
+
+---
+
+### Figure 7.3 — Truncation alternatives
+
+Build a three-panel comparison using values 12.4%, 12.8%, 13.2%. Left panel: truncated bar chart with y-axis 12% to 14%, verdict label "DISTORTS". Center panel: dot plot with the same zoomed y-axis range, verdict "HONEST", channel label "point position". Right panel: difference chart showing +0.0, +0.4, +0.8 percentage points from baseline, verdict "HONEST", channel label "length from meaningful zero". Each panel gets a channel annotation below. D3 v7 single HTML file, 1400x720 viewport.
+
+> Reference implementation: `d3/07-comparison-charts-fig-03.html`
+
+---
+
+### Figure 7.4 — Orientation choice
+
+Build a two-panel layout. Left panel: vertical column chart of 8 cognitive domains with short labels rotated -30 degrees, showing the proximity gap between rotated labels and bar bottoms. Right panel: horizontal bar chart of the same data with long-form labels (Memory Retrieval, Pattern Recognition, etc.) reading left-to-right directly adjacent to bar starts. Annotate the Gestalt proximity distance in each panel. Footer notes the structural basis of the orientation choice. D3 v7 single HTML file, 1400x720 viewport.
+
+> Reference implementation: `d3/07-comparison-charts-fig-04.html`
+
+---
+
+### Figure 7.5 — Multibar variants
+
+Build a three-panel comparison of the same 5-country by 4-sector dataset. Left panel: stacked bars showing total per country. Center panel: grouped (multiset) bars showing sector comparison within each country. Right panel: small multiples grid with one mini-panel per sector, shared y-axis, bars for each country. Label each panel with the question it answers and the channel-ranking justification. Include a shared legend for the four sectors. D3 v7 single HTML file, 1400x840 viewport.
+
+> Reference implementation: `d3/07-comparison-charts-fig-05.html`
+
+---
+
+### Figure 7.6 — Radial vs linear bars
+
+Build a two-panel comparison. Left panel: radial bar chart of 8 cognitive domain scores fanned around a center point, with callout annotations showing that outer arcs sweep more visual area than inner arcs of the same radial length. Right panel: horizontal bar chart of the same data, sorted descending, with value labels. Caption noting that two equal radial lengths are not visually equal areas. D3 v7 single HTML file, 1400x720 viewport.
+
+> Reference implementation: `d3/07-comparison-charts-fig-06.html`
+
+---
+
+### Figure 7.7 — Annotated bar chart
+
+Build a horizontal bar chart of 8 cognitive domain scores with 6 numbered callout arrows, each pointing to a specific design decision: (1) sort order — Munzner effectiveness principle, breaks if random; (2) zero baseline — proportional ink and Stevens' power law, breaks if truncated; (3) luminance redundancy — Few's functional redundancy, breaks if hue encodes magnitude; (4) value labels — bars rank while numbers give precision, breaks if omitted; (5) gridlines at opacity 0.07 — present for precision but invisible when scanning, breaks if heavy; (6) left-aligned labels — Gestalt proximity, breaks if rotated. D3 v7 single HTML file, 1400x960 viewport.
+
+> Reference implementation: `d3/07-comparison-charts-fig-07.html`
 
 ---
 

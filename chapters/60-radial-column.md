@@ -2,7 +2,8 @@
 
 *The seasonal arc of temperature reads as a single shape — peak summer bars dominate the upper arc*
 
-![Radial Column](../images/60-radial-column.jpg)
+![Radial column chart showing monthly temperatures with summer peak bars dominating the upper arc](../images/60-radial-column.png)
+*Figure 60.1 — The seasonal arc of temperature reads as a single shape*
 
 ## What this chart is
 
@@ -51,6 +52,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/60-radial-column.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

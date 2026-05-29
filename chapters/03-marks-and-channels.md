@@ -131,6 +131,9 @@ Munzner calls these the **expressiveness principle** (the channel must be capabl
 
 <!-- → [INFOGRAPHIC: Two-column taxonomy — Magnitude Channels vs. Identity Channels. Left column: Position, Length, Area, Luminance — each with a small icon and the note "suited to: quantitative / ordered data." Right column: Hue, Shape, Texture — each with a small icon and the note "suited to: categorical data." Below each column, a one-line example of the correct use and the most common misuse. The expressiveness and effectiveness principles appear as captions under the two columns.] -->
 
+![Two-column taxonomy — Magnitude Channels suited to quantitative data vs Identity Channels suited to categorical data](../images/03-marks-and-channels-fig-05.png)
+*Figure 3.5 — Magnitude channels convey "how much." Identity channels convey "which one."*
+
 ---
 
 ## Three Worked Examples from Before the Framework Had a Name
@@ -343,6 +346,58 @@ output on the first attempt.
 - **Stevens, S. S. (1957).** "On the Psychophysical Law." *Psychological Review* 64(3). The power-law mechanism. Read for the formulation; later work has refined the exponents but not overturned the structure.
 - **Kelleher, Curran.** Observable notebooks and YouTube tutorials. The marks-and-channels material is the accessible entry point for all of this.
 - **Tufte, Edward R. (1983, 2nd ed. 2001).** *The Visual Display of Quantitative Information.* The Minard, Snow, and Nightingale readings in Chapter 1 are the most-cited treatments in the literature.
+
+---
+
+## Prompts
+
+Use these prompts with Claude to generate interactive D3 v7 versions of the
+figures in this chapter. Each produces a standalone HTML file you can open
+in a browser and modify freely.
+
+**Prerequisites:** Load `brutalist/CLAUDE.md` and `brutalist/DESIGN.md` into
+your Claude project context before using these prompts. They define the stack,
+naming conventions, color system, and typography the figures use.
+
+---
+
+### Figure 3.1 — Position vs luminance
+
+*Hand-authored SVG (converted to PNG at 300 dpi)*
+
+Two side-by-side scatterplots of 50 countries — GDP per capita on x, life expectancy on y. Left chart: position encodes life expectancy (rank-1 channel, reader answers in under a second). Right chart: all points collapsed to a single horizontal line, life expectancy encoded as luminance (rank-6 channel, reader struggles for ten seconds). Same data, same question, different channel assignment.
+
+---
+
+### Figure 3.2 — The four mark types
+
+*Hand-authored SVG (converted to PNG at 300 dpi)*
+
+Four-panel reference showing point, line, area, and glyph marks with one example each. Point: scatterplot dots. Line: connected trend. Area: filled bar/region. Glyph: composite candlestick symbol.
+
+---
+
+### Figure 3.3 — Radius-vs-area distortion
+
+*Hand-authored SVG (converted to PNG at 300 dpi)*
+
+Two bubble pairs comparing radius-linear vs area-linear encoding. Three annotated numbers per pair: data ratio (2×), area ratio (4× for radius-linear, 2× for area-linear), perceived ratio via Stevens' power law (a ≈ 0.7).
+
+---
+
+### Figure 3.4 — Nightingale's rose
+
+*Hand-authored SVG (converted to PNG at 300 dpi)*
+
+Nightingale's 1858 polar-area chart rendered twice — left uses radius proportional to value (the published version), right uses radius proportional to the square root of value (area-honest).
+
+---
+
+### Figure 3.5 — Magnitude vs identity channels
+
+Two-column taxonomy infographic. Left column: MAGNITUDE CHANNELS — Position (#1), Length (#2–3), Area (#5), Luminance (#6) — each with rank number, one-line description, and the note "suited to: quantitative / ordered data." Right column: IDENTITY CHANNELS — Hue (#7), Shape (#8), Texture (#8) — each with rank number, one-line description, and "suited to: categorical data." Below each column: one correct-use example and one common-misuse example. Bottom row: Expressiveness Principle (left) and Effectiveness Principle (right). D3 v7 single HTML file, 1600×900.
+
+> Reference implementation: `d3/03-marks-and-channels-fig-05.html`
 
 ---
 

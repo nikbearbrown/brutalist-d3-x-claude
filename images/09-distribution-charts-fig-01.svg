@@ -1,0 +1,93 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+<defs>
+  <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#2a1a0e"/>
+  </marker>
+</defs>
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="30" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="12" fill="#2a1a0e" letter-spacing="0.08em">BOX PLOTS BY REGION</text>
+
+<!-- Chart area -->
+<rect x="72" y="48" width="560" height="310" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+
+<!-- Y-axis labels (e.g. home prices $200k-$800k) -->
+<text x="68" y="58" text-anchor="end" font-size="9" fill="#545454">$800k</text>
+<text x="68" y="120" text-anchor="end" font-size="9" fill="#545454">$650k</text>
+<text x="68" y="182" text-anchor="end" font-size="9" fill="#545454">$500k</text>
+<text x="68" y="244" text-anchor="end" font-size="9" fill="#545454">$350k</text>
+<text x="68" y="310" text-anchor="end" font-size="9" fill="#545454">$200k</text>
+<text x="68" y="356" text-anchor="end" font-size="9" fill="#545454">$100k</text>
+
+<!-- Grid lines -->
+<line x1="72" y1="58" x2="632" y2="58" stroke="#D4D4D4" stroke-width="0.5"/>
+<line x1="72" y1="120" x2="632" y2="120" stroke="#D4D4D4" stroke-width="0.5"/>
+<line x1="72" y1="182" x2="632" y2="182" stroke="#D4D4D4" stroke-width="0.5"/>
+<line x1="72" y1="244" x2="632" y2="244" stroke="#D4D4D4" stroke-width="0.5"/>
+<line x1="72" y1="310" x2="632" y2="310" stroke="#D4D4D4" stroke-width="0.5"/>
+
+<!-- Box Plot 1: Downtown -->
+<line x1="132" y1="90" x2="132" y2="130" stroke="#2a1a0e" stroke-width="1.5"/>
+<rect x="107" y="130" width="50" height="90" fill="#F5EFE8" stroke="#6B3520" stroke-width="1.5"/>
+<line x1="107" y1="170" x2="157" y2="170" stroke="#C8102E" stroke-width="2"/>
+<line x1="132" y1="220" x2="132" y2="260" stroke="#2a1a0e" stroke-width="1.5"/>
+<line x1="117" y1="90" x2="147" y2="90" stroke="#2a1a0e" stroke-width="1.5"/>
+<line x1="117" y1="260" x2="147" y2="260" stroke="#2a1a0e" stroke-width="1.5"/>
+<text x="132" y="378" text-anchor="middle" font-size="10" fill="#2a1a0e">Downtown</text>
+
+<!-- Box Plot 2: Midtown -->
+<line x1="242" y1="110" x2="242" y2="150" stroke="#2a1a0e" stroke-width="1.5"/>
+<rect x="217" y="150" width="50" height="80" fill="#F5EFE8" stroke="#6B3520" stroke-width="1.5"/>
+<line x1="217" y1="185" x2="267" y2="185" stroke="#C8102E" stroke-width="2"/>
+<line x1="242" y1="230" x2="242" y2="275" stroke="#2a1a0e" stroke-width="1.5"/>
+<line x1="227" y1="110" x2="257" y2="110" stroke="#2a1a0e" stroke-width="1.5"/>
+<line x1="227" y1="275" x2="257" y2="275" stroke="#2a1a0e" stroke-width="1.5"/>
+<text x="242" y="378" text-anchor="middle" font-size="10" fill="#2a1a0e">Midtown</text>
+
+<!-- Box Plot 3: Inner Suburbs (with outlier cluster) -->
+<line x1="352" y1="160" x2="352" y2="195" stroke="#2a1a0e" stroke-width="1.5"/>
+<rect x="327" y="195" width="50" height="90" fill="#F5EFE8" stroke="#6B3520" stroke-width="1.5"/>
+<line x1="327" y1="240" x2="377" y2="240" stroke="#C8102E" stroke-width="2"/>
+<line x1="352" y1="285" x2="352" y2="320" stroke="#2a1a0e" stroke-width="1.5"/>
+<line x1="337" y1="160" x2="367" y2="160" stroke="#2a1a0e" stroke-width="1.5"/>
+<line x1="337" y1="320" x2="367" y2="320" stroke="#2a1a0e" stroke-width="1.5"/>
+<!-- Outlier cluster -->
+<circle cx="345" cy="85" r="3.5" fill="#C8102E"/>
+<circle cx="355" cy="78" r="3.5" fill="#C8102E"/>
+<circle cx="350" cy="92" r="3.5" fill="#C8102E"/>
+<circle cx="360" cy="88" r="3.5" fill="#C8102E"/>
+<text x="352" y="378" text-anchor="middle" font-size="10" fill="#2a1a0e">Inner Suburbs</text>
+
+<!-- Annotation callout for outlier cluster -->
+<rect x="400" y="60" width="175" height="40" fill="#F5EFE8" stroke="#C8860E" stroke-width="1.5"/>
+<text x="487" y="78" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">BIMODAL</text>
+<text x="487" y="92" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">SUB-POPULATION?</text>
+<line x1="400" y1="82" x2="370" y2="85" stroke="#C8860E" stroke-width="1" marker-end="url(#arrow)"/>
+
+<!-- Box Plot 4: Outer Suburbs -->
+<line x1="462" y1="210" x2="462" y2="240" stroke="#2a1a0e" stroke-width="1.5"/>
+<rect x="437" y="240" width="50" height="70" fill="#F5EFE8" stroke="#6B3520" stroke-width="1.5"/>
+<line x1="437" y1="275" x2="487" y2="275" stroke="#C8102E" stroke-width="2"/>
+<line x1="462" y1="310" x2="462" y2="340" stroke="#2a1a0e" stroke-width="1.5"/>
+<line x1="447" y1="210" x2="477" y2="210" stroke="#2a1a0e" stroke-width="1.5"/>
+<line x1="447" y1="340" x2="477" y2="340" stroke="#2a1a0e" stroke-width="1.5"/>
+<text x="462" y="378" text-anchor="middle" font-size="10" fill="#2a1a0e">Outer Suburbs</text>
+
+<!-- Box Plot 5: Rural -->
+<line x1="572" y1="260" x2="572" y2="285" stroke="#2a1a0e" stroke-width="1.5"/>
+<rect x="547" y="285" width="50" height="50" fill="#F5EFE8" stroke="#6B3520" stroke-width="1.5"/>
+<line x1="547" y1="310" x2="597" y2="310" stroke="#C8102E" stroke-width="2"/>
+<line x1="572" y1="335" x2="572" y2="350" stroke="#2a1a0e" stroke-width="1.5"/>
+<line x1="557" y1="260" x2="587" y2="260" stroke="#2a1a0e" stroke-width="1.5"/>
+<line x1="557" y1="350" x2="587" y2="350" stroke="#2a1a0e" stroke-width="1.5"/>
+<text x="572" y="378" text-anchor="middle" font-size="10" fill="#2a1a0e">Rural</text>
+
+<!-- Legend -->
+<line x1="100" y1="405" x2="120" y2="405" stroke="#C8102E" stroke-width="2"/>
+<text x="125" y="409" font-size="9" fill="#545454">Median</text>
+<circle cx="180" cy="405" r="3.5" fill="#C8102E"/>
+<text x="188" y="409" font-size="9" fill="#545454">Outlier</text>
+</svg>

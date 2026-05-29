@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 5.3 — Five-Step Dataset Audit Flow</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #FFFFFF; color: #121212; width: 1600px; height: 900px; overflow: hidden; }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const W = 1600, H = 900;
+const svg = d3.select('#chart').append('svg')
+  .attr('width', W).attr('height', H)
+  .attr('role', 'img').attr('aria-labelledby', 'chart-title');
+
+svg.append('title').attr('id', 'chart-title').text('Figure 5.3 — Five-Step Dataset Audit Flow');
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#FFFFFF');
+
+svg.append('text').attr('x', W/2).attr('y', 48).attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif").attr('font-size', 34).attr('fill', '#121212')
+  .text('The audit is not overhead. It is how the specification gets built.');
+svg.append('text').attr('x', W/2).attr('y', 76).attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 14).attr('fill', '#545454')
+  .text('Figure 5.3 — Five-step vertical audit flow for the food assistance example');
+
+const steps = [
+  {
+    num: '1', name: 'READ THE DATA DICTIONARY',
+    input: 'Column names, types, units, coverage',
+    output: 'What the dataset actually contains vs what you assumed'
+  },
+  {
+    num: '2', name: 'CHECK COVERAGE AND GAPS',
+    input: 'Time range, geography, missing values, sample size',
+    output: 'Whether the data covers the question\'s scope'
+  },
+  {
+    num: '3', name: 'MATCH DATA TO QUESTION',
+    input: 'Reader\'s question + data structure',
+    output: 'Does the dataset support the question? (yes/no/partial)'
+  },
+  {
+    num: '4', name: 'REFRAME IF NEEDED',
+    input: 'Gap between question and data',
+    output: 'Revised question the data can honestly answer'
+  },
+  {
+    num: '5', name: 'BUILD THE SPECIFICATION',
+    input: 'Revised question + confirmed data',
+    output: 'Key message, data structure, category, chart form'
+  }
+];
+
+const stepH = 120;
+const stepW = 900;
+const startX = 80;
+const startY = 110;
+const specX = 1060;
+
+steps.forEach((s, i) => {
+  const y = startY + i * (stepH + 28);
+  const isLast = i === steps.length - 1;
+
+  // Card
+  svg.append('rect').attr('x', startX).attr('y', y).attr('width', stepW).attr('height', stepH)
+    .attr('fill', isLast ? '#121212' : '#FFFFFF')
+    .attr('stroke', isLast ? '#121212' : '#D4D4D4')
+    .attr('stroke-width', isLast ? 2 : 1.5).attr('rx', 8);
+
+  // Step number
+  svg.append('rect').attr('x', startX + 16).attr('y', y + 16).attr('width', 48).attr('height', 48)
+    .attr('fill', isLast ? '#C8102E' : '#C8102E').attr('rx', 8);
+  svg.append('text').attr('x', startX + 40).attr('y', y + 50).attr('text-anchor', 'middle')
+    .attr('font-family', "'EB Garamond', Georgia, serif").attr('font-size', 28).attr('fill', '#FFFFFF')
+    .text(s.num);
+
+  // Name
+  svg.append('text').attr('x', startX + 84).attr('y', y + 36)
+    .attr('font-family', "'Inter', sans-serif").attr('font-size', 17).attr('font-weight', 700)
+    .attr('fill', isLast ? '#FFFFFF' : '#121212')
+    .text(s.name);
+
+  // Input
+  svg.append('text').attr('x', startX + 84).attr('y', y + 66)
+    .attr('font-family', "'Inter', sans-serif").attr('font-size', 11).attr('font-weight', 600)
+    .attr('fill', isLast ? '#A0978C' : '#545454')
+    .text('INPUT:');
+  svg.append('text').attr('x', startX + 134).attr('y', y + 66)
+    .attr('font-family', "'Inter', sans-serif").attr('font-size', 13)
+    .attr('fill', isLast ? '#F0EBE3' : '#121212')
+    .text(s.input);
+
+  // Output
+  svg.append('text').attr('x', startX + 84).attr('y', y + 92)
+    .attr('font-family', "'Inter', sans-serif").attr('font-size', 11).attr('font-weight', 600)
+    .attr('fill', isLast ? '#A0978C' : '#545454')
+    .text('OUTPUT:');
+  svg.append('text').attr('x', startX + 146).attr('y', y + 92)
+    .attr('font-family', "'Inter', sans-serif").attr('font-size', 13)
+    .attr('fill', isLast ? '#F0EBE3' : '#C8102E')
+    .text(s.output);
+
+  // Arrow to next step
+  if (i < steps.length - 1) {
+    const arrowY = y + stepH + 14;
+    svg.append('line').attr('x1', startX + stepW/2).attr('y1', y + stepH + 2).attr('x2', startX + stepW/2).attr('y2', arrowY + 20)
+      .attr('stroke', '#D4D4D4').attr('stroke-width', 2);
+    svg.append('polygon')
+      .attr('points', `${startX + stepW/2 - 6},${arrowY + 14} ${startX + stepW/2 + 6},${arrowY + 14} ${startX + stepW/2},${arrowY + 24}`)
+      .attr('fill', '#D4D4D4');
+  }
+});
+
+// Final specification panel (right side, connected to step 5)
+const lastY = startY + 4 * (stepH + 28);
+svg.append('line').attr('x1', startX + stepW).attr('y1', lastY + stepH/2).attr('x2', specX).attr('y2', lastY + stepH/2)
+  .attr('stroke', '#C8102E').attr('stroke-width', 2);
+svg.append('polygon')
+  .attr('points', `${specX - 8},${lastY + stepH/2 - 6} ${specX},${lastY + stepH/2} ${specX - 8},${lastY + stepH/2 + 6}`)
+  .attr('fill', '#C8102E');
+
+const specW = 480, specH = 340;
+const specY = 260;
+
+svg.append('rect').attr('x', specX).attr('y', specY).attr('width', specW).attr('height', specH)
+  .attr('fill', '#FFFFFF').attr('stroke', '#C8102E').attr('stroke-width', 2).attr('rx', 8);
+
+svg.append('rect').attr('x', specX).attr('y', specY).attr('width', specW).attr('height', 40)
+  .attr('fill', '#C8102E').attr('rx', 8);
+svg.append('rect').attr('x', specX).attr('y', specY + 32).attr('width', specW).attr('height', 8)
+  .attr('fill', '#C8102E');
+svg.append('text').attr('x', specX + specW/2).attr('y', specY + 27).attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 15).attr('font-weight', 700).attr('fill', '#FFFFFF')
+  .text('CHART SPECIFICATION');
+
+const specLines = [
+  { label: 'KEY MESSAGE:', value: '"Food assistance funding declined' },
+  { label: '', value: '23% from 2022 to 2024 while demand rose"' },
+  { label: 'DATA:', value: '5 sectors × 36 months, USD millions' },
+  { label: 'CATEGORY:', value: 'Change over time' },
+  { label: 'FORM:', value: 'Line chart, monthly x-axis, USD y-axis' },
+  { label: 'COMPARED WITH:', value: 'Year-over-year, same sector' },
+  { label: 'BASELINE:', value: 'Zero baseline, $0–$120M range' },
+  { label: 'ENCODING:', value: 'Hue = sector (categorical identity)' },
+];
+
+specLines.forEach((sl, i) => {
+  const sy = specY + 64 + i * 32;
+  if (sl.label) {
+    svg.append('text').attr('x', specX + 20).attr('y', sy)
+      .attr('font-family', "'Inter', sans-serif").attr('font-size', 11).attr('font-weight', 700).attr('fill', '#545454')
+      .text(sl.label);
+  }
+  svg.append('text').attr('x', specX + (sl.label ? 140 : 140)).attr('y', sy)
+    .attr('font-family', "'JetBrains Mono', monospace").attr('font-size', 12).attr('fill', '#121212')
+    .text(sl.value);
+});
+
+// Caption
+svg.append('line').attr('x1', 60).attr('y1', H - 36).attr('x2', W - 60).attr('y2', H - 36)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+svg.append('text').attr('x', W/2).attr('y', H - 14).attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif").attr('font-size', 12).attr('fill', '#545454')
+  .text('Read the data before you reach for the code. The audit produces the specification; the specification produces the chart.');
+</script>
+</body>
+</html>

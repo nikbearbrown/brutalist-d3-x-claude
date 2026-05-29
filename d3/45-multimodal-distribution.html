@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Multimodal Distribution — Trimodal Density</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-ink: #2a1a0e;
+    --color-mark: #6B3520;
+    --color-red: #C8102E;
+    --color-slate: #1A3A5C;
+    --color-ochre: #C8860E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --font-body: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1410;
+      --color-surface: #2a2018;
+      --color-ink: #e8ddd0;
+      --color-mark: #c4886a;
+      --color-red: #e8525a;
+      --color-slate: #6a9cc8;
+      --color-ochre: #e8b84a;
+      --color-secondary: #a0968a;
+      --color-border: #4a4038;
+    }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+
+  h1 { font-size: 1.8rem; font-weight: 600; margin-bottom: 4px; text-align: center; }
+  .subtitle { font-size: 1rem; font-style: italic; color: var(--color-secondary); margin-bottom: 24px; text-align: center; }
+
+  #chart-container { width: 100%; max-width: 700px; position: relative; }
+  svg { width: 100%; height: auto; display: block; }
+
+  .tooltip {
+    position: absolute;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .caption { font-size: 0.9rem; font-style: italic; color: var(--color-secondary); margin-top: 12px; text-align: center; }
+</style>
+</head>
+<body>
+  <h1>Trimodal Distribution</h1>
+  <p class="subtitle">Three peaks, three sub-populations. The mean describes none of them.</p>
+  <div id="chart-container">
+    <div class="tooltip" id="tooltip"></div>
+  </div>
+  <p class="caption">Hover over the density curve to see estimated density at each point.</p>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const margin = { top: 42, right: 32, bottom: 60, left: 60 };
+const width = 700, height = 420;
+const innerW = width - margin.left - margin.right;
+const innerH = height - margin.top - margin.bottom;
+
+// Generate trimodal data: mixture of 3 Gaussians
+function gaussianRandom(mean, std) {
+  let u = 0, v = 0;
+  while (u === 0) u = Math.random();
+  while (v === 0) v = Math.random();
+  return mean + std * Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+}
+
+// Seed-like deterministic approach: use fixed samples
+const samples = [];
+const rng = (function() { let s = 42; return () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }; })();
+
+function seededGaussian(mean, std) {
+  const u1 = rng(), u2 = rng();
+  return mean + std * Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+}
+
+// Mode 1: mean=20, std=6, n=120
+for (let i = 0; i < 120; i++) samples.push(Math.max(0, Math.min(100, seededGaussian(20, 6))));
+// Mode 2: mean=50, std=7, n=150
+for (let i = 0; i < 150; i++) samples.push(Math.max(0, Math.min(100, seededGaussian(50, 7))));
+// Mode 3: mean=80, std=5, n=100
+for (let i = 0; i < 100; i++) samples.push(Math.max(0, Math.min(100, seededGaussian(80, 5))));
+
+// KDE
+function kde(kernel, thresholds, data) {
+  return thresholds.map(t => [t, d3.mean(data, d => kernel(t - d))]);
+}
+
+function epanechnikov(bandwidth) {
+  return x => Math.abs(x /= bandwidth) <= 1 ? 0.75 * (1 - x * x) / bandwidth : 0;
+}
+
+const container = d3.select("#chart-container");
+const tooltip = d3.select("#tooltip");
+
+const svg = container.append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("role", "img")
+  .attr("aria-label", "Density curve showing trimodal distribution with three peaks and a mean line that corresponds to no mode");
+
+svg.append("rect").attr("width", width).attr("height", height).attr("fill", "var(--color-bg)");
+svg.append("rect").attr("x", margin.left).attr("y", margin.top).attr("width", innerW).attr("height", innerH)
+  .attr("fill", "var(--color-surface)").attr("stroke", "var(--color-border)").attr("stroke-width", 0.75);
+
+const xScale = d3.scaleLinear().domain([0, 100]).range([margin.left, margin.left + innerW]);
+const thresholds = d3.range(0, 101, 0.5);
+const density = kde(epanechnikov(5), thresholds, samples);
+const maxDensity = d3.max(density, d => d[1]);
+const yScale = d3.scaleLinear().domain([0, maxDensity * 1.1]).range([margin.top + innerH, margin.top]);
+
+// X axis
+const xAxis = d3.axisBottom(xScale).ticks(6);
+const xAxisG = svg.append("g").attr("transform", `translate(0,${margin.top + innerH})`).call(xAxis);
+xAxisG.selectAll("text").attr("font-family", "var(--font-mono)").attr("font-size", 8).attr("fill", "var(--color-secondary)");
+xAxisG.selectAll("line").attr("stroke", "var(--color-border)");
+xAxisG.select(".domain").attr("stroke", "var(--color-border)");
+
+svg.append("text").attr("x", margin.left + innerW / 2).attr("y", margin.top + innerH + 40)
+  .attr("text-anchor", "middle").attr("font-family", "var(--font-mono)").attr("font-size", 8)
+  .attr("fill", "var(--color-secondary)").attr("letter-spacing", "0.08em").text("VALUE");
+
+// Y axis
+svg.append("text").attr("x", 22).attr("y", margin.top + innerH / 2)
+  .attr("text-anchor", "middle").attr("font-family", "var(--font-mono)").attr("font-size", 8)
+  .attr("fill", "var(--color-secondary)").attr("letter-spacing", "0.08em")
+  .attr("transform", `rotate(-90,22,${margin.top + innerH / 2})`).text("DENSITY");
+
+// Y gridlines
+[0.25, 0.5, 0.75].forEach(frac => {
+  const y = yScale(maxDensity * 1.1 * frac);
+  svg.append("line").attr("x1", margin.left).attr("y1", y).attr("x2", margin.left + innerW).attr("y2", y)
+    .attr("stroke", "var(--color-border)").attr("stroke-width", 0.5).attr("stroke-dasharray", "3,3");
+});
+
+// Filled area under curve
+const area = d3.area()
+  .x(d => xScale(d[0]))
+  .y0(yScale(0))
+  .y1(d => yScale(d[1]));
+
+svg.append("path").datum(density).attr("d", area)
+  .attr("fill", "var(--color-mark)").attr("opacity", 0.3);
+
+// Density line
+const line = d3.line().x(d => xScale(d[0])).y(d => yScale(d[1]));
+svg.append("path").datum(density).attr("d", line)
+  .attr("fill", "none").attr("stroke", "var(--color-mark)").attr("stroke-width", 2);
+
+// Find modes (local maxima in density)
+const modes = [];
+for (let i = 1; i < density.length - 1; i++) {
+  if (density[i][1] > density[i - 1][1] && density[i][1] > density[i + 1][1] && density[i][1] > maxDensity * 0.2) {
+    modes.push(density[i]);
+  }
+}
+
+// Mode lines
+modes.forEach((m, i) => {
+  svg.append("line")
+    .attr("x1", xScale(m[0])).attr("y1", yScale(m[1]))
+    .attr("x2", xScale(m[0])).attr("y2", yScale(0))
+    .attr("stroke", "var(--color-red)").attr("stroke-width", 1).attr("stroke-dasharray", "5,3");
+  svg.append("text")
+    .attr("x", xScale(m[0])).attr("y", margin.top - 4)
+    .attr("text-anchor", "middle").attr("font-family", "var(--font-mono)")
+    .attr("font-size", 8).attr("font-weight", 500).attr("fill", "var(--color-red)")
+    .attr("letter-spacing", "0.08em").text(`MODE ${i + 1}`);
+});
+
+// Mean line
+const mean = d3.mean(samples);
+svg.append("line")
+  .attr("x1", xScale(mean)).attr("y1", margin.top)
+  .attr("x2", xScale(mean)).attr("y2", yScale(0))
+  .attr("stroke", "var(--color-ochre)").attr("stroke-width", 1.5).attr("stroke-dasharray", "6,4");
+svg.append("text")
+  .attr("x", xScale(mean) - 8).attr("y", margin.top + 14)
+  .attr("text-anchor", "end").attr("font-family", "var(--font-mono)")
+  .attr("font-size", 8).attr("font-weight", 500).attr("fill", "var(--color-ochre)")
+  .attr("letter-spacing", "0.08em").text("MEAN");
+
+// Hover overlay for tooltips
+svg.append("rect")
+  .attr("x", margin.left).attr("y", margin.top).attr("width", innerW).attr("height", innerH)
+  .attr("fill", "transparent")
+  .on("mousemove", function(event) {
+    const [mx] = d3.pointer(event);
+    const xVal = xScale.invert(mx);
+    if (xVal < 0 || xVal > 100) return;
+    // Find nearest density value
+    const idx = Math.round(xVal * 2); // thresholds are 0.5 apart
+    if (idx >= 0 && idx < density.length) {
+      const d = density[idx];
+      tooltip.style("opacity", 1)
+        .html(`<strong>Value: ${d[0].toFixed(1)}</strong><br>Density: ${d[1].toFixed(4)}`)
+        .style("left", (event.offsetX + 15) + "px")
+        .style("top", (event.offsetY - 10) + "px");
+    }
+  })
+  .on("mouseleave", function() { tooltip.style("opacity", 0); });
+</script>
+</body>
+</html>

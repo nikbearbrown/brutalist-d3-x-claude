@@ -1,0 +1,92 @@
+<svg viewBox="0 0 700 480" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#2a1a0e"/>
+  </marker>
+  <pattern id="hatch" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
+    <line x1="0" y1="0" x2="0" y2="6" stroke="#2a1a0e" stroke-width="0.75"/>
+  </pattern>
+</defs>
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="480" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="38" font-family="'EB Garamond', Georgia, serif" font-size="14" font-weight="bold" fill="#2a1a0e" text-anchor="middle">Instruction Budget: Two Files vs. One Merged File</text>
+
+<!-- ═══════════════ SCENARIO A ═══════════════ -->
+<text x="32" y="78" font-family="'IBM Plex Mono', monospace" font-size="12" font-weight="bold" fill="#2a1a0e" letter-spacing="0.08em">SCENARIO A</text>
+<text x="180" y="78" font-family="'EB Garamond', Georgia, serif" font-size="11" fill="#545454"> — two files, CLAUDE.md + DESIGN.md loaded separately</text>
+
+<!-- Bar outline for total budget -->
+<rect x="32" y="96" width="600" height="40" rx="0" fill="none" stroke="#D4D4D4" stroke-width="0.75"/>
+
+<!-- Segment 1: System prompt -->
+<rect x="32" y="96" width="150" height="40" rx="0" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+<text x="107" y="120" font-family="'EB Garamond', Georgia, serif" font-size="11" fill="#2a1a0e" text-anchor="middle">System prompt ~50</text>
+
+<!-- Segment 2: CLAUDE.md -->
+<rect x="182" y="96" width="300" height="40" rx="0" fill="#6B3520" stroke="#2a1a0e" stroke-width="1"/>
+<text x="332" y="120" font-family="'EB Garamond', Georgia, serif" font-size="11" fill="#FFFFFF" text-anchor="middle">CLAUDE.md ~100</text>
+
+<!-- Segment 3: remaining -->
+<rect x="482" y="96" width="150" height="40" rx="0" fill="#FFFFFF" stroke="#D4D4D4" stroke-dasharray="4 3" stroke-width="0.75"/>
+<text x="557" y="120" font-family="'EB Garamond', Georgia, serif" font-size="10" fill="#545454" text-anchor="middle">~50 remaining</text>
+
+<!-- Budget limit dashed line -->
+<line x1="620" y1="88" x2="620" y2="144" stroke="#D4D4D4" stroke-dasharray="4 3" stroke-width="0.75"/>
+<text x="640" y="120" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#545454" letter-spacing="0.08em">LIMIT</text>
+
+<!-- DESIGN.md bar (loaded on demand) -->
+<text x="32" y="172" font-family="'EB Garamond', Georgia, serif" font-size="10" fill="#545454">Loaded on demand:</text>
+<rect x="32" y="182" width="180" height="34" rx="0" fill="#C8860E" stroke="#2a1a0e" stroke-width="1"/>
+<text x="122" y="203" font-family="'EB Garamond', Georgia, serif" font-size="11" fill="#FFFFFF" text-anchor="middle">DESIGN.md ~40-60</text>
+
+<!-- Arrow showing on-demand load -->
+<line x1="222" y1="199" x2="280" y2="199" stroke="#2a1a0e" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+<text x="296" y="203" font-family="'EB Garamond', Georgia, serif" font-size="10" fill="#545454">loads on demand</text>
+
+<!-- Separator -->
+<line x1="32" y1="240" x2="668" y2="240" stroke="#D4D4D4" stroke-dasharray="4 3" stroke-width="0.75"/>
+
+<!-- ═══════════════ SCENARIO B ═══════════════ -->
+<text x="32" y="272" font-family="'IBM Plex Mono', monospace" font-size="12" font-weight="bold" fill="#2a1a0e" letter-spacing="0.08em">SCENARIO B</text>
+<text x="180" y="272" font-family="'EB Garamond', Georgia, serif" font-size="11" fill="#545454"> — all rules merged into one CLAUDE.md</text>
+
+<!-- Bar outline for total budget -->
+<rect x="32" y="290" width="600" height="40" rx="0" fill="none" stroke="#D4D4D4" stroke-width="0.75"/>
+
+<!-- System prompt -->
+<rect x="32" y="290" width="150" height="40" rx="0" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+<text x="107" y="314" font-family="'EB Garamond', Georgia, serif" font-size="11" fill="#2a1a0e" text-anchor="middle">System prompt ~50</text>
+
+<!-- Coding rules -->
+<rect x="182" y="290" width="300" height="40" rx="0" fill="#6B3520" stroke="#2a1a0e" stroke-width="1"/>
+<text x="332" y="314" font-family="'EB Garamond', Georgia, serif" font-size="11" fill="#FFFFFF" text-anchor="middle">Coding rules ~100</text>
+
+<!-- Design rules with hatching over overflow zone -->
+<rect x="482" y="290" width="174" height="40" rx="0" fill="#C8860E" stroke="#2a1a0e" stroke-width="1"/>
+<text x="569" y="314" font-family="'EB Garamond', Georgia, serif" font-size="11" fill="#FFFFFF" text-anchor="middle">Design rules ~60</text>
+<!-- Hatching overlay for overflow portion (past budget limit at 620) -->
+<rect x="620" y="290" width="36" height="40" rx="0" fill="url(#hatch)" stroke="none"/>
+
+<!-- Budget limit dashed line -->
+<line x1="620" y1="282" x2="620" y2="338" stroke="#D4D4D4" stroke-dasharray="4 3" stroke-width="0.75"/>
+<text x="620" y="282" font-family="'IBM Plex Mono', monospace" font-size="8" fill="#545454" text-anchor="middle" letter-spacing="0.08em">LIMIT</text>
+
+<!-- Overflow bracket -->
+<line x1="620" y1="336" x2="620" y2="350" stroke="#2a1a0e" stroke-width="1"/>
+<line x1="620" y1="350" x2="656" y2="350" stroke="#2a1a0e" stroke-width="1"/>
+<line x1="656" y1="336" x2="656" y2="350" stroke="#2a1a0e" stroke-width="1"/>
+<text x="638" y="366" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#C8102E" text-anchor="middle" letter-spacing="0.08em">OVERFLOW</text>
+
+<!-- Degradation note -->
+<line x1="530" y1="336" x2="530" y2="390" stroke="#D4D4D4" stroke-dasharray="4 3" stroke-width="0.75"/>
+<text x="530" y="406" font-family="'EB Garamond', Georgia, serif" font-size="11" fill="#2a1a0e" text-anchor="middle" font-style="italic">rules degraded silently</text>
+
+<!-- Caption -->
+<text x="350" y="444" font-family="'EB Garamond', Georgia, serif" font-size="11" fill="#2a1a0e" text-anchor="middle" font-style="italic">The instruction budget is real. The degradation is silent.</text>
+
+<!-- Bottom hairline -->
+<line x1="32" y1="462" x2="668" y2="462" stroke="#D4D4D4" stroke-dasharray="4 3" stroke-width="0.75"/>
+</svg>

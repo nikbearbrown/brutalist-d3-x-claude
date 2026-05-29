@@ -1,0 +1,67 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#2a1a0e">Technology Proficiency Scores</text>
+
+<!-- Subtitle -->
+<text x="350" y="46" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">RADIAL BAR CHART</text>
+
+<!-- Chart area -->
+<rect x="32" y="60" width="636" height="310" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="0.75" rx="0"/>
+
+<!-- Center: (350, 215). Inner radius: 35. Max outer radius: 135 -->
+<!-- 8 categories, each 45 degrees. Bar angle width: 35 deg, gap: 10 deg -->
+<!-- ML 92, NLP 85, CV 78, Robotics 65, DS 88, Cyber 72, Cloud 80, IoT 58 -->
+<!-- Scale: outerR = 35 + (value/92) * 100 -->
+
+<!-- Concentric grid rings -->
+<circle cx="350" cy="215" r="35" fill="none" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+<circle cx="350" cy="215" r="60" fill="none" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+<circle cx="350" cy="215" r="85" fill="none" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+<circle cx="350" cy="215" r="110" fill="none" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+<circle cx="350" cy="215" r="135" fill="none" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+
+<!-- Bars as simplified wedges using lines from center -->
+<!-- Each bar is a thick line from innerR to outerR at the appropriate angle -->
+
+<!-- Machine Learning (92) - highlighted: angle = -90 deg, outerR = 35 + 100 = 135 -->
+<line x1="350" y1="180" x2="350" y2="80" stroke="#C8102E" stroke-width="22" stroke-linecap="butt" opacity="0.9"/>
+
+<!-- NLP (85): angle = -45 deg, outerR = 35 + (85/92)*100 = 127.4 -->
+<line x1="374.7" y1="190.3" x2="440.1" y2="124.9" stroke="#6B3520" stroke-width="22" stroke-linecap="butt" opacity="0.78"/>
+
+<!-- Computer Vision (78): angle = 0 deg, outerR = 35 + (78/92)*100 = 119.8 -->
+<line x1="385" y1="215" x2="469.8" y2="215" stroke="#6B3520" stroke-width="22" stroke-linecap="butt" opacity="0.72"/>
+
+<!-- Robotics (65): angle = 45 deg, outerR = 35 + (65/92)*100 = 105.7 -->
+<line x1="374.7" y1="239.7" x2="424.8" y2="289.7" stroke="#6B3520" stroke-width="22" stroke-linecap="butt" opacity="0.63"/>
+
+<!-- Data Science (88): angle = 90 deg, outerR = 35 + (88/92)*100 = 130.7 -->
+<line x1="350" y1="250" x2="350" y2="345.7" stroke="#6B3520" stroke-width="22" stroke-linecap="butt" opacity="0.82"/>
+
+<!-- Cybersecurity (72): angle = 135 deg, outerR = 35 + (72/92)*100 = 113.3 -->
+<line x1="325.3" y1="239.7" x2="269.9" y2="295.1" stroke="#6B3520" stroke-width="22" stroke-linecap="butt" opacity="0.67"/>
+
+<!-- Cloud Computing (80): angle = 180 deg, outerR = 35 + (80/92)*100 = 121.9 -->
+<line x1="315" y1="215" x2="228.1" y2="215" stroke="#6B3520" stroke-width="22" stroke-linecap="butt" opacity="0.74"/>
+
+<!-- IoT (58): angle = 225 deg, outerR = 35 + (58/92)*100 = 98.0 -->
+<line x1="325.3" y1="190.3" x2="280.7" y2="145.7" stroke="#6B3520" stroke-width="22" stroke-linecap="butt" opacity="0.55"/>
+
+<!-- Labels outside each bar -->
+<text x="350" y="68" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#C8102E" letter-spacing="0.08em">ML 92</text>
+<text x="455" y="115" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#2a1a0e" letter-spacing="0.08em">NLP 85</text>
+<text x="478" y="219" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#2a1a0e" letter-spacing="0.08em">CV 78</text>
+<text x="430" y="306" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#2a1a0e" letter-spacing="0.08em">ROBOTICS 65</text>
+<text x="350" y="360" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#2a1a0e" letter-spacing="0.08em">DATA SCI 88</text>
+<text x="254" y="306" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#2a1a0e" letter-spacing="0.08em">CYBER 72</text>
+<text x="216" y="219" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#2a1a0e" letter-spacing="0.08em">CLOUD 80</text>
+<text x="268" y="136" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#2a1a0e" letter-spacing="0.08em">IOT 58</text>
+
+<!-- Caption -->
+<text x="350" y="395" text-anchor="middle" font-size="11" font-style="italic" fill="#545454">Bars bent around a center — polar coordinates earn their distortion when the cycle matters.</text>
+
+</svg>

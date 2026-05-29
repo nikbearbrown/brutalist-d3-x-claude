@@ -56,6 +56,9 @@ Eight categories. Sixty-plus chart types distributed across them. The categories
 
 <!-- → [INFOGRAPHIC: 8-panel grid, one panel per FT Visual Vocabulary functional category. Each panel: category name (large, uppercase), the defining reader question in italics, and 3–4 canonical chart types listed. Layout 4×2 or 2×4. This is the navigation reference the reader will return to throughout the book; it should be clean enough to screenshot or print. Warm monochrome, JetBrains Mono for labels.] -->
 
+![Eight-panel grid of FT Visual Vocabulary functional categories with reader questions and canonical chart types](../images/04-chart-selection-as-design-decision-fig-05.png)
+*Figure 4.5 — The FT Visual Vocabulary: eight questions that contain every chart*
+
 Notice that the categories are defined by the *reader's question*, not by the data's structure. A budget allocation is data with a part-to-whole structure. But if the reader's question is "which category got the most?" — that is a comparison question. The message dominates the structure. This is the error the humanitarian report made: the data *looks* like parts of a whole, so the designer went to part-to-whole, selected pie chart, and called it done. The message was a comparison question. The message should have won.
 
 ---
@@ -99,6 +102,9 @@ Every chart type in the standard taxonomy has an origin story. The bar chart was
 Each chart type is a solution to a specific communication problem. Knowing the original problem clarifies when the chart works and — more important — when it does not.
 
 <!-- → [INFOGRAPHIC: Horizontal timeline of chart-type inventions, 1786 to 1991. Entries: Playfair bar chart (1786, "trade deficits by country"), Playfair line chart (1786, "trade values over time"), Dupin choropleth (1826, "illiteracy rate per department"), Snow dot map (1854, "cholera deaths by address"), Nightingale polar area (1858, "preventable deaths by month"), Minard flow map (1869, "army depletion on the march"), Shneiderman treemap (1991, "disk usage in nested directories"). Each entry: chart name, inventor, year, and one-phrase original problem. Caption: "Every chart type is an answer to a question. The question clarifies when the chart works."] -->
+
+![Horizontal timeline of chart-type inventions from 1786 to 1991 with inventor, year, and original problem](../images/04-chart-selection-as-design-decision-fig-06.png)
+*Figure 4.6 — Every chart type is an answer to a question.*
 
 The choropleth was invented to show *rates* per bounded geographic unit. Charles Dupin's 1826 map of French illiteracy used shading per department to show the *rate* of illiteracy, not the absolute count. Use the choropleth for absolute counts and you produce the area-size distortion: large geographic units look dark even when their rates are low, because they contain more area, not more incidence. Chapter 12 names this failure explicitly. The mechanism is already latent in the origin: the chart was designed for rates.
 
@@ -353,6 +359,66 @@ prompt structure.
 - **Friendly, Michael. (2008).** "A Brief History of Data Visualization." In *Handbook of Data Visualization*, edited by C. Chen, W. Härdle, and A. Unwin. Springer. The origin stories that ground chart-type choice.
 - **Tufte, Edward R. (1983, 2nd ed. 2001).** *The Visual Display of Quantitative Information.* Chapter 1 establishes "show the data."
 - **Few, Stephen.** *Show Me the Numbers: Designing Tables and Graphs to Enlighten.* The most rigorous practical chart-selection reference; Few's chapter on selecting the right chart is the deepest treatment of the four-step decision in book form.
+
+---
+
+## Prompts
+
+Use these prompts with Claude to generate interactive D3 v7 versions of the
+figures in this chapter. Each produces a standalone HTML file you can open
+in a browser and modify freely.
+
+**Prerequisites:** Load `brutalist/CLAUDE.md` and `brutalist/DESIGN.md` into
+your Claude project context before using these prompts. They define the stack,
+naming conventions, color system, and typography the figures use.
+
+---
+
+### Figure 4.1 — Pie chart vs sorted bar chart
+
+*Hand-authored SVG (converted to PNG at 300 dpi)*
+
+Two panels with the same 14-sector humanitarian funding data. Left: cramped 14-slice pie chart with legend. Right: sorted horizontal bar chart, largest at top. The reader answers "which three categories received the most funding?" in 3 seconds with bars, 30+ seconds with slices.
+
+---
+
+### Figure 4.2 — Cairo's four-step framework
+
+*Hand-authored SVG (converted to PNG at 300 dpi)*
+
+Left-to-right flow diagram — Key Message → Data Structure → Functional Category → Specific Form — with a worked example showing the path for the humanitarian funding case.
+
+---
+
+### Figure 4.3 — Three failure modes, three redesigns
+
+*Hand-authored SVG (converted to PNG at 300 dpi)*
+
+Three rows of before/after redesigns: familiarity bias (pie → sorted bar), aesthetic-first (3D exploded donut → flat stacked bar), software-default (tangled rainbow lines → small multiples).
+
+---
+
+### Figure 4.4 — One dataset, three questions, three charts
+
+*Hand-authored SVG (converted to PNG at 300 dpi)*
+
+Three panels using the same humanitarian funding dataset — line chart (change over time), horizontal bar chart (comparison), 100% stacked column chart (part-to-whole with temporal sub-message).
+
+---
+
+### Figure 4.5 — The FT Visual Vocabulary
+
+Eight-panel grid (4×2), one panel per FT Visual Vocabulary functional category. Each panel: category name (uppercase), the defining reader question in italics, and 3–4 canonical chart types listed. Categories: Comparison, Change over time, Distribution, Relationship, Part-to-whole, Hierarchy, Flow, Spatial. Clean reference layout suitable for screenshot or print. D3 v7 single HTML file, 1600×900.
+
+> Reference implementation: `d3/04-chart-selection-as-design-decision-fig-05.html`
+
+---
+
+### Figure 4.6 — Chart-type invention timeline
+
+Horizontal timeline from 1786 to 1991 with 7 entries: Playfair bar chart (1786, "trade deficits by country"), Playfair line chart (1786, "trade values over time"), Dupin choropleth (1826, "illiteracy rate per department"), Snow dot map (1854, "cholera deaths by address"), Nightingale polar area (1858, "preventable deaths by month"), Minard flow map (1869, "army depletion on the march"), Shneiderman treemap (1991, "disk usage in nested directories"). Each entry: chart name, inventor, year, one-phrase problem. D3 v7 single HTML file, 1600×900.
+
+> Reference implementation: `d3/04-chart-selection-as-design-decision-fig-06.html`
 
 ---
 

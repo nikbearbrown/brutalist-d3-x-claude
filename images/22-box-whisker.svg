@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 420">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap');
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect x="0" y="0" width="700" height="420" fill="#FFFFFF" rx="0"/>
+
+  <!-- Title -->
+  <text x="350" y="30" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="18" font-weight="600" fill="#2a1a0e">Five Numbers, One Glyph — Tukey's Distribution Sketch</text>
+
+  <!-- Chart area -->
+  <rect x="120" y="48" width="460" height="330" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="0.75" rx="0"/>
+
+  <!-- Y-axis: score 0-100 -->
+  <!-- Tick marks and labels -->
+  <!-- Y scale: 0 maps to y=368, 100 maps to y=58. Each unit = (368-58)/100 = 3.1 px -->
+  <!-- y(val) = 368 - val * 3.1 -->
+
+  <!-- Y-axis line -->
+  <line x1="120" y1="48" x2="120" y2="378" stroke="#2a1a0e" stroke-width="0.75"/>
+
+  <!-- Y-axis ticks and labels -->
+  <line x1="115" y1="368" x2="120" y2="368" stroke="#2a1a0e" stroke-width="0.75"/>
+  <text x="110" y="372" text-anchor="end" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" fill="#2a1a0e">0</text>
+
+  <line x1="115" y1="337" x2="120" y2="337" stroke="#2a1a0e" stroke-width="0.75"/>
+  <text x="110" y="341" text-anchor="end" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" fill="#2a1a0e">10</text>
+
+  <line x1="115" y1="306" x2="120" y2="306" stroke="#2a1a0e" stroke-width="0.75"/>
+  <text x="110" y="310" text-anchor="end" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" fill="#2a1a0e">20</text>
+
+  <line x1="115" y1="275" x2="120" y2="275" stroke="#2a1a0e" stroke-width="0.75"/>
+  <text x="110" y="279" text-anchor="end" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" fill="#2a1a0e">30</text>
+
+  <line x1="115" y1="244" x2="120" y2="244" stroke="#2a1a0e" stroke-width="0.75"/>
+  <text x="110" y="248" text-anchor="end" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" fill="#2a1a0e">40</text>
+
+  <line x1="115" y1="213" x2="120" y2="213" stroke="#2a1a0e" stroke-width="0.75"/>
+  <text x="110" y="217" text-anchor="end" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" fill="#2a1a0e">50</text>
+
+  <line x1="115" y1="182" x2="120" y2="182" stroke="#2a1a0e" stroke-width="0.75"/>
+  <text x="110" y="186" text-anchor="end" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" fill="#2a1a0e">60</text>
+
+  <line x1="115" y1="151" x2="120" y2="151" stroke="#2a1a0e" stroke-width="0.75"/>
+  <text x="110" y="155" text-anchor="end" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" fill="#2a1a0e">70</text>
+
+  <line x1="115" y1="120" x2="120" y2="120" stroke="#2a1a0e" stroke-width="0.75"/>
+  <text x="110" y="124" text-anchor="end" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" fill="#2a1a0e">80</text>
+
+  <line x1="115" y1="89" x2="120" y2="89" stroke="#2a1a0e" stroke-width="0.75"/>
+  <text x="110" y="93" text-anchor="end" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" fill="#2a1a0e">90</text>
+
+  <line x1="115" y1="58" x2="120" y2="58" stroke="#2a1a0e" stroke-width="0.75"/>
+  <text x="110" y="62" text-anchor="end" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" fill="#2a1a0e">100</text>
+
+  <!-- Y-axis label -->
+  <text x="42" y="213" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" letter-spacing="0.08em" fill="#545454" transform="rotate(-90, 42, 213)">SCORE</text>
+
+  <!-- Box and Whisker Plot -->
+  <!-- Center x = 350 (center of chart area) -->
+  <!-- Box width = 100 (from 300 to 400) -->
+  <!-- Data: Q1=32, Median=52, Q3=71, lower whisker=10, upper whisker=92, outliers at 3 and 98 -->
+  <!-- y(3) = 368 - 3*3.1 = 358.7 -->
+  <!-- y(10) = 368 - 10*3.1 = 337 -->
+  <!-- y(32) = 368 - 32*3.1 = 268.8 -->
+  <!-- y(52) = 368 - 52*3.1 = 206.8 -->
+  <!-- y(71) = 368 - 71*3.1 = 147.9 -->
+  <!-- y(92) = 368 - 92*3.1 = 82.8 -->
+  <!-- y(98) = 368 - 98*3.1 = 64.2 -->
+
+  <!-- Upper whisker line (Q3 to upper whisker) -->
+  <line x1="350" y1="147.9" x2="350" y2="82.8" stroke="#2a1a0e" stroke-width="1.5"/>
+  <!-- Upper whisker cap -->
+  <line x1="330" y1="82.8" x2="370" y2="82.8" stroke="#2a1a0e" stroke-width="1.5"/>
+
+  <!-- Lower whisker line (Q1 to lower whisker) -->
+  <line x1="350" y1="268.8" x2="350" y2="337" stroke="#2a1a0e" stroke-width="1.5"/>
+  <!-- Lower whisker cap -->
+  <line x1="330" y1="337" x2="370" y2="337" stroke="#2a1a0e" stroke-width="1.5"/>
+
+  <!-- Box (Q1 to Q3) -->
+  <rect x="300" y="147.9" width="100" height="120.9" fill="#F5EFE8" stroke="#6B3520" stroke-width="2" rx="0"/>
+
+  <!-- Median line -->
+  <line x1="300" y1="206.8" x2="400" y2="206.8" stroke="#C8102E" stroke-width="3"/>
+
+  <!-- Outlier at 3 -->
+  <circle cx="350" cy="358.7" r="4" fill="#C8102E" stroke="none"/>
+  <!-- Outlier at 98 -->
+  <circle cx="350" cy="64.2" r="4" fill="#C8102E" stroke="none"/>
+
+  <!-- Right-side annotations -->
+  <!-- Upper whisker annotation -->
+  <line x1="405" y1="82.8" x2="430" y2="82.8" stroke="#D4D4D4" stroke-width="0.75"/>
+  <text x="435" y="86.8" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" fill="#545454">Upper whisker (92)</text>
+
+  <!-- Q3 annotation -->
+  <line x1="405" y1="147.9" x2="430" y2="147.9" stroke="#D4D4D4" stroke-width="0.75"/>
+  <text x="435" y="151.9" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" fill="#545454">Q3 — 75th percentile (71)</text>
+
+  <!-- Median annotation -->
+  <line x1="405" y1="206.8" x2="430" y2="206.8" stroke="#D4D4D4" stroke-width="0.75"/>
+  <text x="435" y="210.8" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" fill="#C8102E" font-weight="600">Q2 — Median (52)</text>
+
+  <!-- Q1 annotation -->
+  <line x1="405" y1="268.8" x2="430" y2="268.8" stroke="#D4D4D4" stroke-width="0.75"/>
+  <text x="435" y="272.8" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" fill="#545454">Q1 — 25th percentile (32)</text>
+
+  <!-- Lower whisker annotation -->
+  <line x1="405" y1="337" x2="430" y2="337" stroke="#D4D4D4" stroke-width="0.75"/>
+  <text x="435" y="341" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" fill="#545454">Lower whisker (10)</text>
+
+  <!-- IQR bracket -->
+  <line x1="280" y1="147.9" x2="275" y2="147.9" stroke="#6B3520" stroke-width="0.75"/>
+  <line x1="275" y1="147.9" x2="275" y2="268.8" stroke="#6B3520" stroke-width="0.75"/>
+  <line x1="280" y1="268.8" x2="275" y2="268.8" stroke="#6B3520" stroke-width="0.75"/>
+  <text x="270" y="212" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" letter-spacing="0.08em" fill="#6B3520">IQR</text>
+
+  <!-- Outlier annotations -->
+  <line x1="365" y1="358.7" x2="430" y2="358.7" stroke="#D4D4D4" stroke-width="0.75"/>
+  <text x="435" y="362.7" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" fill="#C8102E">Outlier (3)</text>
+
+  <line x1="365" y1="64.2" x2="430" y2="64.2" stroke="#D4D4D4" stroke-width="0.75"/>
+  <text x="435" y="68.2" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" fill="#C8102E">Outlier (98)</text>
+
+  <!-- Caption -->
+  <text x="350" y="405" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="11" font-style="italic" fill="#545454">Whiskers to 1.5xIQR. Points beyond are outliers.</text>
+</svg>

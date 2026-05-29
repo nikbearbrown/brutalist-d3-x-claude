@@ -2,7 +2,8 @@
 
 *Higher education routes to higher income — but employment status reshapes the path*
 
-![Parallel Sets](../images/51-parallel-sets.jpg)
+![Parallel sets diagram showing flows from education level through employment status to income band](../images/51-parallel-sets.png)
+*Figure 51.1 — Higher education routes to higher income — but employment status reshapes the path*
 
 ## What this chart is
 
@@ -51,6 +52,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/51-parallel-sets.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

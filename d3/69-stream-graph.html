@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stream Graph — Music Genre Dominance</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #2a1a0e;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-mark: #6B3520;
+    --color-slate: #1A3A5C;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1a1a;
+      --color-ink: #e8e0d6;
+      --color-surface: #2a2420;
+      --color-secondary: #a0978e;
+      --color-border: #444;
+      --color-mark: #c28060;
+      --color-red: #e05040;
+      --color-slate: #5a9ad6;
+      --color-ochre: #d4a030;
+    }
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+  #chart-container { width: 100%; max-width: 900px; }
+  h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; color: var(--color-ink); }
+  .subtitle {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--color-secondary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .caption { font-size: 0.9rem; color: var(--color-secondary); font-style: italic; margin-top: 12px; }
+  .tooltip {
+    position: absolute;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--color-ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .stream-layer { cursor: pointer; }
+  .stream-layer:hover { opacity: 0.85; }
+  .legend-item { cursor: pointer; }
+</style>
+</head>
+<body>
+<div id="chart-container">
+  <h1>Music Genre Dominance — Streaming Volume</h1>
+  <div class="subtitle">STREAM GRAPH 2000–2023 — HOVER FOR DETAILS</div>
+  <div id="chart" role="img" aria-label="Stream graph showing music genre dominance from 2000 to 2023 with Pop, Hip-Hop, Rock, and Electronic genres."></div>
+  <div class="caption">Organic flowing shapes reveal the rise and fall of genre dominance over two decades.</div>
+</div>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+// Generate plausible streaming data
+const years = d3.range(2000, 2024);
+const genres = ["Pop", "Hip-Hop", "Rock", "Electronic"];
+const colorMap = { Pop: "var(--color-red)", "Hip-Hop": "var(--color-slate)", Rock: "var(--color-mark)", Electronic: "var(--color-ochre)" };
+
+// Trend data: Rock declines, Hip-Hop rises, Pop stable-high, Electronic grows
+const genreData = years.map(yr => {
+  const t = (yr - 2000) / 23;
+  return {
+    year: yr,
+    Pop: 40 + 15 * Math.sin(t * 3) + 5 * Math.random(),
+    "Hip-Hop": 10 + 50 * t + 5 * Math.random(),
+    Rock: 50 - 35 * t + 5 * Math.random(),
+    Electronic: 8 + 25 * t * t + 3 * Math.random()
+  };
+});
+
+const width = 700, height = 480;
+const margin = { top: 32, right: 32, bottom: 60, left: 48 };
+const innerW = width - margin.left - margin.right;
+const innerH = height - margin.top - margin.bottom;
+
+const svg = d3.select("#chart")
+  .append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("preserveAspectRatio", "xMidYMid meet")
+  .style("width", "100%")
+  .style("height", "auto");
+
+svg.append("title").text("Music Genre Dominance — Streaming Volume 2000–2023");
+svg.append("desc").text("Centered stream graph with 4 genre layers: Pop, Hip-Hop, Rock, Electronic flowing symmetrically over time.");
+
+svg.append("rect").attr("width", width).attr("height", height).attr("fill", "var(--color-bg)");
+svg.append("rect").attr("x", margin.left - 8).attr("y", margin.top - 8).attr("width", innerW + 16).attr("height", innerH + 16)
+  .attr("fill", "var(--color-surface)").attr("stroke", "var(--color-border)").attr("stroke-width", 0.75);
+
+const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+const x = d3.scaleLinear().domain([2000, 2023]).range([0, innerW]);
+
+const stack = d3.stack()
+  .keys(genres)
+  .offset(d3.stackOffsetSilhouette)
+  .order(d3.stackOrderInsideOut);
+
+const series = stack(genreData);
+
+const y = d3.scaleLinear()
+  .domain([d3.min(series, s => d3.min(s, d => d[0])), d3.max(series, s => d3.max(s, d => d[1]))])
+  .range([innerH, 0]);
+
+const area = d3.area()
+  .x(d => x(d.data.year))
+  .y0(d => y(d[0]))
+  .y1(d => y(d[1]))
+  .curve(d3.curveBasis);
+
+const tooltip = d3.select("#tooltip");
+
+series.forEach((layer, i) => {
+  g.append("path")
+    .datum(layer)
+    .attr("class", "stream-layer")
+    .attr("d", area)
+    .attr("fill", colorMap[genres[i]])
+    .attr("opacity", 0.8)
+    .attr("tabindex", 0)
+    .attr("aria-label", `${genres[i]} genre stream`)
+    .on("mouseover", function(event) {
+      d3.select(this).attr("opacity", 1);
+      tooltip.style("opacity", 1);
+    })
+    .on("mousemove", function(event) {
+      const [mx] = d3.pointer(event, g.node());
+      const yr = Math.round(x.invert(mx));
+      const datum = genreData.find(d => d.year === yr);
+      if (datum) {
+        tooltip.html(`<strong>${genres[i]}</strong> (${yr})<br>Volume: ${Math.round(datum[genres[i]])}`)
+          .style("left", (event.pageX + 12) + "px").style("top", (event.pageY - 28) + "px");
+      }
+    })
+    .on("mouseout", function() {
+      d3.select(this).attr("opacity", 0.8);
+      tooltip.style("opacity", 0);
+    });
+});
+
+// X axis
+g.append("g").attr("transform", `translate(0,${innerH})`)
+  .call(d3.axisBottom(x).ticks(8).tickFormat(d3.format("d")).tickSize(4))
+  .call(g => g.select(".domain").attr("stroke", "var(--color-ink)"))
+  .selectAll("text")
+  .attr("font-family", "'IBM Plex Mono', monospace")
+  .attr("font-size", "10px")
+  .attr("letter-spacing", "0.08em")
+  .attr("fill", "var(--color-ink)");
+
+// Legend
+const legend = svg.append("g").attr("transform", `translate(${margin.left}, ${height - 22})`);
+genres.forEach((genre, i) => {
+  const lg = legend.append("g").attr("class", "legend-item").attr("transform", `translate(${i * 140}, 0)`);
+  lg.append("rect").attr("width", 12).attr("height", 12).attr("fill", colorMap[genre]);
+  lg.append("text").attr("x", 18).attr("y", 10)
+    .attr("font-family", "'IBM Plex Mono', monospace").attr("font-size", "11px")
+    .attr("fill", "var(--color-ink)").text(genre);
+});
+</script>
+</body>
+</html>

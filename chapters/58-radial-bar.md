@@ -2,7 +2,8 @@
 
 *Aid Deliveries Peak in November and January Around Winter Emergencies — June Access Constraints Create the Annual Trough at 188K MT*
 
-![Radial Bar](../images/58-radial-bar.jpg)
+![Radial bar chart showing monthly aid deliveries peaking in November and lowest in June](../images/58-radial-bar.png)
+*Figure 58.1 — Aid Deliveries Peak in November — June Creates the Annual Trough*
 
 ## What this chart is
 
@@ -57,6 +58,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/58-radial-bar.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

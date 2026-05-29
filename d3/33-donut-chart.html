@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Donut Chart — Budget Allocation by Department</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-ink: #2a1a0e;
+    --color-mark: #6B3520;
+    --color-red: #C8102E;
+    --color-slate: #1A3A5C;
+    --color-ochre: #C8860E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --font-body: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1410;
+      --color-surface: #2a2018;
+      --color-ink: #e8ddd0;
+      --color-mark: #c4886a;
+      --color-red: #e8525a;
+      --color-slate: #6a9cc8;
+      --color-ochre: #e8b84a;
+      --color-secondary: #a0968a;
+      --color-border: #4a4038;
+    }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+
+  h1 {
+    font-family: var(--font-body);
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-bottom: 4px;
+    text-align: center;
+  }
+
+  .subtitle {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-style: italic;
+    color: var(--color-secondary);
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  #chart-container {
+    width: 100%;
+    max-width: 700px;
+    position: relative;
+  }
+
+  svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .tooltip {
+    position: absolute;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--color-ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .arc-segment {
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .arc-segment:hover {
+    opacity: 0.85;
+  }
+
+  .arc-segment:focus {
+    outline: 2px solid var(--color-red);
+    outline-offset: 2px;
+  }
+</style>
+</head>
+<body>
+<h1>Budget Allocation by Department</h1>
+<p class="subtitle">Healthcare commands 34%. Five segments maximum for readability.</p>
+<div id="chart-container">
+  <div class="tooltip" id="tooltip"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script>
+const data = [
+  { department: "Healthcare", value: 34, amount: "$1.63B", color: "var(--color-red)" },
+  { department: "Education", value: 24, amount: "$1.15B", color: "var(--color-slate)" },
+  { department: "Logistics", value: 20, amount: "$0.96B", color: "var(--color-mark)" },
+  { department: "Administration", value: 14, amount: "$0.67B", color: "var(--color-ochre)" },
+  { department: "Crisis Response", value: 8, amount: "$0.38B", color: "var(--color-secondary)" }
+];
+
+const width = 700;
+const height = 500;
+const cx = width / 2;
+const cy = height / 2;
+const outerRadius = 180;
+const innerRadius = 90;
+
+const svg = d3.select("#chart-container")
+  .append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`);
+
+// Chart background
+svg.append("rect")
+  .attr("x", 32)
+  .attr("y", 32)
+  .attr("width", width - 64)
+  .attr("height", height - 64)
+  .attr("fill", "var(--color-surface)")
+  .attr("stroke", "var(--color-border)")
+  .attr("stroke-width", 0.75);
+
+const g = svg.append("g")
+  .attr("transform", `translate(${cx},${cy})`);
+
+const pie = d3.pie()
+  .sort(null)
+  .value(d => d.value)
+  .startAngle(-Math.PI / 2)
+  .endAngle(Math.PI * 1.5);
+
+const arc = d3.arc()
+  .innerRadius(innerRadius)
+  .outerRadius(outerRadius);
+
+const labelArc = d3.arc()
+  .innerRadius(outerRadius + 20)
+  .outerRadius(outerRadius + 20);
+
+const arcs = pie(data);
+
+const tooltip = d3.select("#tooltip");
+
+// Center text
+g.append("text")
+  .attr("y", -6)
+  .attr("text-anchor", "middle")
+  .attr("font-family", "var(--font-mono)")
+  .attr("font-size", "10px")
+  .attr("letter-spacing", "0.08em")
+  .attr("fill", "var(--color-ink)")
+  .attr("id", "center-label")
+  .text("BUDGET");
+
+g.append("text")
+  .attr("y", 10)
+  .attr("text-anchor", "middle")
+  .attr("font-family", "var(--font-mono)")
+  .attr("font-size", "10px")
+  .attr("letter-spacing", "0.08em")
+  .attr("fill", "var(--color-ink)")
+  .attr("id", "center-sublabel")
+  .text("ALLOCATION");
+
+g.append("text")
+  .attr("y", 30)
+  .attr("text-anchor", "middle")
+  .attr("font-family", "var(--font-body)")
+  .attr("font-size", "18px")
+  .attr("font-weight", "600")
+  .attr("fill", "var(--color-ink)")
+  .attr("id", "center-value")
+  .text("$4.80B");
+
+// Draw arcs
+g.selectAll(".arc-segment")
+  .data(arcs)
+  .join("path")
+  .attr("class", "arc-segment")
+  .attr("d", arc)
+  .attr("fill", d => d.data.color)
+  .attr("tabindex", 0)
+  .attr("role", "img")
+  .attr("aria-label", d => `${d.data.department}: ${d.data.value}%`)
+  .on("mouseover", (event, d) => {
+    d3.select("#center-label").text(d.data.department.toUpperCase());
+    d3.select("#center-sublabel").text("");
+    d3.select("#center-value").text(`${d.data.value}%`);
+    tooltip.style("opacity", 1)
+      .html(`<strong>${d.data.department}</strong><br>${d.data.value}% — ${d.data.amount}`)
+      .style("left", (event.offsetX + 12) + "px")
+      .style("top", (event.offsetY - 12) + "px");
+  })
+  .on("mouseout", () => {
+    d3.select("#center-label").text("BUDGET");
+    d3.select("#center-sublabel").text("ALLOCATION");
+    d3.select("#center-value").text("$4.80B");
+    tooltip.style("opacity", 0);
+  })
+  .on("focus", function(event, d) {
+    d3.select("#center-label").text(d.data.department.toUpperCase());
+    d3.select("#center-sublabel").text("");
+    d3.select("#center-value").text(`${d.data.value}%`);
+  })
+  .on("blur", () => {
+    d3.select("#center-label").text("BUDGET");
+    d3.select("#center-sublabel").text("ALLOCATION");
+    d3.select("#center-value").text("$4.80B");
+  });
+
+// External labels with leader lines
+arcs.forEach(d => {
+  const pos = labelArc.centroid(d);
+  const midAngle = (d.startAngle + d.endAngle) / 2;
+  const xSign = midAngle < Math.PI ? 1 : -1;
+  const labelX = pos[0] + xSign * 30;
+  const labelY = pos[1];
+
+  // Leader line
+  g.append("line")
+    .attr("x1", arc.centroid(d)[0] * 1.15)
+    .attr("y1", arc.centroid(d)[1] * 1.15)
+    .attr("x2", labelX - xSign * 4)
+    .attr("y2", labelY)
+    .attr("stroke", "var(--color-border)")
+    .attr("stroke-width", 0.5);
+
+  // Department name
+  g.append("text")
+    .attr("x", labelX)
+    .attr("y", labelY - 2)
+    .attr("text-anchor", xSign === 1 ? "start" : "end")
+    .attr("font-family", "var(--font-body)")
+    .attr("font-size", "13px")
+    .attr("fill", "var(--color-ink)")
+    .text(d.data.department);
+
+  // Percentage
+  g.append("text")
+    .attr("x", labelX)
+    .attr("y", labelY + 14)
+    .attr("text-anchor", xSign === 1 ? "start" : "end")
+    .attr("font-family", "var(--font-mono)")
+    .attr("font-size", "12px")
+    .attr("letter-spacing", "0.08em")
+    .attr("fill", d.data.color)
+    .attr("font-weight", "500")
+    .text(`${d.data.value}%`);
+});
+</script>
+</body>
+</html>

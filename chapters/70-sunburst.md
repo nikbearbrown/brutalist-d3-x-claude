@@ -2,7 +2,9 @@
 
 *Sunburst Diagram*
 
-![Sunburst](../images/70-sunburst.jpg)
+*Figure 70.1 — Sunburst Diagram*
+
+![Sunburst](../images/70-sunburst.png)
 
 ## The perceptual mechanism
 
@@ -55,6 +57,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+Reference implementation: [`d3/70-sunburst.html`](../d3/70-sunburst.html)
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

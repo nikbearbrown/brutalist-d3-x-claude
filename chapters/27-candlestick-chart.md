@@ -2,7 +2,8 @@
 
 *Price action reveals market psychology across trading sessions*
 
-![Candlestick Chart](../images/27-candlestick-chart.jpg)
+![Ten candlestick marks showing open, high, low, close across trading sessions with bullish and bearish days](../images/27-candlestick-chart.png)
+*Figure 27.1 — Price action reveals market psychology across trading sessions*
 
 ## What this chart is
 
@@ -49,6 +50,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/27-candlestick-chart.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

@@ -1,0 +1,108 @@
+<svg viewBox="0 0 700 360" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+<defs>
+  <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#2a1a0e"/>
+  </marker>
+  <marker id="arrow-ochre" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#C8860E"/>
+  </marker>
+</defs>
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="360" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="30" text-anchor="middle" font-size="13" fill="#545454" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">END-TO-END PIPELINE</text>
+
+<!-- UPSTREAM bracket over boxes 1-3 -->
+<line x1="38" y1="52" x2="380" y2="52" stroke="#2a1a0e" stroke-width="1.5"/>
+<line x1="38" y1="46" x2="38" y2="52" stroke="#2a1a0e" stroke-width="1.5"/>
+<line x1="380" y1="46" x2="380" y2="52" stroke="#2a1a0e" stroke-width="1.5"/>
+<text x="209" y="44" text-anchor="middle" font-size="10" fill="#2a1a0e" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">UPSTREAM</text>
+
+<!-- THIS CHAPTER bracket over boxes 4-5 -->
+<line x1="400" y1="52" x2="662" y2="52" stroke="#C8102E" stroke-width="1.5"/>
+<line x1="400" y1="46" x2="400" y2="52" stroke="#C8102E" stroke-width="1.5"/>
+<line x1="662" y1="46" x2="662" y2="52" stroke="#C8102E" stroke-width="1.5"/>
+<text x="531" y="44" text-anchor="middle" font-size="10" fill="#C8102E" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">THIS CHAPTER</text>
+
+<!-- Box 1: DATA AUDIT -->
+<rect x="32" y="66" width="120" height="140" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+<text x="92" y="90" text-anchor="middle" font-size="9" fill="#2a1a0e" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">DATA AUDIT</text>
+<line x1="48" y1="100" x2="136" y2="100" stroke="#D4D4D4" stroke-width="0.5"/>
+<text x="92" y="120" text-anchor="middle" font-size="12" fill="#2a1a0e">Identify question</text>
+<text x="92" y="138" text-anchor="middle" font-size="12" fill="#2a1a0e">Inventory fields</text>
+<text x="92" y="156" text-anchor="middle" font-size="12" fill="#2a1a0e">Check fitness</text>
+<text x="92" y="174" text-anchor="middle" font-size="11" fill="#545454" font-style="italic">Ch. 5</text>
+<circle cx="92" cy="192" r="10" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<text x="92" y="196" text-anchor="middle" font-size="11" fill="#2a1a0e" font-weight="bold">1</text>
+
+<!-- Arrow 1 to 2 -->
+<line x1="152" y1="136" x2="168" y2="136" stroke="#2a1a0e" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<!-- Box 2: CHART SELECTION -->
+<rect x="174" y="66" width="120" height="140" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+<text x="234" y="82" text-anchor="middle" font-size="8.5" fill="#2a1a0e" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">CHART</text>
+<text x="234" y="94" text-anchor="middle" font-size="8.5" fill="#2a1a0e" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">SELECTION</text>
+<line x1="190" y1="100" x2="278" y2="100" stroke="#D4D4D4" stroke-width="0.5"/>
+<text x="234" y="120" text-anchor="middle" font-size="12" fill="#2a1a0e">Match task to</text>
+<text x="234" y="138" text-anchor="middle" font-size="12" fill="#2a1a0e">chart type</text>
+<text x="234" y="158" text-anchor="middle" font-size="11" fill="#545454" font-style="italic">Ch. 4</text>
+<circle cx="234" cy="192" r="10" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<text x="234" y="196" text-anchor="middle" font-size="11" fill="#2a1a0e" font-weight="bold">2</text>
+
+<!-- Arrow 2 to 3 -->
+<line x1="294" y1="136" x2="310" y2="136" stroke="#2a1a0e" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<!-- Box 3: CHANNEL DECOMPOSITION -->
+<rect x="316" y="66" width="120" height="140" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+<text x="376" y="82" text-anchor="middle" font-size="8.5" fill="#2a1a0e" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">CHANNEL</text>
+<text x="376" y="94" text-anchor="middle" font-size="8.5" fill="#2a1a0e" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">DECOMPOSITION</text>
+<line x1="332" y1="100" x2="420" y2="100" stroke="#D4D4D4" stroke-width="0.5"/>
+<text x="376" y="120" text-anchor="middle" font-size="12" fill="#2a1a0e">Map data fields</text>
+<text x="376" y="138" text-anchor="middle" font-size="12" fill="#2a1a0e">to visual channels</text>
+<text x="376" y="158" text-anchor="middle" font-size="11" fill="#545454" font-style="italic">Ch. 3</text>
+<circle cx="376" cy="192" r="10" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<text x="376" y="196" text-anchor="middle" font-size="11" fill="#2a1a0e" font-weight="bold">3</text>
+
+<!-- Arrow 3 to 4 -->
+<line x1="436" y1="136" x2="452" y2="136" stroke="#2a1a0e" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<!-- Box 4: FOUR-MOVE PROMPT (emphasized) -->
+<rect x="458" y="66" width="120" height="140" fill="#C8102E"/>
+<text x="518" y="82" text-anchor="middle" font-size="8.5" fill="#FFFFFF" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">FOUR-MOVE</text>
+<text x="518" y="94" text-anchor="middle" font-size="8.5" fill="#FFFFFF" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">PROMPT</text>
+<line x1="474" y1="100" x2="562" y2="100" stroke="#FFFFFF" stroke-width="0.5" opacity="0.3"/>
+<text x="518" y="120" text-anchor="middle" font-size="12" fill="#FFFFFF">Show, Say,</text>
+<text x="518" y="138" text-anchor="middle" font-size="12" fill="#FFFFFF">Constrain, Verify</text>
+<text x="518" y="158" text-anchor="middle" font-size="11" fill="#FFFFFF" opacity="0.8" font-style="italic">This chapter</text>
+<circle cx="518" cy="192" r="10" fill="#FFFFFF"/>
+<text x="518" y="196" text-anchor="middle" font-size="11" fill="#C8102E" font-weight="bold">4</text>
+
+<!-- Arrow 4 to 5 -->
+<line x1="578" y1="136" x2="594" y2="136" stroke="#2a1a0e" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<!-- Box 5: AUDIT & ITERATE -->
+<rect x="600" y="66" width="68" height="140" fill="#1A3A5C"/>
+<text x="634" y="82" text-anchor="middle" font-size="7.5" fill="#FFFFFF" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">AUDIT</text>
+<text x="634" y="92" text-anchor="middle" font-size="7.5" fill="#FFFFFF" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">&amp;</text>
+<text x="634" y="102" text-anchor="middle" font-size="7.5" fill="#FFFFFF" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">ITERATE</text>
+<line x1="610" y1="108" x2="658" y2="108" stroke="#FFFFFF" stroke-width="0.5" opacity="0.3"/>
+<text x="634" y="128" text-anchor="middle" font-size="11" fill="#FFFFFF">Check</text>
+<text x="634" y="144" text-anchor="middle" font-size="11" fill="#FFFFFF">output</text>
+<text x="634" y="160" text-anchor="middle" font-size="11" fill="#FFFFFF">against</text>
+<text x="634" y="176" text-anchor="middle" font-size="11" fill="#FFFFFF">spec</text>
+<circle cx="634" cy="192" r="10" fill="#FFFFFF"/>
+<text x="634" y="196" text-anchor="middle" font-size="11" fill="#1A3A5C" font-weight="bold">5</text>
+
+<!-- Feedback arrow from 5 back to 4 (dashed, ochre, below boxes) -->
+<path d="M 634 206 L 634 240 Q 634 254 620 254 L 532 254 Q 518 254 518 240 L 518 206" fill="none" stroke="#C8860E" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrow-ochre)"/>
+<text x="576" y="270" text-anchor="middle" font-size="10" fill="#C8860E" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">ITERATE</text>
+
+<!-- Bottom summary -->
+<text x="350" y="310" text-anchor="middle" font-size="14" fill="#2a1a0e" font-style="italic">Chapters 3-5 provide the upstream thinking.</text>
+<text x="350" y="330" text-anchor="middle" font-size="14" fill="#2a1a0e" font-style="italic">This chapter turns it into a working chart.</text>
+
+<!-- Figure number -->
+<text x="350" y="354" text-anchor="middle" font-size="11" fill="#545454" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">FIGURE 6-4</text>
+</svg>

@@ -2,7 +2,8 @@
 
 *Monday: Garissa–Mandera Convoy Delayed, Western Corridor Cancelled — Northeast Services Run Concurrent Requiring Coordination*
 
-![Timetable](../images/73-timetable.jpg)
+![Timetable](../images/73-timetable.png)
+*Figure 73.1 — Monday Route Status*
 
 ## What this chart is
 
@@ -64,6 +65,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/73-timetable.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

@@ -1,0 +1,87 @@
+<svg viewBox="0 0 700 480" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+<defs>
+  <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#2a1a0e"/>
+  </marker>
+</defs>
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="480" fill="#FFFFFF"/>
+
+<!-- ROW 1 -->
+<!-- Panel 1: LINE CHART -->
+<rect x="32" y="32" width="150" height="190" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<text x="107" y="54" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">LINE CHART</text>
+<rect x="46" y="62" width="122" height="100" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+<polyline points="52,140 72,130 92,120 112,135 132,110 152,90 162,80" fill="none" stroke="#6B3520" stroke-width="2"/>
+<text x="107" y="178" text-anchor="middle" font-size="9" fill="#545454">Position along axis</text>
+<text x="107" y="192" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">USE WHEN: TREND</text>
+
+<!-- Panel 2: AREA CHART -->
+<rect x="194" y="32" width="150" height="190" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<text x="269" y="54" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">AREA CHART</text>
+<rect x="208" y="62" width="122" height="100" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+<polygon points="214,162 214,140 234,130 254,120 274,135 294,110 314,90 324,80 324,162" fill="#6B3520" opacity="0.4"/>
+<polyline points="214,140 234,130 254,120 274,135 294,110 314,90 324,80" fill="none" stroke="#6B3520" stroke-width="1.5"/>
+<text x="269" y="178" text-anchor="middle" font-size="9" fill="#545454">Area = cumulation</text>
+<text x="269" y="192" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">USE WHEN: VOLUME</text>
+
+<!-- Panel 3: STACKED AREA -->
+<rect x="356" y="32" width="150" height="190" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<text x="431" y="54" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">STACKED AREA</text>
+<rect x="370" y="62" width="122" height="100" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+<polygon points="376,162 376,145 396,140 416,138 436,142 456,136 476,130 486,128 486,162" fill="#2a1a0e" opacity="0.7"/>
+<polygon points="376,145 376,125 396,118 416,115 436,120 456,112 476,105 486,102 486,128 476,130 456,136 436,142 416,138 396,140" fill="#6B3520" opacity="0.5"/>
+<polygon points="376,125 376,100 396,95 416,90 436,95 456,88 476,82 486,78 486,102 476,105 456,112 436,120 416,115 396,118" fill="#1A3A5C" opacity="0.4"/>
+<text x="431" y="178" text-anchor="middle" font-size="9" fill="#545454">Part-to-whole over time</text>
+<text x="431" y="192" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">USE WHEN: COMPOSITION</text>
+
+<!-- Panel 4: STREAM GRAPH -->
+<rect x="518" y="32" width="150" height="190" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<text x="593" y="54" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">STREAM GRAPH</text>
+<rect x="532" y="62" width="122" height="100" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+<path d="M538,120 C558,110 578,105 598,108 C618,111 638,115 648,112 L648,100 C638,98 618,92 598,90 C578,88 558,95 538,100 Z" fill="#6B3520" opacity="0.5"/>
+<path d="M538,100 C558,95 578,88 598,90 C618,92 638,98 648,100 L648,88 C638,84 618,80 598,78 C578,76 558,82 538,88 Z" fill="#1A3A5C" opacity="0.4"/>
+<path d="M538,120 C558,110 578,105 598,108 C618,111 638,115 648,112 L648,125 C638,128 618,132 598,130 C578,128 558,125 538,132 Z" fill="#C8860E" opacity="0.4"/>
+<text x="593" y="178" text-anchor="middle" font-size="9" fill="#545454">Symmetric flow</text>
+<text x="593" y="192" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">USE WHEN: ORGANIC FLOW</text>
+
+<!-- ROW 2 -->
+<!-- Panel 5: SPIRAL PLOT -->
+<rect x="32" y="250" width="150" height="198" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<text x="107" y="272" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">SPIRAL PLOT</text>
+<rect x="46" y="280" width="122" height="110" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+<circle cx="107" cy="335" r="45" fill="none" stroke="#6B3520" stroke-width="1.5" opacity="0.3"/>
+<circle cx="107" cy="335" r="35" fill="none" stroke="#6B3520" stroke-width="1.5" opacity="0.5"/>
+<circle cx="107" cy="335" r="25" fill="none" stroke="#6B3520" stroke-width="1.5" opacity="0.7"/>
+<circle cx="107" cy="335" r="15" fill="none" stroke="#6B3520" stroke-width="1.5" opacity="0.9"/>
+<text x="107" y="406" text-anchor="middle" font-size="9" fill="#545454">Cyclic + radial</text>
+<text x="107" y="420" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">USE WHEN: CYCLES</text>
+
+<!-- Panel 6: GANTT CHART -->
+<rect x="194" y="250" width="150" height="198" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<text x="269" y="272" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">GANTT CHART</text>
+<rect x="208" y="280" width="122" height="110" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+<rect x="218" y="295" width="60" height="10" fill="#6B3520"/>
+<rect x="238" y="315" width="70" height="10" fill="#6B3520" opacity="0.7"/>
+<rect x="228" y="335" width="50" height="10" fill="#6B3520" opacity="0.5"/>
+<rect x="258" y="355" width="60" height="10" fill="#6B3520" opacity="0.8"/>
+<text x="269" y="406" text-anchor="middle" font-size="9" fill="#545454">Duration along axis</text>
+<text x="269" y="420" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">USE WHEN: SCHEDULING</text>
+
+<!-- Panel 7: TIMELINE -->
+<rect x="356" y="250" width="150" height="198" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<text x="431" y="272" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">TIMELINE</text>
+<rect x="370" y="280" width="122" height="110" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+<line x1="431" y1="290" x2="431" y2="380" stroke="#2a1a0e" stroke-width="1.5"/>
+<circle cx="431" cy="300" r="3" fill="#6B3520"/>
+<line x1="434" y1="300" x2="460" y2="300" stroke="#6B3520" stroke-width="1"/>
+<circle cx="431" cy="325" r="3" fill="#6B3520"/>
+<line x1="428" y1="325" x2="400" y2="325" stroke="#6B3520" stroke-width="1"/>
+<circle cx="431" cy="350" r="3" fill="#6B3520"/>
+<line x1="434" y1="350" x2="465" y2="350" stroke="#6B3520" stroke-width="1"/>
+<circle cx="431" cy="370" r="3" fill="#6B3520"/>
+<line x1="428" y1="370" x2="395" y2="370" stroke="#6B3520" stroke-width="1"/>
+<text x="431" y="406" text-anchor="middle" font-size="9" fill="#545454">Events in sequence</text>
+<text x="431" y="420" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">USE WHEN: NARRATIVE</text>
+</svg>

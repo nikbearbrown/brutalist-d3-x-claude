@@ -1,0 +1,107 @@
+<svg viewBox="0 0 700 480" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+<defs>
+  <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#2a1a0e"/>
+  </marker>
+</defs>
+
+<!-- Background -->
+<rect width="700" height="480" fill="#FFFFFF"/>
+
+<!-- Vertical divider -->
+<line x1="350" y1="32" x2="350" y2="400" stroke="#D4D4D4" stroke-width="1"/>
+
+<!-- ==================== LEFT COLUMN: MAGNITUDE CHANNELS ==================== -->
+<!-- Header -->
+<rect x="32" y="32" width="306" height="32" fill="#6B3520"/>
+<text x="185" y="53" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="11" font-weight="700" fill="#FFFFFF" letter-spacing="0.08em">MAGNITUDE CHANNELS</text>
+
+<!-- Row 1: Position -->
+<rect x="32" y="72" width="306" height="42" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<rect x="40" y="80" width="24" height="24" fill="#6B3520"/>
+<text x="52" y="97" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#FFFFFF" font-weight="700">#1</text>
+<text x="74" y="92" font-size="13" font-weight="700" fill="#2a1a0e">Position</text>
+<text x="74" y="106" font-size="10" fill="#545454" font-style="italic">Along a common scale; most accurate</text>
+
+<!-- Row 2: Length -->
+<rect x="32" y="114" width="306" height="42" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<rect x="40" y="122" width="24" height="24" fill="#6B3520"/>
+<text x="52" y="139" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#FFFFFF" font-weight="700">#2</text>
+<text x="74" y="134" font-size="13" font-weight="700" fill="#2a1a0e">Length</text>
+<text x="74" y="148" font-size="10" fill="#545454" font-style="italic">Bar charts; aligned or unaligned</text>
+
+<!-- Row 3: Area -->
+<rect x="32" y="156" width="306" height="42" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<rect x="40" y="164" width="24" height="24" fill="#6B3520"/>
+<text x="52" y="181" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#FFFFFF" font-weight="700">#5</text>
+<text x="74" y="176" font-size="13" font-weight="700" fill="#2a1a0e">Area</text>
+<text x="74" y="190" font-size="10" fill="#545454" font-style="italic">Bubble charts; proportional symbols</text>
+
+<!-- Row 4: Luminance -->
+<rect x="32" y="198" width="306" height="42" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<rect x="40" y="206" width="24" height="24" fill="#6B3520"/>
+<text x="52" y="223" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#FFFFFF" font-weight="700">#6</text>
+<text x="74" y="218" font-size="13" font-weight="700" fill="#2a1a0e">Luminance</text>
+<text x="74" y="232" font-size="10" fill="#545454" font-style="italic">Light-to-dark scales; sequential data</text>
+
+<!-- Correct use / Misuse — Left column -->
+<rect x="32" y="250" width="306" height="50" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="0.75"/>
+<text x="44" y="268" font-size="10" font-weight="700" fill="#2a1a0e">Correct use: encode ordered, quantitative data</text>
+<text x="44" y="283" font-size="10" fill="#C8102E">Common misuse: using area for precise comparison</text>
+
+<!-- ==================== RIGHT COLUMN: IDENTITY CHANNELS ==================== -->
+<!-- Header -->
+<rect x="362" y="32" width="306" height="32" fill="#1A3A5C"/>
+<text x="515" y="53" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="11" font-weight="700" fill="#FFFFFF" letter-spacing="0.08em">IDENTITY CHANNELS</text>
+
+<!-- Row 1: Hue -->
+<rect x="362" y="72" width="306" height="42" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<rect x="370" y="80" width="24" height="24" fill="#1A3A5C"/>
+<text x="382" y="97" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#FFFFFF" font-weight="700">#7</text>
+<text x="404" y="92" font-size="13" font-weight="700" fill="#2a1a0e">Hue</text>
+<text x="404" y="106" font-size="10" fill="#545454" font-style="italic">Categorical colour; distinguishes groups</text>
+
+<!-- Row 2: Shape -->
+<rect x="362" y="114" width="306" height="42" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<rect x="370" y="122" width="24" height="24" fill="#1A3A5C"/>
+<text x="382" y="139" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#FFFFFF" font-weight="700">#8</text>
+<text x="404" y="134" font-size="13" font-weight="700" fill="#2a1a0e">Shape</text>
+<text x="404" y="148" font-size="10" fill="#545454" font-style="italic">Point marks; limited discriminability</text>
+
+<!-- Row 3: Texture -->
+<rect x="362" y="156" width="306" height="42" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<rect x="370" y="164" width="24" height="24" fill="#1A3A5C"/>
+<text x="382" y="181" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#FFFFFF" font-weight="700">#8</text>
+<text x="404" y="176" font-size="13" font-weight="700" fill="#2a1a0e">Texture</text>
+<text x="404" y="190" font-size="10" fill="#545454" font-style="italic">Hatching or pattern fills; accessibility aid</text>
+
+<!-- Correct use / Misuse — Right column -->
+<rect x="362" y="250" width="306" height="50" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="0.75"/>
+<text x="374" y="268" font-size="10" font-weight="700" fill="#2a1a0e">Correct use: encode categorical, nominal data</text>
+<text x="374" y="283" font-size="10" fill="#C8102E">Common misuse: rainbow palette for sequential data</text>
+
+<!-- ==================== BOTTOM PRINCIPLE BOXES ==================== -->
+
+<!-- Expressiveness Principle -->
+<rect x="32" y="320" width="306" height="68" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<rect x="32" y="320" width="306" height="26" fill="#6B3520"/>
+<text x="185" y="338" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" font-weight="700" fill="#FFFFFF" letter-spacing="0.08em">EXPRESSIVENESS PRINCIPLE</text>
+<text x="44" y="358" font-size="10.5" fill="#2a1a0e">The visual encoding should express</text>
+<text x="44" y="372" font-size="10.5" fill="#2a1a0e" font-weight="700">all of, and only,</text>
+<text x="137" y="372" font-size="10.5" fill="#2a1a0e"> the information in the data.</text>
+
+<!-- Effectiveness Principle -->
+<rect x="362" y="320" width="306" height="68" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+<rect x="362" y="320" width="306" height="26" fill="#1A3A5C"/>
+<text x="515" y="338" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" font-weight="700" fill="#FFFFFF" letter-spacing="0.08em">EFFECTIVENESS PRINCIPLE</text>
+<text x="374" y="358" font-size="10.5" fill="#2a1a0e">Encode the most important information</text>
+<text x="374" y="372" font-size="10.5" fill="#2a1a0e">using the </text>
+<text x="430" y="372" font-size="10.5" fill="#2a1a0e" font-weight="700">most effective channels first.</text>
+
+<!-- Title at very bottom -->
+<text x="350" y="420" text-anchor="middle" font-size="13" font-weight="700" fill="#2a1a0e">Magnitude vs. Identity Channels: A Taxonomy</text>
+<text x="350" y="436" text-anchor="middle" font-size="10" fill="#545454" font-style="italic">Ranked by perceptual accuracy (Munzner, after Cleveland &amp; McGill)</text>
+
+<!-- Figure label -->
+<text x="350" y="462" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#545454" letter-spacing="0.08em">FIGURE 3-5</text>
+</svg>

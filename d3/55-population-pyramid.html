@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Population Pyramid — Age &amp; Sex Distribution</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #2a1a0e;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-mark: #6B3520;
+    --color-slate: #1A3A5C;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1a1a;
+      --color-ink: #e8e0d6;
+      --color-surface: #2a2420;
+      --color-secondary: #a0978e;
+      --color-border: #444;
+      --color-mark: #c28060;
+      --color-red: #e05040;
+      --color-slate: #5a9ad6;
+      --color-ochre: #d4a030;
+    }
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+  #chart-container { width: 100%; max-width: 900px; }
+  h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; color: var(--color-ink); }
+  .subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--color-secondary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .caption {
+    font-size: 0.9rem;
+    color: var(--color-secondary);
+    font-style: italic;
+    margin-top: 12px;
+  }
+  .tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    color: var(--color-ink);
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 10;
+  }
+  .bar { cursor: pointer; transition: opacity 0.15s; }
+  .bar:hover { opacity: 0.7; }
+</style>
+</head>
+<body>
+<div id="chart-container">
+  <h1>Age &amp; Sex Distribution</h1>
+  <div class="subtitle">Population Pyramid</div>
+  <div id="chart" role="img" aria-label="Population pyramid showing age and sex distribution with male bars extending left and female bars extending right"></div>
+  <div class="caption">Two profiles side by side. Symmetry reveals demographic balance.</div>
+</div>
+<div class="tooltip" id="tooltip"></div>
+<script>
+(function() {
+  const data = [
+    { band: "0-9",   male: 90,  female: 88 },
+    { band: "10-19", male: 110, female: 108 },
+    { band: "20-29", male: 155, female: 150 },
+    { band: "30-39", male: 170, female: 165 },
+    { band: "40-49", male: 140, female: 142 },
+    { band: "50-59", male: 115, female: 118 },
+    { band: "60-69", male: 80,  female: 85 },
+    { band: "70-79", male: 50,  female: 55 },
+    { band: "80+",   male: 25,  female: 30 },
+  ];
+
+  const margin = { top: 50, right: 40, bottom: 50, left: 40 };
+  const width = 800;
+  const height = 480;
+  const innerW = width - margin.left - margin.right;
+  const innerH = height - margin.top - margin.bottom;
+  const centerX = innerW / 2;
+  const maxVal = d3.max(data, d => Math.max(d.male, d.female));
+  const halfW = centerX - 40; // leave space for labels
+
+  const yScale = d3.scaleBand()
+    .domain(data.map(d => d.band).reverse())
+    .range([0, innerH])
+    .padding(0.12);
+
+  const xScale = d3.scaleLinear().domain([0, maxVal]).range([0, halfW]);
+
+  const svg = d3.select("#chart").append("svg")
+    .attr("viewBox", `0 0 ${width} ${height}`)
+    .attr("role", "img");
+
+  svg.append("title").text("Population Pyramid: Age & Sex Distribution");
+  svg.append("desc").text("Back-to-back horizontal bars showing male population extending left and female population extending right for 9 age bands.");
+
+  const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+  // Background
+  g.append("rect").attr("width", innerW).attr("height", innerH)
+    .attr("fill", "var(--color-surface)").attr("stroke", "var(--color-border)").attr("stroke-width", 0.75);
+
+  // Center line
+  g.append("line").attr("x1", centerX).attr("y1", 0).attr("x2", centerX).attr("y2", innerH)
+    .attr("stroke", "var(--color-ink)").attr("stroke-width", 0.75);
+
+  const tooltip = d3.select("#tooltip");
+
+  // Male / Female header labels
+  g.append("text").attr("x", centerX - halfW / 2).attr("y", -16).attr("text-anchor", "middle")
+    .attr("font-family", "'JetBrains Mono', monospace").attr("font-size", "11px")
+    .attr("fill", "var(--color-slate)").attr("letter-spacing", "0.08em").attr("font-weight", "bold")
+    .text("MALE");
+  g.append("text").attr("x", centerX + halfW / 2).attr("y", -16).attr("text-anchor", "middle")
+    .attr("font-family", "'JetBrains Mono', monospace").attr("font-size", "11px")
+    .attr("fill", "var(--color-red)").attr("letter-spacing", "0.08em").attr("font-weight", "bold")
+    .text("FEMALE");
+
+  // X-axis ticks
+  const ticks = [0, 50, 100, 150];
+  ticks.forEach(t => {
+    // Male side (left)
+    const xm = centerX - xScale(t);
+    g.append("line").attr("x1", xm).attr("x2", xm).attr("y1", innerH).attr("y2", innerH + 4)
+      .attr("stroke", "var(--color-secondary)").attr("stroke-width", 0.5);
+    g.append("text").attr("x", xm).attr("y", innerH + 16).attr("text-anchor", "middle")
+      .attr("font-size", "9px").attr("fill", "var(--color-secondary)").text(t + "k");
+    // Female side (right)
+    if (t > 0) {
+      const xf = centerX + xScale(t);
+      g.append("line").attr("x1", xf).attr("x2", xf).attr("y1", innerH).attr("y2", innerH + 4)
+        .attr("stroke", "var(--color-secondary)").attr("stroke-width", 0.5);
+      g.append("text").attr("x", xf).attr("y", innerH + 16).attr("text-anchor", "middle")
+        .attr("font-size", "9px").attr("fill", "var(--color-secondary)").text(t + "k");
+    }
+  });
+
+  // Age band labels (center)
+  data.forEach(d => {
+    g.append("text")
+      .attr("x", centerX).attr("y", yScale(d.band) + yScale.bandwidth() / 2 + 4)
+      .attr("text-anchor", "middle")
+      .attr("font-size", "10px").attr("fill", "var(--color-ink)")
+      .text(d.band);
+  });
+
+  // Male bars (extending left from center)
+  data.forEach(d => {
+    const bw = xScale(d.male);
+    g.append("rect")
+      .attr("class", "bar")
+      .attr("x", centerX - bw - 20)
+      .attr("y", yScale(d.band))
+      .attr("width", bw)
+      .attr("height", yScale.bandwidth())
+      .attr("fill", "var(--color-slate)")
+      .attr("tabindex", 0)
+      .attr("aria-label", `Male ${d.band}: ${d.male}k`)
+      .on("mouseenter", function(event) {
+        tooltip.style("opacity", 1)
+          .html(`<strong>Male, ${d.band}</strong><br>${d.male},000`);
+      })
+      .on("mousemove", function(event) {
+        tooltip.style("left", (event.pageX + 12) + "px").style("top", (event.pageY - 20) + "px");
+      })
+      .on("mouseleave", function() { tooltip.style("opacity", 0); });
+  });
+
+  // Female bars (extending right from center)
+  data.forEach(d => {
+    const bw = xScale(d.female);
+    g.append("rect")
+      .attr("class", "bar")
+      .attr("x", centerX + 20)
+      .attr("y", yScale(d.band))
+      .attr("width", bw)
+      .attr("height", yScale.bandwidth())
+      .attr("fill", "var(--color-red)")
+      .attr("tabindex", 0)
+      .attr("aria-label", `Female ${d.band}: ${d.female}k`)
+      .on("mouseenter", function(event) {
+        tooltip.style("opacity", 1)
+          .html(`<strong>Female, ${d.band}</strong><br>${d.female},000`);
+      })
+      .on("mousemove", function(event) {
+        tooltip.style("left", (event.pageX + 12) + "px").style("top", (event.pageY - 20) + "px");
+      })
+      .on("mouseleave", function() { tooltip.style("opacity", 0); });
+  });
+
+  // X-axis label
+  g.append("text")
+    .attr("x", centerX).attr("y", innerH + 36)
+    .attr("text-anchor", "middle")
+    .attr("font-family", "'JetBrains Mono', monospace")
+    .attr("font-size", "9px").attr("fill", "var(--color-secondary)")
+    .attr("letter-spacing", "0.08em")
+    .text("POPULATION (THOUSANDS)");
+})();
+</script>
+</body>
+</html>

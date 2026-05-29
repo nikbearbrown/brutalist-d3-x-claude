@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Point &amp; Figure — Price Reversals</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #2a1a0e;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-mark: #6B3520;
+    --color-slate: #1A3A5C;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1a1a;
+      --color-ink: #e8e0d6;
+      --color-surface: #2a2420;
+      --color-secondary: #a0978e;
+      --color-border: #444;
+      --color-mark: #c28060;
+      --color-red: #e05040;
+      --color-slate: #5a9ad6;
+      --color-ochre: #d4a030;
+    }
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+  #chart-container { width: 100%; max-width: 900px; }
+  h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; color: var(--color-ink); }
+  .subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--color-secondary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .caption {
+    font-size: 0.9rem;
+    color: var(--color-secondary);
+    font-style: italic;
+    margin-top: 12px;
+  }
+  .tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    color: var(--color-ink);
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 10;
+  }
+  .pf-symbol { cursor: pointer; transition: opacity 0.15s; }
+  .pf-symbol:hover { opacity: 0.7; }
+</style>
+</head>
+<body>
+<div id="chart-container">
+  <h1>Point &amp; Figure &mdash; Price Reversals</h1>
+  <div class="subtitle">Point and Figure Chart</div>
+  <div id="chart" role="img" aria-label="Point and figure chart showing alternating columns of X demand marks and O supply marks"></div>
+  <div class="caption">Demand breakouts dominate the first half &mdash; supply reasserts at resistance.</div>
+</div>
+<div class="tooltip" id="tooltip"></div>
+<script>
+(function() {
+  // Pre-computed P&F columns (boxSize=1, reversal=3)
+  const columns = [
+    { type: "X", low: 102, high: 110 },
+    { type: "O", high: 108, low: 104 },
+    { type: "X", low: 106, high: 118 },
+    { type: "O", high: 116, low: 112 },
+    { type: "X", low: 114, high: 125 },
+    { type: "O", high: 123, low: 116 },
+    { type: "X", low: 118, high: 127 },
+    { type: "O", high: 125, low: 118 },
+    { type: "X", low: 120, high: 126 },
+    { type: "O", high: 124, low: 119 },
+  ];
+
+  const priceMin = 100, priceMax = 130;
+  const margin = { top: 30, right: 60, bottom: 40, left: 60 };
+  const colWidth = 42;
+  const innerW = columns.length * colWidth;
+  const innerH = 360;
+  const width = innerW + margin.left + margin.right;
+  const height = innerH + margin.top + margin.bottom;
+
+  const yScale = d3.scaleLinear().domain([priceMin, priceMax]).range([innerH, 0]);
+  const boxH = yScale(priceMin) - yScale(priceMin + 1);
+
+  const svg = d3.select("#chart").append("svg")
+    .attr("viewBox", `0 0 ${width} ${height}`)
+    .attr("role", "img");
+
+  svg.append("title").text("Point & Figure Chart: Price Reversals");
+  svg.append("desc").text("10 alternating columns of X (demand/up) and O (supply/down) marks showing price reversals from 100 to 130.");
+
+  const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+  // Chart background
+  g.append("rect").attr("width", innerW).attr("height", innerH)
+    .attr("fill", "var(--color-surface)").attr("stroke", "var(--color-border)").attr("stroke-width", 0.75);
+
+  // Y-axis grid and labels
+  for (let p = priceMin; p <= priceMax; p += 5) {
+    const y = yScale(p);
+    g.append("line").attr("x1", 0).attr("x2", innerW).attr("y1", y).attr("y2", y)
+      .attr("stroke", "var(--color-border)").attr("stroke-width", 0.5);
+    g.append("text").attr("x", -8).attr("y", y + 4).attr("text-anchor", "end")
+      .attr("font-size", "10px").attr("fill", "var(--color-secondary)").text(p);
+  }
+
+  // Y-axis label
+  g.append("text")
+    .attr("transform", `rotate(-90) translate(${-innerH / 2}, -45)`)
+    .attr("text-anchor", "middle")
+    .attr("font-family", "'JetBrains Mono', monospace")
+    .attr("font-size", "9px")
+    .attr("fill", "var(--color-secondary)")
+    .attr("letter-spacing", "0.08em")
+    .text("PRICE ($)");
+
+  const tooltip = d3.select("#tooltip");
+
+  // Draw columns
+  columns.forEach((col, ci) => {
+    const cx = ci * colWidth + colWidth / 2;
+    if (col.type === "X") {
+      for (let p = col.low; p <= col.high; p++) {
+        const y = yScale(p) - boxH / 2;
+        g.append("text")
+          .attr("class", "pf-symbol")
+          .attr("x", cx).attr("y", yScale(p) + 4)
+          .attr("text-anchor", "middle")
+          .attr("font-size", "14px").attr("font-weight", "bold")
+          .attr("fill", "var(--color-mark)")
+          .attr("tabindex", 0)
+          .attr("aria-label", `X at $${p}, column ${ci + 1}`)
+          .text("X")
+          .on("mouseenter", function(event) {
+            tooltip.style("opacity", 1)
+              .html(`<strong>X (Demand)</strong><br>Price: $${p}<br>Column ${ci + 1}: $${col.low} &rarr; $${col.high}`);
+          })
+          .on("mousemove", function(event) {
+            tooltip.style("left", (event.pageX + 12) + "px").style("top", (event.pageY - 20) + "px");
+          })
+          .on("mouseleave", function() { tooltip.style("opacity", 0); });
+      }
+    } else {
+      for (let p = col.high; p >= col.low; p--) {
+        g.append("text")
+          .attr("class", "pf-symbol")
+          .attr("x", cx).attr("y", yScale(p) + 4)
+          .attr("text-anchor", "middle")
+          .attr("font-size", "14px").attr("font-weight", "bold")
+          .attr("fill", "var(--color-red)")
+          .attr("tabindex", 0)
+          .attr("aria-label", `O at $${p}, column ${ci + 1}`)
+          .text("O")
+          .on("mouseenter", function(event) {
+            tooltip.style("opacity", 1)
+              .html(`<strong>O (Supply)</strong><br>Price: $${p}<br>Column ${ci + 1}: $${col.high} &rarr; $${col.low}`);
+          })
+          .on("mousemove", function(event) {
+            tooltip.style("left", (event.pageX + 12) + "px").style("top", (event.pageY - 20) + "px");
+          })
+          .on("mouseleave", function() { tooltip.style("opacity", 0); });
+      }
+    }
+  });
+
+  // Resistance line
+  const resistY = yScale(127);
+  g.append("line")
+    .attr("x1", 0).attr("x2", innerW)
+    .attr("y1", resistY).attr("y2", resistY)
+    .attr("stroke", "var(--color-ochre)").attr("stroke-width", 1.5)
+    .attr("stroke-dasharray", "4,2");
+  g.append("text")
+    .attr("x", innerW + 4).attr("y", resistY + 3)
+    .attr("font-family", "'JetBrains Mono', monospace")
+    .attr("font-size", "8px").attr("fill", "var(--color-ochre)")
+    .attr("letter-spacing", "0.08em")
+    .text("RESISTANCE");
+
+  // Legend
+  const leg = g.append("g").attr("transform", `translate(${innerW - 170}, ${innerH + 20})`);
+  leg.append("text").attr("x", 0).attr("y", 0).attr("font-size", "13px").attr("font-weight", "bold").attr("fill", "var(--color-mark)").text("X");
+  leg.append("text").attr("x", 16).attr("y", 0).attr("font-size", "10px").attr("fill", "var(--color-secondary)").text("= Demand (up)");
+  leg.append("text").attr("x", 110).attr("y", 0).attr("font-size", "13px").attr("font-weight", "bold").attr("fill", "var(--color-red)").text("O");
+  leg.append("text").attr("x", 126).attr("y", 0).attr("font-size", "10px").attr("fill", "var(--color-secondary)").text("= Supply (down)");
+})();
+</script>
+</body>
+</html>

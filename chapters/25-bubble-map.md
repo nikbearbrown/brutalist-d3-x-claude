@@ -2,7 +2,8 @@
 
 *California and Texas Absorb Nearly Half of All Household Aid Disbursements*
 
-![Bubble Map](../images/25-bubble-map.jpg)
+![Bubble map of US states showing household aid disbursements with California and Texas highlighted as largest recipients](../images/25-bubble-map.png)
+*Figure 25.1 — California and Texas Absorb Nearly Half of All Household Aid Disbursements*
 
 ## What this chart is
 
@@ -53,6 +54,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/25-bubble-map.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

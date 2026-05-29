@@ -1,0 +1,125 @@
+<svg viewBox="0 0 700 480" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+<defs>
+  <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#2a1a0e"/>
+  </marker>
+</defs>
+
+<!-- Background -->
+<rect width="700" height="480" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="26" text-anchor="middle" font-size="15" fill="#2a1a0e" font-weight="bold">Anatomy of an Effective Comparison Bar Chart</text>
+
+<!-- Chart area -->
+<rect x="32" y="40" width="380" height="400" fill="#F5EFE8" stroke="#D4D4D4" rx="0"/>
+
+<!-- Y-axis baseline -->
+<line x1="140" y1="56" x2="140" y2="420" stroke="#2a1a0e" stroke-width="1"/>
+
+<!-- 8 horizontal bars with sequential lightening -->
+<!-- Domains sorted descending, bar max width=260, heights=36, gap=8 -->
+<!-- Memory 96: fill #6B3520 (darkest) -->
+<text x="134" y="78" font-size="10" fill="#2a1a0e" text-anchor="end">Memory</text>
+<rect x="140" y="64" width="250" height="32" fill="#6B3520" rx="0"/>
+<text x="396" y="84" font-size="10" fill="#2a1a0e" font-weight="bold">96</text>
+
+<!-- Pattern 94: slightly lighter -->
+<text x="134" y="118" font-size="10" fill="#2a1a0e" text-anchor="end">Pattern</text>
+<rect x="140" y="104" width="244.8" height="32" fill="#774030" rx="0"/>
+<text x="390" y="124" font-size="10" fill="#2a1a0e" font-weight="bold">94</text>
+
+<!-- Language 87: lighter -->
+<text x="134" y="158" font-size="10" fill="#2a1a0e" text-anchor="end">Language</text>
+<rect x="140" y="144" width="226.6" height="32" fill="#835040" rx="0"/>
+<text x="372" y="164" font-size="10" fill="#2a1a0e" font-weight="bold">87</text>
+
+<!-- Reasoning 82: lighter -->
+<text x="134" y="198" font-size="10" fill="#2a1a0e" text-anchor="end">Reasoning</text>
+<rect x="140" y="184" width="213.5" height="32" fill="#8F6050" rx="0"/>
+<text x="359" y="204" font-size="10" fill="#2a1a0e" font-weight="bold">82</text>
+
+<!-- Common Sense 68: lighter -->
+<text x="134" y="238" font-size="10" fill="#2a1a0e" text-anchor="end">Common Sense</text>
+<rect x="140" y="224" width="177.1" height="32" fill="#9B7060" rx="0"/>
+<text x="323" y="244" font-size="10" fill="#2a1a0e" font-weight="bold">68</text>
+
+<!-- Social 55: lighter -->
+<text x="134" y="278" font-size="10" fill="#2a1a0e" text-anchor="end">Social</text>
+<rect x="140" y="264" width="143.2" height="32" fill="#A78070" rx="0"/>
+<text x="289" y="284" font-size="10" fill="#2a1a0e" font-weight="bold">55</text>
+
+<!-- Creativity 47: lighter -->
+<text x="134" y="318" font-size="10" fill="#2a1a0e" text-anchor="end">Creativity</text>
+<rect x="140" y="304" width="122.4" height="32" fill="#B39080" rx="0"/>
+<text x="268" y="324" font-size="10" fill="#2a1a0e" font-weight="bold">47</text>
+
+<!-- Embodied 36: lightest -->
+<text x="134" y="358" font-size="10" fill="#2a1a0e" text-anchor="end">Embodied</text>
+<rect x="140" y="344" width="93.6" height="32" fill="#BFA090" rx="0"/>
+<text x="239" y="364" font-size="10" fill="#2a1a0e" font-weight="bold">36</text>
+
+<!-- X-axis labels -->
+<text x="140" y="435" font-size="8" fill="#545454" text-anchor="middle">0</text>
+<text x="205" y="435" font-size="8" fill="#545454" text-anchor="middle">25</text>
+<text x="270" y="435" font-size="8" fill="#545454" text-anchor="middle">50</text>
+<text x="335" y="435" font-size="8" fill="#545454" text-anchor="middle">75</text>
+<text x="400" y="435" font-size="8" fill="#545454" text-anchor="middle">100</text>
+<line x1="140" y1="420" x2="400" y2="420" stroke="#2a1a0e" stroke-width="1"/>
+<!-- Grid lines -->
+<line x1="205" y1="56" x2="205" y2="420" stroke="#D4D4D4" stroke-dasharray="4 3"/>
+<line x1="270" y1="56" x2="270" y2="420" stroke="#D4D4D4" stroke-dasharray="4 3"/>
+<line x1="335" y1="56" x2="335" y2="420" stroke="#D4D4D4" stroke-dasharray="4 3"/>
+<line x1="400" y1="56" x2="400" y2="420" stroke="#D4D4D4" stroke-dasharray="4 3"/>
+
+<!-- CALLOUT 1: Zero baseline -->
+<circle cx="432" cy="60" r="12" fill="#C8102E"/>
+<text x="432" y="64" text-anchor="middle" font-size="10" fill="#FFFFFF" font-weight="bold">1</text>
+<line x1="420" y1="60" x2="142" y2="420" stroke="#C8102E" stroke-width="1" stroke-dasharray="4 3"/>
+<text x="450" y="56" font-size="10" fill="#2a1a0e" font-weight="bold">Zero baseline</text>
+<text x="450" y="70" font-size="9" fill="#545454">Bars start at zero to</text>
+<text x="450" y="82" font-size="9" fill="#545454">preserve proportionality</text>
+
+<!-- CALLOUT 2: Sorted order -->
+<circle cx="432" cy="114" r="12" fill="#C8102E"/>
+<text x="432" y="118" text-anchor="middle" font-size="10" fill="#FFFFFF" font-weight="bold">2</text>
+<line x1="420" y1="114" x2="396" y2="80" stroke="#C8102E" stroke-width="1" stroke-dasharray="4 3"/>
+<text x="450" y="110" font-size="10" fill="#2a1a0e" font-weight="bold">Sorted descending</text>
+<text x="450" y="124" font-size="9" fill="#545454">Ranking is immediately</text>
+<text x="450" y="136" font-size="9" fill="#545454">apparent to the eye</text>
+
+<!-- CALLOUT 3: Direct labels -->
+<circle cx="432" cy="176" r="12" fill="#C8102E"/>
+<text x="432" y="180" text-anchor="middle" font-size="10" fill="#FFFFFF" font-weight="bold">3</text>
+<line x1="420" y1="176" x2="396" y2="164" stroke="#C8102E" stroke-width="1" stroke-dasharray="4 3"/>
+<text x="450" y="172" font-size="10" fill="#2a1a0e" font-weight="bold">Direct value labels</text>
+<text x="450" y="186" font-size="9" fill="#545454">No need to trace back</text>
+<text x="450" y="198" font-size="9" fill="#545454">to axis for exact values</text>
+
+<!-- CALLOUT 4: Horizontal orientation -->
+<circle cx="432" cy="242" r="12" fill="#C8102E"/>
+<text x="432" y="246" text-anchor="middle" font-size="10" fill="#FFFFFF" font-weight="bold">4</text>
+<line x1="420" y1="242" x2="134" y2="238" stroke="#C8102E" stroke-width="1" stroke-dasharray="4 3"/>
+<text x="450" y="238" font-size="10" fill="#2a1a0e" font-weight="bold">Horizontal layout</text>
+<text x="450" y="252" font-size="9" fill="#545454">Labels read naturally</text>
+<text x="450" y="264" font-size="9" fill="#545454">left-to-right</text>
+
+<!-- CALLOUT 5: Sequential lightening -->
+<circle cx="432" cy="310" r="12" fill="#C8102E"/>
+<text x="432" y="314" text-anchor="middle" font-size="10" fill="#FFFFFF" font-weight="bold">5</text>
+<line x1="420" y1="310" x2="233" y2="360" stroke="#C8102E" stroke-width="1" stroke-dasharray="4 3"/>
+<text x="450" y="306" font-size="10" fill="#2a1a0e" font-weight="bold">Sequential lightening</text>
+<text x="450" y="320" font-size="9" fill="#545454">Color intensity reinforces</text>
+<text x="450" y="332" font-size="9" fill="#545454">the ranking order</text>
+
+<!-- CALLOUT 6: Gridlines -->
+<circle cx="432" cy="374" r="12" fill="#C8102E"/>
+<text x="432" y="378" text-anchor="middle" font-size="10" fill="#FFFFFF" font-weight="bold">6</text>
+<line x1="420" y1="374" x2="336" y2="300" stroke="#C8102E" stroke-width="1" stroke-dasharray="4 3"/>
+<text x="450" y="370" font-size="10" fill="#2a1a0e" font-weight="bold">Light gridlines</text>
+<text x="450" y="384" font-size="9" fill="#545454">Dashed lines aid reading</text>
+<text x="450" y="396" font-size="9" fill="#545454">without visual clutter</text>
+
+<!-- Caption -->
+<text x="350" y="466" text-anchor="middle" font-size="10" fill="#545454" font-style="italic">Fig. 7-7. Six principles of an effective comparison bar chart, annotated.</text>
+</svg>

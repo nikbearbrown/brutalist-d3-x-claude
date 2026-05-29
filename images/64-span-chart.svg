@@ -1,0 +1,75 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#2a1a0e">Model Accuracy Range by Crisis Domain</text>
+
+<!-- Subtitle -->
+<text x="350" y="46" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">SPAN CHART — WORST TO BEST MODEL ACCURACY</text>
+
+<!-- Chart area -->
+<rect x="160" y="60" width="500" height="300" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="0.75"/>
+
+<!-- X axis: accuracy score 0-100, mapped to x=160..660 (500px). Scale: 5px per unit -->
+<line x1="160" y1="360" x2="660" y2="360" stroke="#2a1a0e" stroke-width="0.75"/>
+
+<!-- X ticks -->
+<text x="160" y="378" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">0</text>
+<text x="260" y="378" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">20</text>
+<text x="360" y="378" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">40</text>
+<text x="460" y="378" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">60</text>
+<text x="560" y="378" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">80</text>
+<text x="660" y="378" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">100</text>
+
+<!-- X axis label -->
+<text x="410" y="396" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">ACCURACY SCORE</text>
+
+<!-- Grid lines -->
+<line x1="260" y1="60" x2="260" y2="360" stroke="#D4D4D4" stroke-width="0.3" stroke-dasharray="3,3"/>
+<line x1="360" y1="60" x2="360" y2="360" stroke="#D4D4D4" stroke-width="0.3" stroke-dasharray="3,3"/>
+<line x1="460" y1="60" x2="460" y2="360" stroke="#D4D4D4" stroke-width="0.3" stroke-dasharray="3,3"/>
+<line x1="560" y1="60" x2="560" y2="360" stroke="#D4D4D4" stroke-width="0.3" stroke-dasharray="3,3"/>
+
+<!-- Threshold line at 70 -->
+<line x1="510" y1="60" x2="510" y2="360" stroke="#C8102E" stroke-width="1.5" stroke-dasharray="6,4"/>
+<text x="510" y="73" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#C8102E" letter-spacing="0.08em">THRESHOLD 70</text>
+
+<!-- 6 crisis domains. Y bands: 50px each, starting at y=85, gap 50px -->
+<!-- Y-axis labels on the left -->
+
+<!-- 1. Flood Response: min=55, max=92 → x1=435, x2=620 -->
+<text x="152" y="103" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">FLOOD RESPONSE</text>
+<rect x="435" y="88" width="185" height="24" fill="#6B3520"/>
+<text x="527" y="104" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#FFFFFF" letter-spacing="0.08em">55 — 92</text>
+
+<!-- 2. Earthquake: min=48, max=85 → x1=400, x2=585 -->
+<text x="152" y="153" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">EARTHQUAKE</text>
+<rect x="400" y="138" width="185" height="24" fill="#6B3520"/>
+<text x="492" y="154" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#FFFFFF" letter-spacing="0.08em">48 — 85</text>
+
+<!-- 3. Pandemic: min=62, max=88 → x1=470, x2=600 -->
+<text x="152" y="203" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">PANDEMIC</text>
+<rect x="470" y="188" width="130" height="24" fill="#6B3520"/>
+<text x="535" y="204" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#FFFFFF" letter-spacing="0.08em">62 — 88</text>
+
+<!-- 4. Drought: min=33, max=78 → x1=325, x2=550 -->
+<text x="152" y="253" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">DROUGHT</text>
+<rect x="325" y="238" width="225" height="24" fill="#6B3520"/>
+<text x="437" y="254" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#FFFFFF" letter-spacing="0.08em">33 — 78</text>
+
+<!-- 5. Conflict: min=28, max=71 → x1=300, x2=515 -->
+<text x="152" y="303" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">CONFLICT</text>
+<rect x="300" y="288" width="215" height="24" fill="#6B3520"/>
+<text x="407" y="304" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#FFFFFF" letter-spacing="0.08em">28 — 71</text>
+
+<!-- 6. Famine: min=25, max=64 → x1=285, x2=480 -->
+<text x="152" y="348" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">FAMINE</text>
+<rect x="285" y="333" width="195" height="24" fill="#6B3520"/>
+<text x="382" y="349" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#FFFFFF" letter-spacing="0.08em">25 — 64</text>
+
+<!-- Caption -->
+<text x="350" y="416" text-anchor="middle" font-size="11" font-style="italic" fill="#545454">Best models clear the 70 threshold in most domains — worst models miss it by 30+ points in Famine and Conflict.</text>
+
+</svg>

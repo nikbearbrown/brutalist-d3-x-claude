@@ -1,0 +1,51 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#2a1a0e">Three Skill Domains for AI Collaboration</text>
+
+<!-- Subtitle -->
+<text x="350" y="46" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">VENN DIAGRAM — OVERLAPPING COMPETENCIES</text>
+
+<!-- Chart area -->
+<rect x="32" y="60" width="636" height="310" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="0.75"/>
+
+<!-- Three overlapping circles, r=95 (scaled down from 120) -->
+<!-- Centers shifted up: A(280,185), B(420,185), C(350,260) -->
+<!-- Bottom extent: 260+95=355 < 370 ✓ Top extent: 185-95=90 > 60 ✓ -->
+
+<!-- Circle A: Technical Skills -->
+<circle cx="280" cy="185" r="95" fill="#C8102E" opacity="0.25" stroke="#C8102E" stroke-width="1.5"/>
+
+<!-- Circle B: Domain Knowledge -->
+<circle cx="420" cy="185" r="95" fill="#1A3A5C" opacity="0.25" stroke="#1A3A5C" stroke-width="1.5"/>
+
+<!-- Circle C: Communication -->
+<circle cx="350" cy="260" r="95" fill="#6B3520" opacity="0.25" stroke="#6B3520" stroke-width="1.5"/>
+
+<!-- Set labels (inside each circle's exclusive zone) -->
+<text x="230" y="148" text-anchor="middle" font-size="10" font-weight="bold" fill="#C8102E">Technical</text>
+<text x="230" y="161" text-anchor="middle" font-size="10" font-weight="bold" fill="#C8102E">Skills</text>
+
+<text x="470" y="148" text-anchor="middle" font-size="10" font-weight="bold" fill="#1A3A5C">Domain</text>
+<text x="470" y="161" text-anchor="middle" font-size="10" font-weight="bold" fill="#1A3A5C">Knowledge</text>
+
+<text x="350" y="320" text-anchor="middle" font-size="10" font-weight="bold" fill="#6B3520">Communication</text>
+
+<!-- Pairwise intersection labels -->
+<text x="350" y="163" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#2a1a0e" letter-spacing="0.08em">APPLIED AI</text>
+
+<text x="298" y="242" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#2a1a0e" letter-spacing="0.08em">EXPLAIN.</text>
+
+<text x="402" y="242" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#2a1a0e" letter-spacing="0.08em">STORY</text>
+
+<!-- Triple intersection A∩B∩C -->
+<text x="350" y="202" text-anchor="middle" font-size="10" font-weight="bold" fill="#2a1a0e">Full Stack AI</text>
+<text x="350" y="215" text-anchor="middle" font-size="10" font-weight="bold" fill="#2a1a0e">Collaborator</text>
+
+<!-- Caption -->
+<text x="350" y="400" text-anchor="middle" font-size="11" font-style="italic" fill="#545454">The centre zone requires all three domains — technical, domain, and communication.</text>
+
+</svg>

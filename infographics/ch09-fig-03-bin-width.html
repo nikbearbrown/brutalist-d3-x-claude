@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 9.3 — Three bin widths. Two of them lie.</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #121212;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--color-white);
+    color: var(--color-ink);
+    width: 1600px;
+    height: 900px;
+    overflow: hidden;
+  }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const W = 1600, H = 900;
+const svg = d3.select('#chart').append('svg')
+  .attr('width', W).attr('height', H)
+  .attr('role', 'img')
+  .attr('aria-labelledby', 'chart-title chart-desc');
+
+svg.append('title').attr('id', 'chart-title').text('Three bin widths. Two of them lie.');
+svg.append('desc').attr('id', 'chart-desc').text('Three histograms of the same bimodal income dataset with different bin widths: too wide hides the bimodality, Freedman-Diaconis reveals it, and too narrow amplifies noise.');
+
+// Background
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#FFFFFF');
+
+// Main title
+svg.append('text')
+  .attr('x', W / 2).attr('y', 52)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-size', 38).attr('fill', '#121212')
+  .text('Three bin widths. Two of them lie.');
+
+// Subtitle
+svg.append('text')
+  .attr('x', W / 2).attr('y', 82)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 15).attr('fill', '#545454')
+  .text('Figure 9.3 \u2014 Histogram bin width determines what you see');
+
+// =========================================================
+// Generate bimodal income data (~200 points, peaks at $45k and $85k)
+// =========================================================
+// Deterministic PRNG (LCG) for reproducible data
+let seed = 42;
+function seededRandom() {
+  seed = (seed * 1664525 + 1013904223) & 0xFFFFFFFF;
+  return (seed >>> 0) / 0xFFFFFFFF;
+}
+
+function seededGaussian(mean, std) {
+  let u = 0, v = 0;
+  while (u === 0) u = seededRandom();
+  while (v === 0) v = seededRandom();
+  return mean + std * Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+}
+
+const incomeData = [];
+// ~100 points around $45k peak
+for (let i = 0; i < 100; i++) {
+  incomeData.push(Math.max(15, Math.min(130, seededGaussian(45, 8))));
+}
+// ~100 points around $85k peak
+for (let i = 0; i < 100; i++) {
+  incomeData.push(Math.max(15, Math.min(130, seededGaussian(85, 8))));
+}
+
+const dataMin = 10;
+const dataMax = 130;
+
+// =========================================================
+// Three panel layout
+// =========================================================
+const panelConfigs = [
+  {
+    label: 'Too wide',
+    binWidth: 50,
+    borderColor: '#C8102E',
+    annotation: 'Bimodality hidden',
+    annotationColor: '#C8102E',
+    verdict: 'LIES',
+    verdictBg: '#C8102E',
+    verdictFg: '#FFFFFF'
+  },
+  {
+    label: 'Freedman\u2013Diaconis',
+    binWidth: 10,
+    borderColor: '#2E7D32',
+    annotation: 'Structure visible',
+    annotationColor: '#2E7D32',
+    verdict: 'HONEST',
+    verdictBg: '#2E7D32',
+    verdictFg: '#FFFFFF'
+  },
+  {
+    label: 'Too narrow',
+    binWidth: 2,
+    borderColor: '#C8102E',
+    annotation: 'Noise amplified \u2014 spurious wiggles',
+    annotationColor: '#C8102E',
+    verdict: 'LIES',
+    verdictBg: '#C8102E',
+    verdictFg: '#FFFFFF'
+  }
+];
+
+const panelMarginLeft = 60;
+const panelMarginRight = 30;
+const panelGap = 50;
+const totalPanelW = (W - panelMarginLeft - panelMarginRight - panelGap * 2) / 3;
+const panelTop = 130;
+const panelH = 520;
+const panelBottom = panelTop + panelH;
+const chartPadLeft = 50;
+const chartPadRight = 16;
+const chartPadTop = 60;
+const chartPadBottom = 50;
+
+panelConfigs.forEach((cfg, pi) => {
+  const px = panelMarginLeft + pi * (totalPanelW + panelGap);
+
+  // Panel border
+  svg.append('rect')
+    .attr('x', px).attr('y', panelTop)
+    .attr('width', totalPanelW).attr('height', panelH)
+    .attr('fill', '#FFFFFF')
+    .attr('stroke', cfg.borderColor).attr('stroke-width', 2.5)
+    .attr('rx', 0);
+
+  // Panel label
+  svg.append('text')
+    .attr('x', px + totalPanelW / 2).attr('y', panelTop + 28)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 15).attr('font-weight', 700).attr('fill', cfg.borderColor)
+    .text(cfg.label);
+
+  // Bin width note
+  svg.append('text')
+    .attr('x', px + totalPanelW / 2).attr('y', panelTop + 46)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'JetBrains Mono', monospace")
+    .attr('font-size', 11).attr('fill', '#545454')
+    .text(`bin = $${cfg.binWidth}k`);
+
+  // Chart area within panel
+  const cx = px + chartPadLeft;
+  const cy = panelTop + chartPadTop;
+  const cw = totalPanelW - chartPadLeft - chartPadRight;
+  const ch = panelH - chartPadTop - chartPadBottom;
+
+  // Compute histogram
+  const thresholds = [];
+  for (let t = dataMin; t <= dataMax; t += cfg.binWidth) {
+    thresholds.push(t);
+  }
+
+  const histogram = d3.bin()
+    .domain([dataMin, dataMax])
+    .thresholds(thresholds);
+
+  const bins = histogram(incomeData);
+
+  const maxCount = d3.max(bins, b => b.length);
+
+  const xScaleLinear = d3.scaleLinear().domain([dataMin, dataMax]).range([0, cw]);
+  const yScaleLinear = d3.scaleLinear().domain([0, maxCount]).range([ch, 0]);
+
+  const g = svg.append('g').attr('transform', `translate(${cx}, ${cy})`);
+
+  // X-axis gridline at 0
+  g.append('line')
+    .attr('x1', 0).attr('x2', cw)
+    .attr('y1', ch).attr('y2', ch)
+    .attr('stroke', '#121212').attr('stroke-width', 1)
+    .attr('aria-hidden', 'true');
+
+  // Y-axis line
+  g.append('line')
+    .attr('x1', 0).attr('x2', 0)
+    .attr('y1', 0).attr('y2', ch)
+    .attr('stroke', '#121212').attr('stroke-width', 1)
+    .attr('aria-hidden', 'true');
+
+  // Horizontal gridlines
+  const yTickCount = maxCount > 40 ? 4 : 5;
+  const yTickVals = yScaleLinear.ticks(yTickCount);
+  yTickVals.forEach(v => {
+    if (v === 0) return;
+    g.append('line')
+      .attr('x1', 0).attr('x2', cw)
+      .attr('y1', yScaleLinear(v)).attr('y2', yScaleLinear(v))
+      .attr('stroke', '#D4D4D4').attr('stroke-width', 0.6)
+      .attr('stroke-dasharray', '3,3')
+      .attr('aria-hidden', 'true');
+    g.append('text')
+      .attr('x', -6).attr('y', yScaleLinear(v) + 4)
+      .attr('text-anchor', 'end')
+      .attr('font-family', "'Inter', sans-serif")
+      .attr('font-size', 10).attr('fill', '#545454')
+      .text(v);
+  });
+
+  // X-axis tick labels
+  const xTickVals = cfg.binWidth >= 10 ? [20, 40, 60, 80, 100, 120] : [20, 40, 60, 80, 100, 120];
+  xTickVals.forEach(v => {
+    g.append('text')
+      .attr('x', xScaleLinear(v)).attr('y', ch + 16)
+      .attr('text-anchor', 'middle')
+      .attr('font-family', "'Inter', sans-serif")
+      .attr('font-size', 10).attr('fill', '#545454')
+      .text(`$${v}k`);
+  });
+
+  // Draw bars
+  const barFill = pi === 1 ? '#7A7A7A' : '#AAAAAA';
+  bins.forEach(b => {
+    if (b.length === 0) return;
+    g.append('rect')
+      .attr('x', xScaleLinear(b.x0) + 0.5)
+      .attr('y', yScaleLinear(b.length))
+      .attr('width', Math.max(1, xScaleLinear(b.x1) - xScaleLinear(b.x0) - 1))
+      .attr('height', ch - yScaleLinear(b.length))
+      .attr('fill', barFill)
+      .attr('stroke', '#121212').attr('stroke-width', cfg.binWidth <= 2 ? 0.5 : 1);
+  });
+
+  // Y-axis label
+  g.append('text')
+    .attr('transform', 'rotate(-90)')
+    .attr('x', -ch / 2).attr('y', -36)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 10).attr('fill', '#545454')
+    .text('Count');
+
+  // =========================================================
+  // Annotation and verdict badge
+  // =========================================================
+  const annotY = panelBottom + 16;
+
+  // Annotation text
+  svg.append('text')
+    .attr('x', px + totalPanelW / 2).attr('y', annotY)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 12).attr('fill', cfg.annotationColor)
+    .text(cfg.annotation);
+
+  // Verdict badge
+  const badgeW = cfg.verdict.length * 12 + 24;
+  svg.append('rect')
+    .attr('x', px + totalPanelW / 2 - badgeW / 2).attr('y', annotY + 10)
+    .attr('width', badgeW).attr('height', 30)
+    .attr('fill', cfg.verdictBg).attr('rx', 3);
+  svg.append('text')
+    .attr('x', px + totalPanelW / 2).attr('y', annotY + 30)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'JetBrains Mono', monospace")
+    .attr('font-size', 14).attr('font-weight', 700).attr('fill', cfg.verdictFg)
+    .text(cfg.verdict);
+
+  // =========================================================
+  // Red annotation arrows for panels 0 and 2
+  // =========================================================
+  if (pi === 0) {
+    // Arrow pointing to the merged single hump
+    const arrowDef = svg.append('defs').append('marker')
+      .attr('id', 'arr-red-down')
+      .attr('markerWidth', 8).attr('markerHeight', 6)
+      .attr('refX', 4).attr('refY', 6)
+      .attr('orient', 'auto')
+      .append('polygon')
+        .attr('points', '0 0, 8 0, 4 6')
+        .attr('fill', '#C8102E');
+
+    // Point to the tallest bar
+    const tallestBin = bins.reduce((a, b) => b.length > a.length ? b : a);
+    const arrowTargetX = cx + xScaleLinear((tallestBin.x0 + tallestBin.x1) / 2);
+    const arrowTargetY = cy + yScaleLinear(tallestBin.length) - 4;
+
+    svg.append('line')
+      .attr('x1', arrowTargetX).attr('x2', arrowTargetX)
+      .attr('y1', arrowTargetY - 40).attr('y2', arrowTargetY)
+      .attr('stroke', '#C8102E').attr('stroke-width', 2)
+      .attr('marker-end', 'url(#arr-red-down)');
+
+    svg.append('text')
+      .attr('x', arrowTargetX).attr('y', arrowTargetY - 48)
+      .attr('text-anchor', 'middle')
+      .attr('font-family', "'Inter', sans-serif")
+      .attr('font-size', 11).attr('font-weight', 600).attr('fill', '#C8102E')
+      .text('Two peaks merged');
+  }
+
+  if (pi === 2) {
+    // Wavy line annotation for noise
+    svg.append('defs').append('marker')
+      .attr('id', 'arr-red-right')
+      .attr('markerWidth', 8).attr('markerHeight', 6)
+      .attr('refX', 8).attr('refY', 3)
+      .attr('orient', 'auto')
+      .append('polygon')
+        .attr('points', '0 0, 8 3, 0 6')
+        .attr('fill', '#C8102E');
+
+    // Arrow pointing to the noisy middle section
+    const noiseX = cx + xScaleLinear(65);
+    const noiseY = cy + ch * 0.3;
+
+    svg.append('line')
+      .attr('x1', noiseX + 50).attr('x2', noiseX + 6)
+      .attr('y1', noiseY - 20).attr('y2', noiseY)
+      .attr('stroke', '#C8102E').attr('stroke-width', 2)
+      .attr('marker-end', 'url(#arr-red-right)');
+
+    svg.append('text')
+      .attr('x', noiseX + 52).attr('y', noiseY - 28)
+      .attr('font-family', "'Inter', sans-serif")
+      .attr('font-size', 11).attr('font-weight', 600).attr('fill', '#C8102E')
+      .text('Spurious');
+    svg.append('text')
+      .attr('x', noiseX + 52).attr('y', noiseY - 14)
+      .attr('font-family', "'Inter', sans-serif")
+      .attr('font-size', 11).attr('font-weight', 600).attr('fill', '#C8102E')
+      .text('wiggles');
+  }
+
+  if (pi === 1) {
+    // Green arrows pointing to both peaks
+    svg.append('defs').append('marker')
+      .attr('id', 'arr-green-down')
+      .attr('markerWidth', 8).attr('markerHeight', 6)
+      .attr('refX', 4).attr('refY', 6)
+      .attr('orient', 'auto')
+      .append('polygon')
+        .attr('points', '0 0, 8 0, 4 6')
+        .attr('fill', '#2E7D32');
+
+    // Find the two peak bins (around 40-50 and 80-90)
+    const peak1Bins = bins.filter(b => b.x0 >= 35 && b.x1 <= 55);
+    const peak2Bins = bins.filter(b => b.x0 >= 75 && b.x1 <= 95);
+    const peak1 = peak1Bins.reduce((a, b) => b.length > a.length ? b : a, { length: 0, x0: 40, x1: 50 });
+    const peak2 = peak2Bins.reduce((a, b) => b.length > a.length ? b : a, { length: 0, x0: 80, x1: 90 });
+
+    [peak1, peak2].forEach((pk, ki) => {
+      const pkX = cx + xScaleLinear((pk.x0 + pk.x1) / 2);
+      const pkY = cy + yScaleLinear(pk.length) - 4;
+      svg.append('line')
+        .attr('x1', pkX).attr('x2', pkX)
+        .attr('y1', pkY - 30).attr('y2', pkY)
+        .attr('stroke', '#2E7D32').attr('stroke-width', 1.5)
+        .attr('marker-end', 'url(#arr-green-down)');
+      svg.append('text')
+        .attr('x', pkX).attr('y', pkY - 36)
+        .attr('text-anchor', 'middle')
+        .attr('font-family', "'Inter', sans-serif")
+        .attr('font-size', 10).attr('fill', '#2E7D32')
+        .text(ki === 0 ? 'Peak 1' : 'Peak 2');
+    });
+
+    // Gap annotation
+    const gapX = cx + xScaleLinear(65);
+    const gapY = cy + ch * 0.5;
+    svg.append('text')
+      .attr('x', gapX).attr('y', gapY)
+      .attr('text-anchor', 'middle')
+      .attr('font-family', "'Inter', sans-serif")
+      .attr('font-size', 10).attr('fill', '#2E7D32')
+      .text('\u2190 gap \u2192');
+  }
+});
+
+// =========================================================
+// Bottom explanatory text
+// =========================================================
+svg.append('text')
+  .attr('x', W / 2).attr('y', H - 62)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('fill', '#545454')
+  .text('Same 200 data points. Same bimodal distribution (peaks at $45k and $85k). The bin width alone determines whether the story is visible.');
+
+svg.append('text')
+  .attr('x', W / 2).attr('y', H - 38)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'JetBrains Mono', monospace")
+  .attr('font-size', 12).attr('fill', '#121212')
+  .text('Freedman\u2013Diaconis rule: bin width = 2 \u00d7 IQR \u00d7 n^(\u22121/3)');
+
+</script>
+</body>
+</html>

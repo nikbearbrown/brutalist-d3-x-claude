@@ -1,0 +1,88 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#2a1a0e">Regional Capability Profile</text>
+
+<!-- Subtitle -->
+<text x="350" y="46" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">RADAR CHART</text>
+
+<!-- Chart area -->
+<rect x="32" y="60" width="636" height="310" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="0.75" rx="0"/>
+
+<!-- Center at (350, 215). Max radius = 130 -->
+<!-- 5 axes at angles: -90, -18, 54, 126, 198 degrees (starting from top, clockwise) -->
+<!-- Axis 0 (Funding): angle=-90 => (0, -1) -->
+<!-- Axis 1 (Coordination): angle=-18 => (0.951, -0.309) -->
+<!-- Axis 2 (Access): angle=54 => (0.588, 0.809) -->
+<!-- Axis 3 (Capacity): angle=126 => (-0.588, 0.809) -->
+<!-- Axis 4 (Technology): angle=198 => (-0.951, -0.309) -->
+
+<!-- Concentric grid rings at 20%, 40%, 60%, 80%, 100% -->
+<!-- Ring at 20%: r=26 -->
+<polygon points="350,189 374.7,206.97 365.3,236.03 334.7,236.03 325.3,206.97" fill="none" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+<!-- Ring at 40%: r=52 -->
+<polygon points="350,163 399.4,198.93 380.6,257.07 319.4,257.07 300.6,198.93" fill="none" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+<!-- Ring at 60%: r=78 -->
+<polygon points="350,137 424.2,190.9 395.8,278.1 304.2,278.1 275.8,190.9" fill="none" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+<!-- Ring at 80%: r=104 -->
+<polygon points="350,111 448.9,182.87 411.1,299.13 288.9,299.13 251.1,182.87" fill="none" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+<!-- Ring at 100%: r=130 -->
+<polygon points="350,85 473.6,174.83 426.4,320.17 273.6,320.17 226.4,174.83" fill="none" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+
+<!-- Axis spokes -->
+<line x1="350" y1="215" x2="350" y2="85" stroke="#D4D4D4" stroke-width="0.75"/>
+<line x1="350" y1="215" x2="473.6" y2="174.83" stroke="#D4D4D4" stroke-width="0.75"/>
+<line x1="350" y1="215" x2="426.4" y2="320.17" stroke="#D4D4D4" stroke-width="0.75"/>
+<line x1="350" y1="215" x2="273.6" y2="320.17" stroke="#D4D4D4" stroke-width="0.75"/>
+<line x1="350" y1="215" x2="226.4" y2="174.83" stroke="#D4D4D4" stroke-width="0.75"/>
+
+<!-- Axis labels at spoke tips -->
+<text x="350" y="75" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">FUNDING</text>
+<text x="483" y="172" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">COORDINATION</text>
+<text x="432" y="335" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">ACCESS</text>
+<text x="268" y="335" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">CAPACITY</text>
+<text x="216" y="172" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">TECHNOLOGY</text>
+
+<!-- South Asia polygon: Funding=45, Coordination=35, Access=85, Capacity=80, Technology=50 -->
+<!-- Funding: 45% of 130 = 58.5 => (350, 215 - 58.5) = (350, 156.5) -->
+<!-- Coordination: 35% of 130 = 45.5 => (350 + 45.5*0.951, 215 - 45.5*0.309) = (393.3, 200.9) -->
+<!-- Access: 85% of 130 = 110.5 => (350 + 110.5*0.588, 215 + 110.5*0.809) = (414.9, 304.4) -->
+<!-- Capacity: 80% of 130 = 104 => (350 - 104*0.588, 215 + 104*0.809) = (288.8, 299.1) -->
+<!-- Technology: 50% of 130 = 65 => (350 - 65*0.951, 215 - 65*0.309) = (288.2, 194.9) -->
+<polygon points="350,156.5 393.3,200.9 414.9,304.4 288.8,299.1 288.2,194.9" fill="#C8102E" fill-opacity="0.3" stroke="#C8102E" stroke-width="1.5"/>
+
+<!-- MENA polygon: Funding=80, Coordination=75, Access=40, Capacity=30, Technology=60 -->
+<!-- Funding: 80% of 130 = 104 => (350, 111) -->
+<!-- Coordination: 75% of 130 = 97.5 => (350 + 97.5*0.951, 215 - 97.5*0.309) = (442.7, 184.9) -->
+<!-- Access: 40% of 130 = 52 => (350 + 52*0.588, 215 + 52*0.809) = (380.6, 257.1) -->
+<!-- Capacity: 30% of 130 = 39 => (350 - 39*0.588, 215 + 39*0.809) = (327.1, 246.6) -->
+<!-- Technology: 60% of 130 = 78 => (350 - 78*0.951, 215 - 78*0.309) = (275.8, 190.9) -->
+<polygon points="350,111 442.7,184.9 380.6,257.1 327.1,246.6 275.8,190.9" fill="#1A3A5C" fill-opacity="0.3" stroke="#1A3A5C" stroke-width="1.5"/>
+
+<!-- Vertices dots - South Asia -->
+<circle cx="350" cy="156.5" r="3" fill="#C8102E"/>
+<circle cx="393.3" cy="200.9" r="3" fill="#C8102E"/>
+<circle cx="414.9" cy="304.4" r="3" fill="#C8102E"/>
+<circle cx="288.8" cy="299.1" r="3" fill="#C8102E"/>
+<circle cx="288.2" cy="194.9" r="3" fill="#C8102E"/>
+
+<!-- Vertices dots - MENA -->
+<circle cx="350" cy="111" r="3" fill="#1A3A5C"/>
+<circle cx="442.7" cy="184.9" r="3" fill="#1A3A5C"/>
+<circle cx="380.6" cy="257.1" r="3" fill="#1A3A5C"/>
+<circle cx="327.1" cy="246.6" r="3" fill="#1A3A5C"/>
+<circle cx="275.8" cy="190.9" r="3" fill="#1A3A5C"/>
+
+<!-- Legend -->
+<rect x="510" y="72" width="12" height="12" fill="#C8102E" opacity="0.5" rx="0"/>
+<text x="528" y="82" font-size="11" fill="#2a1a0e">South Asia</text>
+<rect x="510" y="90" width="12" height="12" fill="#1A3A5C" opacity="0.5" rx="0"/>
+<text x="528" y="100" font-size="11" fill="#2a1a0e">MENA</text>
+
+<!-- Caption -->
+<text x="350" y="395" text-anchor="middle" font-size="11" font-style="italic" fill="#545454">Each region has a distinct shape. South Asia leads on Access &amp; Capacity.</text>
+
+</svg>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Radial Bar — Monthly Aid Deliveries</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #2a1a0e;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-mark: #6B3520;
+    --color-slate: #1A3A5C;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1a1a;
+      --color-ink: #e8e0d6;
+      --color-surface: #2a2420;
+      --color-secondary: #a0978e;
+      --color-border: #444;
+      --color-mark: #c28060;
+      --color-red: #e05040;
+      --color-slate: #5a9ad6;
+    }
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+  #chart-container {
+    width: 100%;
+    max-width: 900px;
+  }
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--color-ink);
+  }
+  .subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--color-secondary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .caption {
+    font-size: 0.9rem;
+    color: var(--color-secondary);
+    font-style: italic;
+    margin-top: 12px;
+  }
+  .tooltip {
+    position: absolute;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--color-ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+</style>
+</head>
+<body>
+<div id="chart-container">
+  <h1>Monthly Aid Deliveries (thousand MT)</h1>
+  <div class="subtitle">RADIAL BAR CHART — HOVER FOR DETAILS</div>
+  <div id="chart" role="img" aria-label="Radial bar chart showing monthly aid deliveries peaking in November and lowest in June"></div>
+  <div class="caption">Peak in November (340K MT). June trough at 188K MT.</div>
+</div>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const data = [
+  { month: "Jan", value: 310 },
+  { month: "Feb", value: 245 },
+  { month: "Mar", value: 260 },
+  { month: "Apr", value: 275 },
+  { month: "May", value: 290 },
+  { month: "Jun", value: 188 },
+  { month: "Jul", value: 215 },
+  { month: "Aug", value: 235 },
+  { month: "Sep", value: 268 },
+  { month: "Oct", value: 295 },
+  { month: "Nov", value: 340 },
+  { month: "Dec", value: 305 }
+];
+
+const width = 700;
+const height = 560;
+const cx = width / 2;
+const cy = height / 2 + 10;
+const innerRadius = 50;
+const outerRadius = 220;
+
+const svg = d3.select("#chart")
+  .append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("preserveAspectRatio", "xMidYMid meet")
+  .style("width", "100%")
+  .style("height", "auto");
+
+svg.append("rect")
+  .attr("width", width)
+  .attr("height", height)
+  .attr("fill", "var(--color-bg)");
+
+// Chart area background
+svg.append("rect")
+  .attr("x", 32)
+  .attr("y", 20)
+  .attr("width", width - 64)
+  .attr("height", height - 50)
+  .attr("fill", "var(--color-surface)")
+  .attr("stroke", "var(--color-border)")
+  .attr("stroke-width", 0.75);
+
+const g = svg.append("g").attr("transform", `translate(${cx},${cy})`);
+
+const angleScale = d3.scaleBand()
+  .domain(data.map(d => d.month))
+  .range([0, 2 * Math.PI])
+  .padding(0.15);
+
+const rScale = d3.scaleLinear()
+  .domain([0, d3.max(data, d => d.value)])
+  .range([innerRadius, outerRadius]);
+
+const arc = d3.arc()
+  .innerRadius(innerRadius)
+  .startAngle(d => angleScale(d.month))
+  .endAngle(d => angleScale(d.month) + angleScale.bandwidth())
+  .outerRadius(d => rScale(d.value));
+
+// Grid rings
+const ringValues = [100, 200, 300, 340];
+ringValues.forEach(v => {
+  g.append("circle")
+    .attr("r", rScale(v))
+    .attr("fill", "none")
+    .attr("stroke", "var(--color-border)")
+    .attr("stroke-width", 0.5)
+    .attr("stroke-dasharray", "3,3");
+});
+
+// Inner circle
+g.append("circle")
+  .attr("r", innerRadius)
+  .attr("fill", "none")
+  .attr("stroke", "var(--color-border)")
+  .attr("stroke-width", 0.5);
+
+const tooltip = d3.select("#tooltip");
+
+// Bars
+g.selectAll("path.bar")
+  .data(data)
+  .join("path")
+  .attr("class", "bar")
+  .attr("d", arc)
+  .attr("fill", d => d.month === "Nov" ? "var(--color-red)" : "var(--color-mark)")
+  .attr("opacity", 0.85)
+  .attr("tabindex", 0)
+  .attr("role", "img")
+  .attr("aria-label", d => `${d.month}: ${d.value}K MT`)
+  .style("cursor", "pointer")
+  .on("mouseenter", function(event, d) {
+    d3.select(this).attr("opacity", 1).attr("stroke", "var(--color-ink)").attr("stroke-width", 1);
+    tooltip.style("opacity", 1)
+      .html(`<strong>${d.month}</strong><br>${d.value}K MT${d.month === "Nov" ? " (Peak)" : ""}${d.month === "Jun" ? " (Trough)" : ""}`);
+  })
+  .on("mousemove", function(event) {
+    tooltip.style("left", (event.pageX + 12) + "px")
+      .style("top", (event.pageY - 28) + "px");
+  })
+  .on("mouseleave", function() {
+    d3.select(this).attr("opacity", 0.85).attr("stroke", "none");
+    tooltip.style("opacity", 0);
+  });
+
+// Month labels
+data.forEach(d => {
+  const angle = angleScale(d.month) + angleScale.bandwidth() / 2;
+  const labelR = outerRadius + 20;
+  const x = labelR * Math.sin(angle);
+  const y = -labelR * Math.cos(angle);
+
+  g.append("text")
+    .attr("x", x)
+    .attr("y", y)
+    .attr("text-anchor", "middle")
+    .attr("dominant-baseline", "middle")
+    .attr("font-family", "'JetBrains Mono', monospace")
+    .attr("font-size", "9px")
+    .attr("letter-spacing", "0.08em")
+    .attr("fill", d.month === "Nov" ? "var(--color-red)" : d.month === "Jun" ? "var(--color-secondary)" : "var(--color-ink)")
+    .attr("transform", `translate(${x},${y}) rotate(${(angle * 180 / Math.PI)})`)
+    .attr("x", 0).attr("y", 0)
+    .text(d.month.toUpperCase());
+});
+
+// Annotation for Nov and Jun
+g.append("text")
+  .attr("x", 0)
+  .attr("y", 5)
+  .attr("text-anchor", "middle")
+  .attr("font-family", "'JetBrains Mono', monospace")
+  .attr("font-size", "9px")
+  .attr("fill", "var(--color-secondary)")
+  .text("K MT");
+</script>
+</body>
+</html>

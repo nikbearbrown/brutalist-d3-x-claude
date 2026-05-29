@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 7.5 — Stacked, Multiset, and Small Multiples</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #121212;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--color-white);
+    color: var(--color-ink);
+    width: 1600px;
+    height: 900px;
+    overflow: hidden;
+  }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const W = 1600, H = 900;
+const svg = d3.select('#chart').append('svg')
+  .attr('width', W).attr('height', H)
+  .attr('role', 'img')
+  .attr('aria-labelledby', 'chart-title chart-desc');
+
+svg.append('title').attr('id', 'chart-title').text('Same data. Three questions. Three charts.');
+svg.append('desc').attr('id', 'chart-desc').text('Three-panel comparison showing the same 5-country humanitarian funding dataset rendered as stacked bars, multiset bars, and small multiples, each answering a different analytical question.');
+
+// Background
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#FFFFFF');
+
+// Main title
+svg.append('text')
+  .attr('x', W / 2).attr('y', 52)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-size', 38).attr('fill', '#121212')
+  .text('Same data. Three questions. Three charts.');
+
+// Subtitle
+svg.append('text')
+  .attr('x', W / 2).attr('y', 82)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 14).attr('fill', '#545454')
+  .text('Figure 7.5 \u2014 Stacked, multiset, and small multiples: the question determines the form');
+
+// Data
+const countries = ['Kenya', 'Somalia', 'Ethiopia', 'Sudan', 'Uganda'];
+const sectors = ['Food', 'Shelter', 'Water', 'Health'];
+const sectorColors = {
+  'Food': '#121212',
+  'Shelter': '#545454',
+  'Water': '#C8102E',
+  'Health': '#C8860E'
+};
+
+const data = [
+  { country: 'Kenya',    Food: 72, Shelter: 38, Water: 32, Health: 25 },
+  { country: 'Somalia',  Food: 80, Shelter: 48, Water: 40, Health: 30 },
+  { country: 'Ethiopia', Food: 65, Shelter: 35, Water: 28, Health: 22 },
+  { country: 'Sudan',    Food: 58, Shelter: 42, Water: 36, Health: 18 },
+  { country: 'Uganda',   Food: 45, Shelter: 22, Water: 18, Health: 12 }
+];
+
+// Panel dimensions
+const panelW = 460;
+const panelGap = 30;
+const panelStartX = (W - (panelW * 3 + panelGap * 2)) / 2;
+const panelY = 110;
+const panelH = 680;
+const chartTopY = panelY + 70;
+const chartH = 420;
+const chartBottomY = chartTopY + chartH;
+
+// Divider lines between panels
+svg.append('line')
+  .attr('x1', panelStartX + panelW + panelGap / 2).attr('y1', panelY)
+  .attr('x2', panelStartX + panelW + panelGap / 2).attr('y2', panelY + panelH)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+
+svg.append('line')
+  .attr('x1', panelStartX + panelW * 2 + panelGap * 1.5).attr('y1', panelY)
+  .attr('x2', panelStartX + panelW * 2 + panelGap * 1.5).attr('y2', panelY + panelH)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+
+// =========================================================
+// PANEL 1: Stacked bars
+// =========================================================
+const p1x = panelStartX;
+
+svg.append('text')
+  .attr('x', p1x + panelW / 2).attr('y', panelY + 20)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 18).attr('font-weight', 700).attr('fill', '#121212')
+  .text('Stacked bars');
+
+svg.append('text')
+  .attr('x', p1x + panelW / 2).attr('y', panelY + 44)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('fill', '#C8102E').attr('font-weight', 600)
+  .text('Question: What is the total per country?');
+
+const stackChartX = p1x + 70;
+const stackChartW = panelW - 100;
+
+// Compute stacked data
+const stackGen = d3.stack().keys(sectors);
+const stackedData = stackGen(data);
+
+const maxStack = d3.max(data, d => sectors.reduce((sum, s) => sum + d[s], 0));
+
+const xScaleStack = d3.scaleBand()
+  .domain(countries)
+  .range([0, stackChartW])
+  .padding(0.25);
+
+const yScaleStack = d3.scaleLinear()
+  .domain([0, maxStack])
+  .range([chartH, 0]);
+
+const gStack = svg.append('g')
+  .attr('transform', `translate(${stackChartX}, ${chartTopY})`);
+
+// Y-axis
+const yAxisStack = d3.axisLeft(yScaleStack).ticks(5).tickFormat(d => `$${d}M`);
+gStack.append('g').call(yAxisStack)
+  .selectAll('text')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 10).attr('fill', '#545454');
+gStack.selectAll('.domain, .tick line').attr('stroke', '#D4D4D4');
+
+// Gridlines
+gStack.selectAll('.gridline')
+  .data(yScaleStack.ticks(5))
+  .join('line')
+    .attr('x1', 0).attr('x2', stackChartW)
+    .attr('y1', d => yScaleStack(d)).attr('y2', d => yScaleStack(d))
+    .attr('stroke', '#E8E8E8').attr('stroke-width', 1)
+    .attr('aria-hidden', 'true');
+
+// Stacked bars
+stackedData.forEach(layer => {
+  gStack.selectAll(`.bar-stack-${layer.key}`)
+    .data(layer)
+    .join('rect')
+      .attr('class', `bar-stack-${layer.key}`)
+      .attr('x', d => xScaleStack(d.data.country))
+      .attr('y', d => yScaleStack(d[1]))
+      .attr('width', xScaleStack.bandwidth())
+      .attr('height', d => yScaleStack(d[0]) - yScaleStack(d[1]))
+      .attr('fill', sectorColors[layer.key])
+      .attr('tabindex', 0)
+      .attr('aria-label', d => `${d.data.country} ${layer.key}: $${d[1] - d[0]}M`);
+});
+
+// X-axis labels
+gStack.append('g')
+  .attr('transform', `translate(0, ${chartH})`)
+  .call(d3.axisBottom(xScaleStack).tickSize(0))
+  .selectAll('text')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 11).attr('fill', '#121212');
+gStack.select('.domain').attr('stroke', '#D4D4D4');
+
+// Total labels on top of each bar
+data.forEach(d => {
+  const total = sectors.reduce((sum, s) => sum + d[s], 0);
+  gStack.append('text')
+    .attr('x', xScaleStack(d.country) + xScaleStack.bandwidth() / 2)
+    .attr('y', yScaleStack(total) - 6)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 11).attr('font-weight', 600).attr('fill', '#121212')
+    .text(`$${total}M`);
+});
+
+// =========================================================
+// PANEL 2: Multiset (grouped) bars
+// =========================================================
+const p2x = panelStartX + panelW + panelGap;
+
+svg.append('text')
+  .attr('x', p2x + panelW / 2).attr('y', panelY + 20)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 18).attr('font-weight', 700).attr('fill', '#121212')
+  .text('Multiset bars');
+
+svg.append('text')
+  .attr('x', p2x + panelW / 2).attr('y', panelY + 44)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('fill', '#C8102E').attr('font-weight', 600)
+  .text('Question: How do sectors compare within each country?');
+
+const groupChartX = p2x + 70;
+const groupChartW = panelW - 100;
+
+const maxValue = d3.max(data, d => d3.max(sectors, s => d[s]));
+
+const xScaleGroup = d3.scaleBand()
+  .domain(countries)
+  .range([0, groupChartW])
+  .padding(0.15);
+
+const xScaleSubgroup = d3.scaleBand()
+  .domain(sectors)
+  .range([0, xScaleGroup.bandwidth()])
+  .padding(0.05);
+
+const yScaleGroup = d3.scaleLinear()
+  .domain([0, maxValue])
+  .range([chartH, 0]);
+
+const gGroup = svg.append('g')
+  .attr('transform', `translate(${groupChartX}, ${chartTopY})`);
+
+// Y-axis
+const yAxisGroup = d3.axisLeft(yScaleGroup).ticks(5).tickFormat(d => `$${d}M`);
+gGroup.append('g').call(yAxisGroup)
+  .selectAll('text')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 10).attr('fill', '#545454');
+gGroup.selectAll('.domain, .tick line').attr('stroke', '#D4D4D4');
+
+// Gridlines
+gGroup.selectAll('.gridline')
+  .data(yScaleGroup.ticks(5))
+  .join('line')
+    .attr('x1', 0).attr('x2', groupChartW)
+    .attr('y1', d => yScaleGroup(d)).attr('y2', d => yScaleGroup(d))
+    .attr('stroke', '#E8E8E8').attr('stroke-width', 1)
+    .attr('aria-hidden', 'true');
+
+// Grouped bars
+data.forEach(d => {
+  sectors.forEach(s => {
+    gGroup.append('rect')
+      .attr('x', xScaleGroup(d.country) + xScaleSubgroup(s))
+      .attr('y', yScaleGroup(d[s]))
+      .attr('width', xScaleSubgroup.bandwidth())
+      .attr('height', chartH - yScaleGroup(d[s]))
+      .attr('fill', sectorColors[s])
+      .attr('tabindex', 0)
+      .attr('aria-label', `${d.country} ${s}: $${d[s]}M`);
+  });
+});
+
+// X-axis labels
+gGroup.append('g')
+  .attr('transform', `translate(0, ${chartH})`)
+  .call(d3.axisBottom(xScaleGroup).tickSize(0))
+  .selectAll('text')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 11).attr('fill', '#121212');
+gGroup.select('.domain').attr('stroke', '#D4D4D4');
+
+// =========================================================
+// PANEL 3: Small multiples
+// =========================================================
+const p3x = panelStartX + (panelW + panelGap) * 2;
+
+svg.append('text')
+  .attr('x', p3x + panelW / 2).attr('y', panelY + 20)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 18).attr('font-weight', 700).attr('fill', '#121212')
+  .text('Small multiples');
+
+svg.append('text')
+  .attr('x', p3x + panelW / 2).attr('y', panelY + 44)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('fill', '#C8102E').attr('font-weight', 600)
+  .text('Question: How does each sector compare across countries?');
+
+const smChartX = p3x + 50;
+const smChartW = panelW - 70;
+const smCols = 2;
+const smRows = 2;
+const smCellW = (smChartW - 30) / smCols;
+const smCellH = (chartH - 30) / smRows;
+const smInnerW = smCellW - 60;
+const smInnerH = smCellH - 50;
+
+const yScaleSm = d3.scaleLinear()
+  .domain([0, maxValue])
+  .range([smInnerH, 0]);
+
+sectors.forEach((sector, si) => {
+  const col = si % smCols;
+  const row = Math.floor(si / smCols);
+  const ox = smChartX + col * (smCellW + 15) + 40;
+  const oy = chartTopY + row * (smCellH + 15) + 30;
+
+  const gSm = svg.append('g')
+    .attr('transform', `translate(${ox}, ${oy})`);
+
+  // Sector label
+  gSm.append('text')
+    .attr('x', smInnerW / 2).attr('y', -12)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 13).attr('font-weight', 700)
+    .attr('fill', sectorColors[sector])
+    .text(sector);
+
+  const xScaleSm = d3.scaleBand()
+    .domain(countries)
+    .range([0, smInnerW])
+    .padding(0.2);
+
+  // Y-axis (only left column)
+  if (col === 0) {
+    const yAxisSm = d3.axisLeft(yScaleSm).ticks(3).tickFormat(d => `$${d}M`);
+    gSm.append('g').call(yAxisSm)
+      .selectAll('text')
+      .attr('font-family', "'Inter', sans-serif")
+      .attr('font-size', 9).attr('fill', '#545454');
+    gSm.selectAll('.domain, .tick line').attr('stroke', '#D4D4D4');
+  }
+
+  // Gridlines
+  gSm.selectAll('.gridline')
+    .data(yScaleSm.ticks(3))
+    .join('line')
+      .attr('x1', 0).attr('x2', smInnerW)
+      .attr('y1', d => yScaleSm(d)).attr('y2', d => yScaleSm(d))
+      .attr('stroke', '#E8E8E8').attr('stroke-width', 1)
+      .attr('aria-hidden', 'true');
+
+  // Bars
+  data.forEach(d => {
+    gSm.append('rect')
+      .attr('x', xScaleSm(d.country))
+      .attr('y', yScaleSm(d[sector]))
+      .attr('width', xScaleSm.bandwidth())
+      .attr('height', smInnerH - yScaleSm(d[sector]))
+      .attr('fill', sectorColors[sector])
+      .attr('tabindex', 0)
+      .attr('aria-label', `${d.country} ${sector}: $${d[sector]}M`);
+  });
+
+  // X-axis labels (abbreviated)
+  const abbrev = { 'Kenya': 'KE', 'Somalia': 'SO', 'Ethiopia': 'ET', 'Sudan': 'SD', 'Uganda': 'UG' };
+  gSm.append('g')
+    .attr('transform', `translate(0, ${smInnerH})`)
+    .call(d3.axisBottom(xScaleSm).tickSize(0).tickFormat(d => abbrev[d]))
+    .selectAll('text')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 9).attr('fill', '#545454');
+  gSm.select('.domain').attr('stroke', '#D4D4D4');
+});
+
+// =========================================================
+// Shared legend
+// =========================================================
+const legendY = chartBottomY + 50;
+const legendX = W / 2 - (sectors.length * 100) / 2;
+
+sectors.forEach((s, i) => {
+  svg.append('rect')
+    .attr('x', legendX + i * 110).attr('y', legendY)
+    .attr('width', 14).attr('height', 14)
+    .attr('fill', sectorColors[s]).attr('rx', 2);
+  svg.append('text')
+    .attr('x', legendX + i * 110 + 20).attr('y', legendY + 12)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 12).attr('fill', '#121212')
+    .text(s);
+});
+
+// =========================================================
+// Caption
+// =========================================================
+svg.append('line')
+  .attr('x1', 60).attr('y1', H - 44).attr('x2', W - 60).attr('y2', H - 44)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+
+svg.append('text')
+  .attr('x', W / 2).attr('y', H - 18)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-style', 'italic')
+  .attr('font-size', 15).attr('fill', '#545454')
+  .text('The question determines the form.');
+</script>
+</body>
+</html>

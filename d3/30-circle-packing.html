@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Circle Packing — AI Humanitarian Footprint by Sector</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #2a1a0e;
+    --mark: #6B3520;
+    --red: #C8102E;
+    --slate: #1A3A5C;
+    --ochre: #C8860E;
+    --secondary: #545454;
+    --border: #D4D4D4;
+    --bg: #FFFFFF;
+    --chart-bg: #F5EFE8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  #chart { width: 100%; max-width: 700px; }
+  .tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--ink);
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<div class="tooltip" id="tooltip"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const data = {
+  name: "AI Humanitarian",
+  children: [
+    {
+      name: "Crisis Response",
+      children: [
+        { name: "Emergency Triage", value: 45 },
+        { name: "Displacement Tracking", value: 35 },
+        { name: "Damage Assessment", value: 25 },
+        { name: "Search Coordination", value: 20 }
+      ]
+    },
+    {
+      name: "Healthcare",
+      children: [
+        { name: "Diagnostics Support", value: 30 },
+        { name: "Disease Surveillance", value: 25 },
+        { name: "Supply Chain", value: 20 },
+        { name: "Telemedicine", value: 15 }
+      ]
+    },
+    {
+      name: "Logistics",
+      children: [
+        { name: "Route Optimization", value: 20 },
+        { name: "Warehouse Mgmt", value: 15 },
+        { name: "Demand Forecasting", value: 12 }
+      ]
+    },
+    {
+      name: "Education",
+      children: [
+        { name: "Content Delivery", value: 12 },
+        { name: "Language Tools", value: 10 },
+        { name: "Assessment", value: 8 }
+      ]
+    },
+    {
+      name: "Agriculture",
+      children: [
+        { name: "Crop Monitoring", value: 8 },
+        { name: "Weather Alerts", value: 6 },
+        { name: "Market Pricing", value: 5 }
+      ]
+    }
+  ]
+};
+
+const sectorColors = {
+  "Crisis Response": "#C8102E",
+  "Healthcare": "#1A3A5C",
+  "Logistics": "#6B3520",
+  "Education": "#C8860E",
+  "Agriculture": "#545454"
+};
+
+const W = 700, H = 640;
+
+const svg = d3.select('#chart').append('svg')
+  .attr('viewBox', `0 0 ${W} ${H}`)
+  .attr('role', 'img')
+  .attr('aria-labelledby', 'chart-title chart-desc');
+
+svg.append('title').attr('id', 'chart-title').text('AI Humanitarian Footprint by Sector');
+svg.append('desc').attr('id', 'chart-desc').text('Circle packing diagram showing AI humanitarian sectors with Crisis Response and Healthcare as dominant categories.');
+
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#FFFFFF');
+svg.append('rect').attr('x', 32).attr('y', 32).attr('width', W - 64).attr('height', H - 64).attr('fill', '#F5EFE8').attr('stroke', '#D4D4D4');
+
+svg.append('text')
+  .attr('x', W / 2).attr('y', 28)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, 'Times New Roman', serif")
+  .attr('font-size', 22).attr('fill', '#2a1a0e').attr('font-weight', 'bold')
+  .text('AI Humanitarian Footprint by Sector');
+
+svg.append('text')
+  .attr('x', W / 2).attr('y', H - 14)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, 'Times New Roman', serif")
+  .attr('font-size', 13).attr('fill', '#545454').attr('font-style', 'italic')
+  .text('Circle area encodes sector size. Nesting shows hierarchy.');
+
+const root = d3.hierarchy(data)
+  .sum(d => d.value)
+  .sort((a, b) => b.value - a.value);
+
+const packLayout = d3.pack()
+  .size([W - 100, H - 140])
+  .padding(6);
+
+packLayout(root);
+
+const g = svg.append('g').attr('transform', 'translate(50, 55)');
+
+const tooltip = d3.select('#tooltip');
+
+function getColor(d) {
+  if (d.depth === 0) return 'none';
+  if (d.depth === 1) return sectorColors[d.data.name] || '#545454';
+  // Leaf: inherit parent color
+  return sectorColors[d.parent.data.name] || '#545454';
+}
+
+const nodes = g.selectAll('g')
+  .data(root.descendants())
+  .enter().append('g')
+  .attr('transform', d => `translate(${d.x}, ${d.y})`);
+
+nodes.append('circle')
+  .attr('r', d => d.r)
+  .attr('fill', d => {
+    const c = getColor(d);
+    return c === 'none' ? 'none' : c;
+  })
+  .attr('fill-opacity', d => d.depth === 0 ? 0 : 0.4)
+  .attr('stroke', d => d.depth === 0 ? '#D4D4D4' : getColor(d))
+  .attr('stroke-width', d => d.depth === 0 ? 1.5 : 1)
+  .on('mouseover', function(event, d) {
+    if (d.depth === 0) return;
+    d3.select(this).attr('fill-opacity', 0.6);
+    const sector = d.depth === 1 ? d.data.name : d.parent.data.name;
+    const val = d.value;
+    tooltip.style('opacity', 1)
+      .html(`<strong>${d.data.name}</strong><br>Sector: ${sector}<br>Value: ${val}`);
+  })
+  .on('mousemove', function(event) {
+    tooltip.style('left', (event.pageX + 12) + 'px').style('top', (event.pageY - 28) + 'px');
+  })
+  .on('mouseout', function(event, d) {
+    d3.select(this).attr('fill-opacity', d.depth === 0 ? 0 : 0.4);
+    tooltip.style('opacity', 0);
+  });
+
+// Labels for depth-1 nodes (sector names)
+nodes.filter(d => d.depth === 1)
+  .append('text')
+  .attr('text-anchor', 'middle')
+  .attr('dy', d => -d.r + 16)
+  .attr('font-family', "'EB Garamond', Georgia, 'Times New Roman', serif")
+  .attr('font-size', d => Math.min(14, d.r / 3.5))
+  .attr('fill', '#2a1a0e')
+  .text(d => d.data.name);
+
+// Labels for leaf nodes (if large enough)
+nodes.filter(d => d.depth === 2 && d.r > 18)
+  .append('text')
+  .attr('text-anchor', 'middle')
+  .attr('dy', '0.35em')
+  .attr('font-family', "'EB Garamond', Georgia, 'Times New Roman', serif")
+  .attr('font-size', d => Math.min(10, d.r / 2.8))
+  .attr('fill', '#2a1a0e')
+  .text(d => d.data.name);
+
+// Legend
+const legendG = svg.append('g').attr('transform', `translate(60, ${H - 46})`);
+const sectors = Object.entries(sectorColors);
+sectors.forEach(([name, color], i) => {
+  const xOff = i * 125;
+  legendG.append('circle').attr('cx', xOff).attr('cy', 0).attr('r', 5).attr('fill', color).attr('fill-opacity', 0.4);
+  legendG.append('text')
+    .attr('x', xOff + 10).attr('y', 4)
+    .attr('font-family', "'IBM Plex Mono', monospace")
+    .attr('font-size', 8).attr('fill', '#2a1a0e')
+    .attr('letter-spacing', '0.08em')
+    .text(name.toUpperCase());
+});
+</script>
+</body>
+</html>

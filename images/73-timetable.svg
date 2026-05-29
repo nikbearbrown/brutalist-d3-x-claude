@@ -1,0 +1,92 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#2a1a0e">Monday Service Schedule</text>
+
+<!-- Subtitle -->
+<text x="350" y="46" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">TIMETABLE — ROUTE STATUS BY TIME SLOT</text>
+
+<!-- Chart area -->
+<rect x="32" y="60" width="636" height="310" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="0.75"/>
+
+<!-- Grid structure -->
+<!-- Column headers (time slots) -->
+<!-- x positions: 180, 280, 380, 480, 580 (each col ~100px wide) -->
+<text x="192" y="85" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">06:00</text>
+<text x="292" y="85" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">08:00</text>
+<text x="392" y="85" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">10:00</text>
+<text x="492" y="85" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">12:00</text>
+<text x="592" y="85" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">14:00</text>
+
+<!-- Horizontal grid lines -->
+<line x1="142" y1="95" x2="642" y2="95" stroke="#D4D4D4" stroke-width="0.5"/>
+<line x1="142" y1="145" x2="642" y2="145" stroke="#D4D4D4" stroke-width="0.5"/>
+<line x1="142" y1="195" x2="642" y2="195" stroke="#D4D4D4" stroke-width="0.5"/>
+<line x1="142" y1="245" x2="642" y2="245" stroke="#D4D4D4" stroke-width="0.5"/>
+<line x1="142" y1="295" x2="642" y2="295" stroke="#D4D4D4" stroke-width="0.5"/>
+<line x1="142" y1="345" x2="642" y2="345" stroke="#D4D4D4" stroke-width="0.5"/>
+
+<!-- Vertical grid lines -->
+<line x1="142" y1="95" x2="142" y2="345" stroke="#D4D4D4" stroke-width="0.5"/>
+<line x1="242" y1="95" x2="242" y2="345" stroke="#D4D4D4" stroke-width="0.5"/>
+<line x1="342" y1="95" x2="342" y2="345" stroke="#D4D4D4" stroke-width="0.5"/>
+<line x1="442" y1="95" x2="442" y2="345" stroke="#D4D4D4" stroke-width="0.5"/>
+<line x1="542" y1="95" x2="542" y2="345" stroke="#D4D4D4" stroke-width="0.5"/>
+<line x1="642" y1="95" x2="642" y2="345" stroke="#D4D4D4" stroke-width="0.5"/>
+
+<!-- Row labels (routes) -->
+<text x="138" y="125" text-anchor="end" font-size="10" fill="#2a1a0e">Garissa-Mandera</text>
+<text x="138" y="175" text-anchor="end" font-size="10" fill="#2a1a0e">Nairobi-Mombasa</text>
+<text x="138" y="225" text-anchor="end" font-size="10" fill="#2a1a0e">Western Corridor</text>
+<text x="138" y="275" text-anchor="end" font-size="10" fill="#2a1a0e">Northeast Express</text>
+<text x="138" y="325" text-anchor="end" font-size="10" fill="#2a1a0e">Coastal Link</text>
+
+<!-- Row 1: Garissa-Mandera — Running at 06:00, Delayed at 08:00, Running at 10:00, empty, Running at 14:00 -->
+<rect x="152" y="101" width="80" height="38" fill="#6B3520"/>
+<rect x="252" y="101" width="80" height="38" fill="#C8102E"/>
+<rect x="352" y="101" width="80" height="38" fill="#6B3520"/>
+<rect x="552" y="101" width="80" height="38" fill="#6B3520"/>
+
+<!-- Row 2: Nairobi-Mombasa — Running at 06:00, Running at 08:00, Running at 10:00, Running at 12:00, Running at 14:00 -->
+<rect x="152" y="151" width="80" height="38" fill="#6B3520"/>
+<rect x="252" y="151" width="80" height="38" fill="#6B3520"/>
+<rect x="352" y="151" width="80" height="38" fill="#6B3520"/>
+<rect x="452" y="151" width="80" height="38" fill="#6B3520"/>
+<rect x="552" y="151" width="80" height="38" fill="#6B3520"/>
+
+<!-- Row 3: Western Corridor — Cancelled at 06:00, Cancelled at 08:00, Cancelled at 10:00, Cancelled at 12:00, Cancelled at 14:00 -->
+<rect x="152" y="201" width="80" height="38" fill="#D4D4D4"/>
+<rect x="252" y="201" width="80" height="38" fill="#D4D4D4"/>
+<rect x="352" y="201" width="80" height="38" fill="#D4D4D4"/>
+<rect x="452" y="201" width="80" height="38" fill="#D4D4D4"/>
+<rect x="552" y="201" width="80" height="38" fill="#D4D4D4"/>
+
+<!-- Row 4: Northeast Express — Running at 06:00, Running at 08:00, Delayed at 10:00, Running at 12:00, empty -->
+<rect x="152" y="251" width="80" height="38" fill="#6B3520"/>
+<rect x="252" y="251" width="80" height="38" fill="#6B3520"/>
+<rect x="352" y="251" width="80" height="38" fill="#C8102E"/>
+<rect x="452" y="251" width="80" height="38" fill="#6B3520"/>
+
+<!-- Row 5: Coastal Link — empty, Running at 08:00, Running at 10:00, Delayed at 12:00, Running at 14:00 -->
+<rect x="252" y="301" width="80" height="38" fill="#6B3520"/>
+<rect x="352" y="301" width="80" height="38" fill="#6B3520"/>
+<rect x="452" y="301" width="80" height="38" fill="#C8102E"/>
+<rect x="552" y="301" width="80" height="38" fill="#6B3520"/>
+
+<!-- Legend -->
+<rect x="180" y="348" width="12" height="12" fill="#6B3520"/>
+<text x="198" y="358" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#2a1a0e" letter-spacing="0.08em">RUNNING</text>
+
+<rect x="300" y="348" width="12" height="12" fill="#C8102E"/>
+<text x="318" y="358" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#2a1a0e" letter-spacing="0.08em">DELAYED</text>
+
+<rect x="410" y="348" width="12" height="12" fill="#D4D4D4"/>
+<text x="428" y="358" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#2a1a0e" letter-spacing="0.08em">CANCELLED</text>
+
+<!-- Caption -->
+<text x="350" y="405" text-anchor="middle" font-size="11" font-style="italic" fill="#545454">Western Corridor fully cancelled; delays on Garissa-Mandera and Northeast Express.</text>
+
+</svg>

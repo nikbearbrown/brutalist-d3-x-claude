@@ -2,7 +2,8 @@
 
 *46 capabilities across 4 domains —click any node to expand its branch*
 
-![Tree Diagram](../images/74-tree-diagram.jpg)
+![Tree Diagram](../images/74-tree-diagram.png)
+*Figure 74.1 — 46 capabilities across 4 domains*
 
 ## What this chart is
 
@@ -53,6 +54,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/74-tree-diagram.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

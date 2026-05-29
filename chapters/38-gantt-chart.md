@@ -2,7 +2,8 @@
 
 *Development In Progress — Planning & Design Complete, Testing Pending*
 
-![Gantt Chart](../images/38-gantt-chart.jpg)
+![Gantt chart showing six project phases with Planning and Design complete, Development in progress, and Testing pending](../images/38-gantt-chart.png)
+*Figure 38.1 — Development In Progress — Planning & Design Complete, Testing Pending*
 
 Also known as: Bar Schedule · Project Timeline · Critical Path Diagram
 
@@ -79,6 +80,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/38-gantt-chart.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

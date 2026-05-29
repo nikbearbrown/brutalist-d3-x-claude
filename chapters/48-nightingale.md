@@ -2,7 +2,8 @@
 
 *Summer peaks — July leads at 74, February trails at 27*
 
-![Nightingale](../images/48-nightingale.jpg)
+![Polar area chart showing monthly activity with July as peak month at 74 and February as lowest at 27](../images/48-nightingale.png)
+*Figure 48.1 — Summer peaks — July leads at 74, February trails at 27*
 
 ## What this chart is
 
@@ -52,6 +53,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/48-nightingale.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

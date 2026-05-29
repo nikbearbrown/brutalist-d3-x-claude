@@ -1,0 +1,66 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+  <!-- Chart area -->
+  <rect x="32" y="32" width="636" height="356" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+
+  <!-- Title -->
+  <text x="350" y="58" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="20" fill="#2a1a0e" font-weight="bold">Inter-Agency Coordination Strength</text>
+
+  <!-- Caption -->
+  <text x="350" y="378" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="12" fill="#545454" font-style="italic">Chord thickness encodes coordination intensity</text>
+
+  <!-- Circle center at 350, 210. Radius 140 for arcs. -->
+  <!-- 5 orgs spaced at 72 degrees apart (0, 72, 144, 216, 288) -->
+  <!-- OCHA: angle 270 (top), UNHCR: 342, UNICEF: 54, WFP: 126, WHO: 198 -->
+
+  <!-- Org positions on circle (cx=350, cy=210, r=140):
+       OCHA (270deg): 350, 70
+       UNHCR (342deg): 350+140*cos(-18deg)=350+133.1=483.1, 210+140*sin(-18deg)=210-43.3=166.7
+       UNICEF (54deg): 350+140*cos(54deg)=350+82.3=432.3, 210+140*sin(54deg)=210+113.3=323.3
+       WFP (126deg): 350+140*cos(126deg)=350-82.3=267.7, 210+140*sin(126deg)=210+113.3=323.3
+       WHO (198deg): 350+140*cos(198deg)=350-133.1=216.9, 210+140*sin(198deg)=210-43.3=166.7
+  -->
+
+  <!-- Arc segments (30-degree arcs centered on each position) -->
+  <!-- OCHA arc: #C8102E, center at 270deg, spans 255-285 -->
+  <path d="M 313.8 73.3 A 140 140 0 0 1 386.2 73.3" fill="none" stroke="#C8102E" stroke-width="8" stroke-linecap="butt"/>
+  <!-- UNHCR arc: #1A3A5C, center at 342deg, spans 327-357 -->
+  <path d="M 467.4 132.6 A 140 140 0 0 1 493.5 203.3" fill="none" stroke="#1A3A5C" stroke-width="8" stroke-linecap="butt"/>
+  <!-- UNICEF arc: #6B3520, center at 54deg, spans 39-69 -->
+  <path d="M 458.8 298.2 A 140 140 0 0 1 400.2 341.7" fill="none" stroke="#6B3520" stroke-width="8" stroke-linecap="butt"/>
+  <!-- WFP arc: #C8860E, center at 126deg, spans 111-141 -->
+  <path d="M 299.8 341.7 A 140 140 0 0 1 241.2 298.2" fill="none" stroke="#C8860E" stroke-width="8" stroke-linecap="butt"/>
+  <!-- WHO arc: #545454, center at 198deg, spans 183-213 -->
+  <path d="M 206.5 203.3 A 140 140 0 0 1 232.6 132.6" fill="none" stroke="#545454" stroke-width="8" stroke-linecap="butt"/>
+
+  <!-- Org labels -->
+  <text x="295" y="78" text-anchor="end" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#C8102E" letter-spacing="0.08em">OCHA</text>
+  <text x="502" y="168" text-anchor="start" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#1A3A5C" letter-spacing="0.08em">UNHCR</text>
+  <text x="445" y="352" text-anchor="start" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#6B3520" letter-spacing="0.08em">UNICEF</text>
+  <text x="225" y="352" text-anchor="end" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#C8860E" letter-spacing="0.08em">WFP</text>
+  <text x="195" y="168" text-anchor="end" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">WHO</text>
+
+  <!-- Chords (quadratic bezier curves through center area) -->
+  <!-- OCHA-UNHCR (thickest, strength ~90) -->
+  <path d="M 350 73 Q 350 210 483 167" fill="none" stroke="#C8102E" stroke-width="5" opacity="0.3"/>
+  <!-- OCHA-WFP (strength ~70) -->
+  <path d="M 350 73 Q 350 210 268 323" fill="none" stroke="#C8102E" stroke-width="3.5" opacity="0.3"/>
+  <!-- UNHCR-UNICEF (strength ~65) -->
+  <path d="M 483 167 Q 350 210 432 323" fill="none" stroke="#1A3A5C" stroke-width="3.2" opacity="0.3"/>
+  <!-- WFP-WHO (strength ~55) -->
+  <path d="M 268 323 Q 350 210 217 167" fill="none" stroke="#C8860E" stroke-width="2.7" opacity="0.3"/>
+  <!-- UNICEF-WHO (strength ~45) -->
+  <path d="M 432 323 Q 350 210 217 167" fill="none" stroke="#6B3520" stroke-width="2.2" opacity="0.3"/>
+  <!-- Additional secondary chords -->
+  <!-- OCHA-UNICEF (strength ~50) -->
+  <path d="M 350 73 Q 370 200 432 323" fill="none" stroke="#C8102E" stroke-width="2.5" opacity="0.2"/>
+  <!-- OCHA-WHO (strength ~40) -->
+  <path d="M 350 73 Q 330 200 217 167" fill="none" stroke="#C8102E" stroke-width="2" opacity="0.2"/>
+  <!-- UNHCR-WFP (strength ~60) -->
+  <path d="M 483 167 Q 350 230 268 323" fill="none" stroke="#1A3A5C" stroke-width="3" opacity="0.3"/>
+  <!-- UNHCR-WHO (strength ~35) -->
+  <path d="M 483 167 Q 370 200 217 167" fill="none" stroke="#1A3A5C" stroke-width="1.7" opacity="0.2"/>
+  <!-- UNICEF-WFP (strength ~40) -->
+  <path d="M 432 323 Q 350 280 268 323" fill="none" stroke="#6B3520" stroke-width="2" opacity="0.2"/>
+</svg>

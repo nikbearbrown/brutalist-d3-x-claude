@@ -1,0 +1,107 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#2a1a0e">Energy Mix — Each Icon = 2% of Portfolio</text>
+
+<!-- Subtitle label -->
+<text x="350" y="46" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">PICTOGRAM CHART</text>
+
+<!-- Chart area -->
+<rect x="32" y="60" width="636" height="300" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="0.75" rx="0"/>
+
+<!-- 50 icons in 5 rows x 10 columns, each 8x8 with 4px gaps = 12px per cell -->
+<!-- Grid starts at x=230, y=80 for centering (10*12=120px wide, 5*12=60px tall) -->
+<!-- Actually let's make icons bigger for visibility: 16x16 with 6px gap = 22px per cell -->
+<!-- 10 cols * 22 = 220px wide. 5 rows * 22 = 110px tall. Start at x=240, y=100 -->
+<!-- Let's use larger icons for better visibility: 24x24 with 8px gap = 32px per cell -->
+<!-- 10 cols * 32 = 320px wide. 5 rows * 32 = 160px tall. Start at x=190, y=85 -->
+
+<!-- Row 1 (icons 1-10): Solar 1-10 -->
+<rect x="190" y="85" width="24" height="24" fill="#C8860E" rx="0"/>
+<rect x="222" y="85" width="24" height="24" fill="#C8860E" rx="0"/>
+<rect x="254" y="85" width="24" height="24" fill="#C8860E" rx="0"/>
+<rect x="286" y="85" width="24" height="24" fill="#C8860E" rx="0"/>
+<rect x="318" y="85" width="24" height="24" fill="#C8860E" rx="0"/>
+<rect x="350" y="85" width="24" height="24" fill="#C8860E" rx="0"/>
+<rect x="382" y="85" width="24" height="24" fill="#C8860E" rx="0"/>
+<rect x="414" y="85" width="24" height="24" fill="#C8860E" rx="0"/>
+<rect x="446" y="85" width="24" height="24" fill="#C8860E" rx="0"/>
+<rect x="478" y="85" width="24" height="24" fill="#C8860E" rx="0"/>
+
+<!-- Row 2 (icons 11-20): Solar 11-15, Wind 1-5 -->
+<rect x="190" y="117" width="24" height="24" fill="#C8860E" rx="0"/>
+<rect x="222" y="117" width="24" height="24" fill="#C8860E" rx="0"/>
+<rect x="254" y="117" width="24" height="24" fill="#C8860E" rx="0"/>
+<rect x="286" y="117" width="24" height="24" fill="#C8860E" rx="0"/>
+<rect x="318" y="117" width="24" height="24" fill="#C8860E" rx="0"/>
+<rect x="350" y="117" width="24" height="24" fill="#1A3A5C" rx="0"/>
+<rect x="382" y="117" width="24" height="24" fill="#1A3A5C" rx="0"/>
+<rect x="414" y="117" width="24" height="24" fill="#1A3A5C" rx="0"/>
+<rect x="446" y="117" width="24" height="24" fill="#1A3A5C" rx="0"/>
+<rect x="478" y="117" width="24" height="24" fill="#1A3A5C" rx="0"/>
+
+<!-- Row 3 (icons 21-30): Wind 6-12, Hydro 1-3 -->
+<rect x="190" y="149" width="24" height="24" fill="#1A3A5C" rx="0"/>
+<rect x="222" y="149" width="24" height="24" fill="#1A3A5C" rx="0"/>
+<rect x="254" y="149" width="24" height="24" fill="#1A3A5C" rx="0"/>
+<rect x="286" y="149" width="24" height="24" fill="#1A3A5C" rx="0"/>
+<rect x="318" y="149" width="24" height="24" fill="#1A3A5C" rx="0"/>
+<rect x="350" y="149" width="24" height="24" fill="#1A3A5C" rx="0"/>
+<rect x="382" y="149" width="24" height="24" fill="#1A3A5C" rx="0"/>
+<rect x="414" y="149" width="24" height="24" fill="#6B3520" rx="0"/>
+<rect x="446" y="149" width="24" height="24" fill="#6B3520" rx="0"/>
+<rect x="478" y="149" width="24" height="24" fill="#6B3520" rx="0"/>
+
+<!-- Row 4 (icons 31-40): Hydro 4-8, Nuclear 1-5 -->
+<rect x="190" y="181" width="24" height="24" fill="#6B3520" rx="0"/>
+<rect x="222" y="181" width="24" height="24" fill="#6B3520" rx="0"/>
+<rect x="254" y="181" width="24" height="24" fill="#6B3520" rx="0"/>
+<rect x="286" y="181" width="24" height="24" fill="#6B3520" rx="0"/>
+<rect x="318" y="181" width="24" height="24" fill="#6B3520" rx="0"/>
+<rect x="350" y="181" width="24" height="24" fill="#C8102E" rx="0"/>
+<rect x="382" y="181" width="24" height="24" fill="#C8102E" rx="0"/>
+<rect x="414" y="181" width="24" height="24" fill="#C8102E" rx="0"/>
+<rect x="446" y="181" width="24" height="24" fill="#C8102E" rx="0"/>
+<rect x="478" y="181" width="24" height="24" fill="#C8102E" rx="0"/>
+
+<!-- Row 5 (icons 41-50): Nuclear 6, Fossil 1-9 -->
+<rect x="190" y="213" width="24" height="24" fill="#C8102E" rx="0"/>
+<rect x="222" y="213" width="24" height="24" fill="#545454" rx="0"/>
+<rect x="254" y="213" width="24" height="24" fill="#545454" rx="0"/>
+<rect x="286" y="213" width="24" height="24" fill="#545454" rx="0"/>
+<rect x="318" y="213" width="24" height="24" fill="#545454" rx="0"/>
+<rect x="350" y="213" width="24" height="24" fill="#545454" rx="0"/>
+<rect x="382" y="213" width="24" height="24" fill="#545454" rx="0"/>
+<rect x="414" y="213" width="24" height="24" fill="#545454" rx="0"/>
+<rect x="446" y="213" width="24" height="24" fill="#545454" rx="0"/>
+<rect x="478" y="213" width="24" height="24" fill="#545454" rx="0"/>
+
+<!-- Legend -->
+<rect x="140" y="280" width="12" height="12" fill="#C8860E" rx="0"/>
+<text x="158" y="291" font-size="11" fill="#2a1a0e">Solar (30%)</text>
+
+<rect x="240" y="280" width="12" height="12" fill="#1A3A5C" rx="0"/>
+<text x="258" y="291" font-size="11" fill="#2a1a0e">Wind (24%)</text>
+
+<rect x="340" y="280" width="12" height="12" fill="#6B3520" rx="0"/>
+<text x="358" y="291" font-size="11" fill="#2a1a0e">Hydro (16%)</text>
+
+<rect x="440" y="280" width="12" height="12" fill="#C8102E" rx="0"/>
+<text x="458" y="291" font-size="11" fill="#2a1a0e">Nuclear (12%)</text>
+
+<rect x="540" y="280" width="12" height="12" fill="#545454" rx="0"/>
+<text x="558" y="291" font-size="11" fill="#2a1a0e">Fossil (18%)</text>
+
+<!-- Count annotations -->
+<text x="350" y="316" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#545454" letter-spacing="0.08em">15 + 12 + 8 + 6 + 9 = 50 ICONS</text>
+
+<!-- Caption -->
+<text x="350" y="345" text-anchor="middle" font-size="11" fill="#545454" font-style="italic">50 icons, 100%. Proportion is immediate.</text>
+
+<!-- Source line -->
+<text x="350" y="410" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#545454" letter-spacing="0.08em">FIGURE 52.1</text>
+
+</svg>

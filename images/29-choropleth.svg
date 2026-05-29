@@ -1,0 +1,100 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+  <!-- Chart area -->
+  <rect x="32" y="32" width="636" height="356" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+
+  <!-- Title -->
+  <text x="350" y="60" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="20" fill="#2a1a0e" font-weight="bold">GDP per Capita by Region</text>
+
+  <!-- Caption -->
+  <text x="350" y="375" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="12" fill="#545454" font-style="italic">Sequential luminance encodes magnitude. Equal-area projection required for geographic version.</text>
+
+  <!-- 4x3 grid of region cells -->
+  <!-- Grid starts at x=80, y=80, cell size: 120x60, gap=12 -->
+  <!-- GDP per capita values (approximate, thousands USD):
+       NA=65, EU=45, EA=35, SA=8,
+       SEA=12, SSA=2, MENA=18, CA=5,
+       OC=55, EEU=15, SAS=3, LAC=10
+  -->
+  <!-- Color scale: value mapped from 2k to 65k onto #F5EFE8 to #2a1a0e -->
+  <!-- Approximate fills:
+       NA(65k)=#2a1a0e, EU(45k)=#4a3020, EA(35k)=#604530,
+       SA(8k)=#C8B8A0, SEA(12k)=#B0A080, SSA(2k)=#F0E8D8,
+       MENA(18k)=#978060, CA(5k)=#D8CDB0, OC(55k)=#3A2818,
+       EEU(15k)=#A09070, SAS(3k)=#E8DCC0, LAC(10k)=#BCA888
+  -->
+
+  <!-- Row 1 -->
+  <rect x="80" y="82" width="120" height="60" fill="#2a1a0e" stroke="#D4D4D4" stroke-width="1"/>
+  <text x="140" y="108" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="11" fill="#F5EFE8" letter-spacing="0.08em">NA</text>
+  <text x="140" y="124" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="10" fill="#F5EFE8">$65,000</text>
+
+  <rect x="212" y="82" width="120" height="60" fill="#4a3020" stroke="#D4D4D4" stroke-width="1"/>
+  <text x="272" y="108" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="11" fill="#F5EFE8" letter-spacing="0.08em">EU</text>
+  <text x="272" y="124" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="10" fill="#F5EFE8">$45,000</text>
+
+  <rect x="344" y="82" width="120" height="60" fill="#604530" stroke="#D4D4D4" stroke-width="1"/>
+  <text x="404" y="108" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="11" fill="#F5EFE8" letter-spacing="0.08em">EA</text>
+  <text x="404" y="124" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="10" fill="#F5EFE8">$35,000</text>
+
+  <rect x="476" y="82" width="120" height="60" fill="#C8B8A0" stroke="#D4D4D4" stroke-width="1"/>
+  <text x="536" y="108" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="11" fill="#2a1a0e" letter-spacing="0.08em">SA</text>
+  <text x="536" y="124" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="10" fill="#2a1a0e">$8,000</text>
+
+  <!-- Row 2 -->
+  <rect x="80" y="154" width="120" height="60" fill="#B0A080" stroke="#D4D4D4" stroke-width="1"/>
+  <text x="140" y="180" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="11" fill="#2a1a0e" letter-spacing="0.08em">SEA</text>
+  <text x="140" y="196" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="10" fill="#2a1a0e">$12,000</text>
+
+  <rect x="212" y="154" width="120" height="60" fill="#F0E8D8" stroke="#D4D4D4" stroke-width="1"/>
+  <text x="272" y="180" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="11" fill="#2a1a0e" letter-spacing="0.08em">SSA</text>
+  <text x="272" y="196" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="10" fill="#2a1a0e">$2,000</text>
+
+  <rect x="344" y="154" width="120" height="60" fill="#978060" stroke="#D4D4D4" stroke-width="1"/>
+  <text x="404" y="180" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="11" fill="#F5EFE8" letter-spacing="0.08em">MENA</text>
+  <text x="404" y="196" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="10" fill="#F5EFE8">$18,000</text>
+
+  <rect x="476" y="154" width="120" height="60" fill="#D8CDB0" stroke="#D4D4D4" stroke-width="1"/>
+  <text x="536" y="180" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="11" fill="#2a1a0e" letter-spacing="0.08em">CA</text>
+  <text x="536" y="196" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="10" fill="#2a1a0e">$5,000</text>
+
+  <!-- Row 3 -->
+  <rect x="80" y="226" width="120" height="60" fill="#3A2818" stroke="#D4D4D4" stroke-width="1"/>
+  <text x="140" y="252" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="11" fill="#F5EFE8" letter-spacing="0.08em">OC</text>
+  <text x="140" y="268" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="10" fill="#F5EFE8">$55,000</text>
+
+  <rect x="212" y="226" width="120" height="60" fill="#A09070" stroke="#D4D4D4" stroke-width="1"/>
+  <text x="272" y="252" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="11" fill="#2a1a0e" letter-spacing="0.08em">EEU</text>
+  <text x="272" y="268" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="10" fill="#2a1a0e">$15,000</text>
+
+  <rect x="344" y="226" width="120" height="60" fill="#E8DCC0" stroke="#D4D4D4" stroke-width="1"/>
+  <text x="404" y="252" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="11" fill="#2a1a0e" letter-spacing="0.08em">SAS</text>
+  <text x="404" y="268" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="10" fill="#2a1a0e">$3,000</text>
+
+  <rect x="476" y="226" width="120" height="60" fill="#BCA888" stroke="#D4D4D4" stroke-width="1"/>
+  <text x="536" y="252" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="11" fill="#2a1a0e" letter-spacing="0.08em">LAC</text>
+  <text x="536" y="268" text-anchor="middle" font-family="'EB Garamond', Georgia, 'Times New Roman', serif" font-size="10" fill="#2a1a0e">$10,000</text>
+
+  <!-- Legend: color scale bar -->
+  <text x="140" y="316" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#545454" letter-spacing="0.08em">GDP PER CAPITA</text>
+  <defs>
+    <linearGradient id="legendGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#F5EFE8"/>
+      <stop offset="25%" stop-color="#D8CDB0"/>
+      <stop offset="50%" stop-color="#978060"/>
+      <stop offset="75%" stop-color="#4a3020"/>
+      <stop offset="100%" stop-color="#2a1a0e"/>
+    </linearGradient>
+  </defs>
+  <rect x="80" y="324" width="240" height="12" fill="url(#legendGrad)" stroke="#D4D4D4" stroke-width="0.5"/>
+  <text x="80" y="350" text-anchor="start" font-family="'IBM Plex Mono', monospace" font-size="8" fill="#545454">$2K</text>
+  <text x="200" y="350" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="8" fill="#545454">$30K</text>
+  <text x="320" y="350" text-anchor="end" font-family="'IBM Plex Mono', monospace" font-size="8" fill="#545454">$65K</text>
+
+  <!-- Region key -->
+  <text x="350" y="316" font-family="'IBM Plex Mono', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">NA=NORTH AMERICA  EU=EUROPE  EA=EAST ASIA</text>
+  <text x="350" y="328" font-family="'IBM Plex Mono', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">SA=SOUTH AMERICA  SEA=SE ASIA  SSA=SUB-SAHARAN AFRICA</text>
+  <text x="350" y="340" font-family="'IBM Plex Mono', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">MENA=MIDDLE EAST  CA=CENTRAL ASIA  OC=OCEANIA</text>
+  <text x="350" y="352" font-family="'IBM Plex Mono', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">EEU=EASTERN EUROPE  SAS=SOUTH ASIA  LAC=LATIN AMERICA</text>
+</svg>

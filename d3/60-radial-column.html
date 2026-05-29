@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Radial Column — Monthly Average Temperature</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #2a1a0e;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-mark: #6B3520;
+    --color-slate: #1A3A5C;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1a1a;
+      --color-ink: #e8e0d6;
+      --color-surface: #2a2420;
+      --color-secondary: #a0978e;
+      --color-border: #444;
+      --color-mark: #c28060;
+      --color-red: #e05040;
+      --color-slate: #5a9ad6;
+    }
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+  #chart-container {
+    width: 100%;
+    max-width: 900px;
+  }
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--color-ink);
+  }
+  .subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--color-secondary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .caption {
+    font-size: 0.9rem;
+    color: var(--color-secondary);
+    font-style: italic;
+    margin-top: 12px;
+  }
+  .tooltip {
+    position: absolute;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--color-ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+</style>
+</head>
+<body>
+<div id="chart-container">
+  <h1>Monthly Average Temperature</h1>
+  <div class="subtitle">RADIAL COLUMN CHART — HOVER FOR DETAILS</div>
+  <div id="chart" role="img" aria-label="Radial column chart showing monthly temperatures with summer peak bars dominating the upper arc"></div>
+  <div class="caption">The seasonal arc reads as a single shape — peak summer bars dominate the upper arc.</div>
+</div>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const data = [
+  { month: "Jan", value: 32 },
+  { month: "Feb", value: 35 },
+  { month: "Mar", value: 45 },
+  { month: "Apr", value: 55 },
+  { month: "May", value: 65 },
+  { month: "Jun", value: 78 },
+  { month: "Jul", value: 85 },
+  { month: "Aug", value: 82 },
+  { month: "Sep", value: 72 },
+  { month: "Oct", value: 58 },
+  { month: "Nov", value: 42 },
+  { month: "Dec", value: 34 }
+];
+
+const summerMonths = ["Jun", "Jul", "Aug"];
+
+const width = 700;
+const height = 560;
+const cx = width / 2;
+const cy = height / 2 + 10;
+const innerRadius = 45;
+const outerRadius = 220;
+
+const svg = d3.select("#chart")
+  .append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("preserveAspectRatio", "xMidYMid meet")
+  .style("width", "100%")
+  .style("height", "auto");
+
+svg.append("rect")
+  .attr("width", width)
+  .attr("height", height)
+  .attr("fill", "var(--color-bg)");
+
+svg.append("rect")
+  .attr("x", 32)
+  .attr("y", 20)
+  .attr("width", width - 64)
+  .attr("height", height - 50)
+  .attr("fill", "var(--color-surface)")
+  .attr("stroke", "var(--color-border)")
+  .attr("stroke-width", 0.75);
+
+const g = svg.append("g").attr("transform", `translate(${cx},${cy})`);
+
+const angleScale = d3.scaleBand()
+  .domain(data.map(d => d.month))
+  .range([0, 2 * Math.PI])
+  .padding(0.12);
+
+const rScale = d3.scaleLinear()
+  .domain([0, d3.max(data, d => d.value)])
+  .range([innerRadius, outerRadius]);
+
+const arc = d3.arc()
+  .innerRadius(innerRadius)
+  .startAngle(d => angleScale(d.month))
+  .endAngle(d => angleScale(d.month) + angleScale.bandwidth())
+  .outerRadius(d => rScale(d.value));
+
+// Grid rings
+[20, 40, 60, 85].forEach(v => {
+  g.append("circle")
+    .attr("r", rScale(v))
+    .attr("fill", "none")
+    .attr("stroke", "var(--color-border)")
+    .attr("stroke-width", 0.5)
+    .attr("stroke-dasharray", "3,3");
+
+  g.append("text")
+    .attr("x", 4)
+    .attr("y", -rScale(v) + 4)
+    .attr("font-size", "7px")
+    .attr("fill", "var(--color-secondary)")
+    .attr("font-family", "'JetBrains Mono', monospace")
+    .text(`${v}\u00B0F`);
+});
+
+g.append("circle")
+  .attr("r", innerRadius)
+  .attr("fill", "none")
+  .attr("stroke", "var(--color-border)")
+  .attr("stroke-width", 0.5);
+
+const tooltip = d3.select("#tooltip");
+
+// Bars
+g.selectAll("path.bar")
+  .data(data)
+  .join("path")
+  .attr("class", "bar")
+  .attr("d", arc)
+  .attr("fill", d => summerMonths.includes(d.month) ? "var(--color-red)" : "var(--color-mark)")
+  .attr("opacity", 0.85)
+  .attr("tabindex", 0)
+  .attr("role", "img")
+  .attr("aria-label", d => `${d.month}: ${d.value}\u00B0F`)
+  .style("cursor", "pointer")
+  .on("mouseenter", function(event, d) {
+    d3.select(this).attr("opacity", 1).attr("stroke", "var(--color-ink)").attr("stroke-width", 1);
+    tooltip.style("opacity", 1)
+      .html(`<strong>${d.month}</strong><br>${d.value}\u00B0F${summerMonths.includes(d.month) ? " (Summer)" : ""}`);
+  })
+  .on("mousemove", function(event) {
+    tooltip.style("left", (event.pageX + 12) + "px")
+      .style("top", (event.pageY - 28) + "px");
+  })
+  .on("mouseleave", function() {
+    d3.select(this).attr("opacity", 0.85).attr("stroke", "none");
+    tooltip.style("opacity", 0);
+  });
+
+// Month labels
+data.forEach(d => {
+  const angle = angleScale(d.month) + angleScale.bandwidth() / 2;
+  const labelR = outerRadius + 20;
+  const x = labelR * Math.sin(angle);
+  const y = -labelR * Math.cos(angle);
+  const rotation = (angle * 180 / Math.PI);
+
+  const flipAngle = rotation > 90 && rotation < 270;
+  const textRotation = flipAngle ? rotation + 180 : rotation;
+  const textAnchor = flipAngle ? "end" : "start";
+
+  g.append("text")
+    .attr("transform", `translate(${x},${y}) rotate(${textRotation})`)
+    .attr("text-anchor", textAnchor)
+    .attr("dominant-baseline", "middle")
+    .attr("font-family", "'JetBrains Mono', monospace")
+    .attr("font-size", "9px")
+    .attr("letter-spacing", "0.08em")
+    .attr("fill", summerMonths.includes(d.month) ? "var(--color-red)" : "var(--color-ink)")
+    .text(d.month.toUpperCase());
+});
+</script>
+</body>
+</html>

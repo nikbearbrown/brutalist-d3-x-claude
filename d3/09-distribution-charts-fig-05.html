@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 9.5 — Box plot, violin, and hybrid: the trade-off</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #121212;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--color-white);
+    color: var(--color-ink);
+    width: 1600px;
+    height: 900px;
+    overflow: hidden;
+  }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const W = 1600, H = 900;
+const svg = d3.select('#chart').append('svg')
+  .attr('width', W).attr('height', H)
+  .attr('role', 'img')
+  .attr('aria-labelledby', 'chart-title chart-desc');
+
+svg.append('title').attr('id', 'chart-title').text('Each form reveals what the others hide.');
+svg.append('desc').attr('id', 'chart-desc').text('Three-panel comparison showing the same bimodal distribution rendered as a box plot (shape hidden), violin plot (quartiles unreadable), and hybrid box-violin (both visible), demonstrating the trade-off between each visualization form.');
+
+// Background
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#FFFFFF');
+
+// Main title
+svg.append('text')
+  .attr('x', W / 2).attr('y', 48)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-size', 34).attr('fill', '#121212')
+  .text('Each form reveals what the others hide.');
+
+// Subtitle
+svg.append('text')
+  .attr('x', W / 2).attr('y', 78)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 14).attr('fill', '#545454')
+  .text('Figure 9.5 \u2014 Box plot, violin, and hybrid: the trade-off');
+
+// =========================================================
+// GENERATE BIMODAL DATA
+// =========================================================
+// Seeded pseudo-random for reproducibility
+function mulberry32(a) {
+  return function() {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    var t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+const rng = mulberry32(42);
+
+// Box-Muller transform
+function normalRandom(mean, sd) {
+  const u1 = rng(), u2 = rng();
+  return mean + sd * Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+}
+
+const rawData = [];
+// Peak 1: around 35, ~150 points
+for (let i = 0; i < 150; i++) rawData.push(normalRandom(35, 8));
+// Peak 2: around 70, ~150 points
+for (let i = 0; i < 150; i++) rawData.push(normalRandom(70, 7));
+
+const data = rawData.sort((a, b) => a - b);
+
+// Compute Tukey statistics
+const q1 = d3.quantile(data, 0.25);
+const q2 = d3.quantile(data, 0.5);
+const q3 = d3.quantile(data, 0.75);
+const iqr = q3 - q1;
+const lowerFence = q1 - 1.5 * iqr;
+const upperFence = q3 + 1.5 * iqr;
+const whiskerLow = d3.min(data.filter(d => d >= lowerFence));
+const whiskerHigh = d3.max(data.filter(d => d <= upperFence));
+const outliers = data.filter(d => d < lowerFence || d > upperFence);
+
+// Kernel density estimation
+function kernelDensityEstimator(kernel, X) {
+  return function(V) {
+    return X.map(x => [x, d3.mean(V, v => kernel(x - v))]);
+  };
+}
+function kernelEpanechnikov(k) {
+  return function(v) {
+    v = v / k;
+    return Math.abs(v) <= 1 ? 0.75 * (1 - v * v) / k : 0;
+  };
+}
+
+const yExtent = [d3.min(data) - 5, d3.max(data) + 5];
+const densityTicks = d3.range(yExtent[0], yExtent[1], 0.5);
+const kde = kernelDensityEstimator(kernelEpanechnikov(6), densityTicks);
+const density = kde(data);
+const maxDensity = d3.max(density, d => d[1]);
+
+// =========================================================
+// PANEL LAYOUT
+// =========================================================
+const panelMargin = 30;
+const panelW = (W - 4 * panelMargin) / 3;
+const panelTop = 110;
+const panelH = 620;
+const chartPad = { top: 55, bottom: 30 };
+const chartH = panelH - chartPad.top - chartPad.bottom;
+
+const yScale = d3.scaleLinear()
+  .domain(yExtent)
+  .range([chartH, 0]);
+
+// Divider lines
+svg.append('line')
+  .attr('x1', panelMargin + panelW + panelMargin / 2).attr('y1', panelTop)
+  .attr('x2', panelMargin + panelW + panelMargin / 2).attr('y2', panelTop + panelH)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+
+svg.append('line')
+  .attr('x1', panelMargin * 2 + panelW * 2 + panelMargin / 2).attr('y1', panelTop)
+  .attr('x2', panelMargin * 2 + panelW * 2 + panelMargin / 2).attr('y2', panelTop + panelH)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+
+// =========================================================
+// LEFT PANEL — Box plot alone
+// =========================================================
+const p1x = panelMargin;
+
+// Panel border (ink)
+svg.append('rect')
+  .attr('x', p1x).attr('y', panelTop)
+  .attr('width', panelW).attr('height', panelH)
+  .attr('fill', '#FAFAFA').attr('stroke', '#121212').attr('stroke-width', 2).attr('rx', 4);
+
+// Panel title
+svg.append('text')
+  .attr('x', p1x + panelW / 2).attr('y', panelTop + 28)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 17).attr('font-weight', 700).attr('fill', '#121212')
+  .text('Box plot alone');
+
+const g1 = svg.append('g')
+  .attr('transform', `translate(${p1x + panelW / 2}, ${panelTop + chartPad.top})`);
+
+const boxW1 = 70;
+
+// Y-axis
+const g1Axis = svg.append('g')
+  .attr('transform', `translate(${p1x + 55}, ${panelTop + chartPad.top})`);
+g1Axis.call(d3.axisLeft(yScale).ticks(8))
+  .selectAll('text')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 10).attr('fill', '#545454');
+g1Axis.selectAll('.domain, .tick line').attr('stroke', '#D4D4D4');
+
+// Whisker lines
+g1.append('line')
+  .attr('x1', 0).attr('y1', yScale(whiskerHigh))
+  .attr('x2', 0).attr('y2', yScale(q3))
+  .attr('stroke', '#121212').attr('stroke-width', 2);
+g1.append('line')
+  .attr('x1', 0).attr('y1', yScale(q1))
+  .attr('x2', 0).attr('y2', yScale(whiskerLow))
+  .attr('stroke', '#121212').attr('stroke-width', 2);
+
+// Whisker caps
+g1.append('line')
+  .attr('x1', -20).attr('y1', yScale(whiskerHigh))
+  .attr('x2', 20).attr('y2', yScale(whiskerHigh))
+  .attr('stroke', '#121212').attr('stroke-width', 2);
+g1.append('line')
+  .attr('x1', -20).attr('y1', yScale(whiskerLow))
+  .attr('x2', 20).attr('y2', yScale(whiskerLow))
+  .attr('stroke', '#121212').attr('stroke-width', 2);
+
+// Box
+g1.append('rect')
+  .attr('x', -boxW1 / 2).attr('y', yScale(q3))
+  .attr('width', boxW1).attr('height', yScale(q1) - yScale(q3))
+  .attr('fill', '#FFFFFF').attr('stroke', '#121212').attr('stroke-width', 2);
+
+// Median
+g1.append('line')
+  .attr('x1', -boxW1 / 2).attr('y1', yScale(q2))
+  .attr('x2', boxW1 / 2).attr('y2', yScale(q2))
+  .attr('stroke', '#C8102E').attr('stroke-width', 2.5);
+
+// Outliers
+outliers.forEach(v => {
+  g1.append('circle')
+    .attr('cx', 0).attr('cy', yScale(v))
+    .attr('r', 4)
+    .attr('fill', 'none').attr('stroke', '#121212').attr('stroke-width', 1.5);
+});
+
+// Label: Shape HIDDEN
+svg.append('rect')
+  .attr('x', p1x + panelW / 2 - 80).attr('y', panelTop + panelH - 52)
+  .attr('width', 160).attr('height', 28)
+  .attr('fill', '#121212').attr('rx', 3);
+svg.append('text')
+  .attr('x', p1x + panelW / 2).attr('y', panelTop + panelH - 33)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'JetBrains Mono', monospace")
+  .attr('font-size', 13).attr('font-weight', 400).attr('fill', '#FFFFFF')
+  .text('Shape: HIDDEN');
+
+// =========================================================
+// CENTER PANEL — Violin plot alone
+// =========================================================
+const p2x = panelMargin * 2 + panelW;
+
+// Panel border (ink)
+svg.append('rect')
+  .attr('x', p2x).attr('y', panelTop)
+  .attr('width', panelW).attr('height', panelH)
+  .attr('fill', '#FAFAFA').attr('stroke', '#121212').attr('stroke-width', 2).attr('rx', 4);
+
+// Panel title
+svg.append('text')
+  .attr('x', p2x + panelW / 2).attr('y', panelTop + 28)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 17).attr('font-weight', 700).attr('fill', '#121212')
+  .text('Violin plot alone');
+
+const g2 = svg.append('g')
+  .attr('transform', `translate(${p2x + panelW / 2}, ${panelTop + chartPad.top})`);
+
+// Y-axis
+const g2Axis = svg.append('g')
+  .attr('transform', `translate(${p2x + 55}, ${panelTop + chartPad.top})`);
+g2Axis.call(d3.axisLeft(yScale).ticks(8))
+  .selectAll('text')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 10).attr('fill', '#545454');
+g2Axis.selectAll('.domain, .tick line').attr('stroke', '#D4D4D4');
+
+// Scale density to width
+const violinMaxW = 140;
+const dScale = d3.scaleLinear()
+  .domain([0, maxDensity])
+  .range([0, violinMaxW / 2]);
+
+// Build mirrored violin path
+const violinArea = d3.area()
+  .x0(d => -dScale(d[1]))
+  .x1(d => dScale(d[1]))
+  .y(d => yScale(d[0]))
+  .curve(d3.curveCatmullRom);
+
+g2.append('path')
+  .datum(density)
+  .attr('d', violinArea)
+  .attr('fill', '#F0F0F0')
+  .attr('stroke', '#121212')
+  .attr('stroke-width', 2);
+
+// Labels: Shape VISIBLE
+svg.append('rect')
+  .attr('x', p2x + panelW / 2 - 86).attr('y', panelTop + panelH - 72)
+  .attr('width', 172).attr('height', 28)
+  .attr('fill', '#121212').attr('rx', 3);
+svg.append('text')
+  .attr('x', p2x + panelW / 2).attr('y', panelTop + panelH - 53)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'JetBrains Mono', monospace")
+  .attr('font-size', 13).attr('font-weight', 400).attr('fill', '#FFFFFF')
+  .text('Shape: VISIBLE');
+
+// Quartiles: NOT READABLE
+svg.append('rect')
+  .attr('x', p2x + panelW / 2 - 120).attr('y', panelTop + panelH - 40)
+  .attr('width', 240).attr('height', 28)
+  .attr('fill', '#C8102E').attr('rx', 3);
+svg.append('text')
+  .attr('x', p2x + panelW / 2).attr('y', panelTop + panelH - 21)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'JetBrains Mono', monospace")
+  .attr('font-size', 13).attr('font-weight', 400).attr('fill', '#FFFFFF')
+  .text('Quartiles: NOT READABLE');
+
+// =========================================================
+// RIGHT PANEL — Hybrid box-violin
+// =========================================================
+const p3x = panelMargin * 3 + panelW * 2;
+
+// Panel border (RED — preferred)
+svg.append('rect')
+  .attr('x', p3x).attr('y', panelTop)
+  .attr('width', panelW).attr('height', panelH)
+  .attr('fill', '#FFFAF8').attr('stroke', '#C8102E').attr('stroke-width', 3).attr('rx', 4);
+
+// Panel title
+svg.append('text')
+  .attr('x', p3x + panelW / 2).attr('y', panelTop + 28)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 17).attr('font-weight', 700).attr('fill', '#C8102E')
+  .text('Hybrid box-violin');
+
+const g3 = svg.append('g')
+  .attr('transform', `translate(${p3x + panelW / 2}, ${panelTop + chartPad.top})`);
+
+// Y-axis
+const g3Axis = svg.append('g')
+  .attr('transform', `translate(${p3x + 55}, ${panelTop + chartPad.top})`);
+g3Axis.call(d3.axisLeft(yScale).ticks(8))
+  .selectAll('text')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 10).attr('fill', '#545454');
+g3Axis.selectAll('.domain, .tick line').attr('stroke', '#D4D4D4');
+
+// Violin outline
+g3.append('path')
+  .datum(density)
+  .attr('d', violinArea)
+  .attr('fill', '#F5F0F0')
+  .attr('stroke', '#121212')
+  .attr('stroke-width', 1.5);
+
+// Overlaid thin box plot
+const thinBoxW = 20;
+
+// Whisker lines
+g3.append('line')
+  .attr('x1', 0).attr('y1', yScale(whiskerHigh))
+  .attr('x2', 0).attr('y2', yScale(q3))
+  .attr('stroke', '#121212').attr('stroke-width', 2);
+g3.append('line')
+  .attr('x1', 0).attr('y1', yScale(q1))
+  .attr('x2', 0).attr('y2', yScale(whiskerLow))
+  .attr('stroke', '#121212').attr('stroke-width', 2);
+
+// Whisker caps
+g3.append('line')
+  .attr('x1', -10).attr('y1', yScale(whiskerHigh))
+  .attr('x2', 10).attr('y2', yScale(whiskerHigh))
+  .attr('stroke', '#121212').attr('stroke-width', 2);
+g3.append('line')
+  .attr('x1', -10).attr('y1', yScale(whiskerLow))
+  .attr('x2', 10).attr('y2', yScale(whiskerLow))
+  .attr('stroke', '#121212').attr('stroke-width', 2);
+
+// Thin box
+g3.append('rect')
+  .attr('x', -thinBoxW / 2).attr('y', yScale(q3))
+  .attr('width', thinBoxW).attr('height', yScale(q1) - yScale(q3))
+  .attr('fill', '#FFFFFF').attr('stroke', '#121212').attr('stroke-width', 2);
+
+// Median
+g3.append('line')
+  .attr('x1', -thinBoxW / 2).attr('y1', yScale(q2))
+  .attr('x2', thinBoxW / 2).attr('y2', yScale(q2))
+  .attr('stroke', '#C8102E').attr('stroke-width', 3);
+
+// Outliers
+outliers.forEach(v => {
+  g3.append('circle')
+    .attr('cx', 0).attr('cy', yScale(v))
+    .attr('r', 3.5)
+    .attr('fill', 'none').attr('stroke', '#C8102E').attr('stroke-width', 1.5);
+});
+
+// Labels: Shape VISIBLE + Quartiles READABLE
+svg.append('rect')
+  .attr('x', p3x + panelW / 2 - 86).attr('y', panelTop + panelH - 72)
+  .attr('width', 172).attr('height', 28)
+  .attr('fill', '#121212').attr('rx', 3);
+svg.append('text')
+  .attr('x', p3x + panelW / 2).attr('y', panelTop + panelH - 53)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'JetBrains Mono', monospace")
+  .attr('font-size', 13).attr('font-weight', 400).attr('fill', '#FFFFFF')
+  .text('Shape: VISIBLE');
+
+svg.append('rect')
+  .attr('x', p3x + panelW / 2 - 120).attr('y', panelTop + panelH - 40)
+  .attr('width', 240).attr('height', 28)
+  .attr('fill', '#C8102E').attr('rx', 3);
+svg.append('text')
+  .attr('x', p3x + panelW / 2).attr('y', panelTop + panelH - 21)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'JetBrains Mono', monospace")
+  .attr('font-size', 13).attr('font-weight', 400).attr('fill', '#FFFFFF')
+  .text('Quartiles: READABLE');
+
+// "Preferred" star badge on right panel
+svg.append('rect')
+  .attr('x', p3x + panelW - 90).attr('y', panelTop + 6)
+  .attr('width', 82).attr('height', 24)
+  .attr('fill', '#C8860E').attr('rx', 12);
+svg.append('text')
+  .attr('x', p3x + panelW - 49).attr('y', panelTop + 23)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 11).attr('font-weight', 700).attr('fill', '#FFFFFF')
+  .text('\u2605 Preferred');
+
+// =========================================================
+// Bottom caption
+// =========================================================
+svg.append('line')
+  .attr('x1', 50).attr('y1', H - 42).attr('x2', W - 50).attr('y2', H - 42)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+
+svg.append('text')
+  .attr('x', W / 2).attr('y', H - 16)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-style', 'italic')
+  .attr('font-size', 15).attr('fill', '#545454')
+  .text('The hybrid pays a density cost for completeness.');
+</script>
+</body>
+</html>

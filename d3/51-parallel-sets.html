@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parallel Sets — Education to Employment to Income</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #2a1a0e;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-mark: #6B3520;
+    --color-slate: #1A3A5C;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1a1a;
+      --color-ink: #e8e0d6;
+      --color-surface: #2a2420;
+      --color-secondary: #a0978e;
+      --color-border: #444;
+      --color-mark: #c28060;
+      --color-red: #e05040;
+      --color-slate: #5a9ad6;
+      --color-ochre: #d4a030;
+    }
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+  #chart-container { width: 100%; max-width: 900px; }
+  h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; color: var(--color-ink); }
+  .subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--color-secondary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .caption {
+    font-size: 0.9rem;
+    color: var(--color-secondary);
+    font-style: italic;
+    margin-top: 12px;
+  }
+  .tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    color: var(--color-ink);
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 10;
+  }
+  .ribbon { cursor: pointer; transition: opacity 0.15s; }
+  .ribbon.faded { opacity: 0.08; }
+</style>
+</head>
+<body>
+<div id="chart-container">
+  <h1>Education &rarr; Employment &rarr; Income</h1>
+  <div class="subtitle">Parallel Sets</div>
+  <div id="chart" role="img" aria-label="Parallel sets diagram showing flows from education level through employment status to income band"></div>
+  <div class="caption">Higher education routes to higher income &mdash; employment status reshapes the path.</div>
+</div>
+<div class="tooltip" id="tooltip"></div>
+<script>
+(function() {
+  const dimensions = ["Education", "Employment", "Income"];
+  const categories = {
+    Education: ["High School", "Bachelor's", "Master's"],
+    Employment: ["Employed", "Unemployed", "Part-time"],
+    Income: ["High", "Medium", "Low"]
+  };
+  const flows = [
+    { keys: ["Master's", "Employed", "High"], value: 180 },
+    { keys: ["Master's", "Employed", "Medium"], value: 40 },
+    { keys: ["Master's", "Unemployed", "Medium"], value: 20 },
+    { keys: ["Master's", "Unemployed", "Low"], value: 10 },
+    { keys: ["Master's", "Part-time", "Medium"], value: 15 },
+    { keys: ["Master's", "Part-time", "Low"], value: 5 },
+    { keys: ["Bachelor's", "Employed", "High"], value: 100 },
+    { keys: ["Bachelor's", "Employed", "Medium"], value: 160 },
+    { keys: ["Bachelor's", "Employed", "Low"], value: 20 },
+    { keys: ["Bachelor's", "Unemployed", "Medium"], value: 40 },
+    { keys: ["Bachelor's", "Unemployed", "Low"], value: 30 },
+    { keys: ["Bachelor's", "Part-time", "Medium"], value: 30 },
+    { keys: ["Bachelor's", "Part-time", "Low"], value: 20 },
+    { keys: ["High School", "Employed", "High"], value: 10 },
+    { keys: ["High School", "Employed", "Medium"], value: 40 },
+    { keys: ["High School", "Employed", "Low"], value: 50 },
+    { keys: ["High School", "Unemployed", "Low"], value: 60 },
+    { keys: ["High School", "Unemployed", "Medium"], value: 20 },
+    { keys: ["High School", "Part-time", "Low"], value: 50 },
+    { keys: ["High School", "Part-time", "Medium"], value: 20 },
+  ];
+
+  const total = d3.sum(flows, d => d.value);
+
+  const container = document.getElementById("chart");
+  const margin = { top: 20, right: 120, bottom: 20, left: 120 };
+  const width = 900;
+  const height = 420;
+  const innerW = width - margin.left - margin.right;
+  const innerH = height - margin.top - margin.bottom;
+
+  const svg = d3.select("#chart").append("svg")
+    .attr("viewBox", `0 0 ${width} ${height}`)
+    .attr("role", "img")
+    .append("g")
+    .attr("transform", `translate(${margin.left},${margin.top})`);
+
+  svg.append("title").text("Parallel Sets: Education, Employment, Income");
+  svg.append("desc").text("Ribbons connect education levels through employment statuses to income bands, with width proportional to population count.");
+
+  const tooltip = d3.select("#tooltip");
+
+  const axisX = d3.scalePoint().domain(dimensions).range([0, innerW]);
+  const axisBlockW = 24;
+
+  const colorMap = {
+    "Master's|Employed|High": "var(--color-red)",
+    "Bachelor's|Employed|Medium": "var(--color-mark)",
+    "High School|Part-time|Low": "var(--color-slate)",
+  };
+  function flowColor(f) {
+    const key = f.keys.join("|");
+    return colorMap[key] || "var(--color-secondary)";
+  }
+
+  // Compute category block positions for each dimension
+  const catPositions = {};
+  dimensions.forEach(dim => {
+    const cats = categories[dim];
+    const dimTotal = d3.sum(flows, f => f.value);
+    let y = 0;
+    catPositions[dim] = {};
+    cats.forEach(cat => {
+      const catTotal = d3.sum(flows.filter(f => f.keys[dimensions.indexOf(dim)] === cat), f => f.value);
+      const h = (catTotal / dimTotal) * innerH;
+      catPositions[dim][cat] = { y, h, currentY: y };
+      y += h + 4;
+    });
+  });
+
+  // Draw axis blocks
+  dimensions.forEach(dim => {
+    const x = axisX(dim);
+    const cats = categories[dim];
+    cats.forEach(cat => {
+      const pos = catPositions[dim][cat];
+      svg.append("rect")
+        .attr("x", x - axisBlockW / 2)
+        .attr("y", pos.y)
+        .attr("width", axisBlockW)
+        .attr("height", pos.h)
+        .attr("fill", "var(--color-surface)")
+        .attr("stroke", "var(--color-border)")
+        .attr("stroke-width", 0.75);
+      const labelX = dimensions.indexOf(dim) === 0 ? x - axisBlockW / 2 - 8 : (dimensions.indexOf(dim) === 2 ? x + axisBlockW / 2 + 8 : x);
+      const anchor = dimensions.indexOf(dim) === 0 ? "end" : (dimensions.indexOf(dim) === 2 ? "start" : "middle");
+      svg.append("text")
+        .attr("x", labelX)
+        .attr("y", pos.y + pos.h / 2 + 4)
+        .attr("text-anchor", anchor)
+        .attr("font-size", "11px")
+        .attr("fill", "var(--color-ink)")
+        .text(cat);
+    });
+    // Axis title
+    svg.append("text")
+      .attr("x", x)
+      .attr("y", -6)
+      .attr("text-anchor", "middle")
+      .attr("font-family", "'JetBrains Mono', monospace")
+      .attr("font-size", "9px")
+      .attr("fill", "var(--color-secondary)")
+      .attr("letter-spacing", "0.08em")
+      .text(dim.toUpperCase());
+  });
+
+  // Draw ribbons
+  function drawRibbons(dimIdx) {
+    const dimA = dimensions[dimIdx];
+    const dimB = dimensions[dimIdx + 1];
+    const xA = axisX(dimA) + axisBlockW / 2;
+    const xB = axisX(dimB) - axisBlockW / 2;
+
+    // Reset currentY for each category
+    categories[dimA].forEach(cat => { catPositions[dimA][cat].currentY = catPositions[dimA][cat].y; });
+    categories[dimB].forEach(cat => { catPositions[dimB][cat].currentY = catPositions[dimB][cat].y; });
+
+    // Group flows by (catA, catB)
+    const grouped = {};
+    flows.forEach(f => {
+      const catA = f.keys[dimIdx];
+      const catB = f.keys[dimIdx + 1];
+      const key = `${catA}|${catB}`;
+      if (!grouped[key]) grouped[key] = { catA, catB, value: 0, flows: [] };
+      grouped[key].value += f.value;
+      grouped[key].flows.push(f);
+    });
+
+    Object.values(grouped).forEach(g => {
+      const hA = (g.value / total) * innerH;
+      const hB = hA;
+      const yA = catPositions[dimA][g.catA].currentY;
+      const yB = catPositions[dimB][g.catB].currentY;
+      catPositions[dimA][g.catA].currentY += hA;
+      catPositions[dimB][g.catB].currentY += hB;
+
+      const midX = (xA + xB) / 2;
+      const path = `M${xA},${yA} C${midX},${yA} ${midX},${yB} ${xB},${yB} L${xB},${yB + hB} C${midX},${yB + hB} ${midX},${yA + hA} ${xA},${yA + hA} Z`;
+
+      const color = g.flows.length === 1 ? flowColor(g.flows[0]) : "var(--color-secondary)";
+
+      svg.append("path")
+        .attr("class", "ribbon")
+        .attr("d", path)
+        .attr("fill", color)
+        .attr("opacity", 0.5)
+        .attr("tabindex", 0)
+        .attr("aria-label", `${g.catA} to ${g.catB}: ${g.value}`)
+        .on("mouseenter", function(event) {
+          d3.selectAll(".ribbon").classed("faded", true);
+          d3.select(this).classed("faded", false).attr("opacity", 0.8);
+          tooltip.style("opacity", 1)
+            .html(`<strong>${g.catA}</strong> &rarr; <strong>${g.catB}</strong><br>${g.value} respondents`);
+        })
+        .on("mousemove", function(event) {
+          tooltip.style("left", (event.pageX + 12) + "px").style("top", (event.pageY - 20) + "px");
+        })
+        .on("mouseleave", function() {
+          d3.selectAll(".ribbon").classed("faded", false).attr("opacity", 0.5);
+          tooltip.style("opacity", 0);
+        })
+        .on("focus", function() {
+          d3.select(this).attr("opacity", 0.8);
+        })
+        .on("blur", function() {
+          d3.select(this).attr("opacity", 0.5);
+        });
+    });
+  }
+
+  drawRibbons(0);
+  // Reset positions for second set
+  dimensions.forEach(dim => {
+    categories[dim].forEach(cat => {
+      catPositions[dim][cat].currentY = catPositions[dim][cat].y;
+    });
+  });
+  drawRibbons(1);
+})();
+</script>
+</body>
+</html>

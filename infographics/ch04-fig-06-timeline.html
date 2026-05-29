@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 4.6 — Chart-Type Invention Timeline</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #FFFFFF; color: #121212; width: 1600px; height: 900px; overflow: hidden; }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const W = 1600, H = 900;
+const svg = d3.select('#chart').append('svg')
+  .attr('width', W).attr('height', H)
+  .attr('role', 'img')
+  .attr('aria-labelledby', 'chart-title');
+
+svg.append('title').attr('id', 'chart-title').text('Figure 4.6 — Chart-Type Invention Timeline, 1786–1991');
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#FFFFFF');
+
+svg.append('text')
+  .attr('x', W/2).attr('y', 48)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-size', 34).attr('fill', '#121212')
+  .text('Every chart type is an answer to a question. The question clarifies when the chart works.');
+
+svg.append('text')
+  .attr('x', W/2).attr('y', 76)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 14).attr('fill', '#545454')
+  .text('Figure 4.6 — Chart-type inventions, 1786–1991');
+
+const events = [
+  { year: 1786, name: 'Bar chart', inventor: 'William Playfair', problem: 'Trade deficits by country', color: '#C8102E' },
+  { year: 1786, name: 'Line chart', inventor: 'William Playfair', problem: 'Trade values over time', color: '#C8102E', offset: 1 },
+  { year: 1826, name: 'Choropleth', inventor: 'Charles Dupin', problem: 'Illiteracy rate per department', color: '#545454' },
+  { year: 1854, name: 'Dot map', inventor: 'John Snow', problem: 'Cholera deaths by address', color: '#121212' },
+  { year: 1858, name: 'Polar area chart', inventor: 'Florence Nightingale', problem: 'Preventable deaths by month', color: '#C8860E' },
+  { year: 1869, name: 'Flow map', inventor: 'Charles Minard', problem: 'Army depletion on the march', color: '#545454' },
+  { year: 1991, name: 'Treemap', inventor: 'Ben Shneiderman', problem: 'Disk usage in nested dirs', color: '#121212' }
+];
+
+const timelineY = 440;
+const startX = 100;
+const endX = 1500;
+
+// Scale
+const xScale = d3.scaleLinear()
+  .domain([1770, 2000])
+  .range([startX, endX]);
+
+// Timeline axis line
+svg.append('line')
+  .attr('x1', startX).attr('y1', timelineY)
+  .attr('x2', endX).attr('y2', timelineY)
+  .attr('stroke', '#121212').attr('stroke-width', 3);
+
+// Decade ticks
+for (let yr = 1780; yr <= 2000; yr += 10) {
+  const x = xScale(yr);
+  const isCentury = yr % 100 === 0;
+  svg.append('line')
+    .attr('x1', x).attr('y1', timelineY - (isCentury ? 10 : 5))
+    .attr('x2', x).attr('y2', timelineY + (isCentury ? 10 : 5))
+    .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+  if (yr % 50 === 0) {
+    svg.append('text')
+      .attr('x', x).attr('y', timelineY + 28)
+      .attr('text-anchor', 'middle')
+      .attr('font-family', "'JetBrains Mono', monospace")
+      .attr('font-size', 12).attr('fill', '#545454')
+      .text(yr);
+  }
+}
+
+// Event cards — alternate above/below
+events.forEach((ev, i) => {
+  const x = xScale(ev.year);
+  const above = i % 2 === 0;
+  const yOffset = ev.offset ? 50 : 0;
+
+  const cardH = 140;
+  const cardW = 200;
+  const cardY = above
+    ? timelineY - cardH - 50 - yOffset
+    : timelineY + 50 + yOffset;
+
+  // Connector line
+  svg.append('line')
+    .attr('x1', x).attr('y1', timelineY)
+    .attr('x2', x).attr('y2', above ? cardY + cardH : cardY)
+    .attr('stroke', ev.color).attr('stroke-width', 1.5).attr('stroke-dasharray', '3,3');
+
+  // Dot on timeline
+  svg.append('circle')
+    .attr('cx', x).attr('cy', timelineY).attr('r', 6)
+    .attr('fill', ev.color);
+
+  // Card
+  const cardX = Math.max(startX, Math.min(x - cardW/2, endX - cardW));
+  svg.append('rect')
+    .attr('x', cardX).attr('y', cardY).attr('width', cardW).attr('height', cardH)
+    .attr('fill', '#FFFFFF').attr('stroke', ev.color).attr('stroke-width', 2).attr('rx', 8);
+
+  // Year badge
+  svg.append('rect')
+    .attr('x', cardX).attr('y', cardY).attr('width', cardW).attr('height', 32)
+    .attr('fill', ev.color).attr('rx', 8);
+  svg.append('rect')
+    .attr('x', cardX).attr('y', cardY + 24).attr('width', cardW).attr('height', 8)
+    .attr('fill', ev.color);
+
+  svg.append('text')
+    .attr('x', cardX + 14).attr('y', cardY + 22)
+    .attr('font-family', "'JetBrains Mono', monospace")
+    .attr('font-size', 15).attr('font-weight', 400).attr('fill', '#FFFFFF')
+    .text(ev.year);
+
+  svg.append('text')
+    .attr('x', cardX + cardW - 10).attr('y', cardY + 22)
+    .attr('text-anchor', 'end')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 12).attr('fill', 'rgba(255,255,255,0.8)')
+    .text(ev.inventor);
+
+  // Chart name
+  svg.append('text')
+    .attr('x', cardX + 14).attr('y', cardY + 56)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 16).attr('font-weight', 700).attr('fill', '#121212')
+    .text(ev.name);
+
+  // Problem label
+  svg.append('text')
+    .attr('x', cardX + 14).attr('y', cardY + 80)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 11).attr('font-weight', 600).attr('fill', '#545454')
+    .text('ORIGINAL PROBLEM:');
+
+  // Problem text — wrap
+  const words = ev.problem.split(' ');
+  let line = '';
+  let lineNum = 0;
+  words.forEach(w => {
+    const test = line + (line ? ' ' : '') + w;
+    if (test.length > 26 && line) {
+      svg.append('text')
+        .attr('x', cardX + 14).attr('y', cardY + 98 + lineNum * 17)
+        .attr('font-family', "'EB Garamond', Georgia, serif")
+        .attr('font-size', 15).attr('font-style', 'italic').attr('fill', '#121212')
+        .text(line);
+      lineNum++;
+      line = w;
+    } else {
+      line = test;
+    }
+  });
+  if (line) {
+    svg.append('text')
+      .attr('x', cardX + 14).attr('y', cardY + 98 + lineNum * 17)
+      .attr('font-family', "'EB Garamond', Georgia, serif")
+      .attr('font-size', 15).attr('font-style', 'italic').attr('fill', '#121212')
+      .text(line);
+  }
+});
+
+// Era annotations
+const eras = [
+  { x1: 1780, x2: 1800, label: 'Age of Playfair' },
+  { x1: 1820, x2: 1870, label: 'Golden Age of statistical graphics' },
+  { x1: 1980, x2: 2000, label: 'Computer era' }
+];
+
+eras.forEach(era => {
+  const ex1 = xScale(era.x1), ex2 = xScale(era.x2);
+  svg.append('line')
+    .attr('x1', ex1).attr('y1', timelineY + 44).attr('x2', ex2).attr('y2', timelineY + 44)
+    .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+  svg.append('line')
+    .attr('x1', ex1).attr('y1', timelineY + 38).attr('x2', ex1).attr('y2', timelineY + 50)
+    .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+  svg.append('line')
+    .attr('x1', ex2).attr('y1', timelineY + 38).attr('x2', ex2).attr('y2', timelineY + 50)
+    .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+  svg.append('text')
+    .attr('x', (ex1 + ex2) / 2).attr('y', timelineY + 62)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 11).attr('fill', '#545454')
+    .text(era.label);
+});
+
+// Bottom message
+svg.append('rect')
+  .attr('x', W/2 - 520).attr('y', H - 80).attr('width', 1040).attr('height', 40)
+  .attr('fill', '#F8F8F8').attr('stroke', '#D4D4D4').attr('rx', 6);
+svg.append('text')
+  .attr('x', W/2).attr('y', H - 54)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 14).attr('fill', '#121212')
+  .text('Each chart type is a solution to a specific communication problem. Knowing the original problem clarifies when the chart works.');
+
+// Caption
+svg.append('line')
+  .attr('x1', 60).attr('y1', H - 28).attr('x2', W - 60).attr('y2', H - 28)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+svg.append('text')
+  .attr('x', W/2).attr('y', H - 8)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('fill', '#545454')
+  .text('Based on Friendly (2008), "A Brief History of Data Visualization"');
+</script>
+</body>
+</html>

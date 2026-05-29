@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 2.2 — The Instruction Budget</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #121212;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--color-white);
+    color: var(--color-ink);
+    width: 1600px;
+    height: 900px;
+    overflow: hidden;
+  }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const W = 1600, H = 900;
+const svg = d3.select('#chart').append('svg')
+  .attr('width', W).attr('height', H)
+  .attr('role', 'img')
+  .attr('aria-labelledby', 'chart-title');
+
+svg.append('title').attr('id', 'chart-title').text('Figure 2.2 — The Instruction Budget');
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#FFFFFF');
+
+// Title
+svg.append('text')
+  .attr('x', W/2).attr('y', 52)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-size', 36).attr('fill', '#121212')
+  .text('The instruction budget is real. The degradation is silent.');
+
+svg.append('text')
+  .attr('x', W/2).attr('y', 82)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 14).attr('fill', '#545454')
+  .text('Figure 2.2 — Why two files beat one: CLAUDE.md + DESIGN.md stay within budget');
+
+// Scenario labels
+const scenarioY = 130;
+const barStartX = 200;
+const barEndX = 1400;
+const barW = barEndX - barStartX;
+const barH = 64;
+
+// ── SCENARIO A: Two separate files ──
+svg.append('text')
+  .attr('x', 80).attr('y', scenarioY + 24)
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 16).attr('font-weight', 700).attr('fill', '#C8102E')
+  .text('SCENARIO A');
+svg.append('text')
+  .attr('x', 80).attr('y', scenarioY + 44)
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 13).attr('fill', '#545454')
+  .text('Two files, loaded');
+svg.append('text')
+  .attr('x', 80).attr('y', scenarioY + 58)
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 13).attr('fill', '#545454')
+  .text('separately');
+
+// Total capacity bar background
+const aBarY = scenarioY + 8;
+svg.append('rect')
+  .attr('x', barStartX).attr('y', aBarY).attr('width', barW).attr('height', barH)
+  .attr('fill', 'none').attr('stroke', '#D4D4D4').attr('stroke-width', 1.5).attr('rx', 4);
+
+// Segment 1: System prompt (~50 of 200)
+const sysW = barW * (50 / 200);
+svg.append('rect')
+  .attr('x', barStartX).attr('y', aBarY).attr('width', sysW).attr('height', barH)
+  .attr('fill', '#E8E8E8').attr('rx', 4);
+svg.append('rect')
+  .attr('x', barStartX + sysW - 4).attr('y', aBarY).attr('width', 4).attr('height', barH)
+  .attr('fill', '#E8E8E8');
+svg.append('text')
+  .attr('x', barStartX + sysW/2).attr('y', aBarY + 28)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('font-weight', 600).attr('fill', '#545454')
+  .text('Claude Code system prompt');
+svg.append('text')
+  .attr('x', barStartX + sysW/2).attr('y', aBarY + 48)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'JetBrains Mono', monospace")
+  .attr('font-size', 14).attr('fill', '#545454')
+  .text('~50 instructions');
+
+// Segment 2: CLAUDE.md (~100 of 200)
+const claudeW = barW * (100 / 200);
+svg.append('rect')
+  .attr('x', barStartX + sysW).attr('y', aBarY).attr('width', claudeW).attr('height', barH)
+  .attr('fill', '#C8102E').attr('rx', 0);
+svg.append('text')
+  .attr('x', barStartX + sysW + claudeW/2).attr('y', aBarY + 28)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 13).attr('font-weight', 700).attr('fill', '#FFFFFF')
+  .text('CLAUDE.md — coding constitution');
+svg.append('text')
+  .attr('x', barStartX + sysW + claudeW/2).attr('y', aBarY + 48)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'JetBrains Mono', monospace")
+  .attr('font-size', 14).attr('fill', '#FFFFFF')
+  .text('~100 instructions');
+
+// Remaining budget
+const remainW = barW - sysW - claudeW;
+svg.append('text')
+  .attr('x', barStartX + sysW + claudeW + remainW/2).attr('y', aBarY + 36)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('fill', '#545454')
+  .text('~50 remaining');
+
+// Budget indicator
+svg.append('text')
+  .attr('x', barEndX + 20).attr('y', aBarY + 36)
+  .attr('font-family', "'JetBrains Mono', monospace")
+  .attr('font-size', 13).attr('fill', '#545454')
+  .text('150–200 total');
+
+// DESIGN.md separate bar
+const designBarY = aBarY + barH + 24;
+const designW = barW * (60 / 200);
+
+svg.append('text')
+  .attr('x', barStartX - 10).attr('y', designBarY + 28)
+  .attr('text-anchor', 'end')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('fill', '#C8860E')
+  .text('ON DEMAND');
+
+svg.append('rect')
+  .attr('x', barStartX).attr('y', designBarY).attr('width', designW).attr('height', 44)
+  .attr('fill', '#C8860E').attr('rx', 4);
+svg.append('text')
+  .attr('x', barStartX + designW/2).attr('y', designBarY + 20)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 13).attr('font-weight', 700).attr('fill', '#FFFFFF')
+  .text('DESIGN.md — visual constitution');
+svg.append('text')
+  .attr('x', barStartX + designW/2).attr('y', designBarY + 38)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'JetBrains Mono', monospace")
+  .attr('font-size', 12).attr('fill', '#FFFFFF')
+  .text('~40–60 instructions');
+
+// Dashed arrow from DESIGN.md to main bar
+svg.append('line')
+  .attr('x1', barStartX + designW + 10).attr('y1', designBarY + 22)
+  .attr('x2', barStartX + sysW + claudeW + 20).attr('y2', aBarY + barH + 4)
+  .attr('stroke', '#C8860E').attr('stroke-width', 1.5).attr('stroke-dasharray', '6,4');
+
+svg.append('text')
+  .attr('x', barStartX + designW + 20).attr('y', designBarY + 10)
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 11).attr('fill', '#C8860E')
+  .text('Loads only for visual sessions');
+
+// Check mark
+svg.append('text')
+  .attr('x', barEndX + 20).attr('y', designBarY + 8)
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 18).attr('font-weight', 700).attr('fill', '#2D8B4E')
+  .text('WITHIN BUDGET');
+
+// ── Divider ──
+const divY = 370;
+svg.append('line')
+  .attr('x1', 80).attr('y1', divY).attr('x2', W - 80).attr('y2', divY)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+
+// ── SCENARIO B: One merged file ──
+const bLabelY = divY + 40;
+svg.append('text')
+  .attr('x', 80).attr('y', bLabelY + 24)
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 16).attr('font-weight', 700).attr('fill', '#545454')
+  .text('SCENARIO B');
+svg.append('text')
+  .attr('x', 80).attr('y', bLabelY + 44)
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 13).attr('fill', '#545454')
+  .text('One merged file,');
+svg.append('text')
+  .attr('x', 80).attr('y', bLabelY + 58)
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 13).attr('fill', '#545454')
+  .text('always loaded');
+
+const bBarY = bLabelY + 8;
+
+// Total capacity bar
+svg.append('rect')
+  .attr('x', barStartX).attr('y', bBarY).attr('width', barW).attr('height', barH)
+  .attr('fill', 'none').attr('stroke', '#D4D4D4').attr('stroke-width', 1.5).attr('rx', 4);
+
+// Segment 1: System prompt
+svg.append('rect')
+  .attr('x', barStartX).attr('y', bBarY).attr('width', sysW).attr('height', barH)
+  .attr('fill', '#E8E8E8').attr('rx', 4);
+svg.append('rect')
+  .attr('x', barStartX + sysW - 4).attr('y', bBarY).attr('width', 4).attr('height', barH)
+  .attr('fill', '#E8E8E8');
+svg.append('text')
+  .attr('x', barStartX + sysW/2).attr('y', bBarY + 28)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('font-weight', 600).attr('fill', '#545454')
+  .text('System prompt');
+svg.append('text')
+  .attr('x', barStartX + sysW/2).attr('y', bBarY + 48)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'JetBrains Mono', monospace")
+  .attr('font-size', 14).attr('fill', '#545454')
+  .text('~50');
+
+// Segment 2: Merged CLAUDE.md + DESIGN.md (~200+)
+const mergedW = barW * (160 / 200);
+svg.append('rect')
+  .attr('x', barStartX + sysW).attr('y', bBarY).attr('width', claudeW).attr('height', barH)
+  .attr('fill', '#C8102E');
+svg.append('text')
+  .attr('x', barStartX + sysW + claudeW/2).attr('y', bBarY + 36)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('font-weight', 600).attr('fill', '#FFFFFF')
+  .text('Coding rules (~100)');
+
+// Overflow zone with design rules
+const overflowStart = barStartX + sysW + claudeW;
+const designInMergedW = barW * (60 / 200);
+svg.append('rect')
+  .attr('x', overflowStart).attr('y', bBarY).attr('width', designInMergedW).attr('height', barH)
+  .attr('fill', '#C8860E').attr('opacity', 0.6);
+
+// Hatch pattern for overflow
+const defs = svg.append('defs');
+const pattern = defs.append('pattern')
+  .attr('id', 'hatch')
+  .attr('patternUnits', 'userSpaceOnUse')
+  .attr('width', 8).attr('height', 8);
+pattern.append('path')
+  .attr('d', 'M-1,1 l2,-2 M0,8 l8,-8 M7,9 l2,-2')
+  .attr('stroke', '#FFFFFF').attr('stroke-width', 1.5);
+
+svg.append('rect')
+  .attr('x', overflowStart).attr('y', bBarY).attr('width', designInMergedW).attr('height', barH)
+  .attr('fill', 'url(#hatch)');
+
+svg.append('text')
+  .attr('x', overflowStart + designInMergedW/2).attr('y', bBarY + 36)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('font-weight', 600).attr('fill', '#FFFFFF')
+  .text('Design rules (~60)');
+
+// Budget overflow bracket
+const overflowEndX = overflowStart + designInMergedW;
+svg.append('line')
+  .attr('x1', barEndX).attr('y1', bBarY - 4).attr('x2', barEndX).attr('y2', bBarY + barH + 4)
+  .attr('stroke', '#C8102E').attr('stroke-width', 2).attr('stroke-dasharray', '4,3');
+svg.append('text')
+  .attr('x', barEndX + 6).attr('y', bBarY + 20)
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 11).attr('fill', '#C8102E')
+  .text('Budget limit');
+
+// Overflow warning
+svg.append('text')
+  .attr('x', barEndX + 20).attr('y', bBarY + 48)
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 16).attr('font-weight', 700).attr('fill', '#C8102E')
+  .text('EXCEEDS BUDGET');
+
+// Degradation zone annotation
+const degradeY = bBarY + barH + 28;
+svg.append('line')
+  .attr('x1', barEndX - 120).attr('y1', degradeY)
+  .attr('x2', overflowEndX).attr('y2', degradeY)
+  .attr('stroke', '#C8102E').attr('stroke-width', 2);
+svg.append('text')
+  .attr('x', (barEndX - 120 + overflowEndX) / 2).attr('y', degradeY + 20)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 13).attr('fill', '#C8102E')
+  .text('Rules degraded silently here');
+
+// ── Bottom summary ──
+const summaryY = 600;
+svg.append('line')
+  .attr('x1', 80).attr('y1', summaryY).attr('x2', W - 80).attr('y2', summaryY)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+
+// Summary boxes
+const boxes = [
+  { x: 140, label: 'CLAUDE.md', desc: 'Coding constitution', detail: '~100 instructions', sub: 'Loads every session', color: '#C8102E' },
+  { x: 540, label: 'DESIGN.md', desc: 'Visual constitution', detail: '~40–60 instructions', sub: 'Loads on demand', color: '#C8860E' },
+  { x: 940, label: 'Together', desc: '~100–150 total', detail: 'Within budget', sub: 'Rules tracked reliably', color: '#2D8B4E' },
+  { x: 1280, label: 'Merged', desc: '~200+ total', detail: 'Exceeds budget', sub: 'Late rules degrade', color: '#C8102E' },
+];
+
+boxes.forEach(b => {
+  const bx = b.x;
+  svg.append('rect')
+    .attr('x', bx).attr('y', summaryY + 24).attr('width', 240).attr('height', 120)
+    .attr('fill', '#FFFFFF').attr('stroke', b.color).attr('stroke-width', 2).attr('rx', 8);
+  svg.append('rect')
+    .attr('x', bx).attr('y', summaryY + 24).attr('width', 240).attr('height', 36)
+    .attr('fill', b.color).attr('rx', 8);
+  svg.append('rect')
+    .attr('x', bx).attr('y', summaryY + 50).attr('width', 240).attr('height', 10)
+    .attr('fill', b.color);
+  svg.append('text')
+    .attr('x', bx + 120).attr('y', summaryY + 50)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 15).attr('font-weight', 700).attr('fill', '#FFFFFF')
+    .text(b.label);
+  svg.append('text')
+    .attr('x', bx + 120).attr('y', summaryY + 82)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 14).attr('fill', '#121212')
+    .text(b.desc);
+  svg.append('text')
+    .attr('x', bx + 120).attr('y', summaryY + 104)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'JetBrains Mono', monospace")
+    .attr('font-size', 13).attr('fill', '#545454')
+    .text(b.detail);
+  svg.append('text')
+    .attr('x', bx + 120).attr('y', summaryY + 124)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 12).attr('fill', '#545454')
+    .text(b.sub);
+});
+
+// Caption
+svg.append('line')
+  .attr('x1', 80).attr('y1', H - 40).attr('x2', W - 80).attr('y2', H - 40)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+svg.append('text')
+  .attr('x', W/2).attr('y', H - 16)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('fill', '#545454')
+  .text('Two files with clear separation of concerns keep both within budget. The split is not a style preference — it is a constraint.');
+</script>
+</body>
+</html>

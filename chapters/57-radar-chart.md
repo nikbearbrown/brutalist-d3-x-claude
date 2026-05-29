@@ -2,7 +2,8 @@
 
 *Each Region Has a Distinct Capability Profile —South Asia Leads on Access & Capacity, MENA on Funding & Coordination*
 
-![Radar Chart](../images/57-radar-chart.jpg)
+![Radar chart comparing South Asia and MENA across five capability dimensions](../images/57-radar-chart.png)
+*Figure 57.1 — Each Region Has a Distinct Capability Profile*
 
 ## What this chart is
 
@@ -49,6 +50,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/57-radar-chart.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

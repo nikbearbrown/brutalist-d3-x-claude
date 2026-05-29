@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 8.5 — Stacked area accuracy gradient: bottom layer wins</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #121212;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--color-white);
+    color: var(--color-ink);
+    width: 1600px;
+    height: 900px;
+    overflow: hidden;
+  }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const W = 1600, H = 900;
+const svg = d3.select('#chart').append('svg')
+  .attr('width', W).attr('height', H)
+  .attr('role', 'img')
+  .attr('aria-labelledby', 'chart-title chart-desc');
+
+svg.append('title').attr('id', 'chart-title').text('What you need to read most accurately belongs at the bottom.');
+svg.append('desc').attr('id', 'chart-desc').text('A stacked area chart with five humanitarian sectors showing that the bottom layer has highest accuracy (fixed baseline) while upper layers have decreasing accuracy due to variable baselines.');
+
+// Background
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#FFFFFF');
+
+// Main title
+svg.append('text')
+  .attr('x', W / 2).attr('y', 52)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-size', 34).attr('fill', '#121212')
+  .text('What you need to read most accurately belongs at the bottom.');
+
+// Subtitle
+svg.append('text')
+  .attr('x', W / 2).attr('y', 80)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 14).attr('fill', '#545454')
+  .text('Figure 8.5 \u2014 Stacked area accuracy gradient: bottom layer wins');
+
+// Data: 12 months, 5 sectors
+const monthLabels = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const sectors = ['Food Security', 'Shelter', 'Water', 'Health', 'Protection'];
+
+// Generate plausible humanitarian funding/spending data (millions)
+const rawData = monthLabels.map((m, i) => ({
+  month: m,
+  index: i,
+  'Food Security': 320 + Math.round(Math.sin(i * 0.5) * 30 + i * 5),
+  'Shelter':       180 + Math.round(Math.cos(i * 0.4) * 20 + i * 2),
+  'Water':         140 + Math.round(Math.sin(i * 0.6 + 1) * 15 + i * 1.5),
+  'Health':         90 + Math.round(Math.cos(i * 0.3 + 2) * 12 + i * 1),
+  'Protection':     45 + Math.round(Math.sin(i * 0.7 + 0.5) * 8 + i * 0.5)
+}));
+
+// Stack the data
+const stack = d3.stack()
+  .keys(sectors)
+  .order(d3.stackOrderNone)
+  .offset(d3.stackOffsetNone);
+
+const stackedData = stack(rawData);
+
+// Chart dimensions
+const margin = { top: 110, right: 340, bottom: 100, left: 100 };
+const chartW = W - margin.left - margin.right;
+const chartH = H - margin.top - margin.bottom;
+
+const gChart = svg.append('g')
+  .attr('transform', `translate(${margin.left}, ${margin.top})`);
+
+// Scales
+const xScaleBand = d3.scalePoint()
+  .domain(rawData.map(d => d.month))
+  .range([0, chartW])
+  .padding(0.3);
+
+const yMax = d3.max(stackedData[stackedData.length - 1], d => d[1]);
+const yScaleLinear = d3.scaleLinear()
+  .domain([0, yMax * 1.05])
+  .range([chartH, 0]);
+
+// Color palette — 5 shades from ink to light
+const layerColors = ['#121212', '#4A4A4A', '#7A7A7A', '#A8A8A8', '#D4D4D4'];
+
+// Area generator
+const area = d3.area()
+  .x((d, i) => xScaleBand(rawData[i].month))
+  .y0(d => yScaleLinear(d[0]))
+  .y1(d => yScaleLinear(d[1]))
+  .curve(d3.curveMonotoneX);
+
+// Gridlines
+gChart.selectAll('.gridline')
+  .data(yScaleLinear.ticks(6))
+  .join('line')
+    .attr('class', 'gridline')
+    .attr('x1', 0).attr('x2', chartW)
+    .attr('y1', d => yScaleLinear(d)).attr('y2', d => yScaleLinear(d))
+    .attr('stroke', '#ECECEC').attr('stroke-width', 1)
+    .attr('aria-hidden', 'true');
+
+// Draw stacked areas
+gChart.selectAll('.layer')
+  .data(stackedData)
+  .join('path')
+    .attr('class', 'layer')
+    .attr('d', area)
+    .attr('fill', (d, i) => layerColors[i])
+    .attr('opacity', 0.85)
+    .attr('stroke', '#FFFFFF')
+    .attr('stroke-width', 0.5)
+    .attr('tabindex', 0)
+    .attr('aria-label', (d, i) => `${sectors[i]} layer`);
+
+// Axes
+const xAxis = d3.axisBottom(xScaleBand).tickSize(0);
+const xAxisG = gChart.append('g')
+  .attr('transform', `translate(0, ${chartH})`)
+  .call(xAxis);
+xAxisG.selectAll('text')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('fill', '#545454');
+xAxisG.select('.domain').attr('stroke', '#D4D4D4');
+
+const yAxis = d3.axisLeft(yScaleLinear).ticks(6);
+const yAxisG = gChart.append('g').call(yAxis);
+yAxisG.selectAll('text')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 11).attr('fill', '#545454');
+yAxisG.selectAll('.domain, .tick line').attr('stroke', '#D4D4D4');
+
+// Y-axis label
+gChart.append('text')
+  .attr('x', -chartH / 2).attr('y', -65)
+  .attr('transform', 'rotate(-90)')
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 12).attr('fill', '#545454')
+  .text('Spending ($M)');
+
+// Layer labels inside the areas (at right edge, month = Dec)
+const lastIdx = rawData.length - 1;
+sectors.forEach((sector, i) => {
+  const layerData = stackedData[i][lastIdx];
+  const midY = (yScaleLinear(layerData[0]) + yScaleLinear(layerData[1])) / 2;
+  gChart.append('text')
+    .attr('x', chartW - 8)
+    .attr('y', midY + 4)
+    .attr('text-anchor', 'end')
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 11).attr('font-weight', 600)
+    .attr('fill', i < 2 ? '#FFFFFF' : '#121212')
+    .text(sector);
+});
+
+// =========================================================
+// RIGHT-SIDE BRACKET ANNOTATIONS
+// =========================================================
+const bracketX = chartW + 20;
+const bracketW = 12;
+
+function drawBracket(g, y1, y2, color, lines) {
+  const midY = (y1 + y2) / 2;
+  // Vertical line
+  g.append('line')
+    .attr('x1', bracketX).attr('y1', y1)
+    .attr('x2', bracketX).attr('y2', y2)
+    .attr('stroke', color).attr('stroke-width', 2);
+  // Top tick
+  g.append('line')
+    .attr('x1', bracketX).attr('y1', y1)
+    .attr('x2', bracketX + bracketW).attr('y2', y1)
+    .attr('stroke', color).attr('stroke-width', 2);
+  // Bottom tick
+  g.append('line')
+    .attr('x1', bracketX).attr('y1', y2)
+    .attr('x2', bracketX + bracketW).attr('y2', y2)
+    .attr('stroke', color).attr('stroke-width', 2);
+  // Mid pointer
+  g.append('line')
+    .attr('x1', bracketX).attr('y1', midY)
+    .attr('x2', bracketX + bracketW + 4).attr('y2', midY)
+    .attr('stroke', color).attr('stroke-width', 1.5);
+
+  // Text lines
+  lines.forEach((line, li) => {
+    g.append('text')
+      .attr('x', bracketX + bracketW + 10)
+      .attr('y', midY - ((lines.length - 1) * 7) + li * 14)
+      .attr('font-family', "'Inter', sans-serif")
+      .attr('font-size', 11)
+      .attr('fill', color)
+      .attr('font-weight', line.bold ? 700 : 400)
+      .text(line.text);
+  });
+}
+
+// Green color for "HIGH"
+const greenColor = '#2D8A4E';
+
+// Bottom layer (Food Security) — HIGH accuracy
+const bottomTop = yScaleLinear(stackedData[0][lastIdx][1]);
+const bottomBot = yScaleLinear(stackedData[0][lastIdx][0]);
+drawBracket(gChart, bottomTop, bottomBot, greenColor, [
+  { text: 'Fixed baseline = 0', bold: false },
+  { text: 'Position along common scale', bold: false },
+  { text: 'Accuracy: HIGH', bold: true }
+]);
+
+// Second layer (Shelter) — MEDIUM accuracy
+const secondTop = yScaleLinear(stackedData[1][lastIdx][1]);
+const secondBot = yScaleLinear(stackedData[1][lastIdx][0]);
+drawBracket(gChart, secondTop, secondBot, '#C8860E', [
+  { text: 'Baseline varies with layer below', bold: false },
+  { text: 'Must estimate thickness', bold: false },
+  { text: 'Accuracy: MEDIUM', bold: true }
+]);
+
+// Top layer (Protection) — LOW accuracy
+const topTop = yScaleLinear(stackedData[4][lastIdx][1]);
+const topBot = yScaleLinear(stackedData[4][lastIdx][0]);
+drawBracket(gChart, topTop, topBot, '#C8102E', [
+  { text: 'Baseline highly variable', bold: false },
+  { text: 'Thickness hardest to judge', bold: false },
+  { text: 'Accuracy: LOW', bold: true }
+]);
+
+// Total top edge — HIGH accuracy
+const totalTopY = yScaleLinear(stackedData[4][lastIdx][1]);
+// Draw a special bracket for the total line at the very top
+const totalBracketY = totalTopY - 8;
+gChart.append('line')
+  .attr('x1', bracketX).attr('y1', totalBracketY)
+  .attr('x2', bracketX + bracketW + 4).attr('y2', totalBracketY)
+  .attr('stroke', greenColor).attr('stroke-width', 2);
+gChart.append('line')
+  .attr('x1', bracketX + bracketW + 4).attr('y1', totalBracketY)
+  .attr('x2', bracketX + bracketW + 4).attr('y2', totalBracketY - 4)
+  .attr('stroke', greenColor).attr('stroke-width', 2);
+
+// Draw a thin dashed line across the top of the stack to show the total trajectory
+gChart.append('path')
+  .datum(stackedData[4])
+  .attr('fill', 'none')
+  .attr('stroke', greenColor)
+  .attr('stroke-width', 2)
+  .attr('stroke-dasharray', '6,3')
+  .attr('d', d3.line()
+    .x((d, i) => xScaleBand(rawData[i].month))
+    .y(d => yScaleLinear(d[1]))
+    .curve(d3.curveMonotoneX)
+  );
+
+const totalAnnotationLines = [
+  { text: 'Total trajectory \u2014 position', bold: false },
+  { text: 'along common scale', bold: false },
+  { text: 'Accuracy: HIGH', bold: true }
+];
+totalAnnotationLines.forEach((line, li) => {
+  gChart.append('text')
+    .attr('x', bracketX + bracketW + 10)
+    .attr('y', totalBracketY - 20 + li * 14)
+    .attr('font-family', "'Inter', sans-serif")
+    .attr('font-size', 11)
+    .attr('fill', greenColor)
+    .attr('font-weight', line.bold ? 700 : 400)
+    .text(line.text);
+});
+
+// Accuracy gradient arrow on the far right
+const arrowX = W - 60;
+const arrowTop = margin.top + 30;
+const arrowBot = margin.top + chartH - 30;
+
+svg.append('line')
+  .attr('x1', arrowX).attr('y1', arrowTop)
+  .attr('x2', arrowX).attr('y2', arrowBot)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1.5);
+
+// Arrow head pointing down
+svg.append('path')
+  .attr('d', `M ${arrowX - 5},${arrowBot - 8} L ${arrowX},${arrowBot} L ${arrowX + 5},${arrowBot - 8}`)
+  .attr('fill', 'none').attr('stroke', '#D4D4D4').attr('stroke-width', 1.5);
+
+// Arrow head pointing up
+svg.append('path')
+  .attr('d', `M ${arrowX - 5},${arrowTop + 8} L ${arrowX},${arrowTop} L ${arrowX + 5},${arrowTop + 8}`)
+  .attr('fill', 'none').attr('stroke', '#D4D4D4').attr('stroke-width', 1.5);
+
+svg.append('text')
+  .attr('x', arrowX).attr('y', arrowTop - 10)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 10).attr('fill', '#C8102E')
+  .text('LOW');
+
+svg.append('text')
+  .attr('x', arrowX).attr('y', arrowBot + 18)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 10).attr('fill', greenColor)
+  .text('HIGH');
+
+svg.append('text')
+  .attr('x', arrowX + 2).attr('y', (arrowTop + arrowBot) / 2)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'Inter', sans-serif")
+  .attr('font-size', 10).attr('fill', '#545454')
+  .attr('transform', `rotate(-90, ${arrowX + 2}, ${(arrowTop + arrowBot) / 2})`)
+  .text('ACCURACY');
+
+// =========================================================
+// Bottom caption
+// =========================================================
+svg.append('line')
+  .attr('x1', 50).attr('y1', H - 42).attr('x2', W - 50).attr('y2', H - 42)
+  .attr('stroke', '#D4D4D4').attr('stroke-width', 1);
+
+svg.append('text')
+  .attr('x', W / 2).attr('y', H - 16)
+  .attr('text-anchor', 'middle')
+  .attr('font-family', "'EB Garamond', Georgia, serif")
+  .attr('font-style', 'italic')
+  .attr('font-size', 15).attr('fill', '#545454')
+  .text('Place the series your reader must judge most precisely at the bottom of the stack, where the baseline is fixed at zero.');
+</script>
+</body>
+</html>

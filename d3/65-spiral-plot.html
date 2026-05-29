@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spiral Plot — Seasonal Pattern, 4 Years</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root {
+    --color-bg: #FFFFFF;
+    --color-ink: #2a1a0e;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+    --color-surface: #F5EFE8;
+    --color-mark: #6B3520;
+    --color-slate: #1A3A5C;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1a1a;
+      --color-ink: #e8e0d6;
+      --color-surface: #2a2420;
+      --color-secondary: #a0978e;
+      --color-border: #444;
+      --color-mark: #c28060;
+      --color-red: #e05040;
+      --color-slate: #5a9ad6;
+      --color-ochre: #d4a030;
+    }
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+  #chart-container { width: 100%; max-width: 900px; }
+  h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; color: var(--color-ink); }
+  .subtitle {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--color-secondary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .caption {
+    font-size: 0.9rem;
+    color: var(--color-secondary);
+    font-style: italic;
+    margin-top: 12px;
+  }
+  .tooltip {
+    position: absolute;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--color-ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+</style>
+</head>
+<body>
+<div id="chart-container">
+  <h1>Seasonal Pattern — 4 Years</h1>
+  <div class="subtitle">SPIRAL PLOT — Q4 PEAK, Q2 TROUGH</div>
+  <div id="chart" role="img" aria-label="Spiral plot showing 48 months of data across 4 years (2021-2024). Each rotation is one year, with radial bars showing monthly values. Q4 bars are tallest and highlighted in red."></div>
+  <div class="caption">Inner arm = 2021, outer = 2024. Q4 bars grow taller each year; Q2 remains the seasonal trough.</div>
+</div>
+<div class="tooltip" id="tooltip"></div>
+<script>
+const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const years = [2021, 2022, 2023, 2024];
+
+// Generate data: Q4 highest, Q2 lowest, with year-over-year growth
+const data = [];
+years.forEach((year, yi) => {
+  const base = 40 + yi * 12;
+  const seasonal = [0.75, 0.65, 0.60, 0.50, 0.48, 0.52, 0.62, 0.70, 0.78, 0.92, 0.98, 0.95];
+  months.forEach((month, mi) => {
+    data.push({
+      year, month, monthIndex: mi, cycleIndex: yi,
+      value: Math.round(base * seasonal[mi] + Math.random() * 5),
+      label: `${month} ${year}`,
+      isQ4: mi >= 9
+    });
+  });
+});
+
+const container = document.getElementById("chart");
+const tooltip = document.getElementById("tooltip");
+
+function draw() {
+  container.innerHTML = "";
+  const width = container.clientWidth;
+  const height = Math.min(width * 0.85, 650);
+  const cx = width / 2;
+  const cy = height / 2;
+
+  const svg = d3.select(container).append("svg")
+    .attr("width", width).attr("height", height)
+    .attr("viewBox", `0 0 ${width} ${height}`);
+
+  svg.append("title").text("Seasonal Pattern — 4-Year Spiral Plot");
+  svg.append("desc").text("Archimedean spiral with 48 radial bars (12 months x 4 years). Q4 bars are tallest and highlighted in red.");
+
+  // Chart area
+  svg.append("rect").attr("x", 32).attr("y", 10).attr("width", width - 64).attr("height", height - 20)
+    .attr("fill", "var(--color-surface)").attr("stroke", "var(--color-border)").attr("stroke-width", 0.75);
+
+  const g = svg.append("g").attr("transform", `translate(${cx},${cy})`);
+
+  const innerR = Math.min(width, height) * 0.08;
+  const armSpacing = Math.min(width, height) * 0.09;
+  const maxBarH = armSpacing * 0.8;
+  const maxValue = d3.max(data, d => d.value);
+
+  // Year ring guides
+  years.forEach((_, i) => {
+    g.append("circle")
+      .attr("r", innerR + i * armSpacing)
+      .attr("fill", "none").attr("stroke", "var(--color-border)")
+      .attr("stroke-width", 0.3).attr("stroke-dasharray", "2,2");
+  });
+
+  // Month labels
+  months.forEach((m, i) => {
+    const angle = (i / 12) * 2 * Math.PI - Math.PI / 2;
+    const labelR = innerR + years.length * armSpacing + 18;
+    const x = Math.cos(angle) * labelR;
+    const y = Math.sin(angle) * labelR;
+    const isQ4 = i >= 9;
+    g.append("text")
+      .attr("x", x).attr("y", y)
+      .attr("text-anchor", Math.cos(angle) > 0.3 ? "start" : Math.cos(angle) < -0.3 ? "end" : "middle")
+      .attr("dominant-baseline", "central")
+      .attr("font-family", "'IBM Plex Mono', monospace")
+      .attr("font-size", "0.6rem")
+      .attr("fill", isQ4 ? "var(--color-red)" : "var(--color-ink)")
+      .attr("letter-spacing", "0.08em")
+      .text(m.toUpperCase());
+  });
+
+  // Bars
+  data.forEach(d => {
+    const angle = (d.monthIndex / 12) * 2 * Math.PI - Math.PI / 2;
+    const baseR = innerR + d.cycleIndex * armSpacing;
+    const barH = (d.value / maxValue) * maxBarH;
+    const x1 = Math.cos(angle) * baseR;
+    const y1 = Math.sin(angle) * baseR;
+    const x2 = Math.cos(angle) * (baseR + barH);
+    const y2 = Math.sin(angle) * (baseR + barH);
+
+    g.append("line")
+      .attr("x1", x1).attr("y1", y1).attr("x2", x2).attr("y2", y2)
+      .attr("stroke", d.isQ4 ? "var(--color-red)" : "var(--color-mark)")
+      .attr("stroke-width", Math.max(3, width * 0.006))
+      .attr("stroke-linecap", "butt")
+      .attr("tabindex", 0)
+      .attr("role", "graphics-symbol")
+      .attr("aria-label", `${d.label}: ${d.value}`)
+      .on("mouseenter", function(event) {
+        tooltip.style.opacity = 1;
+        tooltip.innerHTML = `<strong>${d.label}</strong><br>Value: ${d.value}`;
+      })
+      .on("mousemove", function(event) {
+        tooltip.style.left = event.pageX + 12 + "px";
+        tooltip.style.top = event.pageY - 28 + "px";
+      })
+      .on("mouseleave", () => { tooltip.style.opacity = 0; });
+  });
+
+  // Year labels
+  years.forEach((year, i) => {
+    const r = innerR + i * armSpacing + armSpacing * 0.5;
+    g.append("text")
+      .attr("x", 0).attr("y", r + 4)
+      .attr("text-anchor", "middle")
+      .attr("font-family", "'IBM Plex Mono', monospace")
+      .attr("font-size", "0.55rem")
+      .attr("fill", "var(--color-secondary)")
+      .attr("letter-spacing", "0.08em")
+      .text(year);
+  });
+
+  // Legend
+  const lg = svg.append("g").attr("transform", `translate(${width - 100}, 30)`);
+  lg.append("rect").attr("width", 10).attr("height", 10).attr("fill", "var(--color-mark)");
+  lg.append("text").attr("x", 14).attr("y", 9)
+    .attr("font-family", "'IBM Plex Mono', monospace").attr("font-size", "0.55rem")
+    .attr("fill", "var(--color-ink)").attr("letter-spacing", "0.08em").text("Q1-Q3");
+  lg.append("rect").attr("y", 16).attr("width", 10).attr("height", 10).attr("fill", "var(--color-red)");
+  lg.append("text").attr("x", 14).attr("y", 25)
+    .attr("font-family", "'IBM Plex Mono', monospace").attr("font-size", "0.55rem")
+    .attr("fill", "var(--color-red)").attr("letter-spacing", "0.08em").text("Q4");
+}
+
+draw();
+window.addEventListener("resize", draw);
+</script>
+</body>
+</html>

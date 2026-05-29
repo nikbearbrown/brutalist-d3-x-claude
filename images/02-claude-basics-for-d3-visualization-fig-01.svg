@@ -1,0 +1,94 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#2a1a0e"/>
+  </marker>
+</defs>
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="38" font-family="'EB Garamond', Georgia, serif" font-size="14" font-weight="bold" fill="#2a1a0e" text-anchor="middle">Vague vs. Specific Prompts: Who Makes the Decisions?</text>
+
+<!-- Vertical dividing line -->
+<line x1="350" y1="52" x2="350" y2="368" stroke="#D4D4D4" stroke-width="1"/>
+
+<!-- ═══════ LEFT COLUMN: VAGUE PROMPT ═══════ -->
+<text x="185" y="72" font-family="'IBM Plex Mono', monospace" font-size="12" font-weight="bold" fill="#2a1a0e" text-anchor="middle" letter-spacing="0.08em">VAGUE PROMPT</text>
+
+<!-- Vague prompt callout box -->
+<rect x="52" y="84" width="266" height="44" rx="0" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+<text x="185" y="102" font-family="'EB Garamond', Georgia, serif" font-size="10.5" fill="#545454" text-anchor="middle">"Make a chart showing AI capability</text>
+<text x="185" y="116" font-family="'EB Garamond', Georgia, serif" font-size="10.5" fill="#545454" text-anchor="middle">across cognitive domains."</text>
+
+<!-- Dashed connector from prompt to rows -->
+<line x1="185" y1="128" x2="185" y2="146" stroke="#D4D4D4" stroke-dasharray="4 3" stroke-width="0.75"/>
+
+<!-- Row 1: Chart type -->
+<circle cx="62" cy="160" r="4" fill="#6B3520"/>
+<text x="74" y="164" font-family="'EB Garamond', Georgia, serif" font-size="11" fill="#2a1a0e">Chart type</text>
+<text x="248" y="164" font-family="'EB Garamond', Georgia, serif" font-size="10" fill="#545454" text-anchor="middle">Model decides</text>
+
+<!-- Row 2: Marks -->
+<circle cx="62" cy="194" r="4" fill="#6B3520"/>
+<text x="74" y="198" font-family="'EB Garamond', Georgia, serif" font-size="11" fill="#2a1a0e">Marks</text>
+<text x="248" y="198" font-family="'EB Garamond', Georgia, serif" font-size="10" fill="#545454" text-anchor="middle">Model decides</text>
+
+<!-- Row 3: Channels -->
+<circle cx="62" cy="228" r="4" fill="#6B3520"/>
+<text x="74" y="232" font-family="'EB Garamond', Georgia, serif" font-size="11" fill="#2a1a0e">Channels</text>
+<text x="248" y="232" font-family="'EB Garamond', Georgia, serif" font-size="10" fill="#545454" text-anchor="middle">Model decides</text>
+
+<!-- Row 4: Sort order -->
+<circle cx="62" cy="262" r="4" fill="#6B3520"/>
+<text x="74" y="266" font-family="'EB Garamond', Georgia, serif" font-size="11" fill="#2a1a0e">Sort order</text>
+<text x="248" y="266" font-family="'EB Garamond', Georgia, serif" font-size="10" fill="#545454" text-anchor="middle">Model decides</text>
+
+<!-- Row 5: Baseline -->
+<circle cx="62" cy="296" r="4" fill="#6B3520"/>
+<text x="74" y="300" font-family="'EB Garamond', Georgia, serif" font-size="11" fill="#2a1a0e">Baseline</text>
+<text x="248" y="300" font-family="'EB Garamond', Georgia, serif" font-size="10" fill="#545454" text-anchor="middle">Model decides</text>
+
+<!-- ═══════ RIGHT COLUMN: SPECIFIC PROMPT ═══════ -->
+<text x="525" y="72" font-family="'IBM Plex Mono', monospace" font-size="12" font-weight="bold" fill="#2a1a0e" text-anchor="middle" letter-spacing="0.08em">SPECIFIC PROMPT</text>
+
+<!-- Specific prompt callout box -->
+<rect x="382" y="84" width="286" height="44" rx="0" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+<text x="525" y="102" font-family="'EB Garamond', Georgia, serif" font-size="10.5" fill="#545454" text-anchor="middle">"Horizontal bar chart, rect marks, x = score,</text>
+<text x="525" y="116" font-family="'EB Garamond', Georgia, serif" font-size="10.5" fill="#545454" text-anchor="middle">y = domain sorted descending, baseline zero..."</text>
+
+<!-- Dashed connector from prompt to rows -->
+<line x1="525" y1="128" x2="525" y2="146" stroke="#D4D4D4" stroke-dasharray="4 3" stroke-width="0.75"/>
+
+<!-- Row 1: Chart type -->
+<circle cx="392" cy="160" r="4" fill="#C8102E"/>
+<text x="404" y="164" font-family="'EB Garamond', Georgia, serif" font-size="11" fill="#2a1a0e">Chart type</text>
+<text x="588" y="164" font-family="'EB Garamond', Georgia, serif" font-size="10" fill="#C8102E" text-anchor="middle">Author controls</text>
+
+<!-- Row 2: Marks -->
+<circle cx="392" cy="194" r="4" fill="#C8102E"/>
+<text x="404" y="198" font-family="'EB Garamond', Georgia, serif" font-size="11" fill="#2a1a0e">Marks</text>
+<text x="588" y="198" font-family="'EB Garamond', Georgia, serif" font-size="10" fill="#C8102E" text-anchor="middle">Author controls</text>
+
+<!-- Row 3: Channels -->
+<circle cx="392" cy="228" r="4" fill="#C8102E"/>
+<text x="404" y="232" font-family="'EB Garamond', Georgia, serif" font-size="11" fill="#2a1a0e">Channels</text>
+<text x="588" y="232" font-family="'EB Garamond', Georgia, serif" font-size="10" fill="#C8102E" text-anchor="middle">Author controls</text>
+
+<!-- Row 4: Sort order -->
+<circle cx="392" cy="262" r="4" fill="#C8102E"/>
+<text x="404" y="266" font-family="'EB Garamond', Georgia, serif" font-size="11" fill="#2a1a0e">Sort order</text>
+<text x="588" y="266" font-family="'EB Garamond', Georgia, serif" font-size="10" fill="#C8102E" text-anchor="middle">Author controls</text>
+
+<!-- Row 5: Baseline -->
+<circle cx="392" cy="296" r="4" fill="#C8102E"/>
+<text x="404" y="300" font-family="'EB Garamond', Georgia, serif" font-size="11" fill="#2a1a0e">Baseline</text>
+<text x="588" y="300" font-family="'EB Garamond', Georgia, serif" font-size="10" fill="#C8102E" text-anchor="middle">Author controls</text>
+
+<!-- Caption -->
+<text x="350" y="350" font-family="'EB Garamond', Georgia, serif" font-size="11" fill="#2a1a0e" text-anchor="middle" font-style="italic">Every decision the vague prompt omits is a decision the model makes for you.</text>
+
+<!-- Bottom hairline -->
+<line x1="32" y1="370" x2="668" y2="370" stroke="#D4D4D4" stroke-dasharray="4 3" stroke-width="0.75"/>
+</svg>

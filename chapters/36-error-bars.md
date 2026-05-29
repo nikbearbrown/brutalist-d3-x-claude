@@ -2,7 +2,8 @@
 
 *Error Bars — Uncertainty Overlay*
 
-![Error Bars](../images/36-error-bars.jpg)
+![Six data points with horizontal error bars showing 95% confidence intervals for treatment effects](../images/36-error-bars.png)
+*Figure 36.1 — Error Bars — Uncertainty Overlay*
 
 ## The perceptual mechanism
 
@@ -67,6 +68,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/36-error-bars.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

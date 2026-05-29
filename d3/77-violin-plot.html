@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Violin Plot — Distribution Shape Comparison</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root {
+    --color-bg: #FFFFFF;
+    --color-ink: #2a1a0e;
+    --color-surface: #F5EFE8;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-mark: #6B3520;
+    --color-red: #C8102E;
+    --color-slate: #1A3A5C;
+    --color-ochre: #C8860E;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1a1a;
+      --color-ink: #e8e0d6;
+      --color-surface: #2a2420;
+      --color-secondary: #a0978e;
+      --color-border: #444;
+      --color-mark: #c28060;
+      --color-red: #e05040;
+      --color-slate: #5a9ad6;
+      --color-ochre: #d4a030;
+    }
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+  #chart-container { width: 100%; max-width: 900px; }
+  h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; color: var(--color-ink); }
+  .subtitle {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--color-secondary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .caption { font-size: 0.9rem; color: var(--color-secondary); font-style: italic; margin-top: 12px; }
+  .tooltip {
+    position: absolute;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--color-ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+</style>
+</head>
+<body>
+<div id="chart-container">
+  <h1>Distribution Shape Comparison</h1>
+  <div class="subtitle">VIOLIN PLOT — DENSITY + BOX PLOT OVERLAY</div>
+  <div id="chart" role="img" aria-label="Violin plot comparing three distribution shapes: normal, bimodal, and right-skewed"></div>
+  <div class="caption">Box plots for Groups A and B would look nearly identical — the violin reveals the bimodality.</div>
+</div>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+// Generate synthetic data
+function randn() {
+  let u = 0, v = 0;
+  while (u === 0) u = Math.random();
+  while (v === 0) v = Math.random();
+  return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+}
+
+function generateNormal(n, mean, std) {
+  return Array.from({ length: n }, () => mean + std * randn());
+}
+
+// Group A: Normal
+const groupA = generateNormal(200, 50, 15);
+// Group B: Bimodal
+const groupB = [
+  ...generateNormal(100, 30, 8),
+  ...generateNormal(100, 70, 8)
+];
+// Group C: Right-skewed (exponential-ish via log-normal)
+const groupC = Array.from({ length: 200 }, () => Math.exp(2.5 + 0.6 * randn()));
+
+const groups = [
+  { name: "Group A", label: "Normal", values: groupA },
+  { name: "Group B", label: "Bimodal", values: groupB },
+  { name: "Group C", label: "Right-skewed", values: groupC }
+];
+
+const width = 700;
+const height = 500;
+const margin = { top: 30, right: 40, bottom: 60, left: 70 };
+const chartW = width - margin.left - margin.right;
+const chartH = height - margin.top - margin.bottom;
+
+const svg = d3.select("#chart")
+  .append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("preserveAspectRatio", "xMidYMid meet")
+  .style("width", "100%")
+  .style("height", "auto");
+
+svg.append("title").text("Distribution Shape Comparison — Violin Plot");
+svg.append("desc").text("Three side-by-side violin plots: normal, bimodal, and right-skewed distributions with box plot overlays.");
+
+svg.append("rect").attr("width", width).attr("height", height).attr("fill", "var(--color-bg)");
+svg.append("rect")
+  .attr("x", margin.left - 10).attr("y", margin.top - 10)
+  .attr("width", chartW + 20).attr("height", chartH + 20)
+  .attr("fill", "var(--color-surface)").attr("stroke", "var(--color-border)").attr("stroke-width", 0.75);
+
+const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+// Compute global min/max for y-axis
+const allValues = groups.flatMap(g => g.values);
+const yMin = d3.min(allValues);
+const yMax = d3.max(allValues);
+
+const y = d3.scaleLinear().domain([yMin - 5, yMax + 5]).range([chartH, 0]);
+const x = d3.scaleBand().domain(groups.map(d => d.name)).range([0, chartW]).padding(0.3);
+
+// Y-axis
+const yAxis = g.append("g").call(d3.axisLeft(y).ticks(8));
+yAxis.selectAll("text").attr("font-family", "'IBM Plex Mono', monospace").attr("font-size", "9px").attr("fill", "var(--color-secondary)");
+yAxis.selectAll("line").attr("stroke", "var(--color-border)");
+yAxis.select(".domain").attr("stroke", "var(--color-border)");
+
+// Gridlines
+g.selectAll(".gridline")
+  .data(y.ticks(8))
+  .join("line")
+  .attr("x1", 0).attr("x2", chartW)
+  .attr("y1", d => y(d)).attr("y2", d => y(d))
+  .attr("stroke", "var(--color-border)").attr("stroke-width", 0.3).attr("stroke-dasharray", "3,3");
+
+const tooltip = d3.select("#tooltip");
+
+// KDE function
+function kde(kernel, thresholds, data) {
+  return thresholds.map(t => [t, d3.mean(data, d => kernel(t - d))]);
+}
+function epanechnikov(bandwidth) {
+  return x => Math.abs(x /= bandwidth) <= 1 ? 0.75 * (1 - x * x) / bandwidth : 0;
+}
+
+groups.forEach(group => {
+  const cx = x(group.name) + x.bandwidth() / 2;
+  const bw = x.bandwidth();
+  const vals = group.values;
+
+  // KDE
+  const thresholds = d3.range(yMin - 5, yMax + 5, (yMax - yMin) / 80);
+  const bandwidth = 1.06 * d3.deviation(vals) * Math.pow(vals.length, -0.2);
+  const density = kde(epanechnikov(bandwidth), thresholds, vals);
+  const maxDensity = d3.max(density, d => d[1]);
+  const wScale = d3.scaleLinear().domain([0, maxDensity]).range([0, bw / 2]);
+
+  // Violin shape (mirrored)
+  const area = d3.area()
+    .x0(d => cx - wScale(d[1]))
+    .x1(d => cx + wScale(d[1]))
+    .y(d => y(d[0]))
+    .curve(d3.curveBasis);
+
+  g.append("path")
+    .datum(density)
+    .attr("d", area)
+    .attr("fill", "var(--color-mark)")
+    .attr("opacity", 0.3)
+    .attr("stroke", "var(--color-mark)")
+    .attr("stroke-width", 1.5);
+
+  // Box plot
+  const sorted = vals.slice().sort(d3.ascending);
+  const q1 = d3.quantile(sorted, 0.25);
+  const median = d3.quantile(sorted, 0.5);
+  const q3 = d3.quantile(sorted, 0.75);
+  const iqr = q3 - q1;
+  const whiskerLow = d3.max([d3.min(sorted), q1 - 1.5 * iqr]);
+  const whiskerHigh = d3.min([d3.max(sorted), q3 + 1.5 * iqr]);
+  const boxW = 16;
+
+  // Whiskers
+  g.append("line")
+    .attr("x1", cx).attr("x2", cx)
+    .attr("y1", y(whiskerLow)).attr("y2", y(q1))
+    .attr("stroke", "var(--color-mark)").attr("stroke-width", 1);
+  g.append("line")
+    .attr("x1", cx).attr("x2", cx)
+    .attr("y1", y(q3)).attr("y2", y(whiskerHigh))
+    .attr("stroke", "var(--color-mark)").attr("stroke-width", 1);
+  g.append("line")
+    .attr("x1", cx - boxW / 3).attr("x2", cx + boxW / 3)
+    .attr("y1", y(whiskerLow)).attr("y2", y(whiskerLow))
+    .attr("stroke", "var(--color-mark)").attr("stroke-width", 1);
+  g.append("line")
+    .attr("x1", cx - boxW / 3).attr("x2", cx + boxW / 3)
+    .attr("y1", y(whiskerHigh)).attr("y2", y(whiskerHigh))
+    .attr("stroke", "var(--color-mark)").attr("stroke-width", 1);
+
+  // Box
+  g.append("rect")
+    .attr("x", cx - boxW / 2).attr("y", y(q3))
+    .attr("width", boxW).attr("height", y(q1) - y(q3))
+    .attr("fill", "var(--color-surface)").attr("stroke", "var(--color-mark)").attr("stroke-width", 1);
+
+  // Median
+  g.append("line")
+    .attr("x1", cx - boxW / 2).attr("x2", cx + boxW / 2)
+    .attr("y1", y(median)).attr("y2", y(median))
+    .attr("stroke", "var(--color-red)").attr("stroke-width", 2);
+
+  // Group label
+  g.append("text")
+    .attr("x", cx).attr("y", chartH + 25)
+    .attr("text-anchor", "middle")
+    .attr("font-family", "'IBM Plex Mono', monospace")
+    .attr("font-size", "10px")
+    .attr("letter-spacing", "0.08em")
+    .attr("fill", "var(--color-ink)")
+    .text(group.name.toUpperCase());
+
+  g.append("text")
+    .attr("x", cx).attr("y", chartH + 42)
+    .attr("text-anchor", "middle")
+    .attr("font-size", "10px")
+    .attr("fill", "var(--color-secondary)")
+    .text(group.label);
+
+  // Hover area
+  g.append("rect")
+    .attr("x", cx - bw / 2).attr("y", 0)
+    .attr("width", bw).attr("height", chartH)
+    .attr("fill", "transparent")
+    .attr("tabindex", 0)
+    .attr("role", "img")
+    .attr("aria-label", `${group.name} (${group.label}): median ${median.toFixed(1)}, Q1 ${q1.toFixed(1)}, Q3 ${q3.toFixed(1)}`)
+    .style("cursor", "pointer")
+    .on("mouseenter", function(event) {
+      tooltip.style("opacity", 1)
+        .html(`<strong>${group.name}</strong> (${group.label})<br>Median: ${median.toFixed(1)}<br>Q1: ${q1.toFixed(1)} | Q3: ${q3.toFixed(1)}<br>n = ${vals.length}`);
+    })
+    .on("mousemove", function(event) {
+      tooltip.style("left", (event.pageX + 12) + "px").style("top", (event.pageY - 28) + "px");
+    })
+    .on("mouseleave", function() {
+      tooltip.style("opacity", 0);
+    });
+});
+</script>
+</body>
+</html>

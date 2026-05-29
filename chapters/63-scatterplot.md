@@ -2,7 +2,8 @@
 
 *Scatterplot*
 
-![Scatterplot](../images/63-scatterplot.jpg)
+![Scatterplot of 20 countries plotting GDP per capita on the x-axis against life satisfaction on the y-axis. Points cluster in a positive correlation pattern with a dashed ochre OLS trend line. Gains flatten above $40K.](../images/63-scatterplot.png)
+*Figure 63.1 — Scatterplot*
 
 ## The perceptual mechanism
 
@@ -59,6 +60,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/63-scatterplot.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

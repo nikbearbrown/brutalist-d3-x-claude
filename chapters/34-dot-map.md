@@ -2,7 +2,8 @@
 
 *Library density clusters in the Northeast and Great Lakes — the interior West is sparse*
 
-![Dot Map](../images/34-dot-map.jpg)
+![Dot map of US showing library locations clustered densely in Northeast and Great Lakes with sparse interior West](../images/34-dot-map.png)
+*Figure 34.1 — Library density clusters in the Northeast and Great Lakes*
 
 ## What this chart is
 
@@ -53,6 +54,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/34-dot-map.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

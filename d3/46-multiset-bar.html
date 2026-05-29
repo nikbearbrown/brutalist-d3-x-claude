@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Multiset Bar — Funding Requested vs Received by Region</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #2a1a0e;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-mark: #6B3520;
+    --color-slate: #1A3A5C;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1a1a;
+      --color-ink: #e8e0d6;
+      --color-surface: #2a2420;
+      --color-secondary: #a0978e;
+      --color-border: #444;
+      --color-mark: #c28060;
+    }
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+  #chart-container {
+    width: 100%;
+    max-width: 900px;
+  }
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--color-ink);
+  }
+  .subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--color-secondary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .caption {
+    font-size: 0.9rem;
+    color: var(--color-secondary);
+    font-style: italic;
+    margin-top: 12px;
+  }
+  .tooltip {
+    position: absolute;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--color-ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+</style>
+</head>
+<body>
+<div id="chart-container">
+  <h1>Funding Requested vs Received by Region</h1>
+  <div class="subtitle">HUMANITARIAN FUNDING GAP (USD BILLIONS)</div>
+  <div id="chart" role="img" aria-label="Grouped bar chart showing funding requested versus received across four regions with Middle East showing largest gap"></div>
+  <div class="caption">No region receives what it requests. Middle East faces largest gap at $2.33B.</div>
+</div>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const data = [
+  { region: "Middle East", requested: 4.80, received: 2.47 },
+  { region: "East Africa", requested: 3.20, received: 1.85 },
+  { region: "South Asia", requested: 2.50, received: 1.60 },
+  { region: "West Africa", requested: 1.80, received: 1.10 }
+];
+
+const container = document.getElementById("chart");
+const rect = container.getBoundingClientRect();
+const width = Math.min(rect.width || 800, 900);
+const height = 420;
+const margin = { top: 20, right: 60, bottom: 40, left: 130 };
+
+const svg = d3.select("#chart")
+  .append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("preserveAspectRatio", "xMidYMid meet")
+  .style("width", "100%")
+  .style("height", "auto");
+
+// Background
+svg.append("rect")
+  .attr("width", width)
+  .attr("height", height)
+  .attr("fill", "var(--color-bg)");
+
+const chartWidth = width - margin.left - margin.right;
+const chartHeight = height - margin.top - margin.bottom;
+
+const g = svg.append("g")
+  .attr("transform", `translate(${margin.left},${margin.top})`);
+
+// Chart area background
+g.append("rect")
+  .attr("width", chartWidth)
+  .attr("height", chartHeight)
+  .attr("fill", "var(--color-surface)")
+  .attr("stroke", "var(--color-border)")
+  .attr("stroke-width", 0.75);
+
+// Scales
+const y0 = d3.scaleBand()
+  .domain(data.map(d => d.region))
+  .range([0, chartHeight])
+  .padding(0.3);
+
+const y1 = d3.scaleBand()
+  .domain(["requested", "received"])
+  .range([0, y0.bandwidth()])
+  .padding(0.08);
+
+const x = d3.scaleLinear()
+  .domain([0, 5])
+  .range([0, chartWidth]);
+
+// Gridlines
+const xTicks = [1, 2, 3, 4, 5];
+g.selectAll(".grid-line")
+  .data(xTicks)
+  .enter().append("line")
+  .attr("x1", d => x(d))
+  .attr("y1", 0)
+  .attr("x2", d => x(d))
+  .attr("y2", chartHeight)
+  .attr("stroke", "var(--color-border)")
+  .attr("stroke-width", 0.5)
+  .attr("stroke-dasharray", "4,3");
+
+// X-axis labels
+g.selectAll(".x-label")
+  .data([0, 1, 2, 3, 4, 5])
+  .enter().append("text")
+  .attr("x", d => x(d))
+  .attr("y", chartHeight + 20)
+  .attr("text-anchor", "middle")
+  .attr("font-size", 11)
+  .attr("fill", "var(--color-secondary)")
+  .text(d => `$${d}B`);
+
+// Y-axis labels
+g.selectAll(".y-label")
+  .data(data)
+  .enter().append("text")
+  .attr("x", -10)
+  .attr("y", d => y0(d.region) + y0.bandwidth() / 2)
+  .attr("text-anchor", "end")
+  .attr("dominant-baseline", "middle")
+  .attr("font-size", 13)
+  .attr("fill", "var(--color-ink)")
+  .text(d => d.region);
+
+const tooltip = d3.select("#tooltip");
+
+// Bars
+const series = [
+  { key: "requested", label: "Requested", color: "var(--color-border)", stroke: "var(--color-ink)" },
+  { key: "received", label: "Received", color: "var(--color-mark)", stroke: "none" }
+];
+
+data.forEach(d => {
+  series.forEach(s => {
+    const barG = g.append("g");
+
+    barG.append("rect")
+      .attr("x", 0)
+      .attr("y", y0(d.region) + y1(s.key))
+      .attr("width", x(d[s.key]))
+      .attr("height", y1.bandwidth())
+      .attr("fill", s.color)
+      .attr("stroke", s.stroke !== "none" ? s.stroke : "none")
+      .attr("stroke-width", s.stroke !== "none" ? 0.75 : 0)
+      .attr("rx", 0)
+      .style("cursor", "pointer")
+      .on("mouseover", function(event) {
+        const gap = (d.requested - d.received).toFixed(2);
+        tooltip.style("opacity", 1)
+          .html(`<strong>${d.region}</strong><br>${s.label}: $${d[s.key].toFixed(2)}B<br>Gap: $${gap}B`);
+      })
+      .on("mousemove", function(event) {
+        tooltip.style("left", (event.pageX + 12) + "px")
+          .style("top", (event.pageY - 28) + "px");
+      })
+      .on("mouseout", function() {
+        tooltip.style("opacity", 0);
+      });
+
+    // Value label
+    barG.append("text")
+      .attr("x", x(d[s.key]) + 5)
+      .attr("y", y0(d.region) + y1(s.key) + y1.bandwidth() / 2)
+      .attr("dominant-baseline", "middle")
+      .attr("font-size", 10)
+      .attr("fill", "var(--color-ink)")
+      .text(`$${d[s.key].toFixed(2)}B`);
+  });
+});
+
+// Legend
+const legend = svg.append("g")
+  .attr("transform", `translate(${margin.left + chartWidth - 200}, ${height - 18})`);
+
+legend.append("rect").attr("width", 14).attr("height", 10).attr("fill", "var(--color-border)").attr("stroke", "var(--color-ink)").attr("stroke-width", 0.75);
+legend.append("text").attr("x", 18).attr("y", 9).attr("font-size", 11).attr("fill", "var(--color-ink)").text("Requested");
+
+legend.append("rect").attr("x", 90).attr("width", 14).attr("height", 10).attr("fill", "var(--color-mark)");
+legend.append("text").attr("x", 108).attr("y", 9).attr("font-size", 11).attr("fill", "var(--color-ink)").text("Received");
+</script>
+</body>
+</html>

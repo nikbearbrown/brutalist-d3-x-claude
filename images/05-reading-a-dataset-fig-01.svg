@@ -1,0 +1,89 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+<defs>
+  <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#2a1a0e"/>
+  </marker>
+</defs>
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="34" text-anchor="middle" font-size="13" fill="#545454" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">ANALYST VS. READER FRAMING</text>
+
+<!-- Column Headers -->
+<rect x="32" y="50" width="242" height="32" fill="#1A3A5C"/>
+<text x="153" y="72" text-anchor="middle" font-size="11" fill="#FFFFFF" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">ANALYST'S QUESTION</text>
+
+<rect x="426" y="50" width="242" height="32" fill="#C8102E"/>
+<text x="547" y="72" text-anchor="middle" font-size="11" fill="#FFFFFF" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">READER'S QUESTION</text>
+
+<!-- Center column header -->
+<text x="350" y="72" text-anchor="middle" font-size="9" fill="#545454" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">SHIFT</text>
+
+<!-- ═══ Row 1 ═══ -->
+<!-- Left card -->
+<rect x="32" y="100" width="242" height="72" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+<rect x="32" y="100" width="4" height="72" fill="#1A3A5C"/>
+<text x="48" y="120" font-size="9" fill="#545454" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">MBTA RIDERSHIP</text>
+<text x="48" y="138" font-size="11" fill="#2a1a0e">"What does the distribution of daily</text>
+<text x="48" y="152" font-size="11" fill="#2a1a0e">ridership look like across all lines?"</text>
+
+<!-- Center pill 1 -->
+<rect x="284" y="118" width="132" height="28" fill="#2a1a0e"/>
+<text x="350" y="128" text-anchor="middle" font-size="8" fill="#FFFFFF" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">EXPLORATORY</text>
+<text x="350" y="140" text-anchor="middle" font-size="8" fill="#FFFFFF" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">→ SUMMATIVE</text>
+
+<!-- Right card -->
+<rect x="426" y="100" width="242" height="72" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+<rect x="664" y="100" width="4" height="72" fill="#C8102E"/>
+<text x="442" y="120" font-size="9" fill="#545454" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">MBTA RIDERSHIP</text>
+<text x="442" y="138" font-size="11" fill="#2a1a0e">"Which MBTA line carries the most</text>
+<text x="442" y="152" font-size="11" fill="#2a1a0e">passengers on an average weekday?"</text>
+
+<!-- ═══ Row 2 ═══ -->
+<!-- Left card -->
+<rect x="32" y="190" width="242" height="72" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+<rect x="32" y="190" width="4" height="72" fill="#1A3A5C"/>
+<text x="48" y="210" font-size="9" fill="#545454" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">MBTA DELAYS</text>
+<text x="48" y="228" font-size="11" fill="#2a1a0e">"How do delay minutes correlate</text>
+<text x="48" y="242" font-size="11" fill="#2a1a0e">with time of day and line?"</text>
+
+<!-- Center pill 2 -->
+<rect x="284" y="208" width="132" height="28" fill="#2a1a0e"/>
+<text x="350" y="218" text-anchor="middle" font-size="8" fill="#FFFFFF" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">CORRELATION</text>
+<text x="350" y="230" text-anchor="middle" font-size="8" fill="#FFFFFF" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">→ RANKING</text>
+
+<!-- Right card -->
+<rect x="426" y="190" width="242" height="72" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+<rect x="664" y="190" width="4" height="72" fill="#C8102E"/>
+<text x="442" y="210" font-size="9" fill="#545454" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">MBTA DELAYS</text>
+<text x="442" y="228" font-size="11" fill="#2a1a0e">"Which line has the worst rush-hour</text>
+<text x="442" y="242" font-size="11" fill="#2a1a0e">delays, and how bad are they?"</text>
+
+<!-- ═══ Row 3 ═══ -->
+<!-- Left card -->
+<rect x="32" y="280" width="242" height="72" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+<rect x="32" y="280" width="4" height="72" fill="#1A3A5C"/>
+<text x="48" y="300" font-size="9" fill="#545454" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">MBTA SPENDING</text>
+<text x="48" y="318" font-size="11" fill="#2a1a0e">"How has capital spending changed</text>
+<text x="48" y="332" font-size="11" fill="#2a1a0e">across budget categories since 2015?"</text>
+
+<!-- Center pill 3 -->
+<rect x="284" y="298" width="132" height="28" fill="#2a1a0e"/>
+<text x="350" y="308" text-anchor="middle" font-size="8" fill="#FFFFFF" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">TREND</text>
+<text x="350" y="320" text-anchor="middle" font-size="8" fill="#FFFFFF" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">→ COMPARISON</text>
+
+<!-- Right card -->
+<rect x="426" y="280" width="242" height="72" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="1"/>
+<rect x="664" y="280" width="4" height="72" fill="#C8102E"/>
+<text x="442" y="300" font-size="9" fill="#545454" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">MBTA SPENDING</text>
+<text x="442" y="318" font-size="11" fill="#2a1a0e">"Is the MBTA spending more on repairs</text>
+<text x="442" y="332" font-size="11" fill="#2a1a0e">than on new infrastructure?"</text>
+
+<!-- Caption -->
+<text x="350" y="390" text-anchor="middle" font-size="15" fill="#2a1a0e" font-style="italic">Same data. Different framing. Different chart.</text>
+
+<!-- Figure number -->
+<text x="350" y="412" text-anchor="middle" font-size="11" fill="#545454" font-family="'IBM Plex Mono', 'Courier New', monospace" letter-spacing="0.08em">FIGURE 5-1</text>
+</svg>

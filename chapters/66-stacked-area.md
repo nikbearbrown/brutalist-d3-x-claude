@@ -2,7 +2,8 @@
 
 *Food Security Anchors 47% of All Funding — Shelter Surged in Mid-2022 Then Normalised as Ukraine Emergency Peaked*
 
-![Stacked Area](../images/66-stacked-area.jpg)
+![Stacked area chart with three layers over 12 months. Bottom layer Food Security in dark ink anchors 47% of funding. Middle layer Shelter in walnut. Top layer Health in ochre. Y-axis $0-$500M.](../images/66-stacked-area.png)
+*Figure 66.1 — Food Security Anchors 47% of All Funding*
 
 ## What this chart is
 
@@ -59,6 +60,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/66-stacked-area.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

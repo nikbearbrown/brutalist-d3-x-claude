@@ -2,7 +2,9 @@
 
 *Accuracy failures lead at 31 — safety incidents, at 8, may be the most under-reported*
 
-![Tally Chart](../images/71-tally-chart.jpg)
+*Figure 71.1 — Accuracy failures lead at 31*
+
+![Tally Chart](../images/71-tally-chart.png)
 
 ## What this chart is
 
@@ -53,6 +55,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+Reference implementation: [`d3/71-tally-chart.html`](../d3/71-tally-chart.html)
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

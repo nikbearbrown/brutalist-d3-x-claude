@@ -2,7 +2,8 @@
 
 *Research Hours Climb Through the Year — Fill Shows Cumulative Weight*
 
-![Area Graph](../images/19-area-graph.jpg)
+![Area graph showing monthly research hours climbing through the year with filled area encoding cumulative weight](../images/19-area-graph.png)
+*Figure 19.1 — Research Hours Climb Through the Year*
 
 ## What this chart is
 
@@ -39,6 +40,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/19-area-graph.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

@@ -2,7 +2,8 @@
 
 *Syria, Venezuela and Afghanistan Generate the Largest Displacement Corridors — Three Countries Account for Over Half of All Tracked Flows*
 
-![Flow Map](../images/37-flow-map.jpg)
+![Flow map showing major displacement corridors from Syria, Venezuela, and Afghanistan with arrow thickness encoding volume](../images/37-flow-map.png)
+*Figure 37.1 — Syria, Venezuela and Afghanistan Generate the Largest Displacement Corridors*
 
 ## What this chart is
 
@@ -56,6 +57,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/37-flow-map.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

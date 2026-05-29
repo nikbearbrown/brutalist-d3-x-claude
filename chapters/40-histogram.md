@@ -2,7 +2,8 @@
 
 *Most commutes cluster between 20 and 40 minutes — a long tail of extreme commuters persists*
 
-![Histogram](../images/40-histogram.jpg)
+![Histogram showing right-skewed distribution of commute times with peak at 25-30 minutes and long tail](../images/40-histogram.png)
+*Figure 40.1 — Most commutes cluster between 20 and 40 minutes*
 
 ## What this chart is
 
@@ -49,6 +50,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/40-histogram.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

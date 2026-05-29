@@ -2,7 +2,8 @@
 
 *Pie Chart*
 
-![Pie Chart](../images/53-pie-chart.jpg)
+![Pie chart showing market share across four products with Product A commanding 42 percent](../images/53-pie-chart.png)
+*Figure 53.1 — Market Share by Product*
 
 ## The perceptual mechanism
 
@@ -57,6 +58,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/53-pie-chart.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

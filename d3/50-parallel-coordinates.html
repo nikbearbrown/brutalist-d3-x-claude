@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parallel Coordinates — Program Comparison</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #2a1a0e;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-mark: #6B3520;
+    --color-slate: #1A3A5C;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1a1a;
+      --color-ink: #e8e0d6;
+      --color-surface: #2a2420;
+      --color-secondary: #a0978e;
+      --color-border: #444;
+      --color-mark: #c28060;
+      --color-red: #e05040;
+      --color-slate: #5a9ad6;
+    }
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+  #chart-container {
+    width: 100%;
+    max-width: 900px;
+  }
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--color-ink);
+  }
+  .subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--color-secondary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .caption {
+    font-size: 0.9rem;
+    color: var(--color-secondary);
+    font-style: italic;
+    margin-top: 12px;
+  }
+  .tooltip {
+    position: absolute;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--color-ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+</style>
+</head>
+<body>
+<div id="chart-container">
+  <h1>Program Comparison — 5 Dimensions</h1>
+  <div class="subtitle">PARALLEL COORDINATES PLOT — BRUSH AXES TO FILTER</div>
+  <div id="chart" role="img" aria-label="Parallel coordinates plot comparing five programs across cost, speed, efficiency, coverage, and impact"></div>
+  <div class="caption">Health programs lead on efficiency. Emergency response moves fastest but costs most.</div>
+</div>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const programs = [
+  { name: "Health", cost: 3, speed: 45, efficiency: 92, coverage: 65, impact: 80, color: "var(--color-red)", highlighted: true },
+  { name: "Emergency", cost: 8, speed: 90, efficiency: 45, coverage: 80, impact: 75, color: "var(--color-slate)", highlighted: true },
+  { name: "Education", cost: 2, speed: 30, efficiency: 70, coverage: 50, impact: 60, color: "var(--color-mark)", highlighted: false },
+  { name: "Shelter", cost: 5, speed: 60, efficiency: 55, coverage: 70, impact: 65, color: "var(--color-mark)", highlighted: false },
+  { name: "WASH", cost: 4, speed: 50, efficiency: 75, coverage: 55, impact: 70, color: "var(--color-mark)", highlighted: false }
+];
+
+const dimensions = [
+  { key: "cost", label: "COST", domain: [0, 10], format: v => `$${v}M` },
+  { key: "speed", label: "SPEED", domain: [0, 100], format: v => `${v}d` },
+  { key: "efficiency", label: "EFFICIENCY", domain: [0, 100], format: v => `${v}%` },
+  { key: "coverage", label: "COVERAGE", domain: [0, 100], format: v => `${v}%` },
+  { key: "impact", label: "IMPACT", domain: [0, 100], format: v => `${v}` }
+];
+
+const width = 800;
+const height = 460;
+const margin = { top: 50, right: 50, bottom: 60, left: 50 };
+const chartWidth = width - margin.left - margin.right;
+const chartHeight = height - margin.top - margin.bottom;
+
+const svg = d3.select("#chart")
+  .append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("preserveAspectRatio", "xMidYMid meet")
+  .style("width", "100%")
+  .style("height", "auto");
+
+svg.append("rect")
+  .attr("width", width)
+  .attr("height", height)
+  .attr("fill", "var(--color-bg)");
+
+const g = svg.append("g")
+  .attr("transform", `translate(${margin.left},${margin.top})`);
+
+// Chart area
+g.append("rect")
+  .attr("x", -10)
+  .attr("y", -10)
+  .attr("width", chartWidth + 20)
+  .attr("height", chartHeight + 20)
+  .attr("fill", "var(--color-surface)")
+  .attr("stroke", "var(--color-border)")
+  .attr("stroke-width", 0.75)
+  .attr("rx", 0);
+
+const xScale = d3.scalePoint()
+  .domain(dimensions.map(d => d.key))
+  .range([0, chartWidth]);
+
+const yScales = {};
+dimensions.forEach(dim => {
+  yScales[dim.key] = d3.scaleLinear()
+    .domain(dim.domain)
+    .range([chartHeight, 0]);
+});
+
+const tooltip = d3.select("#tooltip");
+
+// Track active brushes
+const brushes = {};
+
+function isActive(p) {
+  return Object.keys(brushes).every(key => {
+    if (!brushes[key]) return true;
+    const [y0, y1] = brushes[key];
+    const val = yScales[key](p[key]);
+    return val >= y0 && val <= y1;
+  });
+}
+
+// Line generator
+function path(d) {
+  return d3.line()(dimensions.map(dim => [xScale(dim.key), yScales[dim.key](d[dim.key])]));
+}
+
+// Draw lines (dim first, then highlighted)
+const lines = g.selectAll(".program-line")
+  .data(programs.sort((a, b) => a.highlighted - b.highlighted))
+  .enter().append("path")
+  .attr("class", "program-line")
+  .attr("d", d => path(d))
+  .attr("fill", "none")
+  .attr("stroke", d => d.color)
+  .attr("stroke-width", d => d.highlighted ? 2 : 1.5)
+  .attr("opacity", d => d.highlighted ? 0.9 : 0.4)
+  .style("cursor", "pointer")
+  .on("mouseover", function(event, d) {
+    d3.select(this).attr("stroke-width", 3).attr("opacity", 1);
+    tooltip.style("opacity", 1)
+      .html(`<strong>${d.name}</strong><br>Cost: $${d.cost}M<br>Speed: ${d.speed}d<br>Efficiency: ${d.efficiency}%<br>Coverage: ${d.coverage}%<br>Impact: ${d.impact}`);
+  })
+  .on("mousemove", function(event) {
+    tooltip.style("left", (event.pageX + 12) + "px")
+      .style("top", (event.pageY - 28) + "px");
+  })
+  .on("mouseout", function(event, d) {
+    d3.select(this)
+      .attr("stroke-width", d.highlighted ? 2 : 1.5)
+      .attr("opacity", d.highlighted ? 0.9 : 0.4);
+    tooltip.style("opacity", 0);
+  });
+
+// Axes
+dimensions.forEach(dim => {
+  const axisG = g.append("g")
+    .attr("transform", `translate(${xScale(dim.key)},0)`);
+
+  // Axis line
+  axisG.append("line")
+    .attr("y1", 0).attr("y2", chartHeight)
+    .attr("stroke", "var(--color-ink)")
+    .attr("stroke-width", 1);
+
+  // Label
+  axisG.append("text")
+    .attr("y", -18)
+    .attr("text-anchor", "middle")
+    .attr("font-family", "'JetBrains Mono', monospace")
+    .attr("font-size", 9)
+    .attr("letter-spacing", "0.08em")
+    .attr("fill", "var(--color-secondary)")
+    .text(dim.label);
+
+  // Top value
+  axisG.append("text")
+    .attr("y", -6)
+    .attr("text-anchor", "middle")
+    .attr("font-size", 8)
+    .attr("fill", "var(--color-secondary)")
+    .text(dim.format(dim.domain[1]));
+
+  // Bottom value
+  axisG.append("text")
+    .attr("y", chartHeight + 14)
+    .attr("text-anchor", "middle")
+    .attr("font-size", 8)
+    .attr("fill", "var(--color-secondary)")
+    .text(dim.format(dim.domain[0]));
+
+  // Brush
+  const brush = d3.brushY()
+    .extent([[-12, 0], [12, chartHeight]])
+    .on("brush end", function(event) {
+      brushes[dim.key] = event.selection;
+      lines
+        .attr("opacity", d => {
+          if (!Object.values(brushes).some(b => b)) {
+            return d.highlighted ? 0.9 : 0.4;
+          }
+          return isActive(d) ? (d.highlighted ? 0.9 : 0.7) : 0.05;
+        })
+        .attr("stroke-width", d => {
+          if (!Object.values(brushes).some(b => b)) {
+            return d.highlighted ? 2 : 1.5;
+          }
+          return isActive(d) ? 2 : 1;
+        });
+    });
+
+  axisG.append("g")
+    .call(brush);
+});
+
+// Legend
+const legend = svg.append("g")
+  .attr("transform", `translate(${margin.left + 20}, ${height - 20})`);
+
+const legendItems = [
+  { name: "Health", color: "var(--color-red)" },
+  { name: "Emergency", color: "var(--color-slate)" },
+  { name: "Others", color: "var(--color-mark)" }
+];
+
+let lx = 0;
+legendItems.forEach(item => {
+  legend.append("line").attr("x1", lx).attr("x2", lx + 18).attr("y1", 0).attr("y2", 0)
+    .attr("stroke", item.color).attr("stroke-width", 2).attr("opacity", item.name === "Others" ? 0.4 : 0.9);
+  legend.append("text").attr("x", lx + 22).attr("y", 4).attr("font-size", 10).attr("fill", "var(--color-ink)").text(item.name);
+  lx += 90;
+});
+</script>
+</body>
+</html>
