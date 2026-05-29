@@ -15,7 +15,8 @@ You cannot do this with a treemap. The treemap shows area (budget). It does not 
 
 This is the organizing question of hierarchy chart design: what is the hierarchy *for*? The form follows the answer.
 
-<!-- → [FIGURE: Two side-by-side panels, same government-budget dataset (4 departments → 3–4 programs each → 2–3 line items each). Left: treemap — the reader can immediately see that Health is the largest department; the proportional structure is clear. Right: tree diagram — the reporting structure is clear; Health has an Assistant Secretary, three division directors, and six branch chiefs; but the budget proportions are invisible (all nodes are the same size). Caption: "Same hierarchy, two questions. Left: how are the proportions distributed? Right: who reports to whom? The chart cannot answer both simultaneously. Choose the question first."] -->
+![Two panels of the same budget hierarchy — left as treemap showing proportions, right as tree diagram showing structure](../images/12-hierarchy-charts-fig-01.png)
+*Figure 12.1 — Same hierarchy, two questions: treemap for proportions, tree diagram for structure*
 
 ---
 
@@ -45,7 +46,8 @@ These three properties are not equally accessible to every form. The form choice
 
 Four forms. Four primary questions. The choice is not aesthetic.
 
-<!-- → [INFOGRAPHIC: Four-panel reference grid, one panel per hierarchy form. Each panel: form name (uppercase, JetBrains Mono), a thumbnail sketch of the form's visual structure, the primary channel labeled, and the one-line "use when" condition. Panels: Treemap (nested rectangles, "area encodes value," "proportions are the question"), Sunburst (concentric rings, "ring position encodes depth, angle encodes proportion," "depth is the question"), Circle packing (nested circles, "area encodes value, nesting reflects topology," "irregular depth"), Tree diagram (nodes + edges, "structure only, no area encoding," "exact parent-child relationships"). This is the navigation reference the reader returns to whenever they have hierarchical data.] -->
+![Four-panel reference grid showing treemap, sunburst, circle packing, and tree diagram](../images/12-hierarchy-charts-fig-02.png)
+*Figure 12.2 — Hierarchy form reference: four forms, four questions, the choice is not aesthetic*
 
 ---
 
@@ -59,7 +61,8 @@ Circles have no such alignment. Comparing the area of two circles requires the e
 
 The practical consequence: for datasets where precise area comparison matters, use a treemap. For datasets where the hierarchy's irregular structure is the point — some branches deep, some shallow, the topology itself the argument — use circle packing. The perceptual trade-off is real but bounded; the structural-match trade-off is not.
 
-<!-- → [FIGURE: Two pairs of shapes side by side showing the alignment advantage. Left pair: two rectangles (100 and 200 square units) sharing a common left edge — the reader can anchor the right edges against each other and estimate the 2:1 ratio with high accuracy. Right pair: two circles (100 and 200 square units) — no alignment, no anchor; the reader estimates area by radius, which introduces more error. Caption: "Rectangles provide an alignment anchor; circles do not. The same Stevens exponent applies to both, but rectangles' shared edges reduce the estimation error." Annotate approximate perceived ratio under Stevens for each pair.] -->
+![Rectangle pair sharing a common baseline next to a circle pair with no alignment anchor](../images/12-hierarchy-charts-fig-03.png)
+*Figure 12.3 — Rectangles provide an alignment anchor; circles do not*
 
 ---
 
@@ -73,7 +76,8 @@ For a sunburst, the radial width allocated to each ring is the total radius divi
 
 The depth limits are where the geometry of the encoding runs out of space. Knowing the mechanism means knowing when to stop and either truncate (show only the top N levels) or switch forms (zoomable treemap for deep hierarchies, circle packing for irregular ones).
 
-<!-- → [FIGURE: Two panels showing depth-limit failure. Left: a treemap with 5 levels. The innermost rectangles at level 5 are shown with a zoom box: they measure approximately 2×3 pixels. Annotation: "At 10% share per level, a level-5 node occupies 0.001% of chart area = 0.48 sq px on an 800×600 chart. Not visible." Right: a sunburst with 7 levels. The outermost ring is shown with a zoom box: at 200 leaf nodes, each segment is ~12 pixels wide. Annotation: "200 leaf nodes at radius 400px → 12px per segment. Too small to label; barely distinguishable from gaps." Caption: "Both depth limits follow from the geometry of the encoding, not from taste."] -->
+![Treemap at five levels with sub-pixel rectangles and sunburst at seven levels with compressed outer ring](../images/12-hierarchy-charts-fig-04.png)
+*Figure 12.4 — Depth-limit failure: both limits follow from the geometry of the encoding*
 
 ---
 
@@ -89,7 +93,8 @@ The squarified algorithm minimizes the worst aspect ratio in the layout. It grou
 
 For Claude Code work: specify `d3.treemapSquarify` explicitly. The other D3 treemap algorithms (`treemapSlice`, `treemapDice`, `treemapBinary`) have specific uses (slice-and-dice for time-ordered data where one dimension should be preserved, binary for balanced splits) but the default for general area comparison is squarify.
 
-<!-- → [FIGURE: Two treemaps side by side, same dataset (12 nodes with varying values). Left: slice-and-dice layout — several rectangles are extremely elongated (aspect ratios of 10:1 or higher). Three of the elongated rectangles are highlighted with their actual area and an annotation: "Eye reads this as larger than it is." Right: squarified layout — all rectangles are near-square. The same three nodes are highlighted: "Aspect ratios within 2:1. Eye reads area more accurately." Caption with the Stevens calculation: "A 12×400 rectangle and a 69×69 rectangle have identical areas. Stevens' dominant-dimension bias makes the tall thin one look larger."] -->
+![Slice-and-dice treemap with elongated rectangles next to a squarified treemap with near-square rectangles](../images/12-hierarchy-charts-fig-05.png)
+*Figure 12.5 — Slice-and-dice vs. squarified: why the algorithm matters for area comparison*
 
 ---
 
@@ -117,7 +122,8 @@ Circle packing makes no such demand. Each organization is a circle. If it has pr
 
 The circle packing advantage is structural honesty for irregular hierarchies. The cost — lower area-comparison accuracy, poorer space efficiency — is real but often acceptable when the topology is what the reader needs to see.
 
-<!-- → [FIGURE: Two panels, same dataset of humanitarian aid organizations with irregular depth. Left: treemap — single-level organizations are shown as flat rectangles visually equivalent to the top level of multi-level organizations; the chart looks like all organizations have the same depth, which is false. A 1-level local NGO and a 3-level multinational look formally similar. Right: circle packing — the 1-level local NGO is a single circle with no children; the 3-level multinational has three layers of nested circles. The structural difference is immediately visible. Caption: "Treemap forces a uniform grid onto unequal structure. Circle packing reflects the data's actual topology."] -->
+![Two panels of the same humanitarian aid dataset — left treemap where 1-level NGO and 3-level multinational look identical; right circle packing where nesting immediately reveals the depth difference](../images/12-hierarchy-charts-fig-06.png)
+*Figure 12.6 — Treemap forces a uniform grid onto unequal structure; circle packing reflects the data's actual topology*
 
 ---
 

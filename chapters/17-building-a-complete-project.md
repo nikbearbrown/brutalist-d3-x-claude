@@ -13,7 +13,8 @@ What this chapter does is run all of that together, in sequence, on a real proje
 
 The dataset is UNHCR forced displacement figures, 2020 to 2024. The audience is public-policy readers who make decisions about where to focus humanitarian aid. The question is: what does the data actually say, and how do you show it?
 
-<!-- → [FIGURE: The five-phase pipeline as a horizontal flow diagram. Five labeled boxes: Phase A (Audit) → Phase B (Schema) → Phase C (Generate) → Phase D (Verify) → Phase E (Handoff). Each box contains two lines: what the phase produces (e.g., "Three framed questions + data audit") and what chapters it draws from (e.g., "Chapters 3 and 4"). Arrows between boxes. A sixth element at the end: "Published artifact." Above the flow, a label: "The MBTA model: start with the question; iterate on working code; publish with provenance." Caption: "Each phase is the output of chapters you have already read. This chapter runs them in sequence."] -->
+![Five-phase pipeline flow diagram: Phase A Audit → Phase B Schema → Phase C Generate → Phase D Verify → Phase E Handoff → Published artifact](../images/17-building-a-complete-project-fig-01.png)
+*Figure 17.1 — The five-phase Brutalist pipeline: from raw dataset to published artifact*
 
 ---
 
@@ -51,7 +52,8 @@ The data audit also identifies limits. The dataset has origin-destination pair c
 
 This is Phase A. It produces: three framed questions, a data audit, and a list of what the data can and cannot support. Nothing is drawn yet.
 
-<!-- → [FIGURE: The Phase A deliverable visualized as a structured document. Three panels: (1) "Three questions" — the three reader-focused questions listed as labeled cards, each with the audience named and the decision it informs. (2) "Data audit" — a column-type classification of the UNHCR dataset: country_of_origin (categorical), country_of_asylum (categorical), year (temporal), type (categorical), count (quantitative). Each column type mapped to a color-coded badge. (3) "Gaps identified" — one item: "Origin-destination flow map requires country coordinates not in the dataset." Caption: "Phase A produces documentation, not charts. The questions, the audit, and the gaps — in writing — before anything is drawn."] -->
+![Phase A deliverable showing three reader-focused questions, UNHCR dataset column-type audit, and gaps identified](../images/17-building-a-complete-project-fig-02.png)
+*Figure 17.2 — Phase A produces documentation, not charts: questions, audit, and gaps in writing before anything is drawn*
 
 ---
 
@@ -69,7 +71,8 @@ The split disciplines this. `CLAUDE.md` holds coding rules that apply to every s
 
 The practical rule: if the session involves any visual decision — "should this line be this color?" or "what margin should I use?" — load both files. If the session is purely about data processing, scale construction, or layout logic, load only `CLAUDE.md`.
 
-<!-- → [FIGURE: A session-loading decision diagram. Two columns: left "Every session" (always load CLAUDE.md), right "Visual-decision sessions only" (additionally load DESIGN.md). The left column lists: D3 version, encoding rules (zero baseline, scaleSqrt, equal-area projection), naming conventions, accessibility defaults. The right column lists: color palette, typography, spacing scale, dark-mode rules, responsive breakpoints. A dotted boundary between columns labeled: "The instruction budget split — ~60 lines reliably retained per file; combined loading risks silent constraint-dropping at the bottom of a long file." Caption: "Split the files because Claude Code's instruction budget is finite. Load only what the session needs."] -->
+![Session-loading decision diagram showing CLAUDE.md loaded every session and DESIGN.md loaded only for visual-decision sessions](../images/17-building-a-complete-project-fig-03.png)
+*Figure 17.3 — The instruction budget split: load only what the session needs*
 
 ### PROJECT.md: the decision record
 
@@ -123,7 +126,8 @@ Channel decomposition:
 
 This chart is the simplest of the three; Claude Code typically produces a good first output without iteration. Verify that the two segments sum to 100% and that the color hues match the `DESIGN.md` categorical palette.
 
-<!-- → [FIGURE: Three panels showing the Phase C deliverables side by side. Panel 1: the heatmap of top refugee-origin countries by year (2020–2024), countries on y-axis sorted by total count, years on x-axis, sequential luminance encoding count. Panel 2: the horizontal bar chart of top destination countries, sorted descending, zero baseline, direct value labels. Panel 3: the stacked bar showing internal vs. international proportion with labeled percentage segments. Below each panel: the question it answers (Q1, Q2, Q3), the chart family (heatmap, comparison, part-to-whole), and the primary channel (color luminance, position-from-baseline, length). Caption: "Three questions, three charts, three chart families. The sequence establishes context (Q1), answers the primary question (Q2), and adds a compositional dimension (Q3)."] -->
+![Three Phase C charts side by side: heatmap of refugee source countries, horizontal bar of destination countries, and stacked bar of internal vs international](../images/17-building-a-complete-project-fig-04.png)
+*Figure 17.4 — Three questions, three charts, three chart families: the sequence establishes context, answers the primary question, and adds a compositional dimension*
 
 ---
 
@@ -162,8 +166,8 @@ The project-level handoff includes the `PROJECT.md` with the full decision recor
 
 This last point is more important than it appears. A visualization that cannot be reproduced is a visualization that becomes stale without remedy. The README ensures that when the UNHCR releases 2025 figures, the project can be updated in a day — not rebuilt from scratch.
 
-<!-- → [FIGURE: The Phase E deliverable as a publication-packaged chart. One of the three project charts (the horizontal bar of destination countries) shown inside a publication container: title above, subtitle below, the chart, then a row of three text elements: source citation ("Data: UNHCR Refugee Statistics 2024"), methodology note ("Counts are point-in-time totals as of December 31 of each year"), and accessibility statement ("Alt text and ARIA labels provided; WCAG AA contrast verified"). Below those: a small file-manifest panel showing the project's five deliverable files (chart-01.html, chart-02.html, chart-03.html, CLAUDE.md, PROJECT.md, README.md). Caption: "A published chart is not just the SVG. It is the chart plus the provenance that lets the reader trust it and the README that lets future-you update it."] -->
-
+![Phase E publication-packaged chart showing the bar chart inside a container with title, subtitle, source citation, methodology note, accessibility statement, and file manifest](../images/17-building-a-complete-project-fig-05.png)
+*Figure 17.5 — A published chart is not just the SVG: chart plus provenance plus the README that lets future-you update it*
 ---
 
 ## Cairo's Final Test

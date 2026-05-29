@@ -12,7 +12,8 @@ Now suppose someone made the same diagram with every band the same width. It wou
 
 That distinction — *does this connection exist* versus *how much flows along it* — is the organizing principle of this entire chapter. Every choice between a Sankey diagram and a force-directed graph, between a ribbon chord diagram and an arc diagram, reduces to it. Get the distinction clear and the form selection almost selects itself.
 
-<!-- → [IMAGE: two versions of the same three-column flow data — left: Sankey with proportional band widths (oil-to-transportation-fuel band visibly dominant, thin bands for smaller flows); right: the same topology drawn with uniform-width bands. Annotations on the left version: "Width = quantity (Bertin's magnitude channel)." Annotations on the right: "Uniform width = topology only. Cannot answer 'how much?'" Caption: "The same connections. Different questions. Different charts."] -->
+![Two Sankey diagrams — left with proportional band widths encoding magnitude, right with uniform widths encoding topology only](../images/13-flow-and-network-charts-fig-01.png)
+*Figure 13.1 — Proportional Sankey vs. uniform topology: width encodes magnitude, or nothing*
 
 ---
 
@@ -26,7 +27,8 @@ Tufte's proportional ink principle applies directly. The visual area of a Sankey
 
 When auditing Claude Code output for Sankey diagrams, the first check is always proportionality: measure the width of the two largest flows and confirm the ratio matches the data ratio. It is the most common failure in AI-generated flow charts — the algorithm places nodes correctly but the scaling is off.
 
-<!-- → [INFOGRAPHIC: Sankey proportionality audit diagram — three flows shown: Flow A (400 units, correct width ~40px), Flow B (200 units, correct width ~20px), Flow C (80 units, correct width ~8px). Below, a "common failure" version where Flow A is 30px, Flow B is 20px, Flow C is 12px — the proportions are wrong. Annotations show the correct ratios (A:B = 2:1, A:C = 5:1) and the failure ratios (A:B = 1.5:1, A:C = 2.5:1). Caption: "Tufte's proportional ink applies: band area must be proportional to value. Verify the ratio, not just the order."] -->
+![Sankey proportionality audit showing three flows at correct width ratios on the left and distorted ratios on the right](../images/13-flow-and-network-charts-fig-02.png)
+*Figure 13.2 — Sankey proportionality audit: band area must be proportional to value*
 
 ---
 
@@ -48,7 +50,8 @@ The form is Sankey generalized to longitudinal categorical data. Where Sankey as
 
 The circular layout distributes attention evenly across all entities, which is appropriate when there is no natural left-to-right directionality (trade is mutual; energy flow is directional). The trade-off is that circular layouts are harder for many audiences to read than the left-to-right flow of a Sankey. Past about fifteen to twenty entities, the ribbons fill the circle and the chart becomes unreadable.
 
-<!-- → [INFOGRAPHIC: three-panel comparison of the magnitude family — left: Sankey (three columns, left-to-right flow, bands proportional to quantity); center: alluvial (same structure but showing three time points with categorical transitions); right: ribbon chord (same entities arranged on a circle, ribbons of varying width). Each panel labeled with the question it answers: "How much flows A→B→C?" / "How did categories shift across time?" / "How much flows between any pair?" Caption: "Three forms, one channel (width), three layouts for three question structures."] -->
+![Three-panel comparison of Sankey, alluvial, and ribbon chord diagrams showing width channel in three layouts](../images/13-flow-and-network-charts-fig-03.png)
+*Figure 13.3 — The magnitude family: three forms, one channel, three question structures*
 
 ---
 
@@ -86,7 +89,8 @@ Four mitigations:
 
 The choice of mitigation depends on what the question is. Filtering preserves the network structure at the cost of completeness. Clustering answers a different question (what are the communities?) rather than the original one (what is the full connection structure?). Matrix views answer the full connection question but require a different reading strategy.
 
-<!-- → [IMAGE: four-panel hairball mitigation comparison — all four panels use the same 200-node high-density network. Panel 1: unmitigated force-directed layout (hairball, no structure visible). Panel 2: filtered to top-30 nodes by degree (sparse, structure visible). Panel 3: clustered to 8 super-nodes (community structure visible; individual nodes invisible). Panel 4: adjacency matrix sorted by degree (all connections visible; spatial clustering invisible). Caption under each panel names what the mitigation reveals and what it gives up."] -->
+![Four panels of the same dense network: unmitigated hairball, filtered to top nodes, clustered, and adjacency matrix](../images/13-flow-and-network-charts-fig-04.png)
+*Figure 13.4 — Four hairball mitigations: what each reveals and what it gives up*
 
 ---
 
@@ -128,7 +132,8 @@ Return to `sankey-diagram.html`. The chart works because specific decisions were
 
 None of these is decoration. Each is a channel decision made explicit before the code was written. Claude Code can implement them precisely when the specification names them precisely. A prompt that says "make a Sankey diagram" leaves these decisions to the model's defaults, which may or may not match the data's structure. A prompt that says "proportional widths, color follows source, labels on flows above $50M, tooltip on smaller flows" leaves nothing to chance.
 
-<!-- → [IMAGE: annotated screenshot of the pantry's sankey-diagram.html with four callout arrows — (1) "Proportional widths: oil-to-transportation band ~2× coal-to-electricity band, matching data ratio" pointing to the two dominant flows; (2) "Node ordering: columns sorted to minimize crossing bands" pointing to the middle column; (3) "Color follows source: nuclear hue traceable through all downstream flows" following the nuclear color; (4) "Labels on dominant flows; tooltip on smaller flows" pointing to an annotated band and a thin band. Caption: "Every decision is a channel specification. None is a default."] -->
+![Flow and network forms table: Sankey, alluvial, ribbon chord, arc diagram, and force-directed](../images/13-flow-and-network-charts-fig-05.png)
+*Figure 13.5 — Flow and network forms: the channel-theory question selects the family*
 
 ---
 

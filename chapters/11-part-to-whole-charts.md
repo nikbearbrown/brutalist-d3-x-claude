@@ -26,7 +26,8 @@ The five-slice rule follows directly from this threshold. Five slices, with the 
 
 The practical consequence: if your part-to-whole data has more than five categories, a bar chart almost always communicates more accurately. Position along a common baseline is the highest-accuracy channel available. A sorted horizontal bar chart of twelve funding categories shows the ranking unmistakably; the twelve-slice pie shows a wreath of wedges.
 
-<!-- → [IMAGE: side-by-side of a five-slice pie (readable, each wedge above 30°) and a twelve-slice pie (same total, same data, roughly equal wedges below 30°). Annotations on the five-slice version label the readable angular range (~30°–150°). Annotations on the twelve-slice version mark the cluster of small wedges that fall below the 30° threshold. Caption: "The five-slice rule is the point at which the channel's accuracy degrades below useful."] -->
+![Five-slice pie chart next to a twelve-slice pie where most wedges fall below the legibility threshold](../images/11-part-to-whole-charts-fig-01.png)
+*Figure 11.1 — The five-slice rule: the point at which the angle channel's accuracy degrades*
 
 ---
 
@@ -66,7 +67,8 @@ The weaknesses are real. The waffle chart requires a defined total — you canno
 
 The choice between waffle and pie turns on accuracy versus familiarity. If the reader has the graphicacy to decode a waffle chart and precision matters, the waffle wins. If the reader expects a pie chart and the data is within the five-slice limit, the pie may communicate more effectively because it requires no explanation. Few's frame applies: clarity for this audience is the criterion.
 
-<!-- → [IMAGE: same five-category proportional data rendered as a pie chart (left) and a waffle chart (right). The waffle's 10×10 grid has cells colored and counted per category; one category has 23 cells labeled "23%." An annotation on the waffle panel reads "Each cell = 1%. Count directly. No angle estimation." Caption: "The waffle chart trades familiarity for precision. The trade is worth making when the audience can decode it."] -->
+![Same five-category data shown as a pie chart using the angle channel and a waffle chart using position](../images/11-part-to-whole-charts-fig-02.png)
+*Figure 11.2 — Pie vs. waffle: the trade between familiarity and precision*
 
 ---
 
@@ -110,7 +112,8 @@ In an analytical context — a research paper, a decision-support dashboard, a p
 
 The practical rule for any polar area chart: if the form is used in advocacy, document the distortion in the chart's annotation or legend. "Wedge area encodes value (area scales as radial length squared)" is the disclosure. If the form is used in analysis, consider whether the distortion is acceptable or whether a standard linear chart would serve better. The Nightingale chart is a case study in how a designer can choose a form with a known error and be right to do so — but the conditions that make the choice defensible are specific and not always present.
 
-<!-- → [IMAGE: Nightingale's original 1858 polar area chart (Diagram of the Causes of Mortality in the Army in the East) with two annotations: (1) an arrow showing a wedge in the "large deaths from preventable disease" section with the label "this wedge is twice as long as its neighbor → appears ~4× larger in area (area scales as r²)," and (2) a callout naming the context: "advocacy for sanitary reform — the distortion served the argument." Caption: "Nightingale knew about the distortion. She used it anyway. The conditions that made the choice defensible are named in this chapter."] -->
+![Nightingale polar area chart with distortion annotation and Cairo's two-context frame](../images/11-part-to-whole-charts-fig-03.png)
+*Figure 11.3 — The polar area chart's known distortion and Cairo's rhetorical-vs-analytical frame*
 
 ---
 
@@ -126,7 +129,8 @@ Cairo's four-step framework catches this at step one: naming the key message. "F
 
 The audit before building the chart is what prevents the mismatch. The question to ask is: is the reader trying to understand how the pieces relate to the whole, or trying to rank the pieces? Composition wants part-to-whole. Ranking wants comparison.
 
-<!-- → [INFOGRAPHIC: two-branch decision tree — root node: "Is the message compositional or comparative?" Left branch (compositional): "How many categories?" → ≤5 with significant differences → pie/donut; >5 → aggregate or switch to bar. Right branch (comparative / ranking): directly to "bar chart." A second branch off the left: "Is precision more important than familiarity?" → yes → waffle; no → pie. Caption: "The audit before the chart. The question determines the form."] -->
+![Decision tree branching on compositional vs comparative message, category count, and precision vs familiarity](../images/11-part-to-whole-charts-fig-04.png)
+*Figure 11.4 — The audit before the chart: the question determines the form*
 
 ---
 
@@ -144,7 +148,8 @@ Color hue distinguishing sectors. Hue is the right channel for categorical ident
 
 None of these decisions is stylistic. Each is the application of a perceptual principle to a specific constraint. The chart is good not because it looks clean but because the encoding choices match the data's structure and the reader's perceptual capabilities.
 
-<!-- → [IMAGE: annotated five-slice pie chart from the pantry with five callout arrows — (1) "Five slices: data aggregated before building" pointing to the 'Other' note; (2) "Sort order: largest at 12 o'clock, clockwise descending" with an arc showing the reading direction; (3) "Direct labels: no legend lookup required" pointing to an inline percentage label; (4) "Color hue: categorical identity, no implied ranking" with a note that luminance would incorrectly imply order; (5) "Largest slice ~50%: dominance signal is unmistakable" pointing to the half-circle Food Security wedge. Caption: "Every decision is doing work. The chart is good because the encoding fits the data."] -->
+![Part-to-whole forms comparison table: pie, donut, waffle, stacked bar, Marimekko, and Nightingale rose](../images/11-part-to-whole-charts-fig-05.png)
+*Figure 11.5 — Part-to-whole forms: channel, rank, best condition, and failure condition*
 
 ---
 

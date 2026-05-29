@@ -15,7 +15,8 @@ Alberto Cairo's frame is specific: a scatterplot showing strong correlation, wit
 
 The fix is short. Add a text block near the trend line: "Correlation does not imply causation. These variables are associated; the causal mechanism is not established by this chart." The caveat does not weaken the chart. It completes it. The reader now knows what is and is not being claimed.
 
-<!-- → [FIGURE: Two identical scatterplots side by side. Same 170-country education-index vs. life-expectancy dataset, same OLS trend line, same r = 0.79 annotation. Left: no causation caveat — the chart invites the causal inference. Right: a visible callout box near the trend line reads "Correlation does not imply causation. These variables are associated; the causal mechanism is not established by this chart." Caption: "Same chart. Left invites an inference the data cannot support. Right completes the claim. The caveat is not decoration — it is the difference between a chart that misleads and one that informs."] -->
+![Two scatterplots side by side — left without causation annotation, right with Cairo's required callout box](../images/10-relationship-and-correlation-charts-fig-01.png)
+*Figure 10.1 — The correlation-is-not-causation annotation: Cairo's ethical requirement on every scatterplot*
 
 This chapter is about the family of relationship charts and the design responsibilities that come with them. The scatterplot is the canonical form. Bubble charts, connected scatterplots, heatmaps, and parallel coordinates are extensions for specific analytical situations. Each form has its own channel rules, its own failure modes, and its own version of the ethical obligation Cairo names.
 
@@ -31,7 +32,8 @@ The OLS regression line is the standard addition. It summarizes the linear relat
 
 The scatterplot's strength is the cloud shape. Not just the trend line — the whole shape of the scatter. A linear cloud and a curved cloud have the same r if the curve is symmetric; they have different implications for the relationship. A cloud with a consistent band width is homoscedastic; a fan-shaped cloud where variance increases with x is heteroscedastic. An outlier ten standard deviations from the trend line may be a data error or the most important observation. None of these is visible in a summary statistic. The scatterplot shows them all.
 
-<!-- → [FIGURE: Four small scatterplot panels, each with the same r ≈ 0.7 annotated. Panel 1: linear cloud — what the trend line correctly summarizes. Panel 2: curved (quadratic) cloud — r = 0.7 is technically correct but the relationship is non-linear; the linear trend line misrepresents it. Panel 3: fan-shaped cloud (heteroscedastic) — r = 0.7 but variance increases with x; the model is unstable at high x. Panel 4: linear cloud with one extreme outlier — r = 0.7 is dominated by the outlier; removing it gives r ≈ 0.3. Caption: "The same r = 0.7 can describe any of these clouds. The number summarizes; the chart shows. Always look at the cloud, not just the statistic."] -->
+![Four scatterplot panels each with r≈0.7 showing linear, curved, fan-shaped, and outlier-dominated clouds](../images/10-relationship-and-correlation-charts-fig-02.png)
+*Figure 10.2 — Four clouds, same r ≈ 0.7: look at the cloud, not just the statistic*
 
 ---
 
@@ -51,7 +53,8 @@ The right strategy depends on what the reader needs to see. If individual points
 
 These strategies belong in the "Constrain it" block of the Claude Code prompt. The default scatterplot will overplot on dense data. Specify: "use alpha transparency 0.2" or "use hexagonal 2D binning with d3.hexbin" or "jitter x-positions by up to 0.5 units." Without explicit instruction, Claude Code renders the default, and the default for large n is a black mass.
 
-<!-- → [FIGURE: Four-panel comparison using the same 10,000-point dataset. Panel 1: full opacity — dense region is a solid black mass, cloud shape invisible. Panel 2: alpha transparency 0.15 — cloud shape visible, individual outliers preserved, density gradient clear. Panel 3: jittered — useful only if the data had discrete clustering (this panel works best with a discrete-variable dataset). Panel 4: hexagonal 2D binning — density shown as luminance gradient, individual points lost, useful when the distribution shape is the question. Caption below each panel names the strategy, what it reveals, and what it hides.] -->
+![Four-panel overplotting comparison: full opacity, alpha transparency, jitter, and hexagonal binning](../images/10-relationship-and-correlation-charts-fig-03.png)
+*Figure 10.3 — Three overplotting strategies: what each reveals and what it hides*
 
 ---
 
@@ -69,7 +72,8 @@ If you scale the bubble's **area** linearly with the value, a value that doubles
 
 There is no way to eliminate Stevens' compression entirely — it is a fact of human perception, not a chart design choice. But the radius encoding compounds it with an avoidable squared distortion. Area encoding removes that compounding and leaves only the perceptual distortion that cannot be designed away.
 
-<!-- → [FIGURE: Two bubble pairs side by side, each showing a small bubble (value 100) and a large bubble (value 200). Left pair: radius-linear encoding. Small bubble radius = 10px; large bubble radius = 20px. Area ratio = 4:1. Stevens' perceived ratio ≈ 2.6:1. Three annotated numbers: "Data: 2×. Area: 4×. Perceived: 2.6×. None match." Right pair: area-linear encoding (d3.scaleSqrt). Small bubble area = 100 units; large bubble area = 200 units. Radius ratio ≈ 1.41:1. Stevens' perceived ratio ≈ 1.6:1. Three annotated numbers: "Data: 2×. Area: 2×. Perceived: 1.6×. Two match." Caption: "Radius encoding makes a bad situation worse. Area encoding makes it as good as human perception allows."] -->
+![Two bubble pairs showing radius encoding vs area encoding with the three-number problem annotated](../images/10-relationship-and-correlation-charts-fig-04.png)
+*Figure 10.4 — The bubble chart radius trap: radius encoding makes a bad situation worse*
 
 The D3 implementation is specific: `d3.scaleSqrt` maps the value to the radius such that the area is proportional to the value. The function applies the square root to the input (because radius = sqrt(area/π), up to a constant), producing a radius that gives the right area. `d3.scaleLinear` for bubble radius is the common error; it produces radius-linear encoding, area-quadratic distortion, and a chart that visually amplifies large values far beyond what the data supports.
 
@@ -102,7 +106,8 @@ The most common heatmap error is using a categorical or rainbow color scale for 
 
 The second design decision is sort order. For categorical axes, the default is often alphabetical or source-file order — usually wrong. Sort rows and columns to reveal structure: by maximum value (which row has the highest intensity overall?), by hierarchical clustering (which rows are most similar to each other?), or by a domain-specific order the reader expects. The heatmap's visual pattern is highly dependent on ordering; the right order makes clusters visible, the wrong order hides them.
 
-<!-- → [FIGURE: Two heatmaps side by side, same dataset (8 regions × 6 sectors, luminance = adoption rate). Left: alphabetical row and column order — no visible pattern, cells appear random. Right: rows sorted by maximum value (highest-adoption region at top), columns sorted by average value across regions (highest-adoption sector at left) — a bright upper-left cluster is immediately visible, showing that certain high-adoption regions concentrate in specific sectors. Caption: "Same data, two orderings. Left hides the pattern. Right reveals it. Sort order is a design decision, not a default."] -->
+![Two heatmaps of the same dataset — left alphabetical order, right sorted by row maximum revealing a cluster](../images/10-relationship-and-correlation-charts-fig-05.png)
+*Figure 10.5 — Heatmap sort order: alphabetical hides structure, sorted-by-maximum reveals it*
 
 ---
 
@@ -120,7 +125,8 @@ This limitation is manageable when the chart is interactive — the reader can d
 
 For Claude Code work: specify the axis order in the prompt (name the variables in the order that makes the most important pairwise relationships adjacent) and include axis brushing in the interaction requirements. A static parallel coordinates chart without brushing is often outperformed by a matrix of pairwise scatterplots.
 
-<!-- → [FIGURE: Two parallel coordinates charts, same dataset (six quantitative variables, 200 observations). Left: original axis order (alphabetical or source-file order) — the polyline patterns look tangled with no clear structure. Right: reordered axes placing the two most correlated variable pairs adjacent — two clear clusters emerge, visible as distinct bands of parallel lines. Annotation between the panels: "Axis order 1 hides the clusters. Axis order 2 reveals them. Same data. 720 possible orderings. This is Munzner's axis-order-dependence problem." Annotation on the right panel: "These two orderings were selected by placing the highest-r pairs adjacent."] -->
+![Two parallel coordinates charts — left alphabetical axis order, right with high-r pairs adjacent](../images/10-relationship-and-correlation-charts-fig-06.png)
+*Figure 10.6 — Munzner's axis-order-dependence problem: reordering axes reveals hidden clusters*
 
 ---
 

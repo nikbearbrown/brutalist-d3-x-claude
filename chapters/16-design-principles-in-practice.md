@@ -18,7 +18,8 @@ The heavy gridlines crowd the chart. The rotated labels slow the reader by a mea
 
 Fourteen of the twenty-two items on the Evergreen/Emery design checklist fail. The chart is more failure than success.
 
-<!-- → [IMAGE: the flawed chart described in the opening, annotated with numbered failure callouts — (1) y-axis starts at $400K, not zero; (2) 3D perspective on bar tops; (3) five gradient rainbow colors encoding nothing; (4) heavy gridlines at every dollar increment; (5) 45° rotated labels in 8pt italic; (6) title names the occasion, not the finding; (7) no comparison reference. Caption: "Seven visible failures. Fourteen of twenty-two checklist items fail. The chart is more failure than success."] -->
+![Flawed bar chart with seven numbered failure callouts: truncated axis, 3D bars, rainbow colors, heavy gridlines, rotated labels, occasion title, no comparison](../images/16-design-principles-in-practice-fig-01.png)
+*Figure 16.1 — Seven visible failures: fourteen of twenty-two checklist items fail*
 
 The redesign is a horizontal bar chart, sorted by Q4 sales descending, zero baseline, no three-dimensional effects, single muted color, light gridlines at axis ticks only, 16-point sans-serif title, value annotations on the bars, and a subtitle that makes the comparison explicit. Every change traces to a specific principle. The chapter is about those principles — four of them, synthesized into a single audit framework.
 
@@ -40,7 +41,8 @@ The book's adopted position is Few's: clarity over minimization. Functional redu
 
 The four sources are not alternatives. They are complementary. Tufte names the heuristics. Few resolves them into a working criterion. Cairo frames the responsibility. Gestalt provides the mechanism. Together they produce a single synthesis that an audit checklist can operationalize.
 
-<!-- → [INFOGRAPHIC: four-quadrant diagram showing the complementary contributions — top-left: Tufte (heuristics: data-ink ratio, proportional ink); top-right: Few (working criterion: "does this support the message?"); bottom-left: Cairo (ethical frame: responsibility to the reader, "compared with what?", graphicacy); bottom-right: Gestalt (perceptual mechanism: proximity, similarity, continuity, figure-ground). A center node labeled "Evergreen/Emery 22-point checklist" with arrows from all four quadrants pointing to it. Caption: "Each source contributes a different kind of knowledge. The checklist operationalizes all four."] -->
+![Four-quadrant diagram showing Tufte, Few, Cairo, and Gestalt contributions pointing to the Evergreen/Emery 22-point checklist center node](../images/16-design-principles-in-practice-fig-02.png)
+*Figure 16.2 — The four sources and their complementary contributions to the audit framework*
 
 ---
 
@@ -101,7 +103,8 @@ Cairo's responsibility frame applies to color accessibility. A palette that fail
 
 For Claude Code work, specify the palette type and endpoints explicitly. "Sequential palette from #F5F0E8 to #8B0000, color-blind safe, consistent with dark-mode inversion via prefers-color-scheme" is a complete color specification. "Use nice colors" is not.
 
-<!-- → [IMAGE: three-panel color vocabulary reference — left: categorical (five distinct hues, similar luminance, for five unordered product categories); center: sequential (single hue from pale to dark, for a quantitative income scale); right: diverging (two hues, blue for negative, red for positive, white at zero, for budget variance). Each panel labeled with data type (unordered categorical / ordered/quantitative / centered with meaningful midpoint) and a one-sentence use-case description. Caption: "Three data types. Three color vocabularies. Using the wrong one introduces false order or hides true structure."] -->
+![Three-panel color vocabulary reference showing categorical, sequential, and diverging palettes with data type and use case for each](../images/16-design-principles-in-practice-fig-03.png)
+*Figure 16.3 — Three data types, three color vocabularies: using the wrong one introduces false order or hides true structure*
 
 ---
 
@@ -213,7 +216,8 @@ Most of the checklist items become prompt specifications rather than post-produc
 
 The chart that passes all twenty-two items is not necessarily the most visually striking chart. It is the chart that most reliably produces accurate comprehension in its intended audience. That is the goal the checklist serves. The Tufte heuristics, Few's refinement, Cairo's ethical frame, and Gestalt's perceptual mechanism are all in service of that goal — and the twenty-two items are how the service becomes checkable.
 
-<!-- → [IMAGE: before/after side-by-side of the opening-case chart — left: the original flawed version with the seven annotated failures; right: the redesigned horizontal bar chart (sorted descending, zero baseline, single muted hue, light gridlines, 16pt sans-serif title, direct value labels, "compared with Q3" subtitle). A checklist overlay on the right panel shows all 22 items checked. Caption: "Same data. Different encoding decisions. The redesign passes all 22 items because every design decision traces to a specific principle."] -->
+![Before and after redesign — left: original flawed chart with seven failures; right: horizontal bar chart passing all 22 checklist items](../images/16-design-principles-in-practice-fig-04.png)
+*Figure 16.4 — Same data, different encoding decisions: the redesign passes all 22 items*
 
 ---
 

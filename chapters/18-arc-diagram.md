@@ -8,7 +8,8 @@ Sixty-one chart types, alphabetically. Each chapter is short — a placeholder i
 
 *Co-occurrence reveals who shares the most scenes*
 
-![Arc Diagram](../images/18-arc-diagram.jpg)
+![Arc diagram of character co-occurrence in a fictional novel — nodes sized by total scene count, arcs weighted by shared scenes, sorted by connection count](../images/18-arc-diagram.png)
+*Figure 18.1 — Co-occurrence reveals who shares the most scenes: arc thickness encodes shared scene count, node size encodes total scenes*
 
 Also known as: Arc Graph · Linear Network Diagram · One-Dimensional Network
 

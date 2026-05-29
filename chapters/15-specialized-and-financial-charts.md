@@ -14,7 +14,8 @@ This is what specialized chart conventions earn. They encode information that st
 
 This chapter is about that compact — where it works, and where it fails.
 
-<!-- → [IMAGE: single candlestick period annotated with all four OHLC values — body top labeled "Close (or Open if down-period)," body bottom labeled "Open (or Close if down-period)," upper wick top labeled "High," lower wick bottom labeled "Low," body fill color labeled "Direction: green = close > open, red = close < open." A second panel shows a line chart of closing prices for the same time series. Caption: "The candlestick encodes four variables per period; the line chart encodes one. The efficiency is the convention's claim to exist."] -->
+![Annotated candlestick with callout lines to High, Close, Open, and Low next to a line chart showing only close price](../images/15-specialized-and-financial-charts-fig-01.png)
+*Figure 15.1 — OHLC encoding: four position-encoded values per period vs. one*
 
 ---
 
@@ -28,14 +29,8 @@ Stephen Few made this argument in 2005. His bullet graph was not a new form so m
 
 The chapter's test for any specialized form: does it use an appropriate channel for its primary data? If a specialized form uses position (the best channel) and bundles information efficiently, it earns the learning cost. If it uses angle or area decoratively when position was available, it fails.
 
-| Form | Primary channel | Cleveland & McGill rank | The question only this form answers | Failure condition |
-|---|---|---|---|---|
-| Candlestick | Position + length | 1 + 3 | What was the within-period range AND the open-to-close direction? | Reader does not know the four price-points convention |
-| Kagi | Position with reversal-thresholded lines | 1 | Has the trend reversed by more than the threshold amount? | Audience expects a time-faithful x-axis |
-| Point & Figure | Position on a price grid | 1 | What price levels have held over time, independent of duration? | Audience expects time on the x-axis |
-| Bullet graph | Length against a qualitative ranges | 3 | Is this single value above target, on target, or below — and by how much? | Audience confuses ranges with separate measures |
-| Radar chart | Position on radial axes | 2 (non-aligned) | What is the multi-attribute profile of one entity? | Comparing many entities — overlapping polygons obscure each other |
-| Polar area (Nightingale) | Area | 5 | What is the cyclic / seasonal pattern across categories? | Audience reads radius linearly when area is the encoding |
+![Specialized forms table: candlestick, Kagi, bullet graph, radar chart, gauge chart, and polar area with channel rank and failure conditions](../images/15-specialized-and-financial-charts-fig-05.png)
+*Figure 15.5 — Specialized forms: the earn-your-strangeness test applied to each*
 ---
 
 ## Candlestick and OHLC charts
@@ -82,7 +77,8 @@ The design decisions in a bullet graph are deliberate. The background bands shou
 
 The pantry's `bullet-graph.html` shows the standard Few-original form. Compare it to any gauge chart you can find and the argument becomes empirical rather than rhetorical.
 
-<!-- → [IMAGE: side-by-side comparison of the same KPI rendered as a gauge chart and as a bullet graph — left: semicircular gauge dial with needle at 87%, decorative face, red-yellow-green arcs, legend below; right: horizontal bullet graph with dark bar to 87%, small vertical tick at target (85%), three sequential-luminance background bands, direct value label. Annotations: on the gauge, "Angular position: Cleveland & McGill rank 4." On the bullet: "Position along common scale: Cleveland & McGill rank 1." A size comparison at the bottom shows the gauge occupying ~6× the vertical space of the bullet. Caption: "Same data. The bullet graph is more accurate and uses less space. Few's argument is not stylistic."] -->
+![Gauge chart with needle at 87% next to a bullet graph of the same value with position encoding and qualitative bands](../images/15-specialized-and-financial-charts-fig-02.png)
+*Figure 15.2 — Gauge vs. bullet graph: Few's argument is not stylistic*
 
 ---
 
@@ -104,7 +100,8 @@ Small multiples are the most conservative alternative: one bar chart per dimensi
 
 Radar charts earn their use when the audience has the graphicacy to decode them, the polygon shape reflects a meaningful conceptual grouping, and the goal is a gestalt comparison across a small number of observations (three or four overlapping polygons remain readable; eight become a tangled web). They fail when the axis order is arbitrary, when the polygon count is high, or when the audience lacks radar-chart literacy.
 
-<!-- → [IMAGE: three-panel radar chart demonstration — all three panels use the same six-attribute dataset for the same three observations. Left: axes in original order (Speed, Strength, Endurance, Agility, Technique, Recovery). Center: axes reordered (Strength, Recovery, Speed, Technique, Endurance, Agility). Right: axes reordered again (Agility, Endurance, Recovery, Speed, Technique, Strength). The polygon shapes in all three panels look meaningfully different despite representing identical data. Caption: "Same data. Three axis orders. Three different-looking performance profiles. The shape is not the data — it is the axis order."] -->
+![Three radar charts of identical data with three different axis orderings producing three visually distinct polygon shapes](../images/15-specialized-and-financial-charts-fig-03.png)
+*Figure 15.3 — The radar chart axis-order problem: the shape is not the data*
 
 ---
 
@@ -132,7 +129,8 @@ The test is always: what specific analytical question does this form answer bett
 
 When the answer to the test is "it looks more professional" or "it looks more sophisticated," the specialized form is decorative. The standard alternative is almost certainly better.
 
-<!-- → [INFOGRAPHIC: the earn-your-strangeness decision tree — root: "Does this form answer a specific analytical question better than any standard chart?" Yes branch: "Is the audience familiar with the convention?" Yes → use the specialized form with documentation. No → provide the convention explanation. No branch: "Why are you using this form?" → "It looks professional" → replace with the standard form. Two example paths labeled: Candlestick (yes/yes → use it) and Gauge chart (no → replace with bullet graph). Caption: "The test is the discipline. Specialization earns its cost or it doesn't."] -->
+![Decision tree asking whether the form answers a question better than a standard chart, with candlestick and gauge as worked examples](../images/15-specialized-and-financial-charts-fig-04.png)
+*Figure 15.4 — The earn-your-strangeness test: specialization earns its cost or it doesn't*
 
 ---
 

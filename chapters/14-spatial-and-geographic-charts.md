@@ -15,7 +15,8 @@ This is the core problem of geographic charts. Every spatial form carries a dist
 
 Fixing this is not a stylistic choice. It is a claim about what the chart is actually answering.
 
-<!-- → [FIGURE: Two US state choropleth maps side by side, same underlying health dataset. Left: "Total uninsured people by state" — Texas and California are very dark; Wyoming, Vermont, Rhode Island are pale. The visual story is population density. Right: "Uninsured rate (%) by state" — Texas remains dark; California is now notably lighter; Wyoming is darker than California; Rhode Island is near the national average. Caption: "Same states. Same underlying data. Different question. Left: where do uninsured people live? Right: in which states are residents most likely to be uninsured? The map shows what you drew; the reader sees what's big." Annotate 2–3 specific states that flip dramatically between the two maps.] -->
+![Two US state choropleths of the same health dataset — left absolute count, right rate per resident](../images/14-spatial-and-geographic-charts-fig-01.png)
+*Figure 14.1 — Absolute count vs. rate: the map shows what you drew; the reader sees what's big*
 
 ---
 
@@ -41,7 +42,8 @@ The diagnostic question: would the reader need to know the geographic positions 
 
 Four forms, each right for a specific combination of data type and question. The choice is not decoration.
 
-<!-- → [INFOGRAPHIC: Four-panel reference grid, one panel per geographic form. Each panel: form name (uppercase, JetBrains Mono), a thumbnail of the form's visual structure, the primary channel, and the "use when" condition. Panels: Choropleth (shaded polygons, "color luminance encodes rate," "rate data, comparable regions"), Dot density (dots within regions, "point count encodes magnitude," "absolute count, spatial pattern at sub-regional resolution"), Bubble map (circles at centroids, "circle area encodes absolute value," "absolute magnitude, severs area-size distortion"), Connection/flow map (lines between locations, "line width encodes flow magnitude," "origin-destination data"). This is the navigation reference.] -->
+![Four-panel geographic form reference showing choropleth, dot density, bubble map, and flow map](../images/14-spatial-and-geographic-charts-fig-02.png)
+*Figure 14.2 — Geographic form reference: four forms, four questions, the choice is not decoration*
 
 ---
 
@@ -57,7 +59,8 @@ Charles Dupin understood this when he invented the choropleth in 1826. His map o
 
 Modern choropleths routinely violate both of Dupin's choices. US state choropleths have Wyoming (254,000 km²) alongside Rhode Island (4,000 km²) — a 63:1 area ratio. Country-level choropleths have Russia (17 million km²) alongside Luxembourg (2,600 km²) — a 6,500:1 ratio. The color luminance encoding is technically present, but the area-size distortion overwhelms it. The reader sees a picture mostly shaped by land mass.
 
-<!-- → [FIGURE: A world choropleth on Equal Earth projection where all countries have the same value encoded — a mid-range luminance. Every country is the same color. The only variable is geographic area. Caption: "Every country has the same value. The reader's eye still moves to Russia, Canada, and Australia — not because their values are different, but because their areas are. This is the area-size distortion: preattentive area processing precedes color reading regardless of what the color encodes." Annotate Greenland (appears large on Mercator) and Luxembourg (invisible on both projections).] -->
+![World map with all countries at identical value showing area-size distortion with callout lines to Russia, Canada, and Greenland](../images/14-spatial-and-geographic-charts-fig-03.png)
+*Figure 14.3 — Area-size distortion: preattentive area processing precedes color reading*
 
 ---
 
@@ -89,7 +92,8 @@ The cost: dot density maps require point-level data, which is often unavailable 
 
 For Claude Code work: dot density maps with truly random dot placement are reproducible if you seed the random number generator. Specify this in the prompt: "use a deterministic seeded random placement within each polygon so the chart is reproducible."
 
-<!-- → [FIGURE: Two panels of the same Soho neighborhood, same cholera dataset. Left: choropleth — each parish shaded by total deaths; the cluster is hidden within the parish boundaries; Saint James parish appears moderately affected. Right: Snow-style dot map — one dot per death at its street address; the cluster around the Broad Street pump is immediately visible as a dense concentration in a single block. Caption: "Same data, two resolutions. The choropleth aggregates to parishes — too coarse to reveal the cluster. The dot map plots every case at its address — the pump stands at the cluster's center. The form that can answer the question is determined by the resolution the question requires."] -->
+![Two panels of the 1854 Soho cholera data — parish choropleth hiding the cluster vs dot map revealing the pump](../images/14-spatial-and-geographic-charts-fig-04.png)
+*Figure 14.4 — Snow's insight: the form that can answer the question is determined by the resolution required*
 
 ---
 
@@ -109,8 +113,8 @@ For Claude Code work: Claude Code defaults to Mercator because Mercator is famil
 
 > "The projection is Mercator. Replace with `d3.geoEqualEarth()`. Mercator distorts country areas at high latitudes, which compounds the choropleth's area-size distortion. Regenerate."
 
-<!-- → [FIGURE: Two world maps showing the same choropleth data side by side. Left: Mercator — Greenland appears roughly the same size as Africa (annotated with actual ratio: "Africa is 14× larger"). Russia visually dominates the northern hemisphere. Right: Equal Earth — Africa's actual dominance is visible; Greenland is a small island; Russia is large but proportional to its actual area. Caption: "Mercator compounds the area-size distortion by adding another layer of area inaccuracy. Equal Earth preserves actual land areas so the choropleth's perceptual distortion is at least bounded by geographic reality."] -->
-
+![Two world choropleths — Mercator with Greenland appearing comparable to Africa vs Equal Earth with correct proportions](../images/14-spatial-and-geographic-charts-fig-05.png)
+*Figure 14.5 — Mercator vs. Equal Earth: projection choice compounds or bounds the area-size distortion*
 ---
 
 ## When Bubble Maps Outperform Choropleths
@@ -127,7 +131,8 @@ Stevens' power law applies to bubble maps identically to bubble charts. Encode t
 
 > "The bubble radius is scaled linearly. This makes visual area scale as value squared, compounding Stevens' area perception distortion. Replace with `d3.scaleSqrt` for the radius scale. Regenerate."
 
-<!-- → [FIGURE: Two world maps side by side, same absolute refugee-count dataset. Left: choropleth (Equal Earth) — large countries like Turkey, Pakistan, and Uganda (which host many refugees) are moderately dark, but Russia, Canada, and Australia (few refugees, large areas) are visually prominent. The chart misleads because large land masses dominate. Right: bubble map (Equal Earth, d3.scaleSqrt radius encoding) — Turkey, Pakistan, and Uganda have large visible bubbles; Russia, Canada, and Australia have small or absent bubbles. The visual story matches the data. Caption: "Same data, two forms. Choropleth: large areas dominate regardless of refugee count. Bubble map: the bubble area is independent of the country's area. The form that severs the distortion is the honest one for absolute counts."] -->
+![Geographic forms table: choropleth, dot density, bubble map, and flow map with encoding, projection, and failure condition](../images/14-spatial-and-geographic-charts-fig-06.png)
+*Figure 14.6 — Geographic forms and the three questions to answer before building*
 
 ---
 
