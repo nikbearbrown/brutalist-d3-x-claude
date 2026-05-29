@@ -2,7 +2,8 @@
 
 *Global Energy Flow — Source to End Use, Width = Exajoules*
 
-![Sankey Diagram](../images/62-sankey-diagram.jpg)
+![Sankey diagram showing energy flow from three sources (Coal, Gas, Renewables) to three end uses (Industry, Transport, Buildings). Curved ribbons connect source to target; width is proportional to flow in exajoules.](../images/62-sankey-diagram.png)
+*Figure 62.1 — Width = Exajoules*
 
 ## What this chart is
 
@@ -46,6 +47,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/62-sankey-diagram.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

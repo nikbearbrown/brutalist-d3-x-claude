@@ -2,7 +2,8 @@
 
 *Q4 Peak, Q2 Trough — The Seasonal Pattern Intensifies Year-Over-YearInner arm = 2021  ·  Outer arm = 2024  ·  Bars colored by month*
 
-![Spiral Plot](../images/65-spiral-plot.jpg)
+![Spiral plot showing 4 years of monthly data on an Archimedean spiral. 48 radial bars arranged with one rotation per year. Inner arm is 2021, outer is 2024. Q4 bars are tallest and highlighted in red; Q2 bars are shortest.](../images/65-spiral-plot.png)
+*Figure 65.1 — Q4 Peak, Q2 Trough*
 
 ## What this chart is
 
@@ -49,6 +50,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/65-spiral-plot.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

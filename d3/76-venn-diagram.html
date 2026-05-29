@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Venn Diagram — Three Skill Domains for AI Collaboration</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root {
+    --color-bg: #FFFFFF;
+    --color-ink: #2a1a0e;
+    --color-surface: #F5EFE8;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-mark: #6B3520;
+    --color-red: #C8102E;
+    --color-slate: #1A3A5C;
+    --color-ochre: #C8860E;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1a1a;
+      --color-ink: #e8e0d6;
+      --color-surface: #2a2420;
+      --color-secondary: #a0978e;
+      --color-border: #444;
+      --color-mark: #c28060;
+      --color-red: #e05040;
+      --color-slate: #5a9ad6;
+      --color-ochre: #d4a030;
+    }
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+  #chart-container { width: 100%; max-width: 900px; }
+  h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; color: var(--color-ink); }
+  .subtitle {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--color-secondary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .caption { font-size: 0.9rem; color: var(--color-secondary); font-style: italic; margin-top: 12px; }
+  .tooltip {
+    position: absolute;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--color-ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+</style>
+</head>
+<body>
+<div id="chart-container">
+  <h1>Three Skill Domains for AI Collaboration</h1>
+  <div class="subtitle">VENN DIAGRAM — OVERLAPPING COMPETENCIES</div>
+  <div id="chart" role="img" aria-label="Venn diagram showing three overlapping skill domains: Technical Skills, Domain Knowledge, Communication"></div>
+  <div class="caption">The centre zone requires all three domains — technical, domain, and communication.</div>
+</div>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const width = 700;
+const height = 520;
+
+const circles = [
+  { id: "A", label: "Technical Skills", cx: 280, cy: 210, r: 140, color: "var(--color-red)" },
+  { id: "B", label: "Domain Knowledge", cx: 420, cy: 210, r: 140, color: "var(--color-slate)" },
+  { id: "C", label: "Communication", cx: 350, cy: 320, r: 140, color: "var(--color-mark)" }
+];
+
+const intersections = [
+  { id: "AB", label: "Applied AI", x: 350, y: 175 },
+  { id: "AC", label: "Explainability", x: 282, y: 282 },
+  { id: "BC", label: "Storytelling", x: 418, y: 282 },
+  { id: "ABC", label: "Full Stack AI\nCollaborator", x: 350, y: 240, bold: true }
+];
+
+const svg = d3.select("#chart")
+  .append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("preserveAspectRatio", "xMidYMid meet")
+  .style("width", "100%")
+  .style("height", "auto");
+
+svg.append("title").text("Three Skill Domains for AI Collaboration — Venn Diagram");
+svg.append("desc").text("Three overlapping circles representing Technical Skills, Domain Knowledge, and Communication. The centre intersection is Full Stack AI Collaborator.");
+
+svg.append("rect").attr("width", width).attr("height", height).attr("fill", "var(--color-bg)");
+svg.append("rect")
+  .attr("x", 32).attr("y", 30)
+  .attr("width", width - 64).attr("height", height - 70)
+  .attr("fill", "var(--color-surface)").attr("stroke", "var(--color-border)").attr("stroke-width", 0.75);
+
+const tooltip = d3.select("#tooltip");
+
+// Circles
+svg.selectAll("circle.venn")
+  .data(circles)
+  .join("circle")
+  .attr("class", "venn")
+  .attr("cx", d => d.cx)
+  .attr("cy", d => d.cy)
+  .attr("r", d => d.r)
+  .attr("fill", d => d.color)
+  .attr("opacity", 0.3)
+  .attr("stroke", d => d.color)
+  .attr("stroke-width", 1.5)
+  .attr("tabindex", 0)
+  .attr("role", "img")
+  .attr("aria-label", d => d.label)
+  .on("mouseenter", function(event, d) {
+    d3.select(this).attr("opacity", 0.45);
+    tooltip.style("opacity", 1).html(`<strong>${d.label}</strong>`);
+  })
+  .on("mousemove", function(event) {
+    tooltip.style("left", (event.pageX + 12) + "px").style("top", (event.pageY - 28) + "px");
+  })
+  .on("mouseleave", function() {
+    d3.select(this).attr("opacity", 0.3);
+    tooltip.style("opacity", 0);
+  });
+
+// Set labels (outside overlap zones)
+svg.append("text").attr("x", 195).attr("y", 130).attr("text-anchor", "middle")
+  .attr("font-size", "14px").attr("font-weight", "bold").attr("fill", "var(--color-red)").text("Technical");
+svg.append("text").attr("x", 195).attr("y", 148).attr("text-anchor", "middle")
+  .attr("font-size", "14px").attr("font-weight", "bold").attr("fill", "var(--color-red)").text("Skills");
+
+svg.append("text").attr("x", 505).attr("y", 130).attr("text-anchor", "middle")
+  .attr("font-size", "14px").attr("font-weight", "bold").attr("fill", "var(--color-slate)").text("Domain");
+svg.append("text").attr("x", 505).attr("y", 148).attr("text-anchor", "middle")
+  .attr("font-size", "14px").attr("font-weight", "bold").attr("fill", "var(--color-slate)").text("Knowledge");
+
+svg.append("text").attr("x", 350).attr("y", 430).attr("text-anchor", "middle")
+  .attr("font-size", "14px").attr("font-weight", "bold").attr("fill", "var(--color-mark)").text("Communication");
+
+// Intersection labels
+intersections.forEach(d => {
+  const lines = d.label.split("\n");
+  lines.forEach((line, i) => {
+    svg.append("text")
+      .attr("x", d.x)
+      .attr("y", d.y + i * 16)
+      .attr("text-anchor", "middle")
+      .attr("font-family", d.bold ? "'EB Garamond', serif" : "'IBM Plex Mono', monospace")
+      .attr("font-size", d.bold ? "13px" : "10px")
+      .attr("font-weight", d.bold ? "bold" : "normal")
+      .attr("letter-spacing", d.bold ? "0" : "0.08em")
+      .attr("fill", "var(--color-ink)")
+      .text(line);
+  });
+});
+</script>
+</body>
+</html>

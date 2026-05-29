@@ -2,7 +2,8 @@
 
 *Visually Engaging, Analytically Poor — Use With Eyes Open*
 
-![Word Cloud](../images/78-word-cloud.jpg)
+![Word Cloud](../images/78-word-cloud.png)
+*Figure 78.1 — Visually Engaging, Analytically Poor*
 
 ## What this chart is
 
@@ -65,6 +66,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/78-word-cloud.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

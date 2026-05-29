@@ -1,0 +1,81 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#2a1a0e">Technology Readiness by Domain</text>
+
+<!-- Subtitle -->
+<text x="350" y="46" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">RADIAL COLUMN CHART</text>
+
+<!-- Chart area -->
+<rect x="32" y="60" width="636" height="310" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="0.75"/>
+
+<!-- Center: (350, 220). Inner radius: 35. Max outer radius: 140 -->
+<!-- 8 categories, each 45 degrees -->
+<!-- AI=92, ML=85, NLP=73, Vision=68, Robotics=55, Data=88, Cloud=95, Security=40 -->
+<!-- Scale: outerR = 35 + (value/95) * 105 -->
+
+<!-- Concentric grid rings -->
+<circle cx="350" cy="220" r="35" fill="none" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+<circle cx="350" cy="220" r="61.25" fill="none" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+<circle cx="350" cy="220" r="87.5" fill="none" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+<circle cx="350" cy="220" r="113.75" fill="none" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+<circle cx="350" cy="220" r="140" fill="none" stroke="#D4D4D4" stroke-width="0.5" stroke-dasharray="3,3"/>
+
+<!-- Ring value labels -->
+<text x="350" y="157" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#545454" letter-spacing="0.08em">20</text>
+<text x="350" y="131" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#545454" letter-spacing="0.08em">40</text>
+<text x="350" y="105" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#545454" letter-spacing="0.08em">60</text>
+<text x="350" y="79" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#545454" letter-spacing="0.08em">80</text>
+
+<!-- Columns as thick lines radiating from center outward -->
+<!-- AI (92): angle=-90 (up), outerR = 35 + (92/95)*105 = 136.7 -->
+<line x1="350" y1="185" x2="350" y2="83.3" stroke="#6B3520" stroke-width="20" stroke-linecap="butt"/>
+
+<!-- ML (85): angle=-45, outerR = 35 + (85/95)*105 = 128.9 -->
+<line x1="374.7" y1="195.3" x2="441.2" y2="128.8" stroke="#6B3520" stroke-width="20" stroke-linecap="butt"/>
+
+<!-- NLP (73): angle=0 (right), outerR = 35 + (73/95)*105 = 115.7 -->
+<line x1="385" y1="220" x2="465.7" y2="220" stroke="#6B3520" stroke-width="20" stroke-linecap="butt"/>
+
+<!-- Vision (68): angle=45, outerR = 35 + (68/95)*105 = 110.2 -->
+<line x1="374.7" y1="244.7" x2="427.9" y2="297.9" stroke="#6B3520" stroke-width="20" stroke-linecap="butt"/>
+
+<!-- Robotics (55): angle=90 (down), outerR = 35 + (55/95)*105 = 95.8 -->
+<line x1="350" y1="255" x2="350" y2="315.8" stroke="#6B3520" stroke-width="20" stroke-linecap="butt"/>
+
+<!-- Data (88): angle=135, outerR = 35 + (88/95)*105 = 132.3 -->
+<line x1="325.3" y1="244.7" x2="256.4" y2="313.6" stroke="#6B3520" stroke-width="20" stroke-linecap="butt"/>
+
+<!-- Cloud (95): angle=180 (left), outerR = 35 + (95/95)*105 = 140 — HIGHEST, highlighted -->
+<line x1="315" y1="220" x2="210" y2="220" stroke="#C8102E" stroke-width="20" stroke-linecap="butt"/>
+
+<!-- Security (40): angle=225 (up-left), outerR = 35 + (40/95)*105 = 79.2 -->
+<line x1="325.3" y1="195.3" x2="294" y2="164" stroke="#6B3520" stroke-width="20" stroke-linecap="butt"/>
+
+<!-- Category labels at perimeter -->
+<text x="350" y="68" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#2a1a0e" letter-spacing="0.08em">AI</text>
+<text x="466" y="106" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#2a1a0e" letter-spacing="0.08em">ML</text>
+<text x="480" y="224" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#2a1a0e" letter-spacing="0.08em">NLP</text>
+<text x="448" y="320" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#2a1a0e" letter-spacing="0.08em">VISION</text>
+<text x="350" y="340" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#2a1a0e" letter-spacing="0.08em">ROBOTICS</text>
+<text x="234" y="320" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#2a1a0e" letter-spacing="0.08em">DATA</text>
+<text x="188" y="224" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#C8102E" letter-spacing="0.08em">CLOUD</text>
+<text x="270" y="148" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#2a1a0e" letter-spacing="0.08em">SECURITY</text>
+
+<!-- Value annotations on bars -->
+<text x="350" y="78" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#FFFFFF" letter-spacing="0.08em">92</text>
+<text x="445" y="125" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#FFFFFF" letter-spacing="0.08em">85</text>
+<text x="468" y="216" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#FFFFFF" letter-spacing="0.08em">73</text>
+<text x="430" y="302" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#FFFFFF" letter-spacing="0.08em">68</text>
+<text x="350" y="320" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#FFFFFF" letter-spacing="0.08em">55</text>
+<text x="258" y="317" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#FFFFFF" letter-spacing="0.08em">88</text>
+<text x="207" y="216" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#FFFFFF" letter-spacing="0.08em">95</text>
+<text x="291" y="160" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#FFFFFF" letter-spacing="0.08em">40</text>
+
+<!-- Caption -->
+<text x="350" y="398" text-anchor="middle" font-size="11" font-style="italic" fill="#545454">Cloud leads at 95 — Security trails at 40. The silhouette reveals domain maturity at a glance.</text>
+
+</svg>

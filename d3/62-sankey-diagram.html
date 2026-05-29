@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sankey Diagram — Global Energy Flow</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
+<style>
+  :root {
+    --color-bg: #FFFFFF;
+    --color-ink: #2a1a0e;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+    --color-surface: #F5EFE8;
+    --color-mark: #6B3520;
+    --color-slate: #1A3A5C;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1a1a;
+      --color-ink: #e8e0d6;
+      --color-surface: #2a2420;
+      --color-secondary: #a0978e;
+      --color-border: #444;
+      --color-mark: #c28060;
+      --color-red: #e05040;
+      --color-slate: #5a9ad6;
+      --color-ochre: #d4a030;
+    }
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+  #chart-container { width: 100%; max-width: 960px; }
+  h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; color: var(--color-ink); }
+  .subtitle {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--color-secondary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .caption {
+    font-size: 0.9rem;
+    color: var(--color-secondary);
+    font-style: italic;
+    margin-top: 12px;
+  }
+  .tooltip {
+    position: absolute;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--color-ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+</style>
+</head>
+<body>
+<div id="chart-container">
+  <h1>Global Energy Flow — Source to End Use</h1>
+  <div class="subtitle">SANKEY DIAGRAM — WIDTH = EXAJOULES</div>
+  <div id="chart" role="img" aria-label="Sankey diagram showing energy flow from Coal, Gas, and Renewables to Industry, Transport, and Buildings. Ribbon width proportional to flow in exajoules."></div>
+  <div class="caption">Ribbon width encodes flow quantity — Coal dominates Industry; Renewables skew toward Buildings.</div>
+</div>
+<div class="tooltip" id="tooltip"></div>
+<script>
+const nodeColors = {
+  "Coal": "#545454", "Gas": "#C8860E", "Renewables": "#1A3A5C",
+  "Industry": "#6B3520", "Transport": "#C8102E", "Buildings": "#D4D4D4"
+};
+
+const graph = {
+  nodes: [
+    { name: "Coal" }, { name: "Gas" }, { name: "Renewables" },
+    { name: "Industry" }, { name: "Transport" }, { name: "Buildings" }
+  ],
+  links: [
+    { source: 0, target: 3, value: 80 },
+    { source: 0, target: 4, value: 50 },
+    { source: 0, target: 5, value: 20 },
+    { source: 1, target: 3, value: 60 },
+    { source: 1, target: 4, value: 40 },
+    { source: 1, target: 5, value: 20 },
+    { source: 2, target: 3, value: 20 },
+    { source: 2, target: 4, value: 20 },
+    { source: 2, target: 5, value: 40 }
+  ]
+};
+
+const container = document.getElementById("chart");
+const tooltip = document.getElementById("tooltip");
+
+function draw() {
+  container.innerHTML = "";
+  const width = container.clientWidth;
+  const height = Math.min(width * 0.6, 550);
+  const margin = { top: 10, right: 120, bottom: 10, left: 120 };
+
+  const svg = d3.select(container).append("svg")
+    .attr("width", width).attr("height", height)
+    .attr("viewBox", `0 0 ${width} ${height}`);
+
+  svg.append("title").text("Global Energy Flow — Source to End Use");
+  svg.append("desc").text("Sankey diagram: 3 energy sources (Coal, Gas, Renewables) flow to 3 uses (Industry, Transport, Buildings).");
+
+  // Background
+  svg.append("rect").attr("x", margin.left - 10).attr("y", margin.top)
+    .attr("width", width - margin.left - margin.right + 20).attr("height", height - margin.top - margin.bottom)
+    .attr("fill", "var(--color-surface)").attr("stroke", "var(--color-border)").attr("stroke-width", 0.75);
+
+  const sankey = d3.sankey()
+    .nodeId(d => d.index)
+    .nodeWidth(18)
+    .nodePadding(20)
+    .extent([[margin.left, margin.top + 10], [width - margin.right, height - margin.bottom - 10]]);
+
+  const { nodes, links } = sankey({
+    nodes: graph.nodes.map(d => Object.assign({}, d)),
+    links: graph.links.map(d => Object.assign({}, d))
+  });
+
+  // Links
+  svg.append("g").selectAll("path").data(links).enter().append("path")
+    .attr("d", d3.sankeyLinkHorizontal())
+    .attr("fill", "none")
+    .attr("stroke", d => nodeColors[d.source.name])
+    .attr("stroke-opacity", 0.35)
+    .attr("stroke-width", d => Math.max(1, d.width))
+    .attr("tabindex", 0)
+    .attr("role", "graphics-symbol")
+    .attr("aria-label", d => `${d.source.name} to ${d.target.name}: ${d.value} EJ`)
+    .on("mouseenter", function(event, d) {
+      d3.select(this).attr("stroke-opacity", 0.6);
+      tooltip.style.opacity = 1;
+      tooltip.innerHTML = `<strong>${d.source.name} → ${d.target.name}</strong><br>${d.value} EJ`;
+    })
+    .on("mousemove", function(event) {
+      tooltip.style.left = event.pageX + 12 + "px";
+      tooltip.style.top = event.pageY - 28 + "px";
+    })
+    .on("mouseleave", function() {
+      d3.select(this).attr("stroke-opacity", 0.35);
+      tooltip.style.opacity = 0;
+    });
+
+  // Nodes
+  svg.append("g").selectAll("rect").data(nodes).enter().append("rect")
+    .attr("x", d => d.x0).attr("y", d => d.y0)
+    .attr("width", d => d.x1 - d.x0).attr("height", d => d.y1 - d.y0)
+    .attr("fill", d => nodeColors[d.name])
+    .attr("stroke", d => d.name === "Buildings" ? "var(--color-secondary)" : "none")
+    .attr("stroke-width", 0.5);
+
+  // Node labels
+  svg.append("g").selectAll("text").data(nodes).enter().append("text")
+    .attr("x", d => d.x0 < width / 2 ? d.x0 - 8 : d.x1 + 8)
+    .attr("y", d => (d.y0 + d.y1) / 2)
+    .attr("text-anchor", d => d.x0 < width / 2 ? "end" : "start")
+    .attr("dominant-baseline", "central")
+    .attr("font-family", "'IBM Plex Mono', monospace")
+    .attr("font-size", "0.7rem")
+    .attr("fill", d => nodeColors[d.name] === "#D4D4D4" ? "var(--color-secondary)" : nodeColors[d.name])
+    .attr("letter-spacing", "0.08em")
+    .text(d => d.name.toUpperCase());
+
+  // Value labels
+  svg.append("g").selectAll(".val").data(nodes).enter().append("text")
+    .attr("x", d => d.x0 < width / 2 ? d.x0 - 8 : d.x1 + 8)
+    .attr("y", d => (d.y0 + d.y1) / 2 + 14)
+    .attr("text-anchor", d => d.x0 < width / 2 ? "end" : "start")
+    .attr("font-family", "'IBM Plex Mono', monospace")
+    .attr("font-size", "0.6rem")
+    .attr("fill", "var(--color-secondary)")
+    .attr("letter-spacing", "0.08em")
+    .text(d => `${d.value} EJ`);
+}
+
+draw();
+window.addEventListener("resize", draw);
+</script>
+</body>
+</html>

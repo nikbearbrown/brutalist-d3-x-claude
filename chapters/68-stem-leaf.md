@@ -2,7 +2,9 @@
 
 *Section B clusters in the 70s and 80s — Section A spreads wider with more extreme values on both ends*
 
-![Stem Leaf](../images/68-stem-leaf.jpg)
+*Figure 68.1 — Section B clusters in the 70s and 80s*
+
+![Stem Leaf](../images/68-stem-leaf.png)
 
 ## What this chart is
 
@@ -54,6 +56,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+Reference implementation: [`d3/68-stem-leaf.html`](../d3/68-stem-leaf.html)
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

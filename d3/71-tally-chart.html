@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tally Chart — AI Incident Types</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root {
+    --color-white: #FFFFFF;
+    --color-ink: #2a1a0e;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+    --color-bg: #FFFFFF;
+    --color-surface: #F5EFE8;
+    --color-mark: #6B3520;
+    --color-slate: #1A3A5C;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1a1a;
+      --color-ink: #e8e0d6;
+      --color-surface: #2a2420;
+      --color-secondary: #a0978e;
+      --color-border: #444;
+      --color-mark: #c28060;
+      --color-red: #e05040;
+      --color-slate: #5a9ad6;
+      --color-ochre: #d4a030;
+    }
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+  #chart-container { width: 100%; max-width: 900px; }
+  h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; color: var(--color-ink); }
+  .subtitle {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--color-secondary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .caption { font-size: 0.9rem; color: var(--color-secondary); font-style: italic; margin-top: 12px; }
+  .tooltip {
+    position: absolute;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--color-ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .tally-row:focus { outline: 2px solid var(--color-ink); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<div id="chart-container">
+  <h1>AI Incident Types — Tally</h1>
+  <div class="subtitle">TALLY CHART — HOVER FOR DETAILS</div>
+  <div id="chart" role="img" aria-label="Tally chart showing AI incident types: Accuracy Failures 31, Bias Detected 18, System Downtime 15, Privacy Violations 12, Safety Incidents 8."></div>
+  <div class="caption">Accuracy failures lead at 31 — each mark is one reported incident.</div>
+</div>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const data = [
+  { label: "Accuracy Failures", count: 31 },
+  { label: "Bias Detected", count: 18 },
+  { label: "System Downtime", count: 15 },
+  { label: "Privacy Violations", count: 12 },
+  { label: "Safety Incidents", count: 8 }
+];
+
+const width = 700, height = 500;
+const margin = { top: 32, right: 80, bottom: 48, left: 180 };
+const innerW = width - margin.left - margin.right;
+const innerH = height - margin.top - margin.bottom;
+const rowHeight = innerH / data.length;
+
+const svg = d3.select("#chart")
+  .append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("preserveAspectRatio", "xMidYMid meet")
+  .style("width", "100%")
+  .style("height", "auto");
+
+svg.append("title").text("AI Incident Types — Tally Chart");
+svg.append("desc").text("Tally marks for 5 AI incident categories. Accuracy Failures leads at 31. Groups of 5 marks with diagonal slash.");
+
+svg.append("rect").attr("width", width).attr("height", height).attr("fill", "var(--color-bg)");
+svg.append("rect").attr("x", 32).attr("y", 32).attr("width", width - 64).attr("height", height - 80)
+  .attr("fill", "var(--color-surface)").attr("stroke", "var(--color-border)").attr("stroke-width", 0.75);
+
+const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+const tooltip = d3.select("#tooltip");
+
+// Header
+g.append("text").attr("x", -10).attr("y", -8).attr("text-anchor", "end")
+  .attr("font-family", "'IBM Plex Mono', monospace").attr("font-size", "10px")
+  .attr("fill", "var(--color-secondary)").attr("letter-spacing", "0.08em").text("CATEGORY");
+g.append("text").attr("x", innerW / 2).attr("y", -8).attr("text-anchor", "middle")
+  .attr("font-family", "'IBM Plex Mono', monospace").attr("font-size", "10px")
+  .attr("fill", "var(--color-secondary)").attr("letter-spacing", "0.08em").text("TALLY");
+g.append("text").attr("x", innerW + 40).attr("y", -8).attr("text-anchor", "middle")
+  .attr("font-family", "'IBM Plex Mono', monospace").attr("font-size", "10px")
+  .attr("fill", "var(--color-secondary)").attr("letter-spacing", "0.08em").text("TOTAL");
+
+g.append("line").attr("x1", -margin.left + 40).attr("x2", innerW + 60).attr("y1", 2).attr("y2", 2)
+  .attr("stroke", "var(--color-border)").attr("stroke-width", 0.75);
+
+function drawTallyGroup(parent, x, y, markH) {
+  // 4 vertical lines + 1 diagonal
+  for (let i = 0; i < 4; i++) {
+    parent.append("line")
+      .attr("x1", x + i * 8).attr("y1", y - markH / 2)
+      .attr("x2", x + i * 8).attr("y2", y + markH / 2)
+      .attr("stroke", "var(--color-mark)").attr("stroke-width", 2).attr("stroke-linecap", "round");
+  }
+  // Diagonal slash
+  parent.append("line")
+    .attr("x1", x - 4).attr("y1", y + markH / 2 - 2)
+    .attr("x2", x + 28).attr("y2", y - markH / 2 + 2)
+    .attr("stroke", "var(--color-mark)").attr("stroke-width", 2).attr("stroke-linecap", "round");
+}
+
+function drawSingleMark(parent, x, y, markH) {
+  parent.append("line")
+    .attr("x1", x).attr("y1", y - markH / 2)
+    .attr("x2", x).attr("y2", y + markH / 2)
+    .attr("stroke", "var(--color-mark)").attr("stroke-width", 2).attr("stroke-linecap", "round");
+}
+
+data.forEach((d, i) => {
+  const rowY = i * rowHeight + rowHeight / 2 + 10;
+  const rowG = g.append("g").attr("class", "tally-row").attr("tabindex", 0)
+    .attr("aria-label", `${d.label}: ${d.count} incidents`);
+
+  // Label
+  rowG.append("text").attr("x", -10).attr("y", rowY + 4).attr("text-anchor", "end")
+    .attr("font-size", "13px").attr("fill", "var(--color-ink)").text(d.label);
+
+  // Tally marks
+  const groups = Math.floor(d.count / 5);
+  const remainder = d.count % 5;
+  const groupWidth = 40;
+  const markH = 24;
+  const startX = 10;
+
+  for (let j = 0; j < groups; j++) {
+    drawTallyGroup(rowG, startX + j * groupWidth, rowY, markH);
+  }
+  for (let k = 0; k < remainder; k++) {
+    drawSingleMark(rowG, startX + groups * groupWidth + k * 8, rowY, markH);
+  }
+
+  // Total
+  rowG.append("text").attr("x", innerW + 40).attr("y", rowY + 5).attr("text-anchor", "middle")
+    .attr("font-size", "15px").attr("font-weight", "bold").attr("fill", "var(--color-ink)").text(d.count);
+
+  // Row separator
+  g.append("line")
+    .attr("x1", -margin.left + 40).attr("x2", innerW + 60)
+    .attr("y1", (i + 1) * rowHeight + 10).attr("y2", (i + 1) * rowHeight + 10)
+    .attr("stroke", "var(--color-border)").attr("stroke-width", 0.3);
+
+  // Tooltip
+  rowG.on("mouseover", function(event) {
+    tooltip.style("opacity", 1)
+      .html(`<strong>${d.label}</strong><br>${d.count} incidents<br>${groups} groups of 5${remainder ? ` + ${remainder}` : ""}`);
+  })
+  .on("mousemove", function(event) {
+    tooltip.style("left", (event.pageX + 12) + "px").style("top", (event.pageY - 28) + "px");
+  })
+  .on("mouseout", () => tooltip.style("opacity", 0));
+});
+</script>
+</body>
+</html>

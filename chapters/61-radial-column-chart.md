@@ -2,7 +2,8 @@
 
 *Concentric Value Rings, Radial Bars — A Polar Variant of the Column Chart*
 
-![Radial Column Chart](../images/61-radial-column-chart.jpg)
+![Radial column chart with 8 technology domains arranged in a polar layout. Columns radiate outward from center; Cloud leads at 95, Security trails at 40. Bars in dark walnut, highest bar highlighted in red.](../images/61-radial-column-chart.png)
+*Figure 61.1 — Concentric Value Rings*
 
 ## What this chart is
 
@@ -58,6 +59,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/61-radial-column-chart.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

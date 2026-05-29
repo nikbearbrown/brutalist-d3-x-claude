@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Treemap — Global R&amp;D Spending</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root {
+    --color-bg: #FFFFFF;
+    --color-ink: #2a1a0e;
+    --color-surface: #F5EFE8;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-mark: #6B3520;
+    --color-red: #C8102E;
+    --color-slate: #1A3A5C;
+    --color-ochre: #C8860E;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1a1a;
+      --color-ink: #e8e0d6;
+      --color-surface: #2a2420;
+      --color-secondary: #a0978e;
+      --color-border: #444;
+      --color-mark: #c28060;
+      --color-red: #e05040;
+      --color-slate: #5a9ad6;
+      --color-ochre: #d4a030;
+    }
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+  #chart-container { width: 100%; max-width: 900px; }
+  h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; color: var(--color-ink); }
+  .subtitle {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--color-secondary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .caption { font-size: 0.9rem; color: var(--color-secondary); font-style: italic; margin-top: 12px; }
+  .tooltip {
+    position: absolute;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--color-ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+</style>
+</head>
+<body>
+<div id="chart-container">
+  <h1>Global R&amp;D Spending</h1>
+  <div class="subtitle">TREEMAP — SECTOR AND SUBSECTOR BREAKDOWN</div>
+  <div id="chart" role="img" aria-label="Treemap showing global R&D spending by sector: Technology, Life Sciences, Finance, Manufacturing"></div>
+  <div class="caption">Technology and life sciences dominate global R&amp;D investment.</div>
+</div>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const data = {
+  name: "Global R&D",
+  children: [
+    {
+      name: "Technology", color: "var(--color-red)",
+      children: [
+        { name: "Software", value: 218 },
+        { name: "Hardware", value: 142 },
+        { name: "Semiconductors", value: 98 }
+      ]
+    },
+    {
+      name: "Life Sciences", color: "var(--color-slate)",
+      children: [
+        { name: "Pharma", value: 175 },
+        { name: "Biotech", value: 85 },
+        { name: "Medical Devices", value: 52 }
+      ]
+    },
+    {
+      name: "Finance", color: "var(--color-mark)",
+      children: [
+        { name: "Banking", value: 68 },
+        { name: "Insurance", value: 42 }
+      ]
+    },
+    {
+      name: "Manufacturing", color: "var(--color-ochre)",
+      children: [
+        { name: "Automotive", value: 55 },
+        { name: "Aerospace", value: 35 }
+      ]
+    }
+  ]
+};
+
+const width = 750;
+const height = 520;
+const margin = { top: 20, right: 32, bottom: 20, left: 32 };
+
+const svg = d3.select("#chart")
+  .append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("preserveAspectRatio", "xMidYMid meet")
+  .style("width", "100%")
+  .style("height", "auto");
+
+svg.append("title").text("Global R&D Spending — Treemap");
+svg.append("desc").text("Nested rectangles showing R&D spend by sector and subsector. Technology is largest.");
+
+svg.append("rect").attr("width", width).attr("height", height).attr("fill", "var(--color-bg)");
+
+const root = d3.hierarchy(data)
+  .sum(d => d.value)
+  .sort((a, b) => b.value - a.value);
+
+const treemap = d3.treemap()
+  .size([width - margin.left - margin.right, height - margin.top - margin.bottom])
+  .padding(3)
+  .tile(d3.treemapSquarify);
+
+treemap(root);
+
+const sectorColors = {};
+data.children.forEach(c => { sectorColors[c.name] = c.color; });
+
+const opacityScale = d3.scaleLinear().domain([0, d3.max(root.leaves(), d => d.value)]).range([0.4, 0.9]);
+
+const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+const tooltip = d3.select("#tooltip");
+
+const leaf = g.selectAll("g")
+  .data(root.leaves())
+  .join("g")
+  .attr("transform", d => `translate(${d.x0},${d.y0})`)
+  .attr("tabindex", 0)
+  .attr("role", "img")
+  .attr("aria-label", d => `${d.parent.data.name}: ${d.data.name} — $${d.value}B`);
+
+leaf.append("rect")
+  .attr("width", d => d.x1 - d.x0)
+  .attr("height", d => d.y1 - d.y0)
+  .attr("fill", d => sectorColors[d.parent.data.name])
+  .attr("opacity", d => opacityScale(d.value))
+  .attr("stroke", "var(--color-bg)")
+  .attr("stroke-width", 1.5);
+
+leaf.append("text")
+  .attr("x", d => (d.x1 - d.x0) / 2)
+  .attr("y", d => (d.y1 - d.y0) / 2 - 6)
+  .attr("text-anchor", "middle")
+  .attr("fill", "#FFFFFF")
+  .attr("font-size", d => (d.x1 - d.x0) > 100 ? "13px" : "10px")
+  .attr("font-weight", "bold")
+  .text(d => d.data.name);
+
+leaf.append("text")
+  .attr("x", d => (d.x1 - d.x0) / 2)
+  .attr("y", d => (d.y1 - d.y0) / 2 + 12)
+  .attr("text-anchor", "middle")
+  .attr("fill", "#FFFFFF")
+  .attr("font-family", "'IBM Plex Mono', monospace")
+  .attr("font-size", "9px")
+  .attr("letter-spacing", "0.08em")
+  .text(d => `$${d.value}B`);
+
+leaf.on("mouseenter", function(event, d) {
+    d3.select(this).select("rect").attr("stroke", "var(--color-ink)").attr("stroke-width", 2);
+    tooltip.style("opacity", 1)
+      .html(`<strong>${d.parent.data.name}</strong><br>${d.data.name}: $${d.value}B`);
+  })
+  .on("mousemove", function(event) {
+    tooltip.style("left", (event.pageX + 12) + "px").style("top", (event.pageY - 28) + "px");
+  })
+  .on("mouseleave", function() {
+    d3.select(this).select("rect").attr("stroke", "var(--color-bg)").attr("stroke-width", 1.5);
+    tooltip.style("opacity", 0);
+  });
+</script>
+</body>
+</html>

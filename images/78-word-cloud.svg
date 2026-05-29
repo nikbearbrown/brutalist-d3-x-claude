@@ -1,0 +1,69 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#2a1a0e">Key Terms in Data Science</text>
+
+<!-- Subtitle -->
+<text x="350" y="46" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">WORD CLOUD — FREQUENCY ENCODED AS SIZE</text>
+
+<!-- Chart area -->
+<rect x="32" y="60" width="636" height="310" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="0.75"/>
+
+<!-- Word cloud: ~20 words at various sizes and rotations -->
+<!-- Largest: "Data" -->
+<text x="320" y="200" text-anchor="middle" font-size="48" font-weight="bold" fill="#C8102E">Data</text>
+
+<!-- Large: "Analysis" -->
+<text x="480" y="180" text-anchor="middle" font-size="36" font-weight="bold" fill="#2a1a0e">Analysis</text>
+
+<!-- Large: "Machine Learning" -->
+<text x="220" y="145" text-anchor="middle" font-size="28" font-weight="bold" fill="#1A3A5C">Machine Learning</text>
+
+<!-- Medium words -->
+<text x="520" y="130" text-anchor="middle" font-size="22" fill="#6B3520">Visualization</text>
+
+<text x="160" y="240" text-anchor="middle" font-size="22" fill="#1A3A5C">Statistics</text>
+
+<text x="450" y="250" text-anchor="middle" font-size="24" fill="#C8102E">Python</text>
+
+<text x="560" y="230" text-anchor="middle" font-size="20" fill="#2a1a0e">AI</text>
+
+<!-- Rotated -90 degree words -->
+<text x="110" y="180" text-anchor="middle" font-size="20" fill="#C8860E" transform="rotate(-90 110 180)">Neural</text>
+
+<text x="620" y="170" text-anchor="middle" font-size="16" fill="#6B3520" transform="rotate(-90 620 170)">Training</text>
+
+<!-- Medium-small words -->
+<text x="350" y="280" text-anchor="middle" font-size="18" fill="#545454">Model</text>
+
+<text x="250" y="300" text-anchor="middle" font-size="16" fill="#1A3A5C">Ethics</text>
+
+<text x="480" y="310" text-anchor="middle" font-size="15" fill="#C8102E">Bias</text>
+
+<text x="150" y="310" text-anchor="middle" font-size="16" fill="#6B3520">Accuracy</text>
+
+<!-- Small words -->
+<text x="570" y="290" text-anchor="middle" font-size="13" fill="#545454">Regression</text>
+
+<text x="370" y="320" text-anchor="middle" font-size="14" fill="#C8860E">Clustering</text>
+
+<text x="100" y="120" text-anchor="middle" font-size="12" fill="#545454">Inference</text>
+
+<!-- Rotated small words -->
+<text x="640" y="310" text-anchor="middle" font-size="12" fill="#2a1a0e" transform="rotate(-90 640 310)">Features</text>
+
+<text x="70" y="280" text-anchor="middle" font-size="11" fill="#1A3A5C" transform="rotate(-90 70 280)">Overfitting</text>
+
+<text x="300" y="110" text-anchor="middle" font-size="13" fill="#C8860E">Deep Learning</text>
+
+<text x="440" y="100" text-anchor="middle" font-size="12" fill="#545454">NLP</text>
+
+<text x="200" y="340" text-anchor="middle" font-size="11" fill="#6B3520">Sampling</text>
+
+<!-- Caption -->
+<text x="350" y="400" text-anchor="middle" font-size="11" font-style="italic" fill="#545454">Visually engaging, analytically poor — word length confounds the frequency encoding.</text>
+
+</svg>

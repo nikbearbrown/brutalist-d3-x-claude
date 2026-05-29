@@ -2,7 +2,8 @@
 
 *Crisis domains span the threshold — best models clear it, worst miss by 30+ points*
 
-![Span Chart](../images/64-span-chart.jpg)
+![Span chart with 6 horizontal floating bars representing crisis domains. X-axis shows accuracy score 0-100. A dashed red vertical threshold line at 70. Famine and Conflict spans fall mostly below threshold.](../images/64-span-chart.png)
+*Figure 64.1 — Crisis domains span the threshold*
 
 ## What this chart is
 
@@ -57,6 +58,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+> Reference implementation: `d3/64-span-chart.html`
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 

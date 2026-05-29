@@ -1,0 +1,79 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#2a1a0e">Music Genre Dominance — Streaming Volume</text>
+
+<!-- Subtitle -->
+<text x="350" y="46" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">STREAM GRAPH</text>
+
+<!-- Chart area -->
+<rect x="32" y="60" width="636" height="310" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="0.75"/>
+
+<!-- Center axis at y=215 -->
+<!-- Streams are symmetric around center. 4 layers: Pop, Hip-Hop, Rock, Electronic -->
+<!-- X: 2000=68, 2005=197, 2010=325, 2015=454, 2020=583, 2023=658 -->
+<!-- Approximate flowing shapes using paths -->
+
+<!-- Electronic (bottom layer, #C8860E) — outermost below -->
+<path d="M68,215 C120,215 150,218 197,220 C250,222 280,225 325,228 C370,231 400,232 454,230 C500,228 540,226 583,225 C620,224 640,223 658,222
+         L658,208 C640,207 620,206 583,205 C540,204 500,202 454,200 C400,198 370,199 325,202 C280,205 250,208 197,210 C150,212 120,215 68,215 Z"
+      fill="#C8860E" opacity="0.85"/>
+
+<!-- Rock (second layer, #6B3520) -->
+<path d="M68,215 C120,215 150,212 197,210 C250,208 280,205 325,202 C370,199 400,198 454,200 C500,202 540,204 583,205 C620,206 640,207 658,208
+         L658,190 C640,188 620,185 583,182 C540,178 500,175 454,178 C400,181 370,185 325,188 C280,192 250,198 197,202 C150,206 120,210 68,215 Z"
+      fill="#6B3520" opacity="0.85"/>
+
+<!-- Hip-Hop (third layer, #1A3A5C) -->
+<path d="M68,215 C120,210 150,206 197,202 C250,198 280,192 325,188 C370,185 400,181 454,178 C500,175 540,178 583,182 C620,185 640,188 658,190
+         L658,158 C640,154 620,148 583,140 C540,132 500,128 454,135 C400,142 370,155 325,165 C280,175 250,188 197,195 C150,202 120,208 68,215 Z"
+      fill="#1A3A5C" opacity="0.85"/>
+
+<!-- Pop (top layer, #C8102E) -->
+<path d="M68,215 C120,208 150,202 197,195 C250,188 280,175 325,165 C370,155 400,142 454,135 C500,128 540,132 583,140 C620,148 640,154 658,158
+         L658,120 C640,115 620,108 583,100 C540,92 500,95 454,105 C400,118 370,135 325,148 C280,162 250,180 197,190 C150,200 120,208 68,215 Z"
+      fill="#C8102E" opacity="0.85"/>
+
+<!-- Mirror below center (symmetric) -->
+<!-- Pop mirror -->
+<path d="M68,215 C120,222 150,228 197,235 C250,242 280,255 325,265 C370,275 400,288 454,295 C500,302 540,298 583,290 C620,282 640,276 658,272
+         L658,312 C640,318 620,325 583,332 C540,340 500,338 454,328 C400,315 370,298 325,285 C280,272 250,252 197,240 C150,230 120,222 68,215 Z"
+      fill="#C8102E" opacity="0.85"/>
+
+<!-- Hip-Hop mirror -->
+<path d="M68,215 C120,222 150,228 197,235 C250,242 280,255 325,265 C370,275 400,288 454,295 C500,302 540,298 583,290 C620,282 640,276 658,272
+         L658,240 C640,238 620,235 583,232 C540,228 500,225 454,222 C400,219 370,215 325,212 C280,208 250,202 197,198 C150,194 120,210 68,215 Z"
+      fill="#1A3A5C" opacity="0.85"/>
+
+<!-- Rock mirror -->
+<path d="M68,215 C120,215 150,218 197,220 C250,222 280,225 325,228 C370,231 400,232 454,230 C500,228 540,226 583,225 C620,224 640,223 658,222
+         L658,240 C640,238 620,235 583,232 C540,228 500,225 454,222 C400,219 370,215 325,212 C280,208 250,202 197,198 C150,194 120,210 68,215 Z"
+      fill="#6B3520" opacity="0.85"/>
+
+<!-- Electronic mirror -->
+<path d="M68,215 C120,215 150,218 197,220 C250,222 280,225 325,228 C370,231 400,232 454,230 C500,228 540,226 583,225 C620,224 640,223 658,222
+         L658,215 C640,215 620,215 583,215 C540,215 500,215 454,215 C400,215 370,215 325,215 C280,215 250,215 197,215 C150,215 120,215 68,215 Z"
+      fill="#C8860E" opacity="0.85"/>
+
+<!-- X-axis year labels -->
+<text x="68" y="385" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">2000</text>
+<text x="197" y="385" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">2005</text>
+<text x="325" y="385" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">2010</text>
+<text x="454" y="385" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">2015</text>
+<text x="583" y="385" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">2020</text>
+<text x="658" y="385" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">2023</text>
+
+<!-- Legend -->
+<rect x="150" y="395" width="12" height="12" fill="#C8102E"/>
+<text x="166" y="405" font-size="10" fill="#2a1a0e">Pop</text>
+<rect x="230" y="395" width="12" height="12" fill="#1A3A5C"/>
+<text x="246" y="405" font-size="10" fill="#2a1a0e">Hip-Hop</text>
+<rect x="330" y="395" width="12" height="12" fill="#6B3520"/>
+<text x="346" y="405" font-size="10" fill="#2a1a0e">Rock</text>
+<rect x="420" y="395" width="12" height="12" fill="#C8860E"/>
+<text x="436" y="405" font-size="10" fill="#2a1a0e">Electronic</text>
+
+</svg>

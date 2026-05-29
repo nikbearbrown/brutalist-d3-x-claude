@@ -1,0 +1,140 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#2a1a0e">Seasonal Pattern — 4 Years</text>
+
+<!-- Subtitle -->
+<text x="350" y="46" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">SPIRAL PLOT — Q4 PEAK, Q2 TROUGH</text>
+
+<!-- Chart area -->
+<rect x="32" y="60" width="636" height="310" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="0.75"/>
+
+<!-- Center at (350, 215). Scaled to 82% to fit within chart area -->
+<g transform="translate(63,38.7) scale(0.82)">
+<!-- Center at (350, 215). 4 years, 12 months each = 48 bars -->
+<!-- Spiral: inner radius for 2021 ~55, arm spacing ~30 -->
+<!-- Each month = 30 degrees. Jan at top (-90deg) -->
+<!-- Bar heights proportional to values, extending outward from spiral baseline -->
+<!-- Q1: moderate, Q2: shortest, Q3: moderate-high, Q4: tallest -->
+
+<!-- Year ring guides -->
+<circle cx="350" cy="215" r="55" fill="none" stroke="#D4D4D4" stroke-width="0.3" stroke-dasharray="2,2"/>
+<circle cx="350" cy="215" r="85" fill="none" stroke="#D4D4D4" stroke-width="0.3" stroke-dasharray="2,2"/>
+<circle cx="350" cy="215" r="115" fill="none" stroke="#D4D4D4" stroke-width="0.3" stroke-dasharray="2,2"/>
+<circle cx="350" cy="215" r="145" fill="none" stroke="#D4D4D4" stroke-width="0.3" stroke-dasharray="2,2"/>
+
+<!-- Year labels removed from spiral center — placed as legend outside the <g> group -->
+
+<!-- Month labels at outer edge (around r~165 from center) -->
+<text x="350" y="40" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#2a1a0e" letter-spacing="0.08em">JAN</text>
+<text x="435" y="72" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#2a1a0e" letter-spacing="0.08em">FEB</text>
+<text x="496" y="130" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#2a1a0e" letter-spacing="0.08em">MAR</text>
+<text x="518" y="219" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#2a1a0e" letter-spacing="0.08em">APR</text>
+<text x="496" y="300" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#2a1a0e" letter-spacing="0.08em">MAY</text>
+<text x="435" y="358" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#2a1a0e" letter-spacing="0.08em">JUN</text>
+<text x="350" y="390" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#2a1a0e" letter-spacing="0.08em">JUL</text>
+<text x="258" y="358" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#2a1a0e" letter-spacing="0.08em">AUG</text>
+<text x="196" y="300" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#2a1a0e" letter-spacing="0.08em">SEP</text>
+<text x="175" y="219" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#C8102E" letter-spacing="0.08em">OCT</text>
+<text x="196" y="130" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#C8102E" letter-spacing="0.08em">NOV</text>
+<text x="258" y="72" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#C8102E" letter-spacing="0.08em">DEC</text>
+
+<!-- 2021 bars (innerR=55, arm extends ~30px) -->
+<!-- Values: Jan=52, Feb=48, Mar=45, Apr=40, May=42, Jun=44, Jul=50, Aug=55, Sep=60, Oct=72, Nov=78, Dec=75 -->
+<!-- barHeight = (value/100)*25. Bars from innerR outward -->
+
+<!-- 2021 Jan (52): angle=-90, r=55, barH=13 -->
+<line x1="350" y1="160" x2="350" y2="147" stroke="#6B3520" stroke-width="5" stroke-linecap="butt"/>
+<!-- 2021 Feb (48): angle=-60 -->
+<line x1="373.8" y1="168.2" x2="380.5" y2="156.5" stroke="#6B3520" stroke-width="5" stroke-linecap="butt"/>
+<!-- 2021 Mar (45): angle=-30 -->
+<line x1="397.6" y1="187.5" x2="407.0" y2="182.1" stroke="#6B3520" stroke-width="5" stroke-linecap="butt"/>
+<!-- 2021 Apr (40): angle=0, r=55 →barH=10 -->
+<line x1="405" y1="215" x2="415" y2="215" stroke="#6B3520" stroke-width="5" stroke-linecap="butt"/>
+<!-- 2021 May (42): angle=30 -->
+<line x1="397.6" y1="242.5" x2="408.1" y2="248.6" stroke="#6B3520" stroke-width="5" stroke-linecap="butt"/>
+<!-- 2021 Jun (44): angle=60 -->
+<line x1="377.5" y1="262.6" x2="383.2" y2="272.4" stroke="#6B3520" stroke-width="5" stroke-linecap="butt"/>
+<!-- 2021 Jul (50): angle=90 -->
+<line x1="350" y1="270" x2="350" y2="282.5" stroke="#6B3520" stroke-width="5" stroke-linecap="butt"/>
+<!-- 2021 Aug (55): angle=120 -->
+<line x1="322.5" y1="262.6" x2="315.6" y2="274.5" stroke="#6B3520" stroke-width="5" stroke-linecap="butt"/>
+<!-- 2021 Sep (60): angle=150 -->
+<line x1="302.4" y1="242.5" x2="293.4" y2="247.7" stroke="#6B3520" stroke-width="5" stroke-linecap="butt"/>
+<!-- 2021 Oct (72): angle=180 — Q4 highlighted -->
+<line x1="295" y1="215" x2="277" y2="215" stroke="#C8102E" stroke-width="5" stroke-linecap="butt"/>
+<!-- 2021 Nov (78): angle=210 — Q4 highlighted -->
+<line x1="302.4" y1="187.5" x2="285.5" y2="177.7" stroke="#C8102E" stroke-width="5" stroke-linecap="butt"/>
+<!-- 2021 Dec (75): angle=240 — Q4 highlighted -->
+<line x1="322.5" y1="168.2" x2="313.1" y2="151.8" stroke="#C8102E" stroke-width="5" stroke-linecap="butt"/>
+
+<!-- 2022 bars (innerR=85) -->
+<!-- Values scaled ~10% higher: Jan=57, Feb=53, Mar=49, Apr=43, May=46, Jun=48, Jul=55, Aug=60, Sep=66, Oct=80, Nov=86, Dec=82 -->
+<line x1="350" y1="130" x2="350" y2="115.8" stroke="#6B3520" stroke-width="5" stroke-linecap="butt"/>
+<line x1="392.5" y1="141.5" x2="399.2" y2="129.8" stroke="#6B3520" stroke-width="5" stroke-linecap="butt"/>
+<line x1="423.6" y1="172.5" x2="433.0" y2="167.1" stroke="#6B3520" stroke-width="5" stroke-linecap="butt"/>
+<line x1="435" y1="215" x2="445.8" y2="215" stroke="#6B3520" stroke-width="5" stroke-linecap="butt"/>
+<line x1="423.6" y1="257.5" x2="434.1" y2="263.6" stroke="#6B3520" stroke-width="5" stroke-linecap="butt"/>
+<line x1="392.5" y1="288.5" x2="398.2" y2="298.4" stroke="#6B3520" stroke-width="5" stroke-linecap="butt"/>
+<line x1="350" y1="300" x2="350" y2="313.8" stroke="#6B3520" stroke-width="5" stroke-linecap="butt"/>
+<line x1="307.5" y1="288.5" x2="300.6" y2="300.5" stroke="#6B3520" stroke-width="5" stroke-linecap="butt"/>
+<line x1="276.4" y1="257.5" x2="265.9" y2="263.6" stroke="#6B3520" stroke-width="5" stroke-linecap="butt"/>
+<!-- Q4 2022 -->
+<line x1="265" y1="215" x2="245" y2="215" stroke="#C8102E" stroke-width="5" stroke-linecap="butt"/>
+<line x1="276.4" y1="172.5" x2="258" y2="161.8" stroke="#C8102E" stroke-width="5" stroke-linecap="butt"/>
+<line x1="307.5" y1="141.5" x2="297.4" y2="123.9" stroke="#C8102E" stroke-width="5" stroke-linecap="butt"/>
+
+<!-- 2023 bars (innerR=115) -->
+<!-- Values ~15% higher than 2022 -->
+<line x1="350" y1="100" x2="350" y2="83" stroke="#6B3520" stroke-width="5" stroke-linecap="butt"/>
+<line x1="406.5" y1="113" x2="415" y2="98" stroke="#6B3520" stroke-width="5" stroke-linecap="butt"/>
+<line x1="449.6" y1="157.5" x2="460" y2="151.5" stroke="#6B3520" stroke-width="5" stroke-linecap="butt"/>
+<line x1="465" y1="215" x2="477" y2="215" stroke="#6B3520" stroke-width="5" stroke-linecap="butt"/>
+<line x1="449.6" y1="272.5" x2="461" y2="279.1" stroke="#6B3520" stroke-width="5" stroke-linecap="butt"/>
+<line x1="407.5" y1="314.5" x2="414" y2="325.7" stroke="#6B3520" stroke-width="5" stroke-linecap="butt"/>
+<line x1="350" y1="330" x2="350" y2="345" stroke="#6B3520" stroke-width="5" stroke-linecap="butt"/>
+<line x1="292.5" y1="314.5" x2="284.4" y2="328.5" stroke="#6B3520" stroke-width="5" stroke-linecap="butt"/>
+<line x1="250.4" y1="272.5" x2="237.9" y2="279.7" stroke="#6B3520" stroke-width="5" stroke-linecap="butt"/>
+<!-- Q4 2023 -->
+<line x1="235" y1="215" x2="211" y2="215" stroke="#C8102E" stroke-width="5" stroke-linecap="butt"/>
+<line x1="250.4" y1="157.5" x2="228" y2="144.5" stroke="#C8102E" stroke-width="5" stroke-linecap="butt"/>
+<line x1="292.5" y1="113" x2="280" y2="91.2" stroke="#C8102E" stroke-width="5" stroke-linecap="butt"/>
+
+<!-- 2024 bars (innerR=145) -->
+<!-- Values ~20% higher than 2023 -->
+<line x1="350" y1="70" x2="350" y2="49" stroke="#6B3520" stroke-width="5" stroke-linecap="butt"/>
+<line x1="422.5" y1="85.5" x2="432" y2="68" stroke="#6B3520" stroke-width="5" stroke-linecap="butt"/>
+<line x1="475.6" y1="142.5" x2="487" y2="136" stroke="#6B3520" stroke-width="5" stroke-linecap="butt"/>
+<line x1="495" y1="215" x2="508" y2="215" stroke="#6B3520" stroke-width="5" stroke-linecap="butt"/>
+<line x1="475.6" y1="287.5" x2="488.1" y2="294.7" stroke="#6B3520" stroke-width="5" stroke-linecap="butt"/>
+<line x1="422.5" y1="340" x2="430" y2="353" stroke="#6B3520" stroke-width="5" stroke-linecap="butt"/>
+<line x1="350" y1="360" x2="350" y2="376" stroke="#6B3520" stroke-width="5" stroke-linecap="butt"/>
+<line x1="277.5" y1="340" x2="268" y2="356.5" stroke="#6B3520" stroke-width="5" stroke-linecap="butt"/>
+<line x1="224.4" y1="287.5" x2="209.4" y2="296.2" stroke="#6B3520" stroke-width="5" stroke-linecap="butt"/>
+<!-- Q4 2024 -->
+<line x1="205" y1="215" x2="177" y2="215" stroke="#C8102E" stroke-width="5" stroke-linecap="butt"/>
+<line x1="224.4" y1="142.5" x2="198" y2="127.2" stroke="#C8102E" stroke-width="5" stroke-linecap="butt"/>
+<line x1="277.5" y1="85.5" x2="263" y2="60.2" stroke="#C8102E" stroke-width="5" stroke-linecap="butt"/>
+
+</g>
+
+<!-- Legend -->
+<rect x="560" y="75" width="10" height="10" fill="#6B3520"/>
+<text x="575" y="84" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#2a1a0e" letter-spacing="0.08em">Q1-Q3</text>
+<rect x="560" y="90" width="10" height="10" fill="#C8102E"/>
+<text x="575" y="99" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#C8102E" letter-spacing="0.08em">Q4</text>
+
+<!-- Year labels (arm key) -->
+<text x="560" y="118" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#545454" letter-spacing="0.08em">ARMS:</text>
+<text x="560" y="130" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#545454" letter-spacing="0.08em">Inner → 2021</text>
+<text x="560" y="140" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#545454" letter-spacing="0.08em">        2022</text>
+<text x="560" y="150" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#545454" letter-spacing="0.08em">        2023</text>
+<text x="560" y="160" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#545454" letter-spacing="0.08em">Outer → 2024</text>
+
+<!-- Caption -->
+<text x="350" y="400" text-anchor="middle" font-size="11" font-style="italic" fill="#545454">Inner arm = 2021, outer = 2024. Q4 bars grow taller each year; Q2 remains the seasonal trough.</text>
+
+</svg>

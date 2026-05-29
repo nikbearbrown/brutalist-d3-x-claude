@@ -1,0 +1,86 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#2a1a0e">Global Energy Flow — Source to End Use</text>
+
+<!-- Subtitle -->
+<text x="350" y="46" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">SANKEY DIAGRAM — WIDTH = EXAJOULES</text>
+
+<!-- Chart area -->
+<rect x="32" y="60" width="636" height="320" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="0.75"/>
+
+<!-- Source nodes (left column, x=72) -->
+<!-- Coal: 150 EJ, Gas: 120 EJ, Renewables: 80 EJ. Total: 350 EJ -->
+<!-- Vertical range: y=80 to y=360 = 280px. Scale: 280/350 = 0.8px per EJ -->
+<!-- Coal: 150*0.8=120px, Gas: 120*0.8=96px, Renewables: 80*0.8=64px -->
+<!-- Gaps of 10px between nodes -->
+
+<!-- Coal node -->
+<rect x="72" y="80" width="18" height="120" fill="#545454"/>
+<text x="94" y="136" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#545454" letter-spacing="0.08em">COAL</text>
+<text x="94" y="148" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#545454" letter-spacing="0.08em">150 EJ</text>
+
+<!-- Gas node -->
+<rect x="72" y="210" width="18" height="96" fill="#C8860E"/>
+<text x="94" y="254" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#C8860E" letter-spacing="0.08em">GAS</text>
+<text x="94" y="266" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#C8860E" letter-spacing="0.08em">120 EJ</text>
+
+<!-- Renewables node -->
+<rect x="72" y="316" width="18" height="64" fill="#1A3A5C"/>
+<text x="94" y="344" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#1A3A5C" letter-spacing="0.08em">RENEW.</text>
+<text x="94" y="356" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#1A3A5C" letter-spacing="0.08em">80 EJ</text>
+
+<!-- Target nodes (right column, x=610) -->
+<!-- Industry: 160 EJ, Transport: 110 EJ, Buildings: 80 EJ. Total: 350 EJ -->
+<!-- Industry: 160*0.8=128px, Transport: 110*0.8=88px, Buildings: 80*0.8=64px -->
+
+<!-- Industry node -->
+<rect x="610" y="80" width="18" height="128" fill="#6B3520"/>
+<text x="606" y="140" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#6B3520" letter-spacing="0.08em">INDUSTRY</text>
+<text x="606" y="152" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#6B3520" letter-spacing="0.08em">160 EJ</text>
+
+<!-- Transport node -->
+<rect x="610" y="218" width="18" height="88" fill="#C8102E"/>
+<text x="606" y="258" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#C8102E" letter-spacing="0.08em">TRANSPORT</text>
+<text x="606" y="270" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#C8102E" letter-spacing="0.08em">110 EJ</text>
+
+<!-- Buildings node -->
+<rect x="610" y="316" width="18" height="64" fill="#D4D4D4" stroke="#545454" stroke-width="0.5"/>
+<text x="606" y="344" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#545454" letter-spacing="0.08em">BUILDINGS</text>
+<text x="606" y="356" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#545454" letter-spacing="0.08em">80 EJ</text>
+
+<!-- Flow ribbons (curved paths) -->
+<!-- Coal → Industry: 80 EJ = 64px -->
+<path d="M90,80 C350,80 350,80 610,80 L610,144 C350,144 350,144 90,144 Z" fill="#545454" opacity="0.35"/>
+
+<!-- Coal → Transport: 50 EJ = 40px -->
+<path d="M90,144 C350,144 350,218 610,218 L610,258 C350,258 350,184 90,184 Z" fill="#545454" opacity="0.35"/>
+
+<!-- Coal → Buildings: 20 EJ = 16px -->
+<path d="M90,184 C350,184 350,316 610,316 L610,332 C350,332 350,200 90,200 Z" fill="#545454" opacity="0.35"/>
+
+<!-- Gas → Industry: 60 EJ = 48px -->
+<path d="M90,210 C350,210 350,144 610,144 L610,192 C350,192 350,258 90,258 Z" fill="#C8860E" opacity="0.35"/>
+
+<!-- Gas → Transport: 40 EJ = 32px -->
+<path d="M90,258 C350,258 350,258 610,258 L610,290 C350,290 350,290 90,290 Z" fill="#C8860E" opacity="0.35"/>
+
+<!-- Gas → Buildings: 20 EJ = 16px -->
+<path d="M90,290 C350,290 350,332 610,332 L610,348 C350,348 350,306 90,306 Z" fill="#C8860E" opacity="0.35"/>
+
+<!-- Renewables → Industry: 20 EJ = 16px -->
+<path d="M90,316 C350,316 350,192 610,192 L610,208 C350,208 350,332 90,332 Z" fill="#1A3A5C" opacity="0.35"/>
+
+<!-- Renewables → Transport: 20 EJ = 16px -->
+<path d="M90,332 C350,332 350,290 610,290 L610,306 C350,306 350,348 90,348 Z" fill="#1A3A5C" opacity="0.35"/>
+
+<!-- Renewables → Buildings: 40 EJ = 32px -->
+<path d="M90,348 C350,348 350,348 610,348 L610,380 C350,380 350,380 90,380 Z" fill="#1A3A5C" opacity="0.35"/>
+
+<!-- Caption -->
+<text x="350" y="405" text-anchor="middle" font-size="11" font-style="italic" fill="#545454">Ribbon width encodes flow quantity — Coal dominates Industry; Renewables skew toward Buildings.</text>
+
+</svg>

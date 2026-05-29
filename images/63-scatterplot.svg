@@ -1,0 +1,115 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#2a1a0e">GDP vs Life Satisfaction</text>
+
+<!-- Subtitle -->
+<text x="350" y="46" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">SCATTERPLOT — 20 COUNTRIES</text>
+
+<!-- Chart area -->
+<rect x="80" y="60" width="580" height="310" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="0.75"/>
+
+<!-- Axes -->
+<!-- X: GDP per capita $0-60K mapped to x=80..660 (580px). Scale: 580/60000 = 0.00967 px/$ -->
+<!-- Y: Life satisfaction 0-10 mapped to y=370..60 (310px, inverted). Scale: 310/10 = 31 px/unit -->
+
+<!-- X axis -->
+<line x1="80" y1="370" x2="660" y2="370" stroke="#2a1a0e" stroke-width="0.75"/>
+<!-- X ticks -->
+<text x="80" y="388" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">$0</text>
+<text x="177" y="388" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">$10K</text>
+<text x="273" y="388" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">$20K</text>
+<text x="370" y="388" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">$30K</text>
+<text x="467" y="388" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">$40K</text>
+<text x="563" y="388" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">$50K</text>
+<text x="660" y="388" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">$60K</text>
+
+<!-- X axis label -->
+<text x="370" y="406" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em">GDP PER CAPITA</text>
+
+<!-- Y axis -->
+<line x1="80" y1="60" x2="80" y2="370" stroke="#2a1a0e" stroke-width="0.75"/>
+<!-- Y ticks -->
+<text x="72" y="373" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">0</text>
+<text x="72" y="342" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">1</text>
+<text x="72" y="311" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">2</text>
+<text x="72" y="280" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">3</text>
+<text x="72" y="249" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">4</text>
+<text x="72" y="218" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">5</text>
+<text x="72" y="187" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">6</text>
+<text x="72" y="156" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">7</text>
+<text x="72" y="125" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">8</text>
+<text x="72" y="94" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">9</text>
+<text x="72" y="63" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">10</text>
+
+<!-- Y axis label -->
+<text x="32" y="215" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em" transform="rotate(-90, 32, 215)">LIFE SATISFACTION</text>
+
+<!-- Grid lines -->
+<line x1="80" y1="339" x2="660" y2="339" stroke="#D4D4D4" stroke-width="0.3" stroke-dasharray="3,3"/>
+<line x1="80" y1="308" x2="660" y2="308" stroke="#D4D4D4" stroke-width="0.3" stroke-dasharray="3,3"/>
+<line x1="80" y1="277" x2="660" y2="277" stroke="#D4D4D4" stroke-width="0.3" stroke-dasharray="3,3"/>
+<line x1="80" y1="246" x2="660" y2="246" stroke="#D4D4D4" stroke-width="0.3" stroke-dasharray="3,3"/>
+<line x1="80" y1="215" x2="660" y2="215" stroke="#D4D4D4" stroke-width="0.3" stroke-dasharray="3,3"/>
+<line x1="80" y1="184" x2="660" y2="184" stroke="#D4D4D4" stroke-width="0.3" stroke-dasharray="3,3"/>
+<line x1="80" y1="153" x2="660" y2="153" stroke="#D4D4D4" stroke-width="0.3" stroke-dasharray="3,3"/>
+<line x1="80" y1="122" x2="660" y2="122" stroke="#D4D4D4" stroke-width="0.3" stroke-dasharray="3,3"/>
+<line x1="80" y1="91" x2="660" y2="91" stroke="#D4D4D4" stroke-width="0.3" stroke-dasharray="3,3"/>
+
+<!-- Trend line (dashed ochre): from ~(2000, 4.2) to ~(58000, 8.5) -->
+<!-- (2000,4.2): x=80+2000*0.00967*1000=99.3, y=370-4.2*31=239.8 -->
+<!-- (58000,8.5): x=80+58*9.67=641, y=370-8.5*31=106.5 -->
+<line x1="99" y1="240" x2="641" y2="107" stroke="#C8860E" stroke-width="1.5" stroke-dasharray="6,4"/>
+
+<!-- Data points (20 countries) -->
+<!-- Nigeria: GDP=2000, Sat=4.2 → x=99, y=240 -->
+<circle cx="99" cy="240" r="4" fill="#6B3520"/>
+<!-- India: GDP=2500, Sat=4.0 → x=104, y=246 -->
+<circle cx="104" cy="246" r="4" fill="#6B3520"/>
+<!-- Bangladesh: GDP=2800, Sat=4.5 → x=107, y=231 -->
+<circle cx="107" cy="231" r="4" fill="#6B3520"/>
+<!-- Kenya: GDP=5000, Sat=4.4 → x=128, y=234 -->
+<circle cx="128" cy="234" r="4" fill="#6B3520"/>
+<!-- Philippines: GDP=3500, Sat=5.5 → x=114, y=200 -->
+<circle cx="114" cy="200" r="4" fill="#6B3520"/>
+<!-- Indonesia: GDP=4300, Sat=5.1 → x=122, y=212 -->
+<circle cx="122" cy="212" r="4" fill="#6B3520"/>
+<!-- Egypt: GDP=3700, Sat=4.3 → x=116, y=237 -->
+<circle cx="116" cy="237" r="4" fill="#6B3520"/>
+<!-- Brazil: GDP=9000, Sat=6.3 → x=167, y=175 -->
+<circle cx="167" cy="175" r="4" fill="#6B3520"/>
+<!-- Mexico: GDP=10000, Sat=6.5 → x=177, y=169 -->
+<circle cx="177" cy="169" r="4" fill="#6B3520"/>
+<!-- Turkey: GDP=10500, Sat=5.4 → x=182, y=203 -->
+<circle cx="182" cy="203" r="4" fill="#6B3520"/>
+<!-- China: GDP=13000, Sat=5.8 → x=206, y=190 -->
+<circle cx="206" cy="190" r="4" fill="#6B3520"/>
+<!-- Poland: GDP=18000, Sat=6.2 → x=254, y=178 -->
+<circle cx="254" cy="178" r="4" fill="#6B3520"/>
+<!-- S. Korea: GDP=35000, Sat=5.8 → x=418, y=190 -->
+<circle cx="418" cy="190" r="4" fill="#6B3520"/>
+<!-- Japan: GDP=40000, Sat=6.0 → x=467, y=184 -->
+<circle cx="467" cy="184" r="4" fill="#6B3520"/>
+<!-- Italy: GDP=35000, Sat=6.7 → x=418, y=162 -->
+<circle cx="418" cy="162" r="4" fill="#6B3520"/>
+<!-- France: GDP=42000, Sat=6.7 → x=486, y=162 -->
+<circle cx="486" cy="162" r="4" fill="#6B3520"/>
+<!-- UK: GDP=46000, Sat=6.9 → x=525, y=156 -->
+<circle cx="525" cy="156" r="4" fill="#6B3520"/>
+<!-- Germany: GDP=48000, Sat=7.0 → x=544, y=153 -->
+<circle cx="544" cy="153" r="4" fill="#6B3520"/>
+<!-- USA: GDP=55000, Sat=6.9 → x=612, y=156 -->
+<circle cx="612" cy="156" r="4" fill="#6B3520"/>
+<!-- Norway: GDP=58000, Sat=7.6 → x=641, y=134 -->
+<circle cx="641" cy="134" r="4" fill="#6B3520"/>
+
+<!-- Trend line label -->
+<text x="620" y="100" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#C8860E" letter-spacing="0.08em">OLS TREND</text>
+
+<!-- Caption -->
+<text x="350" y="418" text-anchor="middle" font-size="11" font-style="italic" fill="#545454">Higher GDP correlates with higher life satisfaction, but gains flatten above $40K.</text>
+
+</svg>

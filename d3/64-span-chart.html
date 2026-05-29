@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Span Chart — Model Accuracy Range by Crisis Domain</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root {
+    --color-bg: #FFFFFF;
+    --color-ink: #2a1a0e;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+    --color-surface: #F5EFE8;
+    --color-mark: #6B3520;
+    --color-slate: #1A3A5C;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1a1a;
+      --color-ink: #e8e0d6;
+      --color-surface: #2a2420;
+      --color-secondary: #a0978e;
+      --color-border: #444;
+      --color-mark: #c28060;
+      --color-red: #e05040;
+      --color-slate: #5a9ad6;
+      --color-ochre: #d4a030;
+    }
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+  #chart-container { width: 100%; max-width: 900px; }
+  h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; color: var(--color-ink); }
+  .subtitle {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--color-secondary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .caption {
+    font-size: 0.9rem;
+    color: var(--color-secondary);
+    font-style: italic;
+    margin-top: 12px;
+  }
+  .tooltip {
+    position: absolute;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--color-ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+</style>
+</head>
+<body>
+<div id="chart-container">
+  <h1>Model Accuracy Range by Crisis Domain</h1>
+  <div class="subtitle">SPAN CHART — WORST TO BEST MODEL ACCURACY</div>
+  <div id="chart" role="img" aria-label="Span chart showing model accuracy ranges for 6 crisis domains. A threshold line at 70 marks the deployment cutoff. Famine and Conflict fall mostly below threshold."></div>
+  <div class="caption">Best models clear the 70 threshold in most domains — worst models miss it by 30+ points in Famine and Conflict.</div>
+</div>
+<div class="tooltip" id="tooltip"></div>
+<script>
+const data = [
+  { label: "Flood Response", min: 55, max: 92 },
+  { label: "Earthquake", min: 48, max: 85 },
+  { label: "Pandemic", min: 62, max: 88 },
+  { label: "Drought", min: 33, max: 78 },
+  { label: "Conflict", min: 28, max: 71 },
+  { label: "Famine", min: 25, max: 64 }
+];
+
+const threshold = 70;
+const container = document.getElementById("chart");
+const tooltip = document.getElementById("tooltip");
+
+function draw() {
+  container.innerHTML = "";
+  const width = container.clientWidth;
+  const height = Math.min(width * 0.55, 450);
+  const margin = { top: 30, right: 40, bottom: 50, left: 140 };
+  const w = width - margin.left - margin.right;
+  const h = height - margin.top - margin.bottom;
+
+  const svg = d3.select(container).append("svg")
+    .attr("width", width).attr("height", height)
+    .attr("viewBox", `0 0 ${width} ${height}`);
+
+  svg.append("title").text("Model Accuracy Range by Crisis Domain — Span Chart");
+  svg.append("desc").text("6 crisis domains with horizontal floating bars showing worst-to-best model accuracy. A dashed threshold at 70.");
+
+  const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+  // Chart area
+  g.append("rect").attr("width", w).attr("height", h)
+    .attr("fill", "var(--color-surface)").attr("stroke", "var(--color-border)").attr("stroke-width", 0.75);
+
+  const xScale = d3.scaleLinear().domain([0, 100]).range([0, w]);
+  const yScale = d3.scaleBand().domain(data.map(d => d.label)).range([0, h]).padding(0.35);
+
+  // Grid
+  xScale.ticks(5).forEach(t => {
+    g.append("line").attr("x1", xScale(t)).attr("x2", xScale(t)).attr("y1", 0).attr("y2", h)
+      .attr("stroke", "var(--color-border)").attr("stroke-width", 0.3).attr("stroke-dasharray", "3,3");
+  });
+
+  // Threshold line
+  g.append("line")
+    .attr("x1", xScale(threshold)).attr("x2", xScale(threshold)).attr("y1", 0).attr("y2", h)
+    .attr("stroke", "var(--color-red)").attr("stroke-width", 1.5).attr("stroke-dasharray", "6,4");
+  g.append("text").attr("x", xScale(threshold)).attr("y", -8).attr("text-anchor", "middle")
+    .attr("font-family", "'IBM Plex Mono', monospace").attr("font-size", "0.6rem")
+    .attr("fill", "var(--color-red)").attr("letter-spacing", "0.08em").text("THRESHOLD 70");
+
+  // X axis
+  const xAxis = d3.axisBottom(xScale).ticks(5);
+  g.append("g").attr("transform", `translate(0,${h})`).call(xAxis)
+    .selectAll("text").attr("font-family", "'IBM Plex Mono', monospace").attr("font-size", "0.65rem")
+    .attr("fill", "var(--color-secondary)").attr("letter-spacing", "0.08em");
+
+  g.append("text").attr("x", w / 2).attr("y", h + 40).attr("text-anchor", "middle")
+    .attr("font-family", "'IBM Plex Mono', monospace").attr("font-size", "0.7rem")
+    .attr("fill", "var(--color-ink)").attr("letter-spacing", "0.08em").text("ACCURACY SCORE");
+
+  // Y axis labels
+  data.forEach(d => {
+    g.append("text")
+      .attr("x", -10)
+      .attr("y", yScale(d.label) + yScale.bandwidth() / 2)
+      .attr("text-anchor", "end")
+      .attr("dominant-baseline", "central")
+      .attr("font-family", "'IBM Plex Mono', monospace")
+      .attr("font-size", "0.65rem")
+      .attr("fill", "var(--color-ink)")
+      .attr("letter-spacing", "0.08em")
+      .text(d.label.toUpperCase());
+  });
+
+  // Span bars
+  g.selectAll(".span").data(data).enter().append("rect")
+    .attr("x", d => xScale(d.min))
+    .attr("y", d => yScale(d.label))
+    .attr("width", d => xScale(d.max) - xScale(d.min))
+    .attr("height", yScale.bandwidth())
+    .attr("fill", "var(--color-mark)")
+    .attr("tabindex", 0)
+    .attr("role", "graphics-symbol")
+    .attr("aria-label", d => `${d.label}: ${d.min} to ${d.max}`)
+    .on("mouseenter", function(event, d) {
+      tooltip.style.opacity = 1;
+      tooltip.innerHTML = `<strong>${d.label}</strong><br>Min: ${d.min} | Max: ${d.max}<br>Span: ${d.max - d.min}`;
+    })
+    .on("mousemove", function(event) {
+      tooltip.style.left = event.pageX + 12 + "px";
+      tooltip.style.top = event.pageY - 28 + "px";
+    })
+    .on("mouseleave", () => { tooltip.style.opacity = 0; })
+    .on("focus", function(event, d) {
+      tooltip.style.opacity = 1;
+      tooltip.innerHTML = `<strong>${d.label}</strong><br>Min: ${d.min} | Max: ${d.max}<br>Span: ${d.max - d.min}`;
+      const rect = this.getBoundingClientRect();
+      tooltip.style.left = rect.x + rect.width / 2 + "px";
+      tooltip.style.top = rect.y - 40 + "px";
+    })
+    .on("blur", () => { tooltip.style.opacity = 0; });
+
+  // Value labels on bars
+  g.selectAll(".val").data(data).enter().append("text")
+    .attr("x", d => (xScale(d.min) + xScale(d.max)) / 2)
+    .attr("y", d => yScale(d.label) + yScale.bandwidth() / 2)
+    .attr("text-anchor", "middle")
+    .attr("dominant-baseline", "central")
+    .attr("font-family", "'IBM Plex Mono', monospace")
+    .attr("font-size", "0.55rem")
+    .attr("fill", "#FFFFFF")
+    .attr("letter-spacing", "0.08em")
+    .text(d => `${d.min} — ${d.max}`);
+}
+
+draw();
+window.addEventListener("resize", draw);
+</script>
+</body>
+</html>

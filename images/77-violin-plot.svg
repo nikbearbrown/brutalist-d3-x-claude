@@ -1,0 +1,88 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#2a1a0e">Distribution Shape Comparison</text>
+
+<!-- Subtitle -->
+<text x="350" y="46" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">VIOLIN PLOT — DENSITY + BOX PLOT OVERLAY</text>
+
+<!-- Chart area -->
+<rect x="32" y="60" width="636" height="310" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="0.75"/>
+
+<!-- Y-axis (value axis) -->
+<line x1="100" y1="80" x2="100" y2="340" stroke="#D4D4D4" stroke-width="0.75"/>
+<!-- Y-axis ticks -->
+<text x="90" y="84" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">100</text>
+<text x="90" y="149" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">75</text>
+<text x="90" y="214" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">50</text>
+<text x="90" y="279" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">25</text>
+<text x="90" y="344" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">0</text>
+
+<!-- Horizontal gridlines -->
+<line x1="100" y1="80" x2="640" y2="80" stroke="#D4D4D4" stroke-width="0.3" stroke-dasharray="3,3"/>
+<line x1="100" y1="145" x2="640" y2="145" stroke="#D4D4D4" stroke-width="0.3" stroke-dasharray="3,3"/>
+<line x1="100" y1="210" x2="640" y2="210" stroke="#D4D4D4" stroke-width="0.3" stroke-dasharray="3,3"/>
+<line x1="100" y1="275" x2="640" y2="275" stroke="#D4D4D4" stroke-width="0.3" stroke-dasharray="3,3"/>
+<line x1="100" y1="340" x2="640" y2="340" stroke="#D4D4D4" stroke-width="0.3" stroke-dasharray="3,3"/>
+
+<!-- Group A: Normal (symmetric lens) — center x=220 -->
+<!-- Violin outline: symmetric lens shape, widest at center (y=210), tapering to top (y=100) and bottom (y=320) -->
+<path d="M220,100 C245,140 260,180 260,210 C260,240 245,280 220,320 C195,280 180,240 180,210 C180,180 195,140 220,100 Z" fill="#6B3520" opacity="0.3" stroke="#6B3520" stroke-width="1.5"/>
+<!-- Box plot inside: box from Q1 to Q3 -->
+<rect x="212" y="170" width="16" height="80" fill="#F5EFE8" stroke="#6B3520" stroke-width="1"/>
+<!-- Median line -->
+<line x1="212" y1="210" x2="228" y2="210" stroke="#C8102E" stroke-width="2"/>
+<!-- Whiskers -->
+<line x1="220" y1="120" x2="220" y2="170" stroke="#6B3520" stroke-width="1"/>
+<line x1="220" y1="250" x2="220" y2="305" stroke="#6B3520" stroke-width="1"/>
+<line x1="214" y1="120" x2="226" y2="120" stroke="#6B3520" stroke-width="1"/>
+<line x1="214" y1="305" x2="226" y2="305" stroke="#6B3520" stroke-width="1"/>
+
+<!-- Group label -->
+<text x="220" y="342" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#2a1a0e" letter-spacing="0.08em">GROUP A</text>
+<text x="220" y="356" text-anchor="middle" font-size="9" fill="#545454">Normal</text>
+
+<!-- Group B: Bimodal (two bulges) — center x=380 -->
+<!-- Violin outline: figure-eight shape, two bulges at y=145 and y=275 -->
+<path d="M380,90 C405,110 415,130 415,145 C415,165 400,180 380,195 C360,180 345,165 345,145 C345,130 355,110 380,90 Z" fill="#6B3520" opacity="0.3" stroke="#6B3520" stroke-width="1.5"/>
+<path d="M380,205 C410,225 420,250 420,275 C420,300 405,320 380,330 C355,320 340,300 340,275 C340,250 350,225 380,205 Z" fill="#6B3520" opacity="0.3" stroke="#6B3520" stroke-width="1.5"/>
+<!-- Pinch connector -->
+<line x1="380" y1="195" x2="380" y2="205" stroke="#6B3520" stroke-width="1.5"/>
+<!-- Box plot inside -->
+<rect x="372" y="150" width="16" height="120" fill="#F5EFE8" stroke="#6B3520" stroke-width="1"/>
+<!-- Median line -->
+<line x1="372" y1="210" x2="388" y2="210" stroke="#C8102E" stroke-width="2"/>
+<!-- Whiskers -->
+<line x1="380" y1="100" x2="380" y2="150" stroke="#6B3520" stroke-width="1"/>
+<line x1="380" y1="270" x2="380" y2="325" stroke="#6B3520" stroke-width="1"/>
+<line x1="374" y1="100" x2="386" y2="100" stroke="#6B3520" stroke-width="1"/>
+<line x1="374" y1="325" x2="386" y2="325" stroke="#6B3520" stroke-width="1"/>
+
+<!-- Group label -->
+<text x="380" y="342" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#2a1a0e" letter-spacing="0.08em">GROUP B</text>
+<text x="380" y="356" text-anchor="middle" font-size="9" fill="#545454">Bimodal</text>
+
+<!-- Group C: Right-skewed (fat left/bottom, thin tail right/top) — center x=540 -->
+<!-- Violin outline: fat at bottom (high y = low value), thin tail at top (low y = high value) -->
+<path d="M540,105 C550,130 555,160 555,200 C555,230 570,280 575,310 C575,325 560,335 540,335 C520,335 505,325 505,310 C505,280 525,230 525,200 C525,160 530,130 540,105 Z" fill="#6B3520" opacity="0.3" stroke="#6B3520" stroke-width="1.5"/>
+<!-- Box plot inside -->
+<rect x="532" y="200" width="16" height="100" fill="#F5EFE8" stroke="#6B3520" stroke-width="1"/>
+<!-- Median line (shifted toward bottom = lower values, right-skewed) -->
+<line x1="532" y1="265" x2="548" y2="265" stroke="#C8102E" stroke-width="2"/>
+<!-- Whiskers -->
+<line x1="540" y1="120" x2="540" y2="200" stroke="#6B3520" stroke-width="1"/>
+<line x1="540" y1="300" x2="540" y2="330" stroke="#6B3520" stroke-width="1"/>
+<line x1="534" y1="120" x2="546" y2="120" stroke="#6B3520" stroke-width="1"/>
+<line x1="534" y1="330" x2="546" y2="330" stroke="#6B3520" stroke-width="1"/>
+
+<!-- Group label -->
+<text x="540" y="342" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#2a1a0e" letter-spacing="0.08em">GROUP C</text>
+<text x="540" y="356" text-anchor="middle" font-size="9" fill="#545454">Right-skewed</text>
+
+<!-- Caption -->
+<text x="350" y="400" text-anchor="middle" font-size="11" font-style="italic" fill="#545454">Box plots for Groups A and B would look nearly identical — the violin reveals the bimodality.</text>
+
+</svg>

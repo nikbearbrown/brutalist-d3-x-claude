@@ -1,0 +1,86 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" font-family="'EB Garamond', Georgia, 'Times New Roman', serif">
+
+<!-- Background -->
+<rect x="0" y="0" width="700" height="420" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="350" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#2a1a0e">Humanitarian Funding by Sector</text>
+
+<!-- Subtitle -->
+<text x="350" y="46" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#545454" letter-spacing="0.08em">STACKED AREA — 3 SECTORS OVER 12 MONTHS</text>
+
+<!-- Chart area -->
+<rect x="80" y="60" width="580" height="300" fill="#F5EFE8" stroke="#D4D4D4" stroke-width="0.75"/>
+
+<!-- Axes -->
+<!-- X: 12 months (Jan-Dec), mapped to x=80..660. Step: 580/11 = 52.7px -->
+<!-- Y: $0-500M, mapped to y=360..60. Scale: 300/500 = 0.6px per $M -->
+
+<!-- Y axis -->
+<line x1="80" y1="60" x2="80" y2="360" stroke="#2a1a0e" stroke-width="0.75"/>
+<text x="72" y="363" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">$0</text>
+<text x="72" y="303" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">$100M</text>
+<text x="72" y="243" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">$200M</text>
+<text x="72" y="183" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">$300M</text>
+<text x="72" y="123" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">$400M</text>
+<text x="72" y="63" text-anchor="end" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="8" fill="#545454" letter-spacing="0.08em">$500M</text>
+
+<!-- Grid lines -->
+<line x1="80" y1="300" x2="660" y2="300" stroke="#D4D4D4" stroke-width="0.3" stroke-dasharray="3,3"/>
+<line x1="80" y1="240" x2="660" y2="240" stroke="#D4D4D4" stroke-width="0.3" stroke-dasharray="3,3"/>
+<line x1="80" y1="180" x2="660" y2="180" stroke="#D4D4D4" stroke-width="0.3" stroke-dasharray="3,3"/>
+<line x1="80" y1="120" x2="660" y2="120" stroke="#D4D4D4" stroke-width="0.3" stroke-dasharray="3,3"/>
+
+<!-- X axis -->
+<line x1="80" y1="360" x2="660" y2="360" stroke="#2a1a0e" stroke-width="0.75"/>
+
+<!-- X ticks — 12 months -->
+<text x="80" y="378" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#545454" letter-spacing="0.08em">JAN</text>
+<text x="132.7" y="378" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#545454" letter-spacing="0.08em">FEB</text>
+<text x="185.5" y="378" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#545454" letter-spacing="0.08em">MAR</text>
+<text x="238.2" y="378" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#545454" letter-spacing="0.08em">APR</text>
+<text x="290.9" y="378" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#545454" letter-spacing="0.08em">MAY</text>
+<text x="343.6" y="378" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#545454" letter-spacing="0.08em">JUN</text>
+<text x="396.4" y="378" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#545454" letter-spacing="0.08em">JUL</text>
+<text x="449.1" y="378" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#545454" letter-spacing="0.08em">AUG</text>
+<text x="501.8" y="378" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#545454" letter-spacing="0.08em">SEP</text>
+<text x="554.5" y="378" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#545454" letter-spacing="0.08em">OCT</text>
+<text x="607.3" y="378" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#545454" letter-spacing="0.08em">NOV</text>
+<text x="660" y="378" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#545454" letter-spacing="0.08em">DEC</text>
+
+<!-- Data: Food Security (bottom, ~47%), Shelter (middle), Health (top, #C8860E) -->
+<!-- Monthly totals: Jan=380, Feb=390, Mar=410, Apr=420, May=435, Jun=450, Jul=460, Aug=455, Sep=440, Oct=430, Nov=415, Dec=400 -->
+<!-- Food: 180,185,195,200,205,215,220,218,210,205,198,190 -->
+<!-- Shelter: 120,125,130,135,140,145,150,148,142,138,132,128 -->
+<!-- Health: 80,80,85,85,90,90,90,89,88,87,85,82 -->
+
+<!-- Y positions: val → y = 360 - val*0.6 -->
+<!-- Baseline (0): y=360 -->
+<!-- Food top: 360-180*0.6=252, 360-185*0.6=249, 360-195*0.6=243, 360-200*0.6=240, 360-205*0.6=237, 360-215*0.6=231, 360-220*0.6=228, 360-218*0.6=229.2, 360-210*0.6=234, 360-205*0.6=237, 360-198*0.6=241.2, 360-190*0.6=246 -->
+<!-- Food+Shelter top: 360-300*0.6=180, 360-310*0.6=174, 360-325*0.6=165, 360-335*0.6=159, 360-345*0.6=153, 360-360*0.6=144, 360-370*0.6=138, 360-366*0.6=140.4, 360-352*0.6=148.8, 360-343*0.6=154.2, 360-330*0.6=162, 360-318*0.6=169.2 -->
+<!-- Total top: 360-380*0.6=132, 360-390*0.6=126, 360-410*0.6=114, 360-420*0.6=108, 360-435*0.6=99, 360-450*0.6=90, 360-460*0.6=84, 360-455*0.6=87, 360-440*0.6=96, 360-430*0.6=102, 360-415*0.6=111, 360-400*0.6=120 -->
+
+<!-- Health layer (top) — #C8860E -->
+<polygon points="80,180 132.7,174 185.5,165 238.2,159 290.9,153 343.6,144 396.4,138 449.1,140.4 501.8,148.8 554.5,154.2 607.3,162 660,169.2 660,132 607.3,126 554.5,117 501.8,111 449.1,102 396.4,99 343.6,105 290.9,114 238.2,123 185.5,129 132.7,141 80,147" fill="#C8860E" opacity="0.85"/>
+
+<!-- Shelter layer (middle) — #6B3520 -->
+<polygon points="80,252 132.7,249 185.5,243 238.2,240 290.9,237 343.6,231 396.4,228 449.1,229.2 501.8,234 554.5,237 607.3,241.2 660,246 660,169.2 607.3,162 554.5,154.2 501.8,148.8 449.1,140.4 396.4,138 343.6,144 290.9,153 238.2,159 185.5,165 132.7,174 80,180" fill="#6B3520" opacity="0.85"/>
+
+<!-- Food Security layer (bottom) — #2a1a0e -->
+<polygon points="80,360 132.7,360 185.5,360 238.2,360 290.9,360 343.6,360 396.4,360 449.1,360 501.8,360 554.5,360 607.3,360 660,360 660,246 607.3,241.2 554.5,237 501.8,234 449.1,229.2 396.4,228 343.6,231 290.9,237 238.2,240 185.5,243 132.7,249 80,252" fill="#2a1a0e" opacity="0.85"/>
+
+<!-- Layer labels (right edge) -->
+<text x="664" y="155" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#C8860E" letter-spacing="0.08em">HEALTH</text>
+<text x="664" y="206" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#6B3520" letter-spacing="0.08em">SHELTER</text>
+<text x="664" y="310" text-anchor="start" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="7" fill="#2a1a0e" letter-spacing="0.08em">FOOD</text>
+
+<!-- 47% annotation -->
+<text x="350" y="310" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="10" fill="#FFFFFF" letter-spacing="0.08em">47%</text>
+
+<!-- Caption -->
+<text x="350" y="400" text-anchor="middle" font-size="11" font-style="italic" fill="#545454">Food Security anchors 47% of all funding. Shelter and Health grow in proportion through mid-year.</text>
+
+<!-- Y axis label -->
+<text x="32" y="210" text-anchor="middle" font-family="'IBM Plex Mono', 'Courier New', monospace" font-size="9" fill="#2a1a0e" letter-spacing="0.08em" transform="rotate(-90, 32, 210)">FUNDING (USD)</text>
+
+</svg>

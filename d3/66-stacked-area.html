@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stacked Area — Humanitarian Funding by Sector</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root {
+    --color-bg: #FFFFFF;
+    --color-ink: #2a1a0e;
+    --color-red: #C8102E;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-ochre: #C8860E;
+    --color-surface: #F5EFE8;
+    --color-mark: #6B3520;
+    --color-slate: #1A3A5C;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1a1a;
+      --color-ink: #e8e0d6;
+      --color-surface: #2a2420;
+      --color-secondary: #a0978e;
+      --color-border: #444;
+      --color-mark: #c28060;
+      --color-red: #e05040;
+      --color-slate: #5a9ad6;
+      --color-ochre: #d4a030;
+    }
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+  #chart-container { width: 100%; max-width: 900px; }
+  h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; color: var(--color-ink); }
+  .subtitle {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--color-secondary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .caption {
+    font-size: 0.9rem;
+    color: var(--color-secondary);
+    font-style: italic;
+    margin-top: 12px;
+  }
+  .tooltip {
+    position: absolute;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--color-ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+</style>
+</head>
+<body>
+<div id="chart-container">
+  <h1>Humanitarian Funding by Sector</h1>
+  <div class="subtitle">STACKED AREA — 3 SECTORS OVER 12 MONTHS</div>
+  <div id="chart" role="img" aria-label="Stacked area chart showing humanitarian funding for Food Security, Shelter, and Health over 12 months. Food Security anchors 47% of total funding."></div>
+  <div class="caption">Food Security anchors 47% of all funding. Shelter and Health grow in proportion through mid-year.</div>
+</div>
+<div class="tooltip" id="tooltip"></div>
+<script>
+const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const rawData = [
+  { month: "Jan", food: 180, shelter: 120, health: 80 },
+  { month: "Feb", food: 185, shelter: 125, health: 80 },
+  { month: "Mar", food: 195, shelter: 130, health: 85 },
+  { month: "Apr", food: 200, shelter: 135, health: 85 },
+  { month: "May", food: 205, shelter: 140, health: 90 },
+  { month: "Jun", food: 215, shelter: 145, health: 90 },
+  { month: "Jul", food: 220, shelter: 150, health: 90 },
+  { month: "Aug", food: 218, shelter: 148, health: 89 },
+  { month: "Sep", food: 210, shelter: 142, health: 88 },
+  { month: "Oct", food: 205, shelter: 138, health: 87 },
+  { month: "Nov", food: 198, shelter: 132, health: 85 },
+  { month: "Dec", food: 190, shelter: 128, health: 82 }
+];
+
+const keys = ["food", "shelter", "health"];
+const colors = { food: "var(--color-ink)", shelter: "var(--color-mark)", health: "var(--color-ochre)" };
+const labels = { food: "FOOD SECURITY", shelter: "SHELTER", health: "HEALTH" };
+
+const container = document.getElementById("chart");
+const tooltip = document.getElementById("tooltip");
+
+function draw() {
+  container.innerHTML = "";
+  const width = container.clientWidth;
+  const height = Math.min(width * 0.6, 500);
+  const margin = { top: 20, right: 100, bottom: 50, left: 65 };
+  const w = width - margin.left - margin.right;
+  const h = height - margin.top - margin.bottom;
+
+  const svg = d3.select(container).append("svg")
+    .attr("width", width).attr("height", height)
+    .attr("viewBox", `0 0 ${width} ${height}`);
+
+  svg.append("title").text("Humanitarian Funding by Sector — Stacked Area");
+  svg.append("desc").text("3 stacked area layers: Food Security (bottom, 47%), Shelter (middle), Health (top). 12 months, $0-$500M scale.");
+
+  const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+  // Chart area
+  g.append("rect").attr("width", w).attr("height", h)
+    .attr("fill", "var(--color-surface)").attr("stroke", "var(--color-border)").attr("stroke-width", 0.75);
+
+  const xScale = d3.scalePoint().domain(months).range([0, w]).padding(0);
+  const yScale = d3.scaleLinear().domain([0, 500]).range([h, 0]);
+
+  // Grid
+  [100, 200, 300, 400, 500].forEach(v => {
+    g.append("line").attr("x1", 0).attr("x2", w).attr("y1", yScale(v)).attr("y2", yScale(v))
+      .attr("stroke", "var(--color-border)").attr("stroke-width", 0.3).attr("stroke-dasharray", "3,3");
+  });
+
+  // Stack
+  const stack = d3.stack().keys(keys).order(d3.stackOrderNone).offset(d3.stackOffsetNone);
+  const series = stack(rawData);
+
+  const area = d3.area()
+    .x((d, i) => xScale(months[i]))
+    .y0(d => yScale(d[0]))
+    .y1(d => yScale(d[1]))
+    .curve(d3.curveMonotoneX);
+
+  // Areas
+  g.selectAll(".layer").data(series).enter().append("path")
+    .attr("d", area)
+    .attr("fill", d => colors[d.key])
+    .attr("opacity", 0.85)
+    .attr("tabindex", 0)
+    .attr("role", "graphics-symbol")
+    .attr("aria-label", d => labels[d.key])
+    .on("mouseenter", function(event, d) {
+      tooltip.style.opacity = 1;
+      tooltip.innerHTML = `<strong>${labels[d.key]}</strong>`;
+    })
+    .on("mousemove", function(event) {
+      tooltip.style.left = event.pageX + 12 + "px";
+      tooltip.style.top = event.pageY - 28 + "px";
+    })
+    .on("mouseleave", () => { tooltip.style.opacity = 0; });
+
+  // Axes
+  const xAxis = d3.axisBottom(xScale);
+  g.append("g").attr("transform", `translate(0,${h})`).call(xAxis)
+    .selectAll("text").attr("font-family", "'IBM Plex Mono', monospace").attr("font-size", "0.55rem")
+    .attr("fill", "var(--color-secondary)").attr("letter-spacing", "0.08em");
+
+  const yAxis = d3.axisLeft(yScale).ticks(5).tickFormat(d => `$${d}M`);
+  g.append("g").call(yAxis)
+    .selectAll("text").attr("font-family", "'IBM Plex Mono', monospace").attr("font-size", "0.6rem")
+    .attr("fill", "var(--color-secondary)").attr("letter-spacing", "0.08em");
+
+  // Y axis label
+  g.append("text").attr("x", -h / 2).attr("y", -50).attr("text-anchor", "middle")
+    .attr("transform", "rotate(-90)")
+    .attr("font-family", "'IBM Plex Mono', monospace").attr("font-size", "0.7rem")
+    .attr("fill", "var(--color-ink)").attr("letter-spacing", "0.08em").text("FUNDING (USD)");
+
+  // Right-edge layer labels
+  series.forEach(s => {
+    const lastVal = s[s.length - 1];
+    const yPos = (yScale(lastVal[0]) + yScale(lastVal[1])) / 2;
+    g.append("text").attr("x", w + 8).attr("y", yPos)
+      .attr("dominant-baseline", "central")
+      .attr("font-family", "'IBM Plex Mono', monospace").attr("font-size", "0.55rem")
+      .attr("fill", colors[s.key] === "var(--color-ink)" ? "var(--color-ink)" : colors[s.key])
+      .attr("letter-spacing", "0.08em")
+      .text(labels[s.key]);
+  });
+
+  // 47% annotation
+  const midFood = rawData[6];
+  g.append("text")
+    .attr("x", xScale("Jul"))
+    .attr("y", yScale(midFood.food / 2))
+    .attr("text-anchor", "middle")
+    .attr("font-family", "'IBM Plex Mono', monospace")
+    .attr("font-size", "0.8rem")
+    .attr("fill", "#FFFFFF")
+    .attr("letter-spacing", "0.08em")
+    .text("47%");
+
+  // Vertical hover line + tooltip
+  const hoverG = g.append("g").style("display", "none");
+  hoverG.append("line").attr("y1", 0).attr("y2", h).attr("stroke", "var(--color-ink)").attr("stroke-width", 0.5).attr("stroke-dasharray", "2,2");
+
+  g.append("rect").attr("width", w).attr("height", h).attr("fill", "transparent")
+    .on("mousemove", function(event) {
+      const [mx] = d3.pointer(event);
+      const xDomain = months;
+      const distances = xDomain.map(m => Math.abs(xScale(m) - mx));
+      const idx = distances.indexOf(d3.min(distances));
+      const d = rawData[idx];
+      const total = d.food + d.shelter + d.health;
+      hoverG.style("display", null);
+      hoverG.select("line").attr("x1", xScale(months[idx])).attr("x2", xScale(months[idx]));
+      tooltip.style.opacity = 1;
+      tooltip.innerHTML = `<strong>${d.month}</strong><br>Food: $${d.food}M<br>Shelter: $${d.shelter}M<br>Health: $${d.health}M<br>Total: $${total}M`;
+      tooltip.style.left = event.pageX + 12 + "px";
+      tooltip.style.top = event.pageY - 28 + "px";
+    })
+    .on("mouseleave", () => {
+      hoverG.style("display", "none");
+      tooltip.style.opacity = 0;
+    });
+}
+
+draw();
+window.addEventListener("resize", draw);
+</script>
+</body>
+</html>

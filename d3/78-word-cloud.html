@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Word Cloud — Key Terms in Data Science</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3-cloud/1.2.7/d3.layout.cloud.min.js"></script>
+<style>
+  :root {
+    --color-bg: #FFFFFF;
+    --color-ink: #2a1a0e;
+    --color-surface: #F5EFE8;
+    --color-secondary: #545454;
+    --color-border: #D4D4D4;
+    --color-mark: #6B3520;
+    --color-red: #C8102E;
+    --color-slate: #1A3A5C;
+    --color-ochre: #C8860E;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1a1a;
+      --color-ink: #e8e0d6;
+      --color-surface: #2a2420;
+      --color-secondary: #a0978e;
+      --color-border: #444;
+      --color-mark: #c28060;
+      --color-red: #e05040;
+      --color-slate: #5a9ad6;
+      --color-ochre: #d4a030;
+    }
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+  #chart-container { width: 100%; max-width: 900px; }
+  h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; color: var(--color-ink); }
+  .subtitle {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--color-secondary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .caption { font-size: 0.9rem; color: var(--color-secondary); font-style: italic; margin-top: 12px; }
+  .tooltip {
+    position: absolute;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--color-ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+</style>
+</head>
+<body>
+<div id="chart-container">
+  <h1>Key Terms in Data Science</h1>
+  <div class="subtitle">WORD CLOUD — FREQUENCY ENCODED AS SIZE</div>
+  <div id="chart" role="img" aria-label="Word cloud showing key terms in data science, sized by frequency"></div>
+  <div class="caption">Visually engaging, analytically poor — word length confounds the frequency encoding.</div>
+</div>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const words = [
+  { text: "Data", weight: 100, color: "#C8102E" },
+  { text: "Analysis", weight: 85, color: "#2a1a0e" },
+  { text: "Machine Learning", weight: 75, color: "#1A3A5C" },
+  { text: "Visualization", weight: 55, color: "#6B3520" },
+  { text: "Statistics", weight: 52, color: "#1A3A5C" },
+  { text: "Python", weight: 60, color: "#C8102E" },
+  { text: "AI", weight: 50, color: "#2a1a0e" },
+  { text: "Neural", weight: 45, color: "#C8860E" },
+  { text: "Model", weight: 42, color: "#545454" },
+  { text: "Ethics", weight: 32, color: "#1A3A5C" },
+  { text: "Bias", weight: 30, color: "#C8102E" },
+  { text: "Accuracy", weight: 35, color: "#6B3520" },
+  { text: "Training", weight: 38, color: "#6B3520" },
+  { text: "Regression", weight: 28, color: "#545454" },
+  { text: "Clustering", weight: 30, color: "#C8860E" },
+  { text: "Inference", weight: 22, color: "#545454" },
+  { text: "Features", weight: 25, color: "#2a1a0e" },
+  { text: "Overfitting", weight: 20, color: "#1A3A5C" },
+  { text: "Deep Learning", weight: 48, color: "#C8860E" },
+  { text: "NLP", weight: 33, color: "#545454" },
+  { text: "Sampling", weight: 18, color: "#6B3520" }
+];
+
+const width = 700;
+const height = 450;
+
+const svg = d3.select("#chart")
+  .append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("preserveAspectRatio", "xMidYMid meet")
+  .style("width", "100%")
+  .style("height", "auto");
+
+svg.append("title").text("Key Terms in Data Science — Word Cloud");
+svg.append("desc").text("Word cloud of approximately 20 data science terms sized by frequency. Largest: Data, Analysis, Machine Learning.");
+
+svg.append("rect").attr("width", width).attr("height", height).attr("fill", "var(--color-bg)");
+svg.append("rect")
+  .attr("x", 32).attr("y", 20)
+  .attr("width", width - 64).attr("height", height - 50)
+  .attr("fill", "var(--color-surface)").attr("stroke", "var(--color-border)").attr("stroke-width", 0.75);
+
+const tooltip = d3.select("#tooltip");
+
+const fontScale = d3.scaleSqrt()
+  .domain([d3.min(words, d => d.weight), d3.max(words, d => d.weight)])
+  .range([12, 56]);
+
+const layout = d3.layout.cloud()
+  .size([width - 80, height - 80])
+  .words(words.map(d => ({ ...d, size: fontScale(d.weight) })))
+  .padding(4)
+  .rotate(() => Math.random() < 0.3 ? -90 : 0)
+  .font("'EB Garamond', Georgia, serif")
+  .fontSize(d => d.size)
+  .on("end", draw);
+
+layout.start();
+
+function draw(placedWords) {
+  const g = svg.append("g")
+    .attr("transform", `translate(${width / 2},${height / 2})`);
+
+  g.selectAll("text")
+    .data(placedWords)
+    .join("text")
+    .attr("font-size", d => d.size + "px")
+    .attr("font-family", "'EB Garamond', Georgia, serif")
+    .attr("font-weight", d => d.weight > 60 ? "bold" : "normal")
+    .attr("fill", d => d.color)
+    .attr("text-anchor", "middle")
+    .attr("transform", d => `translate(${d.x},${d.y}) rotate(${d.rotate})`)
+    .attr("tabindex", 0)
+    .attr("role", "img")
+    .attr("aria-label", d => `${d.text}: frequency ${d.weight}`)
+    .style("cursor", "pointer")
+    .text(d => d.text)
+    .on("mouseenter", function(event, d) {
+      d3.select(this).attr("opacity", 0.7);
+      tooltip.style("opacity", 1)
+        .html(`<strong>${d.text}</strong><br>Frequency: ${d.weight}`);
+    })
+    .on("mousemove", function(event) {
+      tooltip.style("left", (event.pageX + 12) + "px").style("top", (event.pageY - 28) + "px");
+    })
+    .on("mouseleave", function() {
+      d3.select(this).attr("opacity", 1);
+      tooltip.style("opacity", 0);
+    });
+}
+</script>
+</body>
+</html>

@@ -2,7 +2,9 @@
 
 *Three Simultaneous Revolutions — Legal, Digital, and Financial —Accelerating in Parallel as Operations Scale and Multiply*
 
-![Timeline](../images/72-timeline.jpg)
+*Figure 72.1 — Legal, Digital, and Financial — Accelerating in Parallel*
+
+![Timeline](../images/72-timeline.png)
 
 ## What this chart is
 
@@ -52,6 +54,8 @@ Style: warm monochrome — black, dark walnut, blood-red accents only. Serif fon
 
 Provide both files as separate code blocks. Do not explain — just produce the files.
 ```
+
+Reference implementation: [`d3/72-timeline.html`](../d3/72-timeline.html)
 
 The original code and data — copy-paste-ready — live at [bearbrown.co](https://www.bearbrown.co/).
 
