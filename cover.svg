@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 2560" width="1600" height="2560" preserveAspectRatio="xMidYMid meet" shape-rendering="geometricPrecision">
+  <g id="background"><rect x="0" y="0" width="1600" height="2560" fill="#1B6B5A"/></g>
+  <g id="symbol-fragments" transform="rotate(12, 800, 850)">
+    <polygon points="339,298 375,203 455,170 509,281 425,369" fill="#F5C518"/>
+    <polygon points="1607,1436 1571,1383 1603,1320 1669,1332 1671,1384 1647,1420" fill="#F5F0E8"/>
+    <polygon points="385,41 288,-6 252,-102 318,-172 431,-141 484,-73 478,10" fill="#F5F0E8"/>
+    <polygon points="405,1427 358,1444 302,1474 267,1440 262,1364 292,1328 352,1332 383,1371" fill="#F5F0E8"/>
+    <polygon points="605,852 521,822 480,678 613,667 710,751" fill="#F5F0E8"/>
+    <polygon points="842,499 784,486 744,463 779,423 826,426 855,455" fill="#F5F0E8"/>
+    <polygon points="275,1503 249,1463 224,1408 258,1380 299,1368 335,1411 319,1463" fill="#F5C518"/>
+    <polygon points="172,1466 180,1399 177,1318 284,1298 358,1331 374,1392 377,1460 280,1491" fill="#F5F0E8"/>
+    <polygon points="1638,539 1538,491 1533,355 1655,357 1713,466" fill="#F5F0E8"/>
+    <polygon points="775,313 698,344 635,285 671,204 743,215 807,258" fill="#F5F0E8"/>
+    <polygon points="335,235 382,125 467,150 541,160 540,270 459,329 389,323" fill="#F5F0E8"/>
+    <polygon points="336,246 289,249 254,234 245,209 250,176 290,170 336,177 335,206" fill="#F5F0E8"/>
+    <polygon points="300,460 200,454 184,356 283,324 345,378" fill="#F5C518"/>
+  </g>
+  <g id="title-letterforms">
+    <text x="120" y="1510" font-family="Arial Black, Arial, sans-serif" font-size="250" font-weight="900" letter-spacing="0" fill="#F5C518" textLength="1300" lengthAdjust="spacingAndGlyphs">BRUTALIST</text>
+    <text x="120" y="1768" font-family="Arial Black, Arial, sans-serif" font-size="250" font-weight="900" letter-spacing="0" fill="#F5F0E8">D3 X</text>
+    <text x="120" y="2026" font-family="Arial Black, Arial, sans-serif" font-size="250" font-weight="900" letter-spacing="0" fill="#F5C518" textLength="1300" lengthAdjust="spacingAndGlyphs">CLAUDE</text>
+  </g>
+</svg>

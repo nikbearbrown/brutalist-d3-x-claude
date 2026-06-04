@@ -2,14 +2,17 @@
 title: "Brutalist d3 x Claude"
 subtitle: "The D3 Renderer Module of the Brutalist System"
 author: "Nik Bear Brown"
-language: en-US
-rights: "Copyright © 2026 Nik Bear Brown"
+date: 2026
+lang: en-US
+rights: "Copyright © 2026 Nik Bear Brown. All rights reserved."
 publisher: "Bear Brown, LLC"
-date: "2026-05-07"
-cover-image: cover.jpg
-stylesheet: styles/kindle.css
-toc: true
-toc-depth: 2
-series: "Brutalist"
-series-url: "https://www.brutalist.art/"
----
+subject_domain: ""
+tone: ""
+audience: ""
+chapter_titles: []
+keywords: []
+avoid: []
+palette_preference: ""
+series_name: ""
+thumbnail_priority: "title and central icon"
+...
