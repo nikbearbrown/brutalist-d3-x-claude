@@ -63,6 +63,10 @@ The ideas in this chapter didn't appear from nowhere. **John Venn** introduced t
 ![John Venn, circa 1880. AI-generated portrait based on a public domain photograph.](../images/john-venn.jpg)
 *John Venn, circa 1880. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
 
+![John Venn](../images/john-venn-1yj.png)
+
+*Puppet Art by [Nik Bear Brown](https://www.nikbearbrown.com/).*
+
 **Run this:**
 
 ```

@@ -320,6 +320,10 @@ The ideas in this chapter didn't appear from nowhere. **Ben Shneiderman** invent
 ![Ben Shneiderman, circa 1991. AI-generated portrait based on a public domain photograph.](../images/ben-shneiderman.jpg)
 *Ben Shneiderman, circa 1991. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
 
+![Ben Shneiderman](../images/ben-shneiderman-jv1.png)
+
+*Puppet Art by [Nik Bear Brown](https://www.nikbearbrown.com/).*
+
 **Run this:**
 
 ```

@@ -79,6 +79,10 @@ The ideas in this chapter didn't appear from nowhere. **George Bradshaw** publis
 ![George Bradshaw, circa 1850. AI-generated portrait based on a public domain engraving.](../images/george-bradshaw.jpg)
 *George Bradshaw, circa 1850. AI-generated portrait based on a public domain engraving (Wikimedia Commons).*
 
+![George Bradshaw](../images/george-bradshaw-0rc.png)
+
+*Puppet Art by [Nik Bear Brown](https://www.nikbearbrown.com/).*
+
 **Run this:**
 
 ```

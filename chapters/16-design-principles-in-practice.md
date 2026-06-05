@@ -377,6 +377,10 @@ The ideas in this chapter didn't appear from nowhere. **Edward Tufte** published
 ![Edward Tufte, circa 1983. AI-generated portrait based on a public domain photograph.](../images/edward-tufte.jpg)
 *Edward Tufte, circa 1983. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
 
+![Edward Tufte](../images/edward-tufte-jj2.png)
+
+*Puppet Art by [Nik Bear Brown](https://www.nikbearbrown.com/).*
+
 **Run this:**
 
 ```

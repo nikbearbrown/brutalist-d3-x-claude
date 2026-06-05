@@ -67,6 +67,10 @@ The ideas in this chapter didn't appear from nowhere. **Saul Bass** was a graphi
 ![Saul Bass, circa 1965. AI-generated portrait based on a public domain photograph.](../images/saul-bass.jpg)
 *Saul Bass, circa 1965. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
 
+![Saul Bass](../images/saul-bass-csm.png)
+
+*Puppet Art by [Nik Bear Brown](https://www.nikbearbrown.com/).*
+
 **Run this:**
 
 ```

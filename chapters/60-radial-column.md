@@ -66,6 +66,10 @@ The ideas in this chapter didn't appear from nowhere. **Massimo Vignelli** desig
 ![Massimo Vignelli, circa 1972. AI-generated portrait based on a public domain photograph.](../images/massimo-vignelli.jpg)
 *Massimo Vignelli, circa 1972. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
 
+![Massimo Vignelli](../images/massimo-vignelli-1rt.png)
+
+*Puppet Art by [Nik Bear Brown](https://www.nikbearbrown.com/).*
+
 **Run this:**
 
 ```

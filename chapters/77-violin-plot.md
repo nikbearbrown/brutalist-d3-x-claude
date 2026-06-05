@@ -77,6 +77,10 @@ The ideas in this chapter didn't appear from nowhere. **George E. P. Box** built
 ![George E. P. Box, circa 1980. AI-generated portrait based on a public domain photograph.](../images/george-e-p-box.jpg)
 *George E. P. Box, circa 1980. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
 
+![George E. P. Box](../images/george-e-p-box-ikp.png)
+
+*Puppet Art by [Nik Bear Brown](https://www.nikbearbrown.com/).*
+
 **Run this:**
 
 ```

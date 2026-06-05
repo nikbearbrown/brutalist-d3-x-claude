@@ -62,6 +62,10 @@ The ideas in this chapter didn't appear from nowhere. **Augustus De Morgan** dre
 ![Augustus De Morgan, circa 1860. AI-generated portrait based on a public domain photograph.](../images/augustus-de-morgan.jpg)
 *Augustus De Morgan, circa 1860. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
 
+![Augustus De Morgan](../images/augustus-de-morgan-2ir.png)
+
+*Puppet Art by [Nik Bear Brown](https://www.nikbearbrown.com/).*
+
 **Run this:**
 
 ```

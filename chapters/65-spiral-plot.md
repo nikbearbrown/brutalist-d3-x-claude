@@ -64,6 +64,10 @@ The ideas in this chapter didn't appear from nowhere. **Ramon Llull**, a 13th-ce
 ![Ramon Llull, 13th century. AI-generated illustration based on a public domain painting.](../images/ramon-llull.jpg)
 *Ramon Llull, 13th century. AI-generated illustration based on a public domain painting (Wikimedia Commons).*
 
+![Ramon Llull](../images/ramon-llull-06t.png)
+
+*Puppet Art by [Nik Bear Brown](https://www.nikbearbrown.com/).*
+
 **Run this:**
 
 ```

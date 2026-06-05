@@ -68,6 +68,10 @@ The ideas in this chapter didn't appear from nowhere. **Mark Twain** patented a 
 ![Mark Twain, circa 1890. AI-generated portrait based on a public domain photograph.](../images/mark-twain.jpg)
 *Mark Twain, circa 1890. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
 
+![Mark Twain](../images/mark-twain-9tr.png)
+
+*Puppet Art by [Nik Bear Brown](https://www.nikbearbrown.com/).*
+
 **Run this:**
 
 ```

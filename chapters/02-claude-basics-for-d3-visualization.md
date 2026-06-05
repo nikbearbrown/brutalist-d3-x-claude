@@ -506,6 +506,10 @@ The ideas in this chapter didn't appear from nowhere. **Margaret Hamilton** led 
 ![Margaret Hamilton, circa 1969. AI-generated portrait based on a public domain photograph.](../images/margaret-hamilton.jpg)
 *Margaret Hamilton, circa 1969. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
 
+![Margaret Hamilton](../images/margaret-hamilton-ees.png)
+
+*Puppet Art by [Nik Bear Brown](https://www.nikbearbrown.com/).*
+
 **Run this:**
 
 ```

@@ -62,6 +62,10 @@ The ideas in this chapter didn't appear from nowhere. **W. E. B. Du Bois** desig
 ![W. E. B. Du Bois, circa 1900. AI-generated portrait based on a public domain photograph.](../images/w-e-b-du-bois.jpg)
 *W. E. B. Du Bois, circa 1900. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
 
+![W. E. B. Du Bois](../images/w-e-b-du-bois-9ef.png)
+
+*Puppet Art by [Nik Bear Brown](https://www.nikbearbrown.com/).*
+
 **Run this:**
 
 ```

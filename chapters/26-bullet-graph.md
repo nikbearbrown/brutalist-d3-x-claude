@@ -73,6 +73,10 @@ The ideas in this chapter didn't appear from nowhere. **W. Edwards Deming** carr
 ![W. Edwards Deming, circa 1980. AI-generated portrait based on a public domain photograph.](../images/w-edwards-deming.jpg)
 *W. Edwards Deming, circa 1980. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
 
+![W. Edwards Deming statistical process control](../images/w-edwards-deming-efb.png)
+
+*Puppet Art by [Nik Bear Brown](https://www.nikbearbrown.com/).*
+
 **Run this:**
 
 ```

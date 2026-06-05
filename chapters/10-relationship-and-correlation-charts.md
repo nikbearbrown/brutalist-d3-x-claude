@@ -349,6 +349,10 @@ The ideas in this chapter didn't appear from nowhere. **Francis Galton** drew th
 ![Francis Galton, circa 1890. AI-generated portrait based on a public domain photograph.](../images/francis-galton.jpg)
 *Francis Galton, circa 1890. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
 
+![Francis Galton](../images/francis-galton-8pc.png)
+
+*Puppet Art by [Nik Bear Brown](https://www.nikbearbrown.com/).*
+
 **Run this:**
 
 ```

@@ -61,6 +61,10 @@ The ideas in this chapter didn't appear from nowhere. **Francis Amasa Walker** r
 ![Francis Amasa Walker, circa 1880. AI-generated portrait based on a public domain photograph.](../images/francis-amasa-walker.jpg)
 *Francis Amasa Walker, circa 1880. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
 
+![Francis Amasa Walker](../images/francis-amasa-walker-9zx.png)
+
+*Puppet Art by [Nik Bear Brown](https://www.nikbearbrown.com/).*
+
 **Run this:**
 
 ```

@@ -67,6 +67,10 @@ The ideas in this chapter didn't appear from nowhere. **Armi Ratia** founded the
 ![Armi Ratia, circa 1965. AI-generated portrait based on a public domain photograph.](../images/armi-ratia.jpg)
 *Armi Ratia, circa 1965. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
 
+![Armi Ratia](../images/armi-ratia-741.png)
+
+*Puppet Art by [Nik Bear Brown](https://www.nikbearbrown.com/).*
+
 **Run this:**
 
 ```

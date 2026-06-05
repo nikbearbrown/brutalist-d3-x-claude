@@ -90,6 +90,10 @@ The ideas in this chapter didn't appear from nowhere. **Leonhard Euler** solved 
 ![Leonhard Euler, circa 1750. AI-generated portrait based on a public domain engraving.](../images/leonhard-euler.jpg)
 *Leonhard Euler, circa 1750. AI-generated portrait based on a public domain engraving (Wikimedia Commons).*
 
+![Leonhard Euler](../images/leonhard-euler-bbq.png)
+
+*Puppet Art by [Nik Bear Brown](https://www.nikbearbrown.com/).*
+
 **Run this:**
 
 ```

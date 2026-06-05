@@ -429,6 +429,10 @@ The ideas in this chapter didn't appear from nowhere. **Calvin F. Schmid** was a
 ![Calvin F. Schmid, circa 1955. AI-generated portrait based on a public domain photograph.](../images/calvin-f-schmid.jpg)
 *Calvin F. Schmid, circa 1955. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
 
+![Calvin F. Schmid](../images/calvin-f-schmid-x3l.png)
+
+*Puppet Art by [Nik Bear Brown](https://www.nikbearbrown.com/).*
+
 **Run this:**
 
 ```

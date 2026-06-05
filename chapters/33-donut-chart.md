@@ -70,6 +70,10 @@ The ideas in this chapter didn't appear from nowhere. **Mary Eleanor Spear** dev
 ![Mary Eleanor Spear, circa 1950. AI-generated portrait based on a public domain photograph.](../images/mary-eleanor-spear.jpg)
 *Mary Eleanor Spear, circa 1950. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
 
+![Mary Eleanor Spear](../images/mary-eleanor-spear-0n0.png)
+
+*Puppet Art by [Nik Bear Brown](https://www.nikbearbrown.com/).*
+
 **Run this:**
 
 ```

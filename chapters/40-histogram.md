@@ -64,6 +64,10 @@ The ideas in this chapter didn't appear from nowhere. **Herman Hollerith** devel
 ![Herman Hollerith, circa 1890. AI-generated portrait based on a public domain photograph.](../images/herman-hollerith.jpg)
 *Herman Hollerith, circa 1890. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
 
+![Herman Hollerith](../images/herman-hollerith-2by.png)
+
+*Puppet Art by [Nik Bear Brown](https://www.nikbearbrown.com/).*
+
 **Run this:**
 
 ```

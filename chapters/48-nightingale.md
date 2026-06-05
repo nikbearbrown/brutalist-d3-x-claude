@@ -67,6 +67,10 @@ The ideas in this chapter didn't appear from nowhere. **Florence Nightingale** d
 ![Florence Nightingale, circa 1858. AI-generated portrait based on a public domain photograph.](../images/florence-nightingale.jpg)
 *Florence Nightingale, circa 1858. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
 
+![Florence Nightingale](../images/florence-nightingale-38l.png)
+
+*Puppet Art by [Nik Bear Brown](https://www.nikbearbrown.com/).*
+
 **Run this:**
 
 ```

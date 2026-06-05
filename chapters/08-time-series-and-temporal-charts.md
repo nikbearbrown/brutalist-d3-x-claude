@@ -416,6 +416,10 @@ The ideas in this chapter didn't appear from nowhere. **Étienne-Jules Marey** w
 ![Étienne-Jules Marey, circa 1885. AI-generated portrait based on a public domain photograph.](../images/etienne-jules-marey.jpg)
 *Étienne-Jules Marey, circa 1885. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
 
+![Étienne-Jules Marey](../images/etienne-jules-marey-q7y.png)
+
+*Puppet Art by [Nik Bear Brown](https://www.nikbearbrown.com/).*
+
 **Run this:**
 
 ```

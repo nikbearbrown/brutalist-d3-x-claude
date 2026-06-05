@@ -1,512 +1,107 @@
 # Brutalist d3 x Claude
 
-**Author:** Nik Bear Brown
-**Publisher:** Bear Brown, LLC
-**Status:** Draft (17 chapter files in place; final pass pending)
-**Started:** 2026-05-07
-**Series:** Brutalist — [brutalist.art](https://www.brutalist.art/)
-**Sister volumes:** *Brutalist After Effects x Claude*, *Brutalist Blender x Claude*, *Brutalist Remotion x Claude* (additional renderer modules in development)
+The D3 Renderer Module of the Brutalist System
 
----
+**Author:** Nik Bear Brown  
+**Publisher:** Bear Brown, LLC  
+**Copyright:** Copyright © 2026 Nik Bear Brown. All rights reserved.  
+**Edition:** 2026
 
-## What this book is
+## Summary
 
-A textbook that teaches data visualization through D3 by treating the design layer — not the syntax — as the hard layer worth a student's time. Claude Code generates conformant D3 v7 faster than any developer can write it. The implementation barrier is dissolved. What remains is the work that was always harder and is now decisive: reading a dataset, choosing a chart that serves the question, justifying every channel, and refusing the forms that distort the data the reader will eventually trust.
+*Brutalist d3 x Claude* is a structured textbook for readers who need a clear path through the subject rather than a loose collection of explanations. It begins with Introduction, moves through 79 core chapters, and ends with Word Cloud.
 
-The book teaches that work. It uses the Humanitarians AI pantry — sixty-plus working visualizations covering the full chart taxonomy — as its laboratory. Each chapter pairs the conceptual framework with a working example the student can inspect, modify, and rebuild. Claude Code writes the D3. The student directs it.
-
-The byline is Nik Bear Brown. The audience is graduate students, data journalists, researchers, and analysts who work with data, need to communicate it visually, and have bounced off the D3 API before. After this book they will not be JavaScript developers. They will be people who can specify a chart precisely enough that Claude Code produces a publishable one, and who can read their own data well enough to know when the chart they specified is wrong.
-
----
-
-## The Brutalist commitment
-
-This book is one application of a renderer-agnostic system for AI-assisted production. Other volumes in the series apply the same framework to After Effects, Blender, Remotion, and beyond. The framework's name is **Brutalist**. Its guiding principle is one sentence:
-
-> **Maximally informed and minimally autonomous by design.**
-
-The framework was built to solve a specific problem. AI code generation is fast and capable. It also runs ahead of human intent, loses track of what it has done, crosses boundaries it should not cross, and acts on new information without asking first. Brutalist is the counter-architecture. The same six principles govern every book in the series; this book teaches them in the D3 layer.
-
-### 1. Intent Layer
-
-Before any code is written, the human specifies — in plain language, never in technical language — what the chart should do, what the reader should understand, what is at stake. Populated by the human. Never overwritten by the AI.
-
-### 2. Schema Layer
-
-A separate technical document defines conventions for the active stack — for this book, that means D3 v7: naming standards, scale vocabulary, color rules, axis conventions, accessibility requirements, the explicit list of what Claude must not improvise. The AI generates against the schema. It does not invent outside it.
-
-### 3. Phase Gate
-
-Generation cannot begin until both the intent layer and the schema layer are populated. The phases run in order:
-
-- **Audit** — map what exists before touching anything
-- **Schema** — build the governing documents; populate both layers
-- **Generate** — produce output against the schema, one chart at a time
-- **Verify** — human reviews every chart before the next is built
-- **Handoff** — lock the output, document all manual work, prepare the package
-
-No phase is skipped. No phase is abbreviated under deadline pressure.
-
-### 4. Labor Separation
-
-The boundary between what the AI does and what the human does is explicit and defended. Claude generates D3 code. The human runs it, watches it, and decides whether it is accepted. Claude surfaces information. The human decides what to do with it. Creative judgment, chart selection, and the call on whether a chart actually answers the question — these live permanently in the human layer. The system will not accept them being delegated down.
-
-### 5. Refusal Behavior
-
-Brutalist says **no**. When the human asks Claude to make a judgment call that belongs in the human layer — pick the chart type, choose the palette, decide whether to log-scale — the system declines and explains why. It does not flag and proceed. It stops. That is what gives the labor separation teeth: it is not a guideline a hurried user can override.
-
-### 6. Current Knowledge, Deferred Action
-
-The system reads current documentation, deprecation notices, and breaking changes. When it finds something relevant, it does not act. It surfaces what it found, explains why it matters, and asks permission. New information is a trigger to *inform*, not to *execute*. This posture — *mother may I?* — applies to every external input, including updates Claude is confident are correct.
-
----
-
-## What this book is not
-
-- **Not a JavaScript tutorial.** The student is not expected to leave fluent in D3 syntax.
-- **Not a button-clicking assistant.** Mechanics of UI are not narrated.
-- **Not a celebration of AI capability.** Claude is the syntax-generator the reader directs. The reader does the work that matters.
-- **Not autonomous.** Nothing in the workflow described here lets the AI ship a chart without the human deciding it ships.
-- **Not a substitute for graphicacy.** The book teaches the skill. It does not pretend the tool replaces it.
-
----
-
-## Governing files for this stack
-
-### `CLAUDE.md` — The Coding Constitution
-
-One per stack. For this book the stack is **D3 v7 + Claude Code + a single-file HTML/SVG output**. The constitution accumulates across the book, chapter by chapter, into a working document. It contains:
-
-- D3 v7 conventions (scales, axes, joins, transitions, layouts) with examples drawn from production references
-- Naming standards for marks, channels, datasets, and the project's pantry slots
-- The explicit list of what Claude must not touch without instruction
-- Code patterns extracted from the working examples in `pantry/`
-- The verification stack the reader runs on every generated chart
-
-### `DESIGN.md` — The Visual Constitution
-
-Loaded on-demand rather than every session. Contains:
-
-- The mark-and-channel ranking with the perceptual mechanism that justifies it
-- Color rules by channel type (categorical, sequential, diverging) and accessibility constraints
-- Annotation strategy and the proportional-ink commitment
-- Failure modes for each chart family and the design rule that prevents each one
-- The 22-point design audit checklist applied at handoff
-
-### `PROJECT.md` — The Project State
-
-One per project the reader builds. Populated in two layers, both required before any chart is generated:
-
-**Designer / intent layer** — populated by the reader through guided interrogation
-
-- What this chart, dashboard, or report should mean
-- What the reader of the final artifact should understand
-- The communication question being answered, and the question being refused
-- Where dynamic data or media inserts go and why
-- Open creative questions
-
-**Technical layer** — populated by audit of the project's current state
-
-- Current chart inventory: built, pending, locked
-- Generation log: what was run, accepted, rejected, and why
-- Open technical questions
-
-A `PROJECT.md` with only one layer is incomplete. Phase Gate holds the line.
-
----
-
-## What's in the book
-
-Three parts. Sixteen teachable chapters plus an introduction. Files are numbered on disk; the book's internal chapter numbering starts at zero for the Claude Basics setup chapter and at one for the Decision Layer.
-
-### Part I — The Decision Layer
-
-Builds the conceptual vocabulary. The student leaves Part I able to read a dataset, name the question, pick the chart family, and write a Claude Code prompt that produces a usable D3 chart on the first attempt.
-
-| File | Internal | Title |
-|------|----------|-------|
-| `01-introduction.md` | — | Introduction — graphicacy, the Chibok case, the brutalist posture |
-| `02-claude-basics-for-d3-visualization.md` | Ch. 0 | Claude Basics for D3 Visualization |
-| `03-marks-and-channels.md` | Ch. 1 | Marks and Channels |
-| `04-chart-selection-as-design-decision.md` | Ch. 2 | Chart Selection as a Design Decision |
-| `05-reading-a-dataset.md` | Ch. 3 | Reading a Dataset |
-| `06-working-with-claude-code.md` | Ch. 4 | Working with Claude Code |
-
-### Part II — The Chart Taxonomy
-
-A structured tour of every major chart family. Each chapter walks the working examples in `pantry/`, names the design rules grounded in their perceptual mechanism, identifies the failure modes, and produces a Claude Code prompt template the reader adapts. The student leaves Part II with literacy across all sixty-plus chart forms — knowing what each is for and when it fails.
-
-| File | Internal | Title |
-|------|----------|-------|
-| `07-comparison-charts.md` | Ch. 5 | Comparison Charts (Bars and Columns) |
-| `08-time-series-and-temporal-charts.md` | Ch. 6 | Time Series and Temporal Charts |
-| `09-distribution-charts.md` | Ch. 7 | Distribution Charts |
-| `10-relationship-and-correlation-charts.md` | Ch. 8 | Relationship and Correlation Charts |
-| `11-part-to-whole-charts.md` | Ch. 9 | Part-to-Whole Charts |
-| `12-hierarchy-charts.md` | Ch. 10 | Hierarchy Charts |
-| `13-flow-and-network-charts.md` | Ch. 11 | Flow and Network Charts |
-| `14-spatial-and-geographic-charts.md` | Ch. 12 | Spatial and Geographic Charts |
-| `15-specialized-and-financial-charts.md` | Ch. 13 | Specialized and Financial Charts |
-
-### Part III — Integration and Production
-
-Synthesizes. Chapter 14 is the design-audit framework — Tufte, Few, and Cairo applied through the Evergreen-Emery checklist, with the chartjunk debate resolved by Few's clarity criterion. Chapter 15 walks a complete visualization project from raw data to published output, following the MBTA process model and the Brutalist phase gate.
-
-| File | Internal | Title |
-|------|----------|-------|
-| `16-design-principles-in-practice.md` | Ch. 14 | Design Principles in Practice |
-| `17-building-a-complete-project.md` | Ch. 15 | Building a Complete Project |
-
-The reader leaves Chapter 15 holding three durable artifacts: a `CLAUDE.md` and `DESIGN.md` accumulated across the book, plus a `PROJECT.md` portfolio that demonstrates the practice on real data.
-
----
-
-## Repository structure
-
-```
-brutalist-d3-x-claude/
-├── README.md               ← this file
-├── book.md                 ← pitch, argument, audience, voice notes (planning)
-├── outline.md              ← chapter-level TOC (planning)
-├── vision.md               ← Tic TOC Phase 1
-├── architecture.md         ← Tic TOC Phase 2
-├── chapters-spec.md        ← Tic TOC Phase 3
-├── risks.md                ← Tic TOC Phase 4
-├── style/                  ← per-book voice anchor (brutalist posture)
-│   ├── brutalist-voice.md
-│   └── brutalist-manifesto-source.md
-├── pantry/                 ← working visualizations: 60+ chart examples + data
-│   └── visualization/      ← one folder per chart type (HTML + data.json)
-├── chapters/
-│   ├── 00-frontmatter.md   ← copyright, dedication, preface
-│   ├── 01-introduction.md
-│   ├── 02-claude-basics-for-d3-visualization.md
-│   ├── 03-marks-and-channels.md
-│   ├── 04-chart-selection-as-design-decision.md
-│   ├── 05-reading-a-dataset.md
-│   ├── 06-working-with-claude-code.md
-│   ├── 07-comparison-charts.md
-│   ├── 08-time-series-and-temporal-charts.md
-│   ├── 09-distribution-charts.md
-│   ├── 10-relationship-and-correlation-charts.md
-│   ├── 11-part-to-whole-charts.md
-│   ├── 12-hierarchy-charts.md
-│   ├── 13-flow-and-network-charts.md
-│   ├── 14-spatial-and-geographic-charts.md
-│   ├── 15-specialized-and-financial-charts.md
-│   ├── 16-design-principles-in-practice.md
-│   ├── 17-building-a-complete-project.md
-│   └── 99-back-matter.md
-├── styles/
-│   ├── kindle.css          ← shared base; do not edit per book
-│   └── kindle-book.css     ← book-specific overrides
-├── output/                 ← built artifacts (gitignored)
-├── build.sh                ← EPUB build pipeline
-└── graphs.sh               ← figure-processing pass
-```
-
----
-
-## Planning documents
-
-| File | Purpose |
-|------|---------|
-| `book.md` | One-sentence pitch, the argument, the gap, the reader, high-level outline, voice anchor reference. |
-| `outline.md` | Chapter-level TOC — kept in sync with `chapters/`. |
-| `vision.md` | Tic TOC Phase 1 — book concept, learner profile, thesis, field positioning. |
-| `architecture.md` | Tic TOC Phase 2 — learning outcomes, sequencing, three-act arc, prerequisites. |
-| `chapters-spec.md` | Tic TOC Phase 3 — per-chapter specs, cases, contested claims, coverage gaps. |
-| `risks.md` | Tic TOC Phase 4 — comparable texts, features, out of scope, adoption risks. |
-| `style/brutalist-voice.md` | Per-book voice anchor. Overrides root `style/` on conflict. |
-| `style/brutalist-manifesto-source.md` | Verbatim Brutalist project description. Source of truth for voice. |
-| `pantry/` | Working visualization examples — one per chart family, with paired data. The laboratory the book runs on. |
-
-Planning files are not compiled into the EPUB.
-
-The four Tic TOC files are templated with `[NEEDS HUMAN INPUT]` markers and a `*Phase N output from Tic TOC*` header signature. Run Tic TOC's `/scaffold silent` to fill them from `book.md`, `outline.md`, `pantry/`, and `chapters/`. Or build them section-by-section through the interactive phase commands (`/i1` → `/m4`).
-
----
-
-## Chapter status
-
-| File | Title | Status |
-|------|-------|--------|
-| `00-frontmatter.md` | Front Matter | ☐ |
-| `01-introduction.md` | Introduction | ☑ drafted |
-| `02-claude-basics-for-d3-visualization.md` | Chapter 0 — Claude Basics | ☑ drafted |
-| `03-marks-and-channels.md` | Chapter 1 — Marks and Channels | ☑ drafted |
-| `04-chart-selection-as-design-decision.md` | Chapter 2 — Chart Selection | ☑ drafted |
-| `05-reading-a-dataset.md` | Chapter 3 — Reading a Dataset | ☑ drafted |
-| `06-working-with-claude-code.md` | Chapter 4 — Working with Claude Code | ☑ drafted |
-| `07-comparison-charts.md` | Chapter 5 — Comparison Charts | ☑ drafted |
-| `08-time-series-and-temporal-charts.md` | Chapter 6 — Time Series | ☑ drafted |
-| `09-distribution-charts.md` | Chapter 7 — Distribution Charts | ☑ drafted |
-| `10-relationship-and-correlation-charts.md` | Chapter 8 — Relationship Charts | ☑ drafted |
-| `11-part-to-whole-charts.md` | Chapter 9 — Part-to-Whole | ☑ drafted |
-| `12-hierarchy-charts.md` | Chapter 10 — Hierarchy | ☑ drafted |
-| `13-flow-and-network-charts.md` | Chapter 11 — Flow and Network | ☑ drafted |
-| `14-spatial-and-geographic-charts.md` | Chapter 12 — Spatial and Geographic | ☑ drafted |
-| `15-specialized-and-financial-charts.md` | Chapter 13 — Specialized and Financial | ☑ drafted |
-| `16-design-principles-in-practice.md` | Chapter 14 — Design Principles in Practice | ☑ drafted |
-| `17-building-a-complete-project.md` | Chapter 15 — Building a Complete Project | ☑ drafted |
-| `99-back-matter.md` | Back Matter | ☐ |
-
-End-of-chapter LLM Exercises (running-project blocks) are appended in a separate pass governed by `_running-project-design.md`.
-
----
-
-## Build
-
-```bash
-./build.sh
-```
-
-Output lands in `output/` (gitignored). The pipeline compiles markdown chapters into a single EPUB suitable for KDP submission.
-
-## Figures
-
-```bash
-./graphs.sh
-```
-
-Processes `<!-- → [TYPE: description] -->` comments across every chapter:
-
-- Tabular figures → classed markdown tables (`.infographic-table`, `.comparison-table`, `.data-table`)
-- Non-tabular figures → placeholder images in `images/`, ready to replace
-- CSS log appended to `styles/kindle-book.css` on each run
-
-Review `chapters/*-updated.md`, then promote:
-
-```bash
-for f in chapters/*-updated.md; do mv "$f" "${f/-updated/}"; done
-```
-
-## Styles
-
-| File | Purpose |
-|------|---------|
-| `styles/kindle.css` | Shared base — typography, figure table classes. Do not edit per book. |
-| `styles/kindle-book.css` | Book-specific overrides. Edit freely. `graphs.sh` appends its log here. |
-
-## Publish
-
-Upload `output/brutalist-d3-x-claude.epub` to [KDP](https://kdp.amazon.com).
-
----
-
-## Why this exists
-
-Most AI-assisted production workflows fail in the same ways. The AI generates before intent is clear. It loses track of what it has already produced. It crosses into decisions that belong to the human. It applies new information without asking. Output accumulates faster than the human can verify. The project becomes unauditable.
-
-This book is one application of the architecture built against every one of those failure modes — deliberately, structurally, and without exceptions carved out for speed or convenience.
-
-The result is a workflow where the human spends time on what is irreducibly human: judgment, direction, verification, decision. Claude handles what it is actually good at: D3 generation, pattern application, information retrieval — within a schema, on request, one chart at a time.
-
-That boundary, held firmly, is the whole idea.
-
----
-
-## Who This Book Is For
-
-reader's roadmap)
-
-This file is a stub. Sections 1–10 and 12–13 are placeholders for a later pass.
-Section 11 (A note about AI) is substantive and written.
-
-A good model for the full version: Pearl's "The Mind Over Data" introduction,
-Molnar's Interpretable ML introduction. Both are argument-first and tell the
-reader exactly what to expect from each chapter.
--->
-
-# Introduction
-
-<!-- [1] COLD OPEN
-     A specific named scene with real stakes.
-     No "this book will...", no throat-clearing.
-
----
-
-## How to Read It
-
-<!-- TODO: populate from chapter content -->
-
----
+AI matters to *Brutalist d3 x Claude* because the modern textbook is no longer only a static container. It is also part of a learning system: searchable, remixable, explainable, and increasingly connected to tools such as Medhavy. For Bear Brown books, the relevant question is not whether AI can replace the learner or the teacher. It cannot. The useful question is what AI can make easier to inspect: definitions, worked examples, misconceptions, practice sequences, alternate explanations, and the structure of an argument. This book treats AI as infrastructure for practical AI-assisted authorship, analysis, and production. The chapters should still stand on their own as readable prose, but they are also designed to be legible to an intelligent textbook system.
 
 ## Table of Contents
 
-| Chapter | Title | File |
-|---------|-------|------|
-| Intro | Introduction | [chapters/00-introduction.md](chapters/00-introduction.md) |
-| Intro | Introduction | [chapters/01-introduction.md](chapters/01-introduction.md) |
-| 2 | Chapter 02 — Claude Basics for D3 Visualization | [chapters/02-claude-basics-for-d3-visualization-updated.md](chapters/02-claude-basics-for-d3-visualization-updated.md) |
-| 2 | Chapter 02 — Claude Basics for D3 Visualization | [chapters/02-claude-basics-for-d3-visualization.md](chapters/02-claude-basics-for-d3-visualization.md) |
-| 3 | Chapter 3 — Marks and Channels | [chapters/03-marks-and-channels.md](chapters/03-marks-and-channels.md) |
-| 4 | Chapter 4 — Chart Selection as Design Decision | [chapters/04-chart-selection-as-design-decision.md](chapters/04-chart-selection-as-design-decision.md) |
-| 5 | Chapter 05 — Reading a Dataset | [chapters/05-reading-a-dataset.md](chapters/05-reading-a-dataset.md) |
-| 6 | Chapter 6 — Working with Claude Code | [chapters/06-working-with-claude-code.md](chapters/06-working-with-claude-code.md) |
-| 7 | Chapter 07 — Comparison Charts | [chapters/07-comparison-charts.md](chapters/07-comparison-charts.md) |
-| 8 | Chapter 8 — Time Series and Temporal Charts | [chapters/08-time-series-and-temporal-charts.md](chapters/08-time-series-and-temporal-charts.md) |
-| 9 | Chapter 09 — Distribution Charts | [chapters/09-distribution-charts.md](chapters/09-distribution-charts.md) |
-| 10 | Chapter 10 — Relationship and Correlation Charts | [chapters/10-relationship-and-correlation-charts.md](chapters/10-relationship-and-correlation-charts.md) |
-| 11 | Chapter 11 — Part-to-Whole Charts | [chapters/11-part-to-whole-charts.md](chapters/11-part-to-whole-charts.md) |
-| 12 | Chapter 12 — Hierarchy Charts | [chapters/12-hierarchy-charts.md](chapters/12-hierarchy-charts.md) |
-| 13 | Chapter 13 — Flow and Network Charts | [chapters/13-flow-and-network-charts.md](chapters/13-flow-and-network-charts.md) |
-| 14 | Chapter 14 — Spatial and Geographic Charts | [chapters/14-spatial-and-geographic-charts.md](chapters/14-spatial-and-geographic-charts.md) |
-| 15 | Chapter 15 — Specialized and Financial Charts | [chapters/15-specialized-and-financial-charts.md](chapters/15-specialized-and-financial-charts.md) |
-| 16 | Chapter 16 — Design Principles in Practice | [chapters/16-design-principles-in-practice.md](chapters/16-design-principles-in-practice.md) |
-| 17 | Chapter 17 — Building a Complete Project | [chapters/17-building-a-complete-project.md](chapters/17-building-a-complete-project.md) |
-| 18 | Part II — Examples | [chapters/18-arc-diagram.md](chapters/18-arc-diagram.md) |
-| 18 | Chapter 16 — The Brutalist Claude Project | [chapters/18-brutalist-claude-project.md](chapters/18-brutalist-claude-project.md) |
-| 19 | Area Graph | [chapters/19-area-graph.md](chapters/19-area-graph.md) |
-| 20 | Bar Chart | [chapters/20-bar-chart.md](chapters/20-bar-chart.md) |
-| 21 | Box Plot | [chapters/21-box-plot.md](chapters/21-box-plot.md) |
-| 22 | Box and Whisker Plot | [chapters/22-box-whisker.md](chapters/22-box-whisker.md) |
-| 23 | Brainstorm | [chapters/23-brainstorm.md](chapters/23-brainstorm.md) |
-| 24 | Bubble Chart | [chapters/24-bubble-chart.md](chapters/24-bubble-chart.md) |
-| 25 | Bubble Map | [chapters/25-bubble-map.md](chapters/25-bubble-map.md) |
-| 26 | Bullet Graph | [chapters/26-bullet-graph.md](chapters/26-bullet-graph.md) |
-| 27 | Candlestick Chart | [chapters/27-candlestick-chart.md](chapters/27-candlestick-chart.md) |
-| 28 | Chord Diagram | [chapters/28-chord-diagram.md](chapters/28-chord-diagram.md) |
-| 29 | Choropleth | [chapters/29-choropleth.md](chapters/29-choropleth.md) |
-| 30 | Circle Packing | [chapters/30-circle-packing.md](chapters/30-circle-packing.md) |
-| 31 | Connection Map | [chapters/31-connection-map.md](chapters/31-connection-map.md) |
-| 32 | Density Plot | [chapters/32-density-plot.md](chapters/32-density-plot.md) |
-| 33 | Donut Chart | [chapters/33-donut-chart.md](chapters/33-donut-chart.md) |
-| 34 | Dot Map | [chapters/34-dot-map.md](chapters/34-dot-map.md) |
-| 35 | Dot Matrix | [chapters/35-dot-matrix.md](chapters/35-dot-matrix.md) |
-| 36 | Error Bars | [chapters/36-error-bars.md](chapters/36-error-bars.md) |
-| 37 | Flow Map | [chapters/37-flow-map.md](chapters/37-flow-map.md) |
-| 38 | Gantt Chart | [chapters/38-gantt-chart.md](chapters/38-gantt-chart.md) |
-| 39 | Heatmap | [chapters/39-heatmap.md](chapters/39-heatmap.md) |
-| 40 | Histogram | [chapters/40-histogram.md](chapters/40-histogram.md) |
-| 41 | Illustration Diagram | [chapters/41-illustration-diagram.md](chapters/41-illustration-diagram.md) |
-| 42 | Kagi Chart | [chapters/42-kagi-chart.md](chapters/42-kagi-chart.md) |
-| 43 | Line Graph | [chapters/43-line-graph.md](chapters/43-line-graph.md) |
-| 44 | Marimekko Chart | [chapters/44-marimekko-chart.md](chapters/44-marimekko-chart.md) |
-| 45 | Multimodal Distribution | [chapters/45-multimodal-distribution.md](chapters/45-multimodal-distribution.md) |
-| 46 | Multiset Bar | [chapters/46-multiset-bar.md](chapters/46-multiset-bar.md) |
-| 47 | Network Diagram | [chapters/47-network-diagram.md](chapters/47-network-diagram.md) |
-| 48 | Nightingale | [chapters/48-nightingale.md](chapters/48-nightingale.md) |
-| 49 | OHLC Chart | [chapters/49-ohlc-chart.md](chapters/49-ohlc-chart.md) |
-| 50 | Parallel Coordinates | [chapters/50-parallel-coordinates.md](chapters/50-parallel-coordinates.md) |
-| 51 | Parallel Sets | [chapters/51-parallel-sets.md](chapters/51-parallel-sets.md) |
-| 52 | Pictogram Chart | [chapters/52-pictogram-chart.md](chapters/52-pictogram-chart.md) |
-| 53 | Pie Chart | [chapters/53-pie-chart.md](chapters/53-pie-chart.md) |
-| 54 | Point Figure | [chapters/54-point-figure.md](chapters/54-point-figure.md) |
-| 55 | Population Pyramid | [chapters/55-population-pyramid.md](chapters/55-population-pyramid.md) |
-| 56 | Proportional Area | [chapters/56-proportional-area.md](chapters/56-proportional-area.md) |
-| 57 | Radar Chart | [chapters/57-radar-chart.md](chapters/57-radar-chart.md) |
-| 58 | Radial Bar | [chapters/58-radial-bar.md](chapters/58-radial-bar.md) |
-| 59 | Radial Bar Chart | [chapters/59-radial-bar-chart.md](chapters/59-radial-bar-chart.md) |
-| 60 | Radial Column | [chapters/60-radial-column.md](chapters/60-radial-column.md) |
-| 61 | Radial Column Chart | [chapters/61-radial-column-chart.md](chapters/61-radial-column-chart.md) |
-| 62 | Sankey Diagram | [chapters/62-sankey-diagram.md](chapters/62-sankey-diagram.md) |
-| 63 | Scatterplot | [chapters/63-scatterplot.md](chapters/63-scatterplot.md) |
-| 64 | Span Chart | [chapters/64-span-chart.md](chapters/64-span-chart.md) |
-| 65 | Spiral Plot | [chapters/65-spiral-plot.md](chapters/65-spiral-plot.md) |
-| 66 | Stacked Area | [chapters/66-stacked-area.md](chapters/66-stacked-area.md) |
-| 67 | Stacked Bar | [chapters/67-stacked-bar.md](chapters/67-stacked-bar.md) |
-| 68 | Stem Leaf | [chapters/68-stem-leaf.md](chapters/68-stem-leaf.md) |
-| 69 | Stream Graph | [chapters/69-stream-graph.md](chapters/69-stream-graph.md) |
-| 70 | Sunburst | [chapters/70-sunburst.md](chapters/70-sunburst.md) |
-| 71 | Tally Chart | [chapters/71-tally-chart.md](chapters/71-tally-chart.md) |
-| 72 | Timeline | [chapters/72-timeline.md](chapters/72-timeline.md) |
-| 73 | Timetable | [chapters/73-timetable.md](chapters/73-timetable.md) |
-| 74 | Tree Diagram | [chapters/74-tree-diagram.md](chapters/74-tree-diagram.md) |
-| 75 | Treemap | [chapters/75-treemap.md](chapters/75-treemap.md) |
-| 76 | Venn Diagram | [chapters/76-venn-diagram.md](chapters/76-venn-diagram.md) |
-| 77 | Violin Plot | [chapters/77-violin-plot.md](chapters/77-violin-plot.md) |
-| 78 | Word Cloud | [chapters/78-word-cloud.md](chapters/78-word-cloud.md) |
+- **Chapter 1: Introduction.** In April 2014, members of Boko Haram kidnapped 276 schoolgirls from a secondary school in Chibok, Borno State, Nigeria. The story moved international media. *#BringBackOurGirls* trended for weeks. The data journalism site FiveThirtyEight published a piece titled "Kidnapping of Girls in Nigeria...
+- **Chapter 2: Chapter 02 — Claude Basics for D3 Visualization.** *The gap between "make a chart" and "make the chart" is the whole problem.* Claude runs in several products. They all use the same underlying model, but they differ in what they can see and what they can do. For D3 work,...
+- **Chapter 3: Chapter 3 — Marks and Channels.** *The Channels Your Eye Trusts and the Ones It Doesn't.* Every chart you have ever seen is built from the same small set of pieces. There are only a handful of geometric primitives — the *marks* — and only a handful of...
+- **Chapter 4: Chapter 4 — Chart Selection as Design Decision.** *The Wrong Chart Feels Familiar; the Right One Takes Work.* The fourteen-slice pie chart was not an accident. It was not the product of incompetence or indifference. It was produced by someone who looked at a budget allocation — parts of a...
+- **Chapter 5: Chapter 05 — Reading a Dataset.** *Read the Data Before You Reach for the Code.* The first move when a dataset arrives is to identify what kinds of things it contains. Not "what does this data mean" — that comes later. Just: what *type* is each variable? There...
+- **Chapter 6: Chapter 6 — Working with Claude Code.** *You Decide, the Machine Renders, You Review.* The pipeline has five stages. Each one is the output of a chapter. Chapter 3 read the dataset. You now know the attribute types, the number of observations, the analyst's question versus the reader's question,...
+- **Chapter 7: Chapter 07 — Comparison Charts.** *Length Along a Shared Baseline Is the Honest Channel.* A bar chart uses a specific channel: **position along a common scale**, measured from a shared baseline. In Cleveland and McGill's 1984 empirical ranking of perceptual channels — since replicated by Heer and...
+- **Chapter 8: Chapter 8 — Time Series and Temporal Charts.** *What Changes, in What Direction, How Fast.* There are seven forms in the temporal chart family. Each one is the right answer to a different question. **Line chart.** A path connecting time-stamped values. Channel: point position. The mark implies continuity — "between...
+- **Chapter 9: Chapter 09 — Distribution Charts.** *Shape, Spread, and Skew — Beyond the Mean.* When someone summarizes a distribution with a mean, they are making a specific choice about compression. The mean is a single number that describes the center of mass of the data. It is sensitive...
+- **Chapter 10: Chapter 10 — Relationship and Correlation Charts.** *Two Variables and the Question They Refuse to Settle.* A scatterplot has two quantitative axes and a point mark for each observation at the (x, y) coordinate corresponding to its values. The channels are x-position and y-position — the two highest-accuracy channels...
+- **Chapter 11: Chapter 11 — Part-to-Whole Charts.** *When the Pieces Have to Add Up to One.* A pie chart encodes proportion as angle. The wedge that represents 35% of the total subtends 126 degrees. The wedge representing 20% subtends 72 degrees. The reader's job is to compare those angles...
+- **Chapter 12: Chapter 12 — Hierarchy Charts.** *Containment as the Encoding.* Before choosing a form, name what the hierarchy contains. Hierarchies have three distinguishable properties that different forms encode differently. **Proportions.** At each level, the children of a node divide the parent's value. A department's total budget equals the...
+- **Chapter 13: Chapter 13 — Flow and Network Charts.** *What Flows Where — and How Much.* Jacques Bertin's framework for visual encoding includes width — or thickness — as a magnitude channel. A line of uniform width carries no quantitative information. A line whose width varies encodes magnitude at each point....
+- **Chapter 14: Chapter 14 — Spatial and Geographic Charts.** *Position on the Earth Is the Story.* Before choosing a form, name what is actually spatial about the data. Not all data that has a place-name dimension is genuinely spatial. Employees by office location is a ranked comparison that happens to have...
+- **Chapter 15: Chapter 15 — Specialized and Financial Charts.** *Conventions That Earn Their Strangeness.* The candlestick convention earns its strangeness because three conditions hold simultaneously. The audience has already learned it (financial graphicacy is widespread among traders and analysts). The encoding is perceptually honest (position is used throughout; color encodes direction,...
+- **Chapter 16: Chapter 16 — Design Principles in Practice.** *From Principle to Audit Checklist.* The design-principle literature has four major contributors that matter for this book. They are not interchangeable; they contribute differently. **Tufte's contribution** is the two heuristics that ground the entire audit tradition. First: data-ink ratio — the proportion...
+- **Chapter 17: Chapter 17 — Building a Complete Project.** *From Raw Data to Published Chart in One Pipeline.* A single chart has one question and one answer. A project has several related questions, a shared visual language, a publication context, and a paper trail of decisions that lets someone else —...
+- **Chapter 18: Part II — Examples.** Sixty-one chart types, alphabetically. Each chapter is short — a placeholder image, the rich pedagogical text from the working pantry page, a single Claude Code prompt that generates a similar chart and its data file together, and a link to [bearbrown.co](https://www.bearbrown.co/) where...
+- **Chapter 19: Chapter 16 — The Brutalist Claude Project.** - The Brutalist Claude Project — A System Prompt for the Three Files - A Claude Project That Holds the Phase Gate So You Don't Have To - Brutalist as a Conversational Tool — The System Prompt You Paste Once This appendix...
+- **Chapter 20: Area Graph.** *Research Hours Climb Through the Year — Fill Shows Cumulative Weight* ![Area graph showing monthly research hours climbing through the year with filled area encoding cumulative weight](../images/19-area-graph.png) *Figure 19.1 — Research Hours Climb Through the Year* An area graph encodes a single...
+- **Chapter 21: Bar Chart.** *AI tool adoption varies sharply by sector* ![Horizontal bar chart showing AI tool adoption rates by sector, sorted descending from Technology at 87% to Agriculture at 21%](../images/20-bar-chart.png) *Figure 20.1 — AI tool adoption varies sharply by sector* A bar chart encodes quantitative...
+- **Chapter 22: Box Plot.** *Five Groups, One Frame — Reading a Distribution at a Glance* ![Five box plots side by side showing score distributions across five groups with medians, quartiles, whiskers, and outliers](../images/21-box-plot.png) *Figure 21.1 — Five Groups, One Frame — Reading a Distribution at a...
+- **Chapter 23: Box and Whisker Plot.** *Five Numbers, One Glyph — Tukey's Distribution Sketch* ![Annotated box-and-whisker plot showing five-number summary with labeled quartiles, whiskers, and outliers](../images/22-box-whisker.png) *Figure 22.1 — Five Numbers, One Glyph — Tukey's Distribution Sketch* A box and whisker plot is the chart John Tukey introduced...
+- **Chapter 24: Brainstorm.** *The five supervisory capacities of the Irreducibly Human framework* ![Radial mind-map of the five supervisory capacities of the Irreducibly Human framework](../images/23-brainstorm.png) *Figure 23.1 — The five supervisory capacities of the Irreducibly Human framework* Also known as: Mind Map · Concept Map ·...
+- **Chapter 25: Bubble Chart.** *Education Correlates With Longevity —But Population Scale Varies Dramatically* ![Bubble chart showing education years vs life expectancy with bubble size encoding population across eight countries](../images/24-bubble-chart.png) *Figure 24.1 — Education Correlates With Longevity — But Population Scale Varies Dramatically* A bubble chart is...
+- **Chapter 26: Bubble Map.** *California and Texas Absorb Nearly Half of All Household Aid Disbursements* ![Bubble map of US states showing household aid disbursements with California and Texas highlighted as largest recipients](../images/25-bubble-map.png) *Figure 25.1 — California and Texas Absorb Nearly Half of All Household Aid Disbursements*...
+- **Chapter 27: Bullet Graph.** *Most programs trail their targets —Community Trust is the lone outlier* ![Five horizontal bullet graphs showing program performance versus targets, with Community Trust as the only program exceeding its target](../images/26-bullet-graph.png) *Figure 26.1 — Most programs trail their targets — Community Trust is...
+- **Chapter 28: Candlestick Chart.** *Price action reveals market psychology across trading sessions* ![Ten candlestick marks showing open, high, low, close across trading sessions with bullish and bearish days](../images/27-candlestick-chart.png) *Figure 27.1 — Price action reveals market psychology across trading sessions* A Candlestick Chart encodes four price dimensions...
+- **Chapter 29: Chord Diagram.** *OCHA and UNHCR Are the Network's Densest Hubs —Chord Thickness Encodes Coordination Strength* ![Chord diagram showing coordination strength between five humanitarian organizations with OCHA and UNHCR as densest hubs](../images/28-chord-diagram.png) *Figure 28.1 — OCHA and UNHCR Are the Network's Densest Hubs* A non-ribbon...
+- **Chapter 30: Choropleth.** *Choropleth Map — GDP per Capita* ![Choropleth-style grid showing GDP per capita across world regions using sequential luminance encoding](../images/29-choropleth.png) *Figure 29.1 — GDP per Capita by Region* A choropleth map exploits **colour saturation and lightness** as an encoding channel for a continuous...
+- **Chapter 31: Circle Packing.** *Crisis Response and Healthcare dominate the AI humanitarian footprint* ![Circle packing diagram showing AI humanitarian sectors with Crisis Response and Healthcare as dominant categories](../images/30-circle-packing.png) *Figure 30.1 — Crisis Response and Healthcare dominate the AI humanitarian footprint* Also known as: Bubble Hierarchy ·...
+- **Chapter 32: Connection Map.** *Europe and North America Anchor a Hub-and-Spoke Aid Network That Converges on East Africa and the Levant* ![Connection map showing hub-and-spoke aid network with Europe and North America connecting to East Africa and the Levant](../images/31-connection-map.png) *Figure 31.1 — Europe and North America...
+- **Chapter 33: Density Plot.** *Crisis Type Determines Response Delay —Conflict Shows Bimodal Pattern, Displacement Skews Right* ![Two overlapping density curves showing response delay distributions — conflict bimodal, displacement right-skewed](../images/32-density-plot.png) *Figure 32.1 — Crisis Type Determines Response Delay* A density plot (formally a **Kernel Density Estimate** ,...
+- **Chapter 34: Donut Chart.** *Healthcare commands 34% — crisis response receives the smallest share* ![Donut chart showing budget allocation across five departments with Healthcare commanding 34 percent](../images/33-donut-chart.png) *Figure 33.1 — Healthcare commands 34% — crisis response receives the smallest share* A Donut Chart is a Pie...
+- **Chapter 35: Dot Map.** *Library density clusters in the Northeast and Great Lakes — the interior West is sparse* ![Dot map of US showing library locations clustered densely in Northeast and Great Lakes with sparse interior West](../images/34-dot-map.png) *Figure 34.1 — Library density clusters in the Northeast...
+- **Chapter 36: Dot Matrix.** *100 People — Who Has Access to Clean Energy?* ![Dot matrix of 100 circles showing 73 with access to clean energy and 27 without](../images/35-dot-matrix.png) *Figure 35.1 — 100 People — Who Has Access to Clean Energy?* A dot matrix chart represents a...
+- **Chapter 37: Error Bars.** *Error Bars — Uncertainty Overlay* ![Six data points with horizontal error bars showing 95% confidence intervals for treatment effects](../images/36-error-bars.png) *Figure 36.1 — Error Bars — Uncertainty Overlay* Error bars are not a chart type — they are a **graphical enhancement** layered onto...
+- **Chapter 38: Flow Map.** *Syria, Venezuela and Afghanistan Generate the Largest Displacement Corridors — Three Countries Account for Over Half of All Tracked Flows* ![Flow map showing major displacement corridors from Syria, Venezuela, and Afghanistan with arrow thickness encoding volume](../images/37-flow-map.png) *Figure 37.1 — Syria, Venezuela and...
+- **Chapter 39: Gantt Chart.** *Development In Progress — Planning & Design Complete, Testing Pending* ![Gantt chart showing six project phases with Planning and Design complete, Development in progress, and Testing pending](../images/38-gantt-chart.png) *Figure 38.1 — Development In Progress — Planning & Design Complete, Testing Pending* Also known...
+- **Chapter 40: Heatmap.** *Finance and research lead — humanitarian AI lags in every region* ![Heatmap grid showing AI adoption scores across five regions and four sectors with sequential luminance encoding](../images/39-heatmap.png) *Figure 39.1 — Finance and research lead — humanitarian AI lags in every region* A...
+- **Chapter 41: Histogram.** *Most commutes cluster between 20 and 40 minutes — a long tail of extreme commuters persists* ![Histogram showing right-skewed distribution of commute times with peak at 25-30 minutes and long tail](../images/40-histogram.png) *Figure 40.1 — Most commutes cluster between 20 and 40 minutes*...
+- **Chapter 42: Illustration Diagram.** *The Human Heart — Anatomy & Blood Flow Direction* ![Anatomical diagram of the human heart showing four chambers with arrows encoding blood flow direction](../images/41-illustration-diagram.png) *Figure 41.1 — The Human Heart — Anatomy & Blood Flow Direction* An Illustration Diagram is a graphic...
+- **Chapter 43: Kagi Chart.** *Kagi Chart — Supply & Demand* ![Kagi chart showing price reversals with thick lines for uptrends and thin lines for downtrends](../images/42-kagi-chart.png) *Figure 42.1 — Kagi Chart — Supply & Demand* A Kagi chart strips time entirely from the visual encoding and instead...
+- **Chapter 44: Line Graph.** *The gap was 22 points in 2016 — it is 67 in 2024* ![Two-line chart showing a widening gap from 22 points in 2016 to 67 points in 2024](../images/43-line-graph.png) *Figure 43.1 — The gap was 22 points in 2016 — it is...
+- **Chapter 45: Marimekko Chart.** *MENA's Shelter Burden Is Double SSA's —Column Width Encodes Total Aid Share, Height Encodes Sector Mix* ![Marimekko chart showing aid allocation by region and sector with column width encoding total aid share](../images/44-marimekko-chart.png) *Figure 44.1 — MENA's Shelter Burden Is Double SSA's* A...
+- **Chapter 46: Multimodal Distribution.** *Multimodal Distribution* ![Density curve showing trimodal distribution with three peaks and a mean line that corresponds to no mode](../images/45-multimodal-distribution.png) *Figure 45.1 — Multimodal Distribution* A **multimodal distribution** is a probability distribution with more than one local maximum (mode) in its probability density...
+- **Chapter 47: Multiset Bar.** *No Region Receives What It Requests — Middle East Faces the Largest Absolute Funding Gap at $2.33B* ![Grouped bar chart showing funding requested versus received across four regions with Middle East showing largest gap](../images/46-multiset-bar.png) *Figure 46.1 — No Region Receives What It...
+- **Chapter 48: Network Diagram.** *Data Integration and Crisis Mappingare the central hubs of the AI ecosystem* ![Network diagram showing AI humanitarian ecosystem with Data Integration and Crisis Mapping as central hub nodes](../images/47-network-diagram.png) *Figure 47.1 — Data Integration and Crisis Mapping are the central hubs* A network...
+- **Chapter 49: Nightingale.** *Summer peaks — July leads at 74, February trails at 27* ![Polar area chart showing monthly activity with July as peak month at 74 and February as lowest at 27](../images/48-nightingale.png) *Figure 48.1 — Summer peaks — July leads at 74, February trails...
+- **Chapter 50: OHLC Chart.** *January Wheat Selloff Hit 9.6% Peak-to-Trough in Three Weeks — Futures Recovered Through February as Supply Concerns Eased* ![OHLC chart showing 15 days of wheat futures with selloff and recovery pattern](../images/49-ohlc-chart.png) *Figure 49.1 — January Wheat Selloff and Recovery* An OHLC chart...
+- **Chapter 51: Parallel Coordinates.** *Health programs lead on efficiency —emergency response moves fastest but costs most* ![Parallel coordinates plot comparing five programs across cost, speed, efficiency, coverage, and impact](../images/50-parallel-coordinates.png) *Figure 50.1 — Health programs lead on efficiency — emergency response moves fastest but costs most* A...
+- **Chapter 52: Parallel Sets.** *Higher education routes to higher income — but employment status reshapes the path* ![Parallel sets diagram showing flows from education level through employment status to income band](../images/51-parallel-sets.png) *Figure 51.1 — Higher education routes to higher income — but employment status reshapes the...
+- **Chapter 53: Pictogram Chart.** *Energy Mix by Region — Each Icon = 2% of Portfolio* ![Pictogram chart of 50 icons showing energy mix with solar, wind, hydro, nuclear, and fossil fuel shares](../images/52-pictogram-chart.png) *Figure 52.1 — Energy Mix by Region — Each Icon = 2% of Portfolio*...
+- **Chapter 54: Pie Chart.** *Pie Chart* ![Pie chart showing market share across four products with Product A commanding 42 percent](../images/53-pie-chart.png) *Figure 53.1 — Market Share by Product* A pie chart encodes quantitative values as **arc length and central angle** within a circle that represents 100% of...
+- **Chapter 55: Point Figure.** *Demand breakouts dominate the first half — supply reasserts at resistance and holds* ![Point and figure chart showing alternating columns of X demand marks and O supply marks](../images/54-point-figure.png) *Figure 54.1 — Demand breakouts dominate the first half — supply reasserts at resistance*...
+- **Chapter 56: Population Pyramid.** *Age & Sex Distribution — Two Population Profiles Side by Side* ![Population pyramid showing age and sex distribution with male bars extending left and female bars extending right](../images/55-population-pyramid.png) *Figure 55.1 — Age & Sex Distribution — Two Population Profiles Side by Side*...
+- **Chapter 57: Proportional Area.** *North America + East Asia hold 62% of global AI for Good investment* ![Proportional area chart showing five circles sized by AI investment with North America and East Asia as largest](../images/56-proportional-area.png) *Figure 56.1 — North America + East Asia hold 62% of...
+- **Chapter 58: Radar Chart.** *Each Region Has a Distinct Capability Profile —South Asia Leads on Access & Capacity, MENA on Funding & Coordination* ![Radar chart comparing South Asia and MENA across five capability dimensions](../images/57-radar-chart.png) *Figure 57.1 — Each Region Has a Distinct Capability Profile* A radar...
+- **Chapter 59: Radial Bar.** *Aid Deliveries Peak in November and January Around Winter Emergencies — June Access Constraints Create the Annual Trough at 188K MT* ![Radial bar chart showing monthly aid deliveries peaking in November and lowest in June](../images/58-radial-bar.png) *Figure 58.1 — Aid Deliveries Peak in...
+- **Chapter 60: Radial Bar Chart.** *Bars Bent Around a Center — When Polar Coordinates Earn Their Distortion* ![Radial bar chart showing technology proficiency scores across eight categories with Machine Learning highest](../images/59-radial-bar-chart.png) *Figure 59.1 — Bars Bent Around a Center — When Polar Coordinates Earn Their Distortion* A...
+- **Chapter 61: Radial Column.** *The seasonal arc of temperature reads as a single shape — peak summer bars dominate the upper arc* ![Radial column chart showing monthly temperatures with summer peak bars dominating the upper arc](../images/60-radial-column.png) *Figure 60.1 — The seasonal arc of temperature reads as...
+- **Chapter 62: Radial Column Chart.** *Concentric Value Rings, Radial Bars — A Polar Variant of the Column Chart* ![Radial column chart with 8 technology domains arranged in a polar layout. Columns radiate outward from center; Cloud leads at 95, Security trails at 40. Bars in dark walnut,...
+- **Chapter 63: Sankey Diagram.** *Global Energy Flow — Source to End Use, Width = Exajoules* ![Sankey diagram showing energy flow from three sources (Coal, Gas, Renewables) to three end uses (Industry, Transport, Buildings). Curved ribbons connect source to target; width is proportional to flow in exajoules.](../images/62-sankey-diagram.png)...
+- **Chapter 64: Scatterplot.** *Scatterplot* ![Scatterplot of 20 countries plotting GDP per capita on the x-axis against life satisfaction on the y-axis. Points cluster in a positive correlation pattern with a dashed ochre OLS trend line. Gains flatten above $40K.](../images/63-scatterplot.png) *Figure 63.1 — Scatterplot* A scatterplot...
+- **Chapter 65: Span Chart.** *Crisis domains span the threshold — best models clear it, worst miss by 30+ points* ![Span chart with 6 horizontal floating bars representing crisis domains. X-axis shows accuracy score 0-100. A dashed red vertical threshold line at 70. Famine and Conflict spans...
+- **Chapter 66: Spiral Plot.** *Q4 Peak, Q2 Trough — The Seasonal Pattern Intensifies Year-Over-YearInner arm = 2021 · Outer arm = 2024 · Bars colored by month* ![Spiral plot showing 4 years of monthly data on an Archimedean spiral. 48 radial bars arranged with one rotation...
+- **Chapter 67: Stacked Area.** *Food Security Anchors 47% of All Funding — Shelter Surged in Mid-2022 Then Normalised as Ukraine Emergency Peaked* ![Stacked area chart with three layers over 12 months. Bottom layer Food Security in dark ink anchors 47% of funding. Middle layer Shelter in...
+- **Chapter 68: Stacked Bar.** *Private funding tripled in two years —but government still anchors the base* *Figure 67.1 — Private funding tripled — government still anchors the base* ![Stacked Bar](../images/67-stacked-bar.png) A stacked bar chart divides each bar into sequential segments representing subcategories of a total. Each...
+- **Chapter 69: Stem Leaf.** *Section B clusters in the 70s and 80s — Section A spreads wider with more extreme values on both ends* *Figure 68.1 — Section B clusters in the 70s and 80s* ![Stem Leaf](../images/68-stem-leaf.png) A Stem and Leaf Plot organises a dataset by...
+- **Chapter 70: Stream Graph.** *Music Genre Dominance — Streaming Volume 2000–2023* *Figure 69.1 — Music Genre Dominance 2000–2023* ![Stream Graph](../images/69-stream-graph.png) A stream graph is a stacked area chart where the baseline is not fixed at zero but is instead computed by a symmetric wiggle algorithm that...
+- **Chapter 71: Sunburst.** *Sunburst Diagram* *Figure 70.1 — Sunburst Diagram* ![Sunburst](../images/70-sunburst.png) A sunburst diagram encodes a **hierarchy as a series of concentric rings** . The centre circle is the root node. Each ring outward represents one level deeper in the hierarchy. Within each ring, arcs...
+- **Chapter 72: Tally Chart.** *Accuracy failures lead at 31 — safety incidents, at 8, may be the most under-reported* *Figure 71.1 — Accuracy failures lead at 31* ![Tally Chart](../images/71-tally-chart.png) A Tally Chart is simultaneously a *data collection method* and a *visual display* . The tally mark...
+- **Chapter 73: Timeline.** *Three Simultaneous Revolutions — Legal, Digital, and Financial —Accelerating in Parallel as Operations Scale and Multiply* *Figure 72.1 — Legal, Digital, and Financial — Accelerating in Parallel* ![Timeline](../images/72-timeline.png) A scaled timeline places events on a proportional time axis — the spatial distance...
+- **Chapter 74: Timetable.** *Monday: Garissa–Mandera Convoy Delayed, Western Corridor Cancelled — Northeast Services Run Concurrent Requiring Coordination* ![Timetable](../images/73-timetable.png) *Figure 73.1 — Monday Route Status* A timetable organises scheduled events along a time axis and a categorical axis (routes, rooms, people, vehicles). The Data Visualisation Catalogue...
+- **Chapter 75: Tree Diagram.** *46 capabilities across 4 domains —click any node to expand its branch* ![Tree Diagram](../images/74-tree-diagram.png) *Figure 74.1 — 46 capabilities across 4 domains* A tree diagram visualises a strictly hierarchical structure — a root node, internal nodes (branches), and leaf nodes — connected...
+- **Chapter 76: Treemap.** *Technology and life sciences dominate global R&D — but the subcategory breakdown reveals where the real concentration lies* ![Treemap](../images/75-treemap.png) *Figure 75.1 — Technology and life sciences dominate* A Treemap encodes a hierarchical dataset as nested rectangles. At the top level, each parent...
+- **Chapter 77: Venn Diagram.** *The Three Skill Domains for Effective AI Collaboration* ![Venn Diagram](../images/76-venn-diagram.png) *Figure 76.1 — The Three Skill Domains* A Venn diagram displays all possible logical relationships between a collection of sets using overlapping circles. Every possible combination of set membership is assigned a...
+- **Chapter 78: Violin Plot.** *When Box Plots Hide Bimodality — Add Density to See Shape* ![Violin Plot](../images/77-violin-plot.png) *Figure 77.1 — When Box Plots Hide Bimodality* A violin plot combines a box plot with a kernel density estimate (KDE). Each "violin" is a vertical (or horizontal) shape...
+- **Chapter 79: Word Cloud.** *Visually Engaging, Analytically Poor — Use With Eyes Open* ![Word Cloud](../images/78-word-cloud.png) *Figure 78.1 — Visually Engaging, Analytically Poor* A word cloud — sometimes called a tag cloud or weighted list — is a text visualization in which words from a corpus are...
 
----
+## Files
 
-## Signature Simulations
+- `chapters/00-frontmatter.md` — title page, copyright, dedication, and preface
+- `chapters/00-introduction.md` — roadmap and book-level AI note
+- `chapters/99-back-matter.md` — acknowledgments, author note, references placeholder, and Medhavy note
+- `LICENSE.md` — rights and reuse terms
 
-| Chapter | Topic | Simulation |
-|---------|-------|------------|
-| 18 | Part II | AI Wayback Machine |
-| 19 | Area Graph | AI Wayback Machine |
-| 20 | Bar Chart | AI Wayback Machine |
-| 21 | Box Plot | AI Wayback Machine |
-| 22 | Box and Whisker Plot | AI Wayback Machine |
-| 23 | Brainstorm | AI Wayback Machine |
-| 24 | Bubble Chart | AI Wayback Machine |
-| 25 | Bubble Map | AI Wayback Machine |
-| 26 | Bullet Graph | AI Wayback Machine |
-| 27 | Candlestick Chart | AI Wayback Machine |
-| 28 | Chord Diagram | AI Wayback Machine |
-| 29 | Choropleth | AI Wayback Machine |
-| 30 | Circle Packing | AI Wayback Machine |
-| 31 | Connection Map | AI Wayback Machine |
-| 32 | Density Plot | AI Wayback Machine |
-| 33 | Donut Chart | AI Wayback Machine |
-| 34 | Dot Map | AI Wayback Machine |
-| 35 | Dot Matrix | AI Wayback Machine |
-| 36 | Error Bars | AI Wayback Machine |
-| 37 | Flow Map | AI Wayback Machine |
-| 38 | Gantt Chart | AI Wayback Machine |
-| 39 | Heatmap | AI Wayback Machine |
-| 40 | Histogram | AI Wayback Machine |
-| 41 | Illustration Diagram | AI Wayback Machine |
-| 42 | Kagi Chart | AI Wayback Machine |
-| 43 | Line Graph | AI Wayback Machine |
-| 44 | Marimekko Chart | AI Wayback Machine |
-| 45 | Multimodal Distribution | AI Wayback Machine |
-| 46 | Multiset Bar | AI Wayback Machine |
-| 47 | Network Diagram | AI Wayback Machine |
-| 48 | Nightingale | AI Wayback Machine |
-| 49 | OHLC Chart | AI Wayback Machine |
-| 50 | Parallel Coordinates | AI Wayback Machine |
-| 51 | Parallel Sets | AI Wayback Machine |
-| 52 | Pictogram Chart | AI Wayback Machine |
-| 53 | Pie Chart | AI Wayback Machine |
-| 54 | Point Figure | AI Wayback Machine |
-| 55 | Population Pyramid | AI Wayback Machine |
-| 56 | Proportional Area | AI Wayback Machine |
-| 57 | Radar Chart | AI Wayback Machine |
-| 58 | Radial Bar | AI Wayback Machine |
-| 59 | Radial Bar Chart | AI Wayback Machine |
-| 60 | Radial Column | AI Wayback Machine |
-| 61 | Radial Column Chart | AI Wayback Machine |
-| 62 | Sankey Diagram | AI Wayback Machine |
-| 63 | Scatterplot | AI Wayback Machine |
-| 64 | Span Chart | AI Wayback Machine |
-| 65 | Spiral Plot | AI Wayback Machine |
-| 66 | Stacked Area | AI Wayback Machine |
-| 67 | Stacked Bar | AI Wayback Machine |
-| 68 | Stem Leaf | AI Wayback Machine |
-| 69 | Stream Graph | AI Wayback Machine |
-| 70 | Sunburst | AI Wayback Machine |
-| 71 | Tally Chart | AI Wayback Machine |
-| 72 | Timeline | AI Wayback Machine |
-| 73 | Timetable | AI Wayback Machine |
-| 74 | Tree Diagram | AI Wayback Machine |
-| 75 | Treemap | AI Wayback Machine |
-| 76 | Venn Diagram | AI Wayback Machine |
-| 77 | Violin Plot | AI Wayback Machine |
-| 78 | Word Cloud | AI Wayback Machine |
+## Medhavy
 
----
-
-## About the Author
-
-**Nik Bear Brown** teaches data science, AI, and visualization at Northeastern University. His work spans machine learning, generative AI, data visualization, and the design of AI-assisted production pipelines. He is the author of the *with LLMs* textbook series and the architect of the **Brutalist** system for AI-assisted creative production — the renderer-agnostic framework whose D3 module is this book and whose other modules include *Brutalist After Effects x Claude*, *Brutalist Blender x Claude*, and *Brutalist Remotion x Claude*. The framework lives at [brutalist.art](https://www.brutalist.art/).
-
-He works in Boston and writes occasionally at his website. He is on most of the major social-media platforms under variations of his name.
-
----
-
-## Copyright
-
-Copyright © 2026 Nik Bear Brown. All rights reserved.
-
-Published by Bear Brown, LLC.
-
-No part of this publication may be reproduced, distributed, or transmitted in any form or by any means without the prior written permission of the publisher, except in the case of brief quotations in critical reviews and certain other noncommercial uses permitted by copyright law.
-
-The visualizations referenced in this book are drawn from the Humanitarians AI D3 example set, used with permission. The pantry of working examples is available alongside the book as a companion repository.
-
-ISBN: [pending]
-
-First edition: 2026
-
+This book is prepared for Kindle, online publication, and integration with Medhavy: https://www.medhavy.com/

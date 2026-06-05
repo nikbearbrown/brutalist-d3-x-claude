@@ -432,6 +432,10 @@ The ideas in this chapter didn't appear from nowhere. **Grace Hopper** wrote the
 ![Grace Hopper, circa 1960. AI-generated portrait based on a public domain photograph.](../images/grace-hopper.jpg)
 *Grace Hopper, circa 1960. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
 
+![Grace Hopper](../images/grace-hopper-w8h.png)
+
+*Puppet Art by [Nik Bear Brown](https://www.nikbearbrown.com/).*
+
 **Run this:**
 
 ```

@@ -82,6 +82,10 @@ The ideas in this chapter didn't appear from nowhere. **Florence Nightingale Dav
 ![Florence Nightingale David, circa 1970. AI-generated portrait based on a public domain photograph.](../images/florence-nightingale-david.jpg)
 *Florence Nightingale David, circa 1970. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
 
+![Florence Nightingale David](../images/florence-nightingale-david-287.png)
+
+*Puppet Art by [Nik Bear Brown](https://www.nikbearbrown.com/).*
+
 **Run this:**
 
 ```

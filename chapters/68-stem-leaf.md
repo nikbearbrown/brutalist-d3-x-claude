@@ -70,6 +70,10 @@ The ideas in this chapter didn't appear from nowhere. **Arthur Lyon Bowley** was
 ![Arthur Lyon Bowley, circa 1920. AI-generated portrait based on a public domain photograph.](../images/arthur-lyon-bowley.jpg)
 *Arthur Lyon Bowley, circa 1920. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
 
+![Arthur Lyon Bowley](../images/arthur-lyon-bowley-1tq.png)
+
+*Puppet Art by [Nik Bear Brown](https://www.nikbearbrown.com/).*
+
 **Run this:**
 
 ```

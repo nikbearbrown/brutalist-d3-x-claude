@@ -66,6 +66,10 @@ The ideas in this chapter didn't appear from nowhere. **Joseph Priestley** drew 
 ![Joseph Priestley, circa 1790. AI-generated portrait based on a public domain engraving.](../images/joseph-priestley.jpg)
 *Joseph Priestley, circa 1790. AI-generated portrait based on a public domain engraving (Wikimedia Commons).*
 
+![Joseph Priestley](../images/joseph-priestley-aog.png)
+
+*Puppet Art by [Nik Bear Brown](https://www.nikbearbrown.com/).*
+
 **Run this:**
 
 ```

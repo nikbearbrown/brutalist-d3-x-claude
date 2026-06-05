@@ -64,6 +64,10 @@ The ideas in this chapter didn't appear from nowhere. **Brian Johnson** co-inven
 ![Brian Johnson, circa 1991. AI-generated portrait based on a public domain photograph.](../images/brian-johnson.jpg)
 *Brian Johnson, circa 1991. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
 
+![Brian Johnson](../images/brian-johnson-lhu.png)
+
+*Puppet Art by [Nik Bear Brown](https://www.nikbearbrown.com/).*
+
 **Run this:**
 
 ```

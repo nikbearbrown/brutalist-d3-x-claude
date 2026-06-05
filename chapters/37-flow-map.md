@@ -71,6 +71,10 @@ The ideas in this chapter didn't appear from nowhere. **Harry Beck** designed th
 ![Harry Beck, circa 1933. AI-generated portrait based on a public domain photograph.](../images/harry-beck.jpg)
 *Harry Beck, circa 1933. AI-generated portrait based on a public domain photograph (Wikimedia Commons).*
 
+![Harry Beck](../images/harry-beck-5np.png)
+
+*Puppet Art by [Nik Bear Brown](https://www.nikbearbrown.com/).*
+
 **Run this:**
 
 ```
