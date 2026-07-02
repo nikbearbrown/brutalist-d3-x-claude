@@ -1,5 +1,5 @@
 # Brutalist d3 x Claude
-## Compact Tik TOC Architecture
+## Compact Blueprint Architecture
 
 **Book type:** Course textbook / practitioner handbook  
 **Status:** Retrospective architecture for an already substantial manuscript  
@@ -34,4 +34,4 @@ The reader can take a dataset and communication goal, choose an appropriate char
 
 ## Production Notes
 
-This book is already content-rich. The Tik TOC should be used to consolidate sequence, remove duplicated chart types, and make the final project arc visible to instructors.
+This book is already content-rich. The Blueprint should be used to consolidate sequence, remove duplicated chart types, and make the final project arc visible to instructors.
